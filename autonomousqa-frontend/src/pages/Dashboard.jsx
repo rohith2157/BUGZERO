@@ -253,28 +253,28 @@ export default function Dashboard() {
                                     onClick={() => navigate(`/tests/${run.id}/report`)}
                                     style={{ cursor: 'pointer', transition: 'background var(--transition-fast)' }}
                                     onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(212, 168, 83, 0.03)'}
-                                    onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}}
+                                    onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
                                 >
-                            <td style={{ padding: '14px', fontSize: 13, fontFamily: "'Geist Mono', 'JetBrains Mono', monospace", color: 'var(--color-accent-gold)' }}>
-                                {run.url.replace('https://', '')}
-                            </td>
-                            <td style={{ padding: '14px' }}><StatusBadge status={run.status} size="sm" /></td>
-                            <td style={{
-                                padding: '14px', fontSize: 14, fontWeight: 700,
-                                color: run.score ? (run.score >= 85 ? '#10B981' : run.score >= 70 ? '#F59E0B' : '#EF4444') : 'var(--text-tertiary)',
-                            }}>
-                                {run.score || '—'}
-                            </td>
-                            <td style={{ padding: '14px', fontSize: 13, color: 'var(--text-secondary)' }}>{run.defects}</td>
-                            <td style={{ padding: '14px', fontSize: 13, color: 'var(--text-secondary)' }}>{run.pages}</td>
-                            <td style={{ padding: '14px', fontSize: 13, color: 'var(--text-secondary)', fontFamily: "'Geist Mono', 'JetBrains Mono', monospace" }}>{run.duration}</td>
-                            <td style={{ padding: '14px', fontSize: 13, color: 'var(--text-tertiary)' }}>{run.date}</td>
-                        </motion.tr>
+                                    <td style={{ padding: '14px', fontSize: 13, fontFamily: "'Geist Mono', 'JetBrains Mono', monospace", color: 'var(--color-accent-gold)' }}>
+                                        {run.url.replace('https://', '')}
+                                    </td>
+                                    <td style={{ padding: '14px' }}><StatusBadge status={run.status} size="sm" /></td>
+                                    <td style={{
+                                        padding: '14px', fontSize: 14, fontWeight: 700,
+                                        color: run.score ? (run.score >= 85 ? '#10B981' : run.score >= 70 ? '#F59E0B' : '#EF4444') : 'var(--text-tertiary)',
+                                    }}>
+                                        {run.score || '—'}
+                                    </td>
+                                    <td style={{ padding: '14px', fontSize: 13, color: 'var(--text-secondary)' }}>{run.defects}</td>
+                                    <td style={{ padding: '14px', fontSize: 13, color: 'var(--text-secondary)' }}>{run.pages}</td>
+                                    <td style={{ padding: '14px', fontSize: 13, color: 'var(--text-secondary)', fontFamily: "'Geist Mono', 'JetBrains Mono', monospace" }}>{run.duration}</td>
+                                    <td style={{ padding: '14px', fontSize: 13, color: 'var(--text-tertiary)' }}>{run.date}</td>
+                                </motion.tr>
                             ))}
-                    </tbody>
-                </table>
-            </div>
-        </motion.div>
+                        </tbody>
+                    </table>
+                </div>
+            </motion.div>
         </motion.div >
     );
 }
