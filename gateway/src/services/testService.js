@@ -45,7 +45,7 @@ export async function triggerAITest(testRun, io) {
                     data: {
                         url: page.url,
                         pageType: page.page_type,
-                        hygieneScore: page.hygiene_score,
+                        hygieneScore: Math.min(100, Math.max(0, page.hygiene_score || 0)),
                         status: 'tested',
                         runId: testRun.id,
                     },
