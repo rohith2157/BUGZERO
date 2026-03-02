@@ -59,7 +59,7 @@ export default function Dashboard() {
                 const totalRuns = data.total || runs.length;
                 const completedRuns = runs.filter((r) => r.score != null);
                 const avgScore = completedRuns.length > 0
-                    ? completedRuns.reduce((s, r) => s + r.score, 0) / completedRuns.length
+                    ? Math.min(100, completedRuns.reduce((s, r) => s + r.score, 0) / completedRuns.length)
                     : 0;
                 const totalDefects = runs.reduce((s, r) => s + r.defects, 0);
 

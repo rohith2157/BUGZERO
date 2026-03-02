@@ -1,7 +1,8 @@
 import { motion, useMotionValue, useTransform, animate } from 'framer-motion';
 import { useEffect, useRef } from 'react';
 
-export default function HygieneScoreGauge({ score = 0, size = 180, label = 'Hygiene Score' }) {
+export default function HygieneScoreGauge({ score: rawScore = 0, size = 180, label = 'Hygiene Score' }) {
+    const score = Math.max(0, Math.min(100, rawScore));
     const radius = (size - 20) / 2;
     const circumference = 2 * Math.PI * radius;
     const progress = score / 100;

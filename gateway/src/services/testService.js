@@ -122,7 +122,7 @@ export async function triggerAITest(testRun, io) {
         const pages = await prisma.page.findMany({ where: { runId: testRun.id } });
         const defectCount = await prisma.defect.count({ where: { runId: testRun.id } });
         const avgScore = pages.length > 0
-            ? pages.reduce((sum, p) => sum + (p.hygieneScore || 0), 0) / pages.length
+            ? Math.min(100, pages.reduce((sum, p) => sum + (p.hygieneScore || 0), 0) / pages.length)
             : 0;
 
         const completedAt = new Date();

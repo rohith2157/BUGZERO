@@ -143,9 +143,9 @@ router.get('/:id/compliance', authenticate, uuidParam, validate, async (req, res
         const wcagViolations = results.filter(r => r.standard === 'WCAG').length;
         const gdprViolations = results.filter(r => r.standard === 'GDPR').length;
 
-        const overallScore = Math.max(0, 100 - totalViolations * 3);
-        const wcagScore = Math.max(0, 100 - wcagViolations * 4);
-        const gdprScore = Math.max(0, 100 - gdprViolations * 5);
+        const overallScore = Math.max(0, Math.min(100, 100 - totalViolations * 3));
+        const wcagScore = Math.max(0, Math.min(100, 100 - wcagViolations * 4));
+        const gdprScore = Math.max(0, Math.min(100, 100 - gdprViolations * 5));
 
         res.json({
             scores: { overall: overallScore, wcag: wcagScore, gdpr: gdprScore },

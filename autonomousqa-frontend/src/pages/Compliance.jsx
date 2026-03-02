@@ -20,9 +20,9 @@ export default function Compliance() {
     useEffect(() => {
         testsApi.compliance(id).then(data => {
             setComplianceData({
-                overallScore: data.scores?.overall ?? 0,
-                wcagScore: data.scores?.wcag ?? 0,
-                gdprScore: data.scores?.gdpr ?? 0,
+                overallScore: Math.min(100, data.scores?.overall ?? 0),
+                wcagScore: Math.min(100, data.scores?.wcag ?? 0),
+                gdprScore: Math.min(100, data.scores?.gdpr ?? 0),
                 violations: (data.violations || []).map((v, i) => ({
                     id: v.id || i,
                     standard: v.standard,
