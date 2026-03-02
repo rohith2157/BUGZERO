@@ -42,7 +42,7 @@ export default function HygieneScoreGauge({ score = 0, size = 180, label = 'Hygi
                     <circle
                         cx={size / 2} cy={size / 2} r={radius}
                         fill="none"
-                        stroke="rgba(148, 163, 184, 0.08)"
+                        stroke="rgba(255, 255, 255, 0.04)"
                         strokeWidth={10}
                     />
                     {/* progress arc */}
@@ -77,7 +77,7 @@ export default function HygieneScoreGauge({ score = 0, size = 180, label = 'Hygi
                             fontWeight: 800,
                             color: color,
                             lineHeight: 1,
-                            fontFamily: "'Outfit', sans-serif",
+                            fontFamily: "'Plus Jakarta Sans', sans-serif",
                             filter: `drop-shadow(0 0 10px ${color}30)`,
                         }}
                     >

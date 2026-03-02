@@ -3,7 +3,7 @@ import { severityConfig } from '../../data/mockData';
 export default function StatusBadge({ status, size = 'md' }) {
     const configs = {
         completed: { color: '#10B981', bg: 'rgba(16, 185, 129, 0.12)', border: 'rgba(16, 185, 129, 0.3)', label: 'Completed' },
-        running: { color: '#3B82F6', bg: 'rgba(59, 130, 246, 0.12)', border: 'rgba(59, 130, 246, 0.3)', label: 'Running' },
+        running: { color: '#D4A853', bg: 'rgba(212, 168, 83, 0.12)', border: 'rgba(212, 168, 83, 0.3)', label: 'Running' },
         failed: { color: '#EF4444', bg: 'rgba(239, 68, 68, 0.12)', border: 'rgba(239, 68, 68, 0.3)', label: 'Failed' },
         queued: { color: '#64748B', bg: 'rgba(100, 116, 139, 0.12)', border: 'rgba(100, 116, 139, 0.3)', label: 'Queued' },
         testing: { color: '#F59E0B', bg: 'rgba(245, 158, 11, 0.12)', border: 'rgba(245, 158, 11, 0.3)', label: 'Testing' },
