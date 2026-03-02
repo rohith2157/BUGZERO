@@ -136,7 +136,7 @@ export const performanceData = {
     { date: 'Feb 25', lcp: 1.8, fid: 45, cls: 0.08, ttfb: 320 },
   ],
   waterfall: [
-    { resource: 'document', type: 'HTML', size: '14 KB', duration: 120, start: 0, color: '#3B82F6' },
+    { resource: 'document', type: 'HTML', size: '14 KB', duration: 120, start: 0, color: '#D4A853' },
     { resource: 'main.css', type: 'CSS', size: '48 KB', duration: 85, start: 120, color: '#8B5CF6' },
     { resource: 'vendor.js', type: 'JS', size: '245 KB', duration: 340, start: 120, color: '#F59E0B' },
     { resource: 'app.js', type: 'JS', size: '180 KB', duration: 280, start: 120, color: '#F59E0B' },
@@ -173,7 +173,7 @@ export const apiKeys = [
 ];
 
 export const defectTypeColors = {
-  Functional: '#3B82F6',
+  Functional: '#D4A853',
   Accessibility: '#8B5CF6',
   Performance: '#F59E0B',
   SEO: '#06B6D4',
