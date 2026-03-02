@@ -29,14 +29,14 @@ export default function TopBar() {
             initial={{ y: -10, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             style={{
-                height: 64,
+                height: 56,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
-                padding: '0 32px',
-                background: 'rgba(6, 9, 15, 0.6)',
+                padding: '0 28px',
+                background: 'rgba(9, 9, 11, 0.7)',
                 backdropFilter: 'blur(20px)',
-                borderBottom: '1px solid var(--border-subtle)',
+                borderBottom: '1px solid rgba(255,255,255,0.05)',
                 position: 'sticky',
                 top: 0,
                 zIndex: 30,
@@ -45,7 +45,7 @@ export default function TopBar() {
             {/* Page Title */}
             <div>
                 <h1 style={{
-                    fontSize: 20,
+                    fontSize: 16,
                     fontWeight: 700,
                     letterSpacing: '-0.02em',
                     color: 'var(--text-primary)',
@@ -55,31 +55,32 @@ export default function TopBar() {
             </div>
 
             {/* Right Actions */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                 {/* Search */}
                 <div style={{
                     display: 'flex',
                     alignItems: 'center',
                     gap: 8,
-                    padding: '8px 14px',
-                    background: 'rgba(148, 163, 184, 0.06)',
-                    border: '1px solid var(--border-subtle)',
+                    padding: '7px 14px',
+                    background: 'rgba(255,255,255,0.03)',
+                    border: '1px solid rgba(255,255,255,0.06)',
                     borderRadius: 'var(--radius-full)',
                     color: 'var(--text-tertiary)',
                     fontSize: 13,
-                    minWidth: 200,
+                    minWidth: 180,
                     cursor: 'pointer',
-                    transition: 'all var(--transition-fast)',
+                    transition: 'all 0.15s ease',
                 }}>
                     <Search size={14} />
                     <span>Search...</span>
                     <span style={{
                         marginLeft: 'auto',
-                        fontSize: 11,
+                        fontSize: 10,
                         padding: '2px 6px',
-                        background: 'rgba(148, 163, 184, 0.1)',
+                        background: 'rgba(255,255,255,0.06)',
                         borderRadius: 4,
-                        fontFamily: "'JetBrains Mono', monospace",
+                        fontFamily: "'Geist Mono', 'JetBrains Mono', monospace",
+                        color: 'var(--text-tertiary)',
                     }}>⌘K</span>
                 </div>
 

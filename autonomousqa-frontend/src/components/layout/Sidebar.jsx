@@ -41,8 +41,8 @@ export default function Sidebar({ collapsed, setCollapsed }) {
     return (
         <motion.aside
             initial={false}
-            animate={{ width: collapsed ? 72 : 260 }}
-            transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
+            animate={{ width: collapsed ? 68 : 240 }}
+            transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
             style={{
                 position: 'fixed',
                 top: 0,
@@ -51,32 +51,31 @@ export default function Sidebar({ collapsed, setCollapsed }) {
                 zIndex: 40,
                 display: 'flex',
                 flexDirection: 'column',
-                background: 'linear-gradient(180deg, rgba(11, 17, 32, 0.95) 0%, rgba(6, 9, 15, 0.98) 100%)',
-                borderRight: '1px solid var(--border-subtle)',
-                backdropFilter: 'blur(20px)',
+                background: '#0C0C0E',
+                borderRight: '1px solid rgba(255,255,255,0.05)',
                 overflow: 'hidden',
             }}
         >
             {/* Logo */}
             <div style={{
-                padding: collapsed ? '20px 16px' : '20px 24px',
+                padding: collapsed ? '18px 14px' : '18px 20px',
                 display: 'flex',
                 alignItems: 'center',
-                gap: 12,
-                minHeight: 64,
+                gap: 10,
+                minHeight: 56,
             }}>
                 <div style={{
-                    width: 36,
-                    height: 36,
-                    borderRadius: 10,
+                    width: 32,
+                    height: 32,
+                    borderRadius: 8,
                     background: 'var(--gradient-primary)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     flexShrink: 0,
-                    boxShadow: 'var(--shadow-glow-blue)',
+                    boxShadow: 'var(--shadow-glow-gold)',
                 }}>
-                    <FlaskConical size={20} color="#fff" />
+                    <FlaskConical size={17} color="#09090B" />
                 </div>
                 <AnimatePresence>
                     {!collapsed && (
@@ -84,24 +83,21 @@ export default function Sidebar({ collapsed, setCollapsed }) {
                             initial={{ opacity: 0, x: -10 }}
                             animate={{ opacity: 1, x: 0 }}
                             exit={{ opacity: 0, x: -10 }}
-                            transition={{ duration: 0.2 }}
+                            transition={{ duration: 0.15 }}
                         >
-                            <div style={{ fontWeight: 700, fontSize: 16, letterSpacing: '-0.02em', color: 'var(--text-primary)' }}>
-                                Autonomous<span style={{ color: 'var(--color-accent-blue)' }}>QA</span>
-                            </div>
-                            <div style={{ fontSize: 11, color: 'var(--text-tertiary)', fontWeight: 500, letterSpacing: '0.05em', textTransform: 'uppercase' }}>
-                                Zero-Touch Testing
+                            <div style={{ fontWeight: 700, fontSize: 15, letterSpacing: '-0.02em', color: 'var(--text-primary)' }}>
+                                Autonomous<span style={{ color: 'var(--color-accent-gold)' }}>QA</span>
                             </div>
                         </motion.div>
                     )}
                 </AnimatePresence>
             </div>
 
-            {/* Glow divider */}
-            <div className="glow-line" style={{ margin: '0 16px' }} />
+            {/* Divider */}
+            <div style={{ height: 1, background: 'rgba(255,255,255,0.04)', margin: '0 12px' }} />
 
             {/* Nav */}
-            <nav style={{ flex: 1, padding: '16px 12px', display: 'flex', flexDirection: 'column', gap: 4, overflowY: 'auto' }}>
+            <nav style={{ flex: 1, padding: '12px 8px', display: 'flex', flexDirection: 'column', gap: 2, overflowY: 'auto' }}>
                 {navItems.map(({ to, icon: Icon, label }) => {
                     const isActive = location.pathname === to;
                     return (
@@ -111,19 +107,19 @@ export default function Sidebar({ collapsed, setCollapsed }) {
                             style={{ textDecoration: 'none' }}
                         >
                             <motion.div
-                                whileHover={{ x: 2 }}
+                                whileHover={{ background: 'rgba(255,255,255,0.04)' }}
                                 whileTap={{ scale: 0.98 }}
                                 style={{
                                     display: 'flex',
                                     alignItems: 'center',
-                                    gap: 12,
-                                    padding: collapsed ? '12px 16px' : '10px 14px',
-                                    borderRadius: 'var(--radius-md)',
+                                    gap: 10,
+                                    padding: collapsed ? '10px 14px' : '9px 12px',
+                                    borderRadius: 8,
                                     cursor: 'pointer',
                                     position: 'relative',
-                                    color: isActive ? 'var(--text-primary)' : 'var(--text-secondary)',
-                                    background: isActive ? 'rgba(59, 130, 246, 0.1)' : 'transparent',
-                                    transition: 'all var(--transition-fast)',
+                                    color: isActive ? 'var(--text-primary)' : 'var(--text-tertiary)',
+                                    background: isActive ? 'rgba(212, 168, 83, 0.08)' : 'transparent',
+                                    transition: 'all 0.15s ease',
                                     justifyContent: collapsed ? 'center' : 'flex-start',
                                 }}
                             >
@@ -135,16 +131,16 @@ export default function Sidebar({ collapsed, setCollapsed }) {
                                             left: 0,
                                             top: '50%',
                                             transform: 'translateY(-50%)',
-                                            width: 3,
-                                            height: 20,
-                                            borderRadius: 3,
-                                            background: 'var(--gradient-primary)',
-                                            boxShadow: 'var(--shadow-glow-blue)',
+                                            width: 2,
+                                            height: 16,
+                                            borderRadius: 2,
+                                            background: 'var(--color-accent-gold)',
+                                            boxShadow: '0 0 8px rgba(212,168,83,0.4)',
                                         }}
                                         transition={{ type: 'spring', stiffness: 500, damping: 35 }}
                                     />
                                 )}
-                                <Icon size={20} style={{ flexShrink: 0, opacity: isActive ? 1 : 0.7 }} />
+                                <Icon size={18} style={{ flexShrink: 0, opacity: isActive ? 1 : 0.55, color: isActive ? 'var(--color-accent-gold)' : undefined }} />
                                 <AnimatePresence>
                                     {!collapsed && (
                                         <motion.span
@@ -152,9 +148,10 @@ export default function Sidebar({ collapsed, setCollapsed }) {
                                             animate={{ opacity: 1 }}
                                             exit={{ opacity: 0 }}
                                             style={{
-                                                fontSize: 14,
+                                                fontSize: 13,
                                                 fontWeight: isActive ? 600 : 400,
                                                 whiteSpace: 'nowrap',
+                                                letterSpacing: '-0.01em',
                                             }}
                                         >
                                             {label}
@@ -168,26 +165,26 @@ export default function Sidebar({ collapsed, setCollapsed }) {
             </nav>
 
             {/* Collapse button */}
-            <div style={{ padding: '12px', borderTop: '1px solid var(--border-subtle)' }}>
+            <div style={{ padding: '10px 8px', borderTop: '1px solid rgba(255,255,255,0.04)' }}>
                 <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.97 }}
                     onClick={() => setCollapsed(!collapsed)}
                     aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
                     style={{
                         width: '100%',
-                        padding: '8px',
+                        padding: '7px',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        gap: 8,
-                        background: 'rgba(148, 163, 184, 0.06)',
-                        border: '1px solid var(--border-subtle)',
-                        borderRadius: 'var(--radius-md)',
+                        gap: 6,
+                        background: 'rgba(255,255,255,0.03)',
+                        border: '1px solid rgba(255,255,255,0.04)',
+                        borderRadius: 8,
                         color: 'var(--text-tertiary)',
                         cursor: 'pointer',
-                        fontSize: 12,
-                        transition: 'all var(--transition-fast)',
+                        fontSize: 11,
+                        transition: 'all 0.15s ease',
                     }}
                 >
                     {collapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
