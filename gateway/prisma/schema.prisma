@@ -1,0 +1,180 @@
+// Prisma schema for AutonomousQA
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String         @id @default(uuid())
+  email         String         @unique
+  password      String
+  name          String
+  avatar        String?
+  role          String         @default("developer")
+  orgId         String?
+  org           Organization?  @relation(fields: [orgId], references: [id])
+  testRuns      TestRun[]
+  apiKeys       ApiKey[]
+  notifications Notification[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  @@map("users")
+}
+
+model Organization {
+  id        String     @id @default(uuid())
+  name      String
+  plan      String     @default("free")
+  apiQuota  Int        @default(5)
+  logoUrl   String?
+  users     User[]
+  testRuns  TestRun[]
+  playbooks AuthPlaybook[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  @@map("organizations")
+}
+
+model TestRun {
+  id          String    @id @default(uuid())
+  url         String
+  status      String    @default("queued")
+  config      Json?
+  totalPages  Int       @default(0)
+  testedPages Int       @default(0)
+  defectCount Int       @default(0)
+  overallScore Float?
+  startedAt   DateTime  @default(now())
+  completedAt DateTime?
+  duration    String?
+  userId      String
+  user        User      @relation(fields: [userId], references: [id])
+  orgId       String?
+  org         Organization? @relation(fields: [orgId], references: [id])
+  pages       Page[]
+  defects     Defect[]
+  complianceResults ComplianceResult[]
+  performanceMetrics PerformanceMetric[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@map("test_runs")
+}
+
+model Page {
+  id           String    @id @default(uuid())
+  url          String
+  pageType     String?
+  hygieneScore Float?
+  status       String    @default("queued")
+  runId        String
+  run          TestRun   @relation(fields: [runId], references: [id], onDelete: Cascade)
+  defects      Defect[]
+  complianceResults ComplianceResult[]
+  performanceMetrics PerformanceMetric[]
+  createdAt    DateTime  @default(now())
+
+  @@map("pages")
+}
+
+model Defect {
+  id          String   @id @default(uuid())
+  type        String
+  severity    String
+  message     String
+  fix         String?
+  screenshot  String?
+  confidence  Float?
+  pageUrl     String
+  pageId      String?
+  page        Page?    @relation(fields: [pageId], references: [id], onDelete: SetNull)
+  runId       String
+  run         TestRun  @relation(fields: [runId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+
+  @@map("defects")
+}
+
+model ComplianceResult {
+  id          String  @id @default(uuid())
+  standard    String
+  criterion   String
+  severity    String
+  description String
+  count       Int     @default(1)
+  remediation String?
+  pageUrl     String
+  pageId      String?
+  page        Page?   @relation(fields: [pageId], references: [id], onDelete: SetNull)
+  runId       String
+  run         TestRun @relation(fields: [runId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+
+  @@map("compliance_results")
+}
+
+model PerformanceMetric {
+  id         String   @id @default(uuid())
+  metricName String
+  value      Float
+  rating     String?
+  pageUrl    String
+  pageId     String?
+  page       Page?    @relation(fields: [pageId], references: [id], onDelete: SetNull)
+  runId      String
+  run        TestRun  @relation(fields: [runId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+
+  @@map("performance_metrics")
+}
+
+model AuthPlaybook {
+  id          String       @id @default(uuid())
+  name        String
+  domain      String
+  authType    String
+  config      Json?
+  successRate Float        @default(0)
+  status      String       @default("active")
+  lastUsed    DateTime?
+  orgId       String
+  org         Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  @@map("auth_playbooks")
+}
+
+model ApiKey {
+  id        String    @id @default(uuid())
+  name      String
+  key       String    @unique
+  status    String    @default("active")
+  lastUsed  DateTime?
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime  @default(now())
+
+  @@map("api_keys")
+}
+
+model Notification {
+  id        String    @id @default(uuid())
+  type      String
+  title     String
+  message   String
+  payload   Json?
+  read      Boolean   @default(false)
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime  @default(now())
+
+  @@map("notifications")
+}

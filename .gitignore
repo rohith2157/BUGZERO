@@ -1,0 +1,85 @@
+# ========================
+# Dependencies
+# ========================
+node_modules/
+.pnp
+.pnp.js
+
+# ========================
+# Environment Variables
+# ========================
+.env
+.env.local
+.env.*.local
+
+# ========================
+# Build Outputs
+# ========================
+dist/
+build/
+*.egg-info/
+
+# ========================
+# Python
+# ========================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.venv/
+venv/
+.pytest_cache/
+htmlcov/
+.coverage
+*.egg
+
+# ========================
+# IDE & Editors
+# ========================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+
+# ========================
+# OS Files
+# ========================
+.DS_Store
+Thumbs.db
+Desktop.ini
+*.lnk
+
+# ========================
+# Logs & Temp
+# ========================
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ========================
+# Misc
+# ========================
+.vercel
+.netlify
+*.tgz
+.cache
+.parcel-cache
+
+# ========================
+# Project-Specific
+# ========================
+ai-core/screenshots/
+ai-core/results/
+skills-lock.json
+extract_docx.py
+extracted_text.txt
+AutonomousQA_Full_Roadmap.docx
+AutonomousQA_Modularity.md
+AutonomousQA_Premium_Roadmap.md
+.agents/

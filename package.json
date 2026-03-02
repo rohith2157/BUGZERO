@@ -1,0 +1,19 @@
+{
+  "name": "autonomousqa",
+  "version": "1.0.0",
+  "private": true,
+  "description": "AI-powered autonomous QA engine — Zero-Touch, Zero-Script, Zero-Compromise",
+  "scripts": {
+    "dev": "echo 'Run each service individually — see README.md'",
+    "dev:frontend": "cd autonomousqa-frontend && npm run dev",
+    "dev:gateway": "cd gateway && npm run dev",
+    "dev:ai-core": "cd ai-core && .\\venv\\Scripts\\python main.py",
+    "db:up": "docker-compose up -d",
+    "db:down": "docker-compose down",
+    "db:migrate": "cd gateway && npx prisma db push",
+    "db:seed": "cd gateway && node prisma/seed.js",
+    "db:studio": "cd gateway && npx prisma studio",
+    "install:all": "cd gateway && npm install && cd ../autonomousqa-frontend && npm install",
+    "setup": "npm run db:up && timeout /t 5 && npm run db:migrate && npm run db:seed"
+  }
+}
