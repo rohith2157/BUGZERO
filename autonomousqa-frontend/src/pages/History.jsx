@@ -49,7 +49,7 @@ export default function History() {
     if (loading) {
         return (
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '60vh', gap: 12 }}>
-                <Loader2 size={24} style={{ animation: 'spin-slow 1s linear infinite', color: 'var(--color-accent-blue)' }} />
+                <Loader2 size={24} style={{ animation: 'spin-slow 1s linear infinite', color: 'var(--color-accent-gold)' }} />
                 <span style={{ color: 'var(--text-secondary)' }}>Loading history...</span>
             </div>
         );
@@ -62,9 +62,9 @@ export default function History() {
                 <div style={{
                     display: 'flex', alignItems: 'center', gap: 8,
                     padding: '8px 14px', flex: 1, minWidth: 200, maxWidth: 400,
-                    background: 'rgba(148, 163, 184, 0.06)',
-                    border: '1px solid var(--border-default)',
-                    borderRadius: 'var(--radius-md)',
+                    background: 'rgba(255, 255, 255, 0.03)',
+                    border: '1px solid rgba(255,255,255,0.06)',
+                    borderRadius: 10,
                 }}>
                     <Search size={15} style={{ color: 'var(--text-tertiary)' }} />
                     <input
@@ -85,10 +85,10 @@ export default function History() {
                             onClick={() => setStatusFilter(s)}
                             style={{
                                 padding: '7px 14px', fontSize: 12, fontWeight: 600,
-                                background: statusFilter === s ? 'rgba(59, 130, 246, 0.12)' : 'rgba(148, 163, 184, 0.06)',
-                                border: `1px solid ${statusFilter === s ? 'rgba(59, 130, 246, 0.3)' : 'var(--border-subtle)'}`,
+                                background: statusFilter === s ? 'rgba(212, 168, 83, 0.1)' : 'rgba(255, 255, 255, 0.03)',
+                                border: `1px solid ${statusFilter === s ? 'rgba(212, 168, 83, 0.2)' : 'rgba(255,255,255,0.05)'}`,
                                 borderRadius: 'var(--radius-full)',
-                                color: statusFilter === s ? 'var(--text-accent)' : 'var(--text-secondary)',
+                                color: statusFilter === s ? 'var(--color-accent-gold)' : 'var(--text-secondary)',
                                 cursor: 'pointer', transition: 'all var(--transition-fast)',
                                 textTransform: 'capitalize',
                             }}
@@ -109,10 +109,10 @@ export default function History() {
                             onClick={() => setSortBy(key)}
                             style={{
                                 padding: '7px 12px', fontSize: 12, fontWeight: 500,
-                                background: sortBy === key ? 'rgba(139, 92, 246, 0.12)' : 'rgba(148, 163, 184, 0.06)',
-                                border: `1px solid ${sortBy === key ? 'rgba(139, 92, 246, 0.3)' : 'var(--border-subtle)'}`,
+                                background: sortBy === key ? 'rgba(167, 139, 250, 0.1)' : 'rgba(255, 255, 255, 0.03)',
+                                border: `1px solid ${sortBy === key ? 'rgba(167, 139, 250, 0.2)' : 'rgba(255,255,255,0.05)'}`,
                                 borderRadius: 'var(--radius-full)',
-                                color: sortBy === key ? '#8B5CF6' : 'var(--text-tertiary)',
+                                color: sortBy === key ? 'var(--color-accent-purple)' : 'var(--text-tertiary)',
                                 cursor: 'pointer', transition: 'all var(--transition-fast)',
                                 display: 'flex', alignItems: 'center', gap: 4,
                             }}
@@ -157,10 +157,10 @@ export default function History() {
                                         borderBottom: '1px solid var(--border-subtle)',
                                         transition: 'background var(--transition-fast)',
                                     }}
-                                    onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(59, 130, 246, 0.04)'}
+                                    onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(212, 168, 83, 0.03)'}
                                     onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
                                 >
-                                    <td style={{ padding: '14px', fontSize: 13, fontFamily: "'JetBrains Mono', monospace", color: 'var(--text-accent)' }}>
+                                    <td style={{ padding: '14px', fontSize: 13, fontFamily: "'Geist Mono', 'JetBrains Mono', monospace", color: 'var(--color-accent-gold)' }}>
                                         {run.url.replace('https://', '')}
                                     </td>
                                     <td style={{ padding: '14px' }}><StatusBadge status={run.status} size="sm" /></td>
@@ -190,7 +190,7 @@ export default function History() {
                                     </td>
                                     <td style={{ padding: '14px', fontSize: 13, color: 'var(--text-secondary)' }}>{run.defects}</td>
                                     <td style={{ padding: '14px', fontSize: 13, color: 'var(--text-secondary)' }}>{run.pages}</td>
-                                    <td style={{ padding: '14px', fontSize: 13, color: 'var(--text-secondary)', fontFamily: "'JetBrains Mono', monospace" }}>{run.duration}</td>
+                                    <td style={{ padding: '14px', fontSize: 13, color: 'var(--text-secondary)', fontFamily: "'Geist Mono', 'JetBrains Mono', monospace" }}>{run.duration}</td>
                                     <td style={{ padding: '14px', fontSize: 13, color: 'var(--text-tertiary)' }}>{run.date}</td>
                                     <td style={{ padding: '14px' }}>
                                         <ExternalLink size={14} style={{ color: 'var(--text-tertiary)' }} />

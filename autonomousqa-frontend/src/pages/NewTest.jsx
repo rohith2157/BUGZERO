@@ -91,12 +91,12 @@ export default function NewTest() {
                 </label>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                     <div style={{
-                        width: 42, height: 42, borderRadius: 'var(--radius-md)',
-                        background: 'rgba(59, 130, 246, 0.1)',
+                        width: 42, height: 42, borderRadius: 10,
+                        background: 'rgba(212, 168, 83, 0.08)',
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
                         flexShrink: 0,
                     }}>
-                        <Globe size={20} style={{ color: 'var(--color-accent-blue)' }} />
+                        <Globe size={20} style={{ color: 'var(--color-accent-gold)' }} />
                     </div>
                     <input
                         type="url"
@@ -105,16 +105,16 @@ export default function NewTest() {
                         placeholder="https://your-application.com"
                         style={{
                             flex: 1, padding: '14px 18px', fontSize: 15,
-                            background: 'rgba(148, 163, 184, 0.06)',
-                            border: '1px solid var(--border-default)',
-                            borderRadius: 'var(--radius-md)',
+                            background: 'rgba(255, 255, 255, 0.03)',
+                            border: '1px solid rgba(255,255,255,0.06)',
+                            borderRadius: 10,
                             color: 'var(--text-primary)',
                             outline: 'none',
-                            fontFamily: "'JetBrains Mono', monospace",
+                            fontFamily: "'Geist Mono', 'JetBrains Mono', monospace",
                             transition: 'border-color var(--transition-fast)',
                         }}
-                        onFocus={(e) => e.target.style.borderColor = 'var(--color-accent-blue)'}
-                        onBlur={(e) => e.target.style.borderColor = 'var(--border-default)'}
+                        onFocus={(e) => e.target.style.borderColor = 'var(--color-accent-gold)'}
+                        onBlur={(e) => e.target.style.borderColor = 'rgba(255,255,255,0.06)'}}
                     />
                 </div>
             </motion.div>
@@ -139,10 +139,10 @@ export default function NewTest() {
                                 onClick={() => setBrowser(b)}
                                 style={{
                                     padding: '10px 14px', borderRadius: 'var(--radius-md)',
-                                    background: browser === b ? 'rgba(59, 130, 246, 0.1)' : 'rgba(148, 163, 184, 0.04)',
-                                    border: `1px solid ${browser === b ? 'rgba(59, 130, 246, 0.3)' : 'var(--border-subtle)'}`,
+                                    background: browser === b ? 'rgba(212, 168, 83, 0.08)' : 'rgba(255, 255, 255, 0.02)',
+                                    border: `1px solid ${browser === b ? 'rgba(212, 168, 83, 0.2)' : 'rgba(255,255,255,0.05)'}`,
                                     cursor: 'pointer', fontSize: 14, fontWeight: browser === b ? 600 : 400,
-                                    color: browser === b ? 'var(--text-accent)' : 'var(--text-secondary)',
+                                    color: browser === b ? 'var(--color-accent-gold)' : 'var(--text-secondary)',
                                     transition: 'all var(--transition-fast)',
                                 }}
                             >
@@ -170,10 +170,10 @@ export default function NewTest() {
                                 onClick={() => setDepth(d)}
                                 style={{
                                     padding: '10px 14px', borderRadius: 'var(--radius-md)',
-                                    background: depth === d ? 'rgba(59, 130, 246, 0.1)' : 'rgba(148, 163, 184, 0.04)',
-                                    border: `1px solid ${depth === d ? 'rgba(59, 130, 246, 0.3)' : 'var(--border-subtle)'}`,
+                                    background: depth === d ? 'rgba(212, 168, 83, 0.08)' : 'rgba(255, 255, 255, 0.02)',
+                                    border: `1px solid ${depth === d ? 'rgba(212, 168, 83, 0.2)' : 'rgba(255,255,255,0.05)'}`,
                                     cursor: 'pointer', fontSize: 14, fontWeight: depth === d ? 600 : 400,
-                                    color: depth === d ? 'var(--text-accent)' : 'var(--text-secondary)',
+                                    color: depth === d ? 'var(--color-accent-gold)' : 'var(--text-secondary)',
                                     transition: 'all var(--transition-fast)',
                                 }}
                             >
@@ -200,8 +200,8 @@ export default function NewTest() {
                     onChange={(e) => setPlaybook(e.target.value)}
                     style={{
                         width: '100%', padding: '12px 16px', fontSize: 14,
-                        background: 'rgba(148, 163, 184, 0.06)',
-                        border: '1px solid var(--border-default)',
+                        background: 'rgba(255, 255, 255, 0.03)',
+                        border: '1px solid rgba(255,255,255,0.06)',
                         borderRadius: 'var(--radius-md)',
                         color: 'var(--text-primary)',
                         outline: 'none',
@@ -236,16 +236,16 @@ export default function NewTest() {
                                 display: 'flex', alignItems: 'center', gap: 12,
                                 padding: '14px',
                                 borderRadius: 'var(--radius-md)',
-                                background: features[key] ? 'rgba(59, 130, 246, 0.08)' : 'rgba(148, 163, 184, 0.04)',
-                                border: `1px solid ${features[key] ? 'rgba(59, 130, 246, 0.25)' : 'var(--border-subtle)'}`,
+                                background: features[key] ? 'rgba(212, 168, 83, 0.06)' : 'rgba(255, 255, 255, 0.02)',
+                                border: `1px solid ${features[key] ? 'rgba(212, 168, 83, 0.18)' : 'rgba(255,255,255,0.05)'}`,
                                 cursor: 'pointer',
                                 transition: 'all var(--transition-fast)',
                             }}
                         >
                             <div style={{
                                 width: 20, height: 20, borderRadius: 5,
-                                border: `2px solid ${features[key] ? 'var(--color-accent-blue)' : 'var(--text-tertiary)'}`,
-                                background: features[key] ? 'var(--color-accent-blue)' : 'transparent',
+                                border: `2px solid ${features[key] ? 'var(--color-accent-gold)' : 'var(--text-tertiary)'}`,
+                                background: features[key] ? 'var(--color-accent-gold)' : 'transparent',
                                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                                 flexShrink: 0,
                                 transition: 'all var(--transition-fast)',
@@ -278,17 +278,17 @@ export default function NewTest() {
                 </div>
             )}
             <motion.button
-                whileHover={{ scale: 1.02, boxShadow: '0 0 40px rgba(59,130,246,0.3)' }}
+                whileHover={{ scale: 1.02, boxShadow: '0 0 40px rgba(212,168,83,0.25)' }}
                 whileTap={{ scale: 0.98 }}
                 onClick={handleLaunch}
                 disabled={!url || launching}
                 style={{
                     width: '100%', padding: '16px', fontSize: 16, fontWeight: 700,
-                    background: !url ? 'rgba(59,130,246,0.3)' : 'var(--gradient-primary)', color: '#fff',
-                    border: 'none', borderRadius: 'var(--radius-lg)',
+                    background: !url ? 'rgba(212,168,83,0.3)' : 'var(--color-accent-gold)', color: '#09090B',
+                    border: 'none', borderRadius: 12,
                     cursor: !url || launching ? 'not-allowed' : 'pointer',
                     display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
-                    boxShadow: url ? 'var(--shadow-glow-blue)' : 'none',
+                    boxShadow: url ? '0 0 24px rgba(212,168,83,0.2)' : 'none',
                     opacity: launching ? 0.7 : 1,
                 }}
             >
