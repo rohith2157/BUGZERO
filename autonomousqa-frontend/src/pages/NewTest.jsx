@@ -114,7 +114,7 @@ export default function NewTest() {
                             transition: 'border-color var(--transition-fast)',
                         }}
                         onFocus={(e) => e.target.style.borderColor = 'var(--color-accent-gold)'}
-                        onBlur={(e) => e.target.style.borderColor = 'rgba(255,255,255,0.06)'}}
+                        onBlur={(e) => e.target.style.borderColor = 'rgba(255,255,255,0.06)'}
                     />
                 </div>
             </motion.div>
