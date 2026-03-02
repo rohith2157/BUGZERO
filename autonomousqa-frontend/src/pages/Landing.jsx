@@ -3,29 +3,29 @@ import { useNavigate } from 'react-router-dom';
 import {
     Zap, Shield, Eye, BarChart3, Gauge, Scale,
     ArrowRight, Github, Chrome, Mail, FlaskConical,
-    Sparkles, Bot, Globe
+    Sparkles, Bot, Globe, ChevronRight
 } from 'lucide-react';
 
 const features = [
-    { icon: Zap, title: 'Self-Healing Tests', desc: 'Tests that auto-repair when UI changes. Zero maintenance.', color: '#3B82F6' },
-    { icon: Shield, title: 'Auth Navigator', desc: 'Logs into SSO, OAuth, MFA — automatically.', color: '#8B5CF6' },
-    { icon: Eye, title: 'Visual Regression AI', desc: 'Semantic visual diff, not pixel noise.', color: '#06B6D4' },
-    { icon: BarChart3, title: 'Risk Prioritization', desc: 'AI decides what to test first based on risk.', color: '#F59E0B' },
-    { icon: Gauge, title: 'Performance Chaos', desc: 'Core Web Vitals on every page, every run.', color: '#10B981' },
-    { icon: Scale, title: 'Compliance Engine', desc: 'WCAG + GDPR audit on every test run.', color: '#EF4444' },
+    { icon: Zap, title: 'Self-Healing Tests', desc: 'Tests that auto-repair when UI changes. Zero maintenance.', accent: 'var(--color-accent-gold)' },
+    { icon: Shield, title: 'Auth Navigator', desc: 'Logs into SSO, OAuth, MFA — automatically.', accent: 'var(--color-accent-purple)' },
+    { icon: Eye, title: 'Visual Regression AI', desc: 'Semantic visual diff, not pixel noise.', accent: 'var(--color-accent-cyan)' },
+    { icon: BarChart3, title: 'Risk Prioritization', desc: 'AI decides what to test first based on risk.', accent: 'var(--color-accent-gold-bright)' },
+    { icon: Gauge, title: 'Performance Chaos', desc: 'Core Web Vitals on every page, every run.', accent: 'var(--color-accent-emerald)' },
+    { icon: Scale, title: 'Compliance Engine', desc: 'WCAG + GDPR audit on every test run.', accent: 'var(--color-error)' },
 ];
 
 const stats = [
-    { value: '247', label: 'Test Runs' },
-    { value: '98%', label: 'Accuracy' },
-    { value: '60%', label: 'Time Saved' },
-    { value: '<20m', label: 'Full Audit' },
+    { value: '247', label: 'Test Runs', suffix: '' },
+    { value: '98', label: 'Accuracy', suffix: '%' },
+    { value: '60', label: 'Time Saved', suffix: '%' },
+    { value: '<20', label: 'Full Audit', suffix: 'm' },
 ];
 
-const container = { hidden: {}, show: { transition: { staggerChildren: 0.08 } } };
+const container = { hidden: {}, show: { transition: { staggerChildren: 0.07 } } };
 const item = {
-    hidden: { opacity: 0, y: 30 },
-    show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.34, 1.56, 0.64, 1] } }
+    hidden: { opacity: 0, y: 24 },
+    show: { opacity: 1, y: 0, transition: { duration: 0.55, ease: [0.22, 1, 0.36, 1] } }
 };
 
 export default function Landing() {
@@ -37,16 +37,24 @@ export default function Landing() {
             background: 'var(--color-bg-primary)',
             position: 'relative',
             overflow: 'hidden',
-        }} className="grid-pattern">
-            {/* Ambient orbs */}
+        }}>
+            {/* Subtle grid */}
+            <div className="grid-pattern" style={{ position: 'fixed', inset: 0, zIndex: 0 }} />
+
+            {/* Ambient orbs — gold theme */}
             <div style={{
-                position: 'fixed', top: '-20%', right: '-10%', width: 600, height: 600,
-                borderRadius: '50%', background: 'radial-gradient(circle, rgba(59,130,246,0.08) 0%, transparent 70%)',
+                position: 'fixed', top: '-18%', right: '-8%', width: 700, height: 700,
+                borderRadius: '50%', background: 'radial-gradient(circle, rgba(212,168,83,0.06) 0%, transparent 65%)',
                 pointerEvents: 'none', zIndex: 0,
             }} />
             <div style={{
-                position: 'fixed', bottom: '-20%', left: '-10%', width: 500, height: 500,
-                borderRadius: '50%', background: 'radial-gradient(circle, rgba(139,92,246,0.06) 0%, transparent 70%)',
+                position: 'fixed', bottom: '-15%', left: '-8%', width: 500, height: 500,
+                borderRadius: '50%', background: 'radial-gradient(circle, rgba(167,139,250,0.04) 0%, transparent 65%)',
+                pointerEvents: 'none', zIndex: 0,
+            }} />
+            <div style={{
+                position: 'fixed', top: '40%', left: '50%', transform: 'translate(-50%, -50%)', width: 900, height: 900,
+                borderRadius: '50%', background: 'radial-gradient(circle, rgba(212,168,83,0.03) 0%, transparent 50%)',
                 pointerEvents: 'none', zIndex: 0,
             }} />
 
@@ -54,41 +62,46 @@ export default function Landing() {
             <motion.nav
                 initial={{ y: -20, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
+                transition={{ duration: 0.5, delay: 0.1 }}
                 style={{
-                    position: 'fixed', top: 16, left: 16, right: 16, zIndex: 50,
+                    position: 'fixed', top: 12, left: 20, right: 20, zIndex: 50,
                     display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                    padding: '14px 28px',
-                    background: 'rgba(6, 9, 15, 0.7)',
-                    backdropFilter: 'blur(20px)',
-                    border: '1px solid var(--border-subtle)',
-                    borderRadius: 'var(--radius-xl)',
+                    padding: '12px 24px',
+                    background: 'rgba(9, 9, 11, 0.75)',
+                    backdropFilter: 'blur(24px) saturate(1.2)',
+                    border: '1px solid rgba(255,255,255,0.06)',
+                    borderRadius: 16,
                 }}
             >
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                     <div style={{
-                        width: 32, height: 32, borderRadius: 8,
+                        width: 30, height: 30, borderRadius: 8,
                         background: 'var(--gradient-primary)',
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        boxShadow: 'var(--shadow-glow-blue)',
+                        boxShadow: 'var(--shadow-glow-gold)',
                     }}>
-                        <FlaskConical size={17} color="#fff" />
+                        <FlaskConical size={15} color="#09090B" />
                     </div>
-                    <span style={{ fontWeight: 700, fontSize: 16, letterSpacing: '-0.01em' }}>
-                        Autonomous<span style={{ color: 'var(--color-accent-blue)' }}>QA</span>
+                    <span style={{ fontWeight: 700, fontSize: 15, letterSpacing: '-0.02em', color: 'var(--text-primary)' }}>
+                        Autonomous<span style={{ color: 'var(--color-accent-gold)' }}>QA</span>
                     </span>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                    <span style={{ fontSize: 13, color: 'var(--text-tertiary)', cursor: 'pointer', fontWeight: 500 }}>Docs</span>
+                    <span style={{ fontSize: 13, color: 'var(--text-tertiary)', cursor: 'pointer', fontWeight: 500 }}>Pricing</span>
                     <button
                         onClick={() => navigate('/login')}
                         style={{
-                            padding: '8px 20px', fontSize: 13, fontWeight: 600,
-                            background: 'var(--gradient-primary)', color: '#fff',
+                            padding: '7px 18px', fontSize: 13, fontWeight: 600,
+                            background: 'var(--color-accent-gold)',
+                            color: '#09090B',
                             border: 'none', borderRadius: 'var(--radius-full)',
-                            cursor: 'pointer', boxShadow: 'var(--shadow-glow-blue)',
+                            cursor: 'pointer',
+                            boxShadow: '0 0 20px rgba(212,168,83,0.2)',
                             transition: 'all var(--transition-fast)',
                         }}
                     >
-                        Launch App
+                        Launch App →
                     </button>
                 </div>
             </motion.nav>
@@ -97,109 +110,130 @@ export default function Landing() {
             <section style={{
                 minHeight: '100vh', display: 'flex', flexDirection: 'column',
                 alignItems: 'center', justifyContent: 'center',
-                textAlign: 'center', padding: '120px 24px 60px',
+                textAlign: 'center', padding: '140px 24px 80px',
                 position: 'relative', zIndex: 1,
             }}>
                 <motion.div
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 0.7, ease: [0.34, 1.56, 0.64, 1] }}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
                 >
+                    {/* Badge */}
                     <motion.div
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.2 }}
+                        transition={{ delay: 0.3, duration: 0.5 }}
                         style={{
                             display: 'inline-flex', alignItems: 'center', gap: 8,
-                            padding: '6px 16px', borderRadius: 'var(--radius-full)',
-                            background: 'rgba(59, 130, 246, 0.1)',
-                            border: '1px solid rgba(59, 130, 246, 0.2)',
-                            fontSize: 13, fontWeight: 500, color: 'var(--text-accent)',
-                            marginBottom: 28,
+                            padding: '6px 16px 6px 10px', borderRadius: 'var(--radius-full)',
+                            background: 'rgba(212, 168, 83, 0.08)',
+                            border: '1px solid rgba(212, 168, 83, 0.18)',
+                            fontSize: 12, fontWeight: 600, color: 'var(--color-accent-gold)',
+                            marginBottom: 32, letterSpacing: '0.02em',
                         }}
                     >
-                        <Sparkles size={14} /> Zero-Touch • Zero-Script • Zero-Compromise
+                        <span style={{
+                            width: 6, height: 6, borderRadius: '50%',
+                            background: 'var(--color-accent-gold)',
+                            boxShadow: '0 0 8px var(--color-accent-gold)',
+                            display: 'inline-block',
+                        }} />
+                        Zero-Touch · Zero-Script · Zero-Compromise
                     </motion.div>
 
                     <h1 style={{
-                        fontSize: 'clamp(40px, 6vw, 76px)',
-                        fontWeight: 900,
-                        lineHeight: 1.05,
-                        letterSpacing: '-0.04em',
-                        maxWidth: 900,
+                        fontSize: 'clamp(42px, 5.5vw, 72px)',
+                        fontWeight: 800,
+                        lineHeight: 1.06,
+                        letterSpacing: '-0.045em',
+                        maxWidth: 840,
                         margin: '0 auto 24px',
                     }}>
                         <span style={{ color: 'var(--text-primary)' }}>AI That Tests</span><br />
-                        <span className="text-gradient-accent">Your Entire App</span><br />
+                        <span style={{
+                            background: 'linear-gradient(135deg, var(--color-accent-gold) 0%, var(--color-accent-gold-bright) 50%, var(--color-accent-gold) 100%)',
+                            WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
+                            backgroundClip: 'text',
+                        }}>Your Entire App</span><br />
                         <span style={{ color: 'var(--text-primary)' }}>Autonomously</span>
                     </h1>
 
                     <p style={{
-                        fontSize: 18, lineHeight: 1.7, color: 'var(--text-secondary)',
-                        maxWidth: 560, margin: '0 auto 40px', fontWeight: 400,
+                        fontSize: 17, lineHeight: 1.7, color: 'var(--text-secondary)',
+                        maxWidth: 520, margin: '0 auto 44px', fontWeight: 400,
                     }}>
                         Give it a URL. It crawls, authenticates, tests every page, classifies defects with AI, and delivers an executive report — in under 20 minutes.
                     </p>
 
                     {/* CTA Buttons */}
-                    <div style={{ display: 'flex', gap: 14, justifyContent: 'center', flexWrap: 'wrap' }}>
+                    <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
                         <motion.button
-                            whileHover={{ scale: 1.04, boxShadow: '0 0 30px rgba(59,130,246,0.3)' }}
+                            whileHover={{ scale: 1.03, boxShadow: '0 0 40px rgba(212,168,83,0.25)' }}
                             whileTap={{ scale: 0.97 }}
                             onClick={() => navigate('/login')}
                             style={{
-                                padding: '14px 32px', fontSize: 15, fontWeight: 700,
-                                background: 'var(--gradient-primary)', color: '#fff',
+                                padding: '13px 30px', fontSize: 14, fontWeight: 700,
+                                background: 'var(--color-accent-gold)',
+                                color: '#09090B',
                                 border: 'none', borderRadius: 'var(--radius-full)',
                                 cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8,
-                                boxShadow: 'var(--shadow-glow-blue)',
+                                boxShadow: '0 0 24px rgba(212,168,83,0.2)',
+                                letterSpacing: '-0.01em',
                             }}
                         >
-                            <Bot size={18} /> Start Testing Free <ArrowRight size={16} />
+                            <Bot size={17} /> Start Testing Free <ArrowRight size={15} />
                         </motion.button>
                         <motion.button
-                            whileHover={{ scale: 1.04 }}
+                            whileHover={{ scale: 1.03, borderColor: 'rgba(255,255,255,0.15)' }}
                             whileTap={{ scale: 0.97 }}
                             style={{
-                                padding: '14px 32px', fontSize: 15, fontWeight: 600,
-                                background: 'rgba(148, 163, 184, 0.08)',
-                                border: '1px solid var(--border-default)',
+                                padding: '13px 30px', fontSize: 14, fontWeight: 600,
+                                background: 'rgba(255, 255, 255, 0.04)',
+                                border: '1px solid rgba(255,255,255,0.08)',
                                 borderRadius: 'var(--radius-full)',
                                 color: 'var(--text-primary)',
                                 cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8,
+                                backdropFilter: 'blur(10px)',
                             }}
                         >
-                            <Globe size={18} /> Watch Demo
+                            <Globe size={17} /> Watch Demo
                         </motion.button>
                     </div>
 
-                    {/* Auth buttons */}
-                    <div style={{
-                        display: 'flex', gap: 10, justifyContent: 'center',
-                        marginTop: 32, flexWrap: 'wrap',
-                    }}>
+                    {/* Social proof */}
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 0.8 }}
+                        style={{
+                            display: 'flex', gap: 10, justifyContent: 'center',
+                            marginTop: 36, flexWrap: 'wrap',
+                        }}
+                    >
                         {[
-                            { icon: Chrome, label: 'Continue with Google', bg: 'rgba(234,67,53,0.08)', border: 'rgba(234,67,53,0.2)' },
-                            { icon: Github, label: 'Continue with GitHub', bg: 'rgba(148,163,184,0.08)', border: 'rgba(148,163,184,0.2)' },
-                            { icon: Mail, label: 'Sign up with Email', bg: 'rgba(59,130,246,0.08)', border: 'rgba(59,130,246,0.2)' },
-                        ].map(({ icon: Icon, label, bg, border }) => (
+                            { icon: Chrome, label: 'Google' },
+                            { icon: Github, label: 'GitHub' },
+                            { icon: Mail, label: 'Email' },
+                        ].map(({ icon: Icon, label }) => (
                             <motion.button
                                 key={label}
-                                whileHover={{ scale: 1.03, y: -2 }}
+                                whileHover={{ scale: 1.03, borderColor: 'rgba(255,255,255,0.12)' }}
                                 whileTap={{ scale: 0.97 }}
                                 onClick={() => navigate('/login')}
                                 style={{
-                                    padding: '10px 20px', fontSize: 13, fontWeight: 500,
-                                    background: bg, border: `1px solid ${border}`,
-                                    borderRadius: 'var(--radius-md)', color: 'var(--text-secondary)',
+                                    padding: '9px 18px', fontSize: 13, fontWeight: 500,
+                                    background: 'rgba(255,255,255,0.03)',
+                                    border: '1px solid rgba(255,255,255,0.06)',
+                                    borderRadius: 'var(--radius-md)', color: 'var(--text-tertiary)',
                                     cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8,
                                     transition: 'all var(--transition-fast)',
+                                    backdropFilter: 'blur(8px)',
                                 }}
                             >
-                                <Icon size={16} /> {label}
+                                <Icon size={15} /> Continue with {label}
                             </motion.button>
                         ))}
-                    </div>
+                    </motion.div>
                 </motion.div>
             </section>
 
@@ -208,44 +242,60 @@ export default function Landing() {
                 variants={container}
                 initial="hidden"
                 whileInView="show"
-                viewport={{ once: true }}
+                viewport={{ once: true, margin: '-100px' }}
                 style={{
                     display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)',
-                    gap: 24, maxWidth: 900, margin: '0 auto', padding: '0 24px 80px',
+                    gap: 1, maxWidth: 800, margin: '0 auto', padding: '0 24px 80px',
                     position: 'relative', zIndex: 1,
                 }}
             >
-                {stats.map(({ value, label }) => (
-                    <motion.div key={label} variants={item} style={{ textAlign: 'center' }}>
-                        <div style={{ fontSize: 36, fontWeight: 800, letterSpacing: '-0.03em' }} className="text-gradient">
-                            {value}
+                {stats.map(({ value, label, suffix }, i) => (
+                    <motion.div key={label} variants={item} style={{
+                        textAlign: 'center', padding: '24px 16px',
+                        borderRight: i < 3 ? '1px solid rgba(255,255,255,0.06)' : 'none',
+                    }}>
+                        <div style={{
+                            fontSize: 40, fontWeight: 800, letterSpacing: '-0.04em',
+                            background: 'linear-gradient(135deg, var(--color-accent-gold), var(--color-accent-gold-bright))',
+                            WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
+                        }}>
+                            {value}<span style={{ fontSize: 20 }}>{suffix}</span>
                         </div>
-                        <div style={{ fontSize: 13, color: 'var(--text-tertiary)', fontWeight: 500, marginTop: 4 }}>
+                        <div style={{ fontSize: 12, color: 'var(--text-tertiary)', fontWeight: 500, marginTop: 6, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
                             {label}
                         </div>
                     </motion.div>
                 ))}
             </motion.section>
 
+            {/* Divider */}
+            <div style={{ maxWidth: 800, margin: '0 auto', padding: '0 24px' }}>
+                <div className="glow-line" />
+            </div>
+
             {/* Features grid */}
             <section style={{
-                maxWidth: 1100, margin: '0 auto', padding: '0 24px 100px',
+                maxWidth: 1080, margin: '0 auto', padding: '80px 24px 100px',
                 position: 'relative', zIndex: 1,
             }}>
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
-                    style={{ textAlign: 'center', marginBottom: 60 }}
+                    transition={{ duration: 0.5 }}
+                    style={{ textAlign: 'center', marginBottom: 56 }}
                 >
                     <h2 style={{
-                        fontSize: 36, fontWeight: 800, letterSpacing: '-0.03em',
-                        marginBottom: 12,
+                        fontSize: 34, fontWeight: 800, letterSpacing: '-0.035em',
+                        marginBottom: 12, color: 'var(--text-primary)',
                     }}>
-                        6 AI Agents. <span className="text-gradient">One Platform.</span>
+                        6 AI Agents. <span style={{
+                            background: 'linear-gradient(135deg, var(--color-accent-gold), var(--color-accent-gold-bright))',
+                            WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
+                        }}>One Platform.</span>
                     </h2>
-                    <p style={{ fontSize: 16, color: 'var(--text-secondary)', maxWidth: 500, margin: '0 auto' }}>
-                        Each feature is an autonomous AI agent that works without human intervention.
+                    <p style={{ fontSize: 15, color: 'var(--text-secondary)', maxWidth: 460, margin: '0 auto' }}>
+                        Each feature is an autonomous AI agent working without human intervention.
                     </p>
                 </motion.div>
 
@@ -256,55 +306,100 @@ export default function Landing() {
                     viewport={{ once: true }}
                     style={{
                         display: 'grid',
-                        gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-                        gap: 20,
+                        gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+                        gap: 1,
+                        background: 'rgba(255,255,255,0.03)',
+                        borderRadius: 'var(--radius-xl)',
+                        border: '1px solid rgba(255,255,255,0.05)',
+                        overflow: 'hidden',
                     }}
                 >
-                    {features.map(({ icon: Icon, title, desc, color }) => (
+                    {features.map(({ icon: Icon, title, desc, accent }) => (
                         <motion.div
                             key={title}
                             variants={item}
-                            whileHover={{ y: -4, borderColor: `${color}40` }}
-                            className="glass-card"
+                            whileHover={{ background: 'rgba(255,255,255,0.04)' }}
                             style={{
-                                padding: '28px',
+                                padding: '32px 28px',
                                 cursor: 'pointer',
                                 position: 'relative',
                                 overflow: 'hidden',
+                                background: 'rgba(9, 9, 11, 0.6)',
+                                transition: 'all 0.2s ease',
+                                display: 'flex', flexDirection: 'column', gap: 12,
                             }}
                         >
                             <div style={{
-                                position: 'absolute', top: -20, right: -20,
-                                width: 100, height: 100, borderRadius: '50%',
-                                background: `radial-gradient(circle, ${color}08 0%, transparent 70%)`,
-                            }} />
-                            <div style={{
-                                width: 44, height: 44, borderRadius: 'var(--radius-md)',
-                                background: `${color}14`, border: `1px solid ${color}25`,
+                                width: 40, height: 40, borderRadius: 10,
+                                background: 'rgba(255,255,255,0.04)',
+                                border: '1px solid rgba(255,255,255,0.06)',
                                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                marginBottom: 16,
                             }}>
-                                <Icon size={22} style={{ color }} />
+                                <Icon size={20} style={{ color: accent }} />
                             </div>
-                            <h3 style={{ fontSize: 17, fontWeight: 700, marginBottom: 8, letterSpacing: '-0.01em' }}>
+                            <h3 style={{ fontSize: 15, fontWeight: 700, letterSpacing: '-0.01em', color: 'var(--text-primary)' }}>
                                 {title}
                             </h3>
-                            <p style={{ fontSize: 14, color: 'var(--text-secondary)', lineHeight: 1.6 }}>
+                            <p style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.6, margin: 0 }}>
                                 {desc}
                             </p>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: accent, fontWeight: 600, marginTop: 4 }}>
+                                Learn more <ChevronRight size={13} />
+                            </div>
                         </motion.div>
                     ))}
                 </motion.div>
             </section>
 
+            {/* Bottom CTA */}
+            <section style={{
+                maxWidth: 700, margin: '0 auto', padding: '60px 24px 80px',
+                textAlign: 'center', position: 'relative', zIndex: 1,
+            }}>
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    style={{
+                        padding: '48px 40px',
+                        borderRadius: 'var(--radius-xl)',
+                        border: '1px solid rgba(212,168,83,0.12)',
+                        background: 'linear-gradient(135deg, rgba(212,168,83,0.04) 0%, rgba(9,9,11,0.9) 100%)',
+                    }}
+                >
+                    <h3 style={{ fontSize: 26, fontWeight: 800, letterSpacing: '-0.03em', marginBottom: 12 }}>
+                        Ready to ship with confidence?
+                    </h3>
+                    <p style={{ fontSize: 14, color: 'var(--text-secondary)', marginBottom: 28, maxWidth: 400, margin: '0 auto 28px' }}>
+                        Join teams using AI-powered QA to find bugs before users do.
+                    </p>
+                    <motion.button
+                        whileHover={{ scale: 1.03, boxShadow: '0 0 40px rgba(212,168,83,0.25)' }}
+                        whileTap={{ scale: 0.97 }}
+                        onClick={() => navigate('/login')}
+                        style={{
+                            padding: '13px 32px', fontSize: 14, fontWeight: 700,
+                            background: 'var(--color-accent-gold)', color: '#09090B',
+                            border: 'none', borderRadius: 'var(--radius-full)',
+                            cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8,
+                            boxShadow: '0 0 24px rgba(212,168,83,0.2)',
+                            margin: '0 auto',
+                        }}
+                    >
+                        Get Started Free <ArrowRight size={15} />
+                    </motion.button>
+                </motion.div>
+            </section>
+
             {/* Footer */}
             <footer style={{
-                textAlign: 'center', padding: '40px 24px',
-                borderTop: '1px solid var(--border-subtle)',
-                color: 'var(--text-tertiary)', fontSize: 13,
+                textAlign: 'center', padding: '32px 24px',
+                borderTop: '1px solid rgba(255,255,255,0.04)',
+                color: 'var(--text-tertiary)', fontSize: 12,
                 position: 'relative', zIndex: 1,
+                letterSpacing: '0.02em',
             }}>
-                <p>© 2026 AutonomousQA — Zero-Touch Quality Assurance Engine</p>
+                <p>© 2026 AutonomousQA — Zero-Touch Quality Assurance</p>
             </footer>
         </div>
     );

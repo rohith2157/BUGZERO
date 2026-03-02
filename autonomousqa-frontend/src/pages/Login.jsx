@@ -92,45 +92,46 @@ export default function Login() {
       position: 'relative',
       overflow: 'hidden',
     }}>
-      {/* Ambient orbs */}
+      {/* Ambient orbs — gold */}
       <div style={{
         position: 'fixed', top: '-20%', right: '-10%', width: 600, height: 600,
-        borderRadius: '50%', background: 'radial-gradient(circle, rgba(59,130,246,0.08) 0%, transparent 70%)',
+        borderRadius: '50%', background: 'radial-gradient(circle, rgba(212,168,83,0.06) 0%, transparent 70%)',
         pointerEvents: 'none',
       }} />
       <div style={{
         position: 'fixed', bottom: '-20%', left: '-10%', width: 500, height: 500,
-        borderRadius: '50%', background: 'radial-gradient(circle, rgba(139,92,246,0.06) 0%, transparent 70%)',
+        borderRadius: '50%', background: 'radial-gradient(circle, rgba(167,139,250,0.04) 0%, transparent 70%)',
         pointerEvents: 'none',
       }} />
 
       <motion.div
-        initial={{ opacity: 0, y: 30 }}
+        initial={{ opacity: 0, y: 24 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
+        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
         style={{
-          width: 420,
+          width: 400,
           padding: 36,
-          background: 'var(--color-bg-elevated)',
-          border: '1px solid var(--border-default)',
-          borderRadius: 'var(--radius-xl)',
-          backdropFilter: 'blur(20px)',
+          background: 'rgba(24, 24, 27, 0.7)',
+          border: '1px solid rgba(255,255,255,0.06)',
+          borderRadius: 20,
+          backdropFilter: 'blur(24px)',
           position: 'relative',
           zIndex: 1,
+          boxShadow: '0 24px 80px rgba(0,0,0,0.4)',
         }}
       >
         {/* Logo */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 28, justifyContent: 'center' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 32, justifyContent: 'center' }}>
           <div style={{
-            width: 36, height: 36, borderRadius: 10,
+            width: 34, height: 34, borderRadius: 9,
             background: 'var(--gradient-primary)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            boxShadow: 'var(--shadow-glow-blue)',
+            boxShadow: 'var(--shadow-glow-gold)',
           }}>
-            <FlaskConical size={19} color="#fff" />
+            <FlaskConical size={17} color="#09090B" />
           </div>
-          <span style={{ fontWeight: 700, fontSize: 18 }}>
-            Autonomous<span style={{ color: 'var(--color-accent-blue)' }}>QA</span>
+          <span style={{ fontWeight: 700, fontSize: 17, letterSpacing: '-0.02em' }}>
+            Autonomous<span style={{ color: 'var(--color-accent-gold)' }}>QA</span>
           </span>
         </div>
 
@@ -252,12 +253,12 @@ export default function Login() {
             whileTap={{ scale: 0.98 }}
             style={{
               width: '100%', padding: '13px 0', fontSize: 14, fontWeight: 700,
-              background: 'var(--gradient-primary)', color: '#fff',
+              background: 'var(--color-accent-gold)', color: '#09090B',
               border: 'none', borderRadius: 'var(--radius-md)',
               cursor: loading ? 'wait' : 'pointer',
               display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
               opacity: loading ? 0.7 : 1,
-              boxShadow: 'var(--shadow-glow-blue)',
+              boxShadow: '0 0 20px rgba(212,168,83,0.2)',
             }}
           >
             {loading ? 'Please wait...' : mode === 'login' ? 'Sign In' : 'Create Account'}
@@ -282,10 +283,10 @@ export default function Login() {
           whileTap={{ scale: 0.98 }}
           style={{
             width: '100%', padding: '12px 0', fontSize: 13, fontWeight: 600,
-            background: 'rgba(59, 130, 246, 0.06)',
-            border: '1px solid rgba(59, 130, 246, 0.15)',
+            background: 'rgba(212, 168, 83, 0.06)',
+            border: '1px solid rgba(212, 168, 83, 0.15)',
             borderRadius: 'var(--radius-md)',
-            color: 'var(--color-accent-blue)',
+            color: 'var(--color-accent-gold)',
             cursor: 'pointer',
           }}
         >
