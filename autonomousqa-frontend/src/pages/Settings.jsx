@@ -50,7 +50,7 @@ export default function Settings() {
             {/* Tab Nav */}
             <div style={{
                 display: 'flex', gap: 4, marginBottom: 28,
-                padding: '4px', background: 'rgba(148,163,184,0.04)',
+                padding: '4px', background: 'rgba(255,255,255,0.02)',
                 borderRadius: 'var(--radius-lg)', border: '1px solid var(--border-subtle)',
                 width: 'fit-content',
             }}>
@@ -60,7 +60,7 @@ export default function Settings() {
                         onClick={() => setActiveTab(id)}
                         style={{
                             padding: '10px 18px', fontSize: 13, fontWeight: activeTab === id ? 600 : 400,
-                            background: activeTab === id ? 'rgba(59, 130, 246, 0.12)' : 'transparent',
+                            background: activeTab === id ? 'rgba(212, 168, 83, 0.1)' : 'transparent',
                             border: 'none',
                             borderRadius: 'var(--radius-md)',
                             color: activeTab === id ? 'var(--text-accent)' : 'var(--text-tertiary)',
@@ -89,7 +89,7 @@ export default function Settings() {
                                 onChange={(e) => setProfileForm(f => ({ ...f, [field]: e.target.value }))}
                                 style={{
                                     width: '100%', padding: '10px 14px', fontSize: 14,
-                                    background: 'rgba(148,163,184,0.06)', border: '1px solid var(--border-default)',
+                                    background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border-default)',
                                     borderRadius: 'var(--radius-md)', color: 'var(--text-primary)', outline: 'none',
                                     opacity: disabled ? 0.6 : 1,
                                 }} />
@@ -126,7 +126,7 @@ export default function Settings() {
                     </div>
                     {loadingTeam ? (
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 40, gap: 8 }}>
-                            <Loader2 size={18} style={{ animation: 'spin-slow 1s linear infinite', color: 'var(--color-accent-blue)' }} />
+                            <Loader2 size={18} style={{ animation: 'spin-slow 1s linear infinite', color: '#D4A853' }} />
                             <span style={{ fontSize: 13, color: 'var(--text-secondary)' }}>Loading team...</span>
                         </div>
                     ) : (
@@ -135,7 +135,7 @@ export default function Settings() {
                                 <div key={m.id} style={{
                                     display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                                     padding: '14px 16px', borderRadius: 'var(--radius-md)',
-                                    background: 'rgba(148,163,184,0.04)', border: '1px solid var(--border-subtle)',
+                                    background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border-subtle)',
                                 }}>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                                         <div style={{
@@ -156,8 +156,8 @@ export default function Settings() {
                                         <span style={{
                                             fontSize: 11, fontWeight: 600, padding: '3px 10px',
                                             borderRadius: 'var(--radius-full)',
-                                            background: m.role === 'Owner' ? 'rgba(139,92,246,0.1)' : m.role === 'Admin' ? 'rgba(59,130,246,0.1)' : 'rgba(148,163,184,0.1)',
-                                            color: m.role === 'Owner' ? '#8B5CF6' : m.role === 'Admin' ? '#3B82F6' : 'var(--text-secondary)',
+                                            background: m.role === 'Owner' ? 'rgba(139,92,246,0.1)' : m.role === 'Admin' ? 'rgba(212,168,83,0.08)' : 'rgba(255,255,255,0.04)',
+                                            color: m.role === 'Owner' ? '#8B5CF6' : m.role === 'Admin' ? '#D4A853' : 'var(--text-secondary)',
                                         }}>{m.role}</span>
                                     </div>
                                 </div>
@@ -183,7 +183,7 @@ export default function Settings() {
                     </div>
                     {loadingKeys ? (
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 40, gap: 8 }}>
-                            <Loader2 size={18} style={{ animation: 'spin-slow 1s linear infinite', color: 'var(--color-accent-blue)' }} />
+                            <Loader2 size={18} style={{ animation: 'spin-slow 1s linear infinite', color: '#D4A853' }} />
                             <span style={{ fontSize: 13, color: 'var(--text-secondary)' }}>Loading API keys...</span>
                         </div>
                     ) : (
@@ -192,13 +192,13 @@ export default function Settings() {
                                 <div key={key.id} style={{
                                     display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                                     padding: '14px 16px', borderRadius: 'var(--radius-md)',
-                                    background: 'rgba(148,163,184,0.04)', border: '1px solid var(--border-subtle)',
+                                    background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border-subtle)',
                                 }}>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                                         <Key size={16} style={{ color: 'var(--text-tertiary)' }} />
                                         <div>
                                             <div style={{ fontSize: 14, fontWeight: 600 }}>{key.name}</div>
-                                            <div style={{ fontSize: 12, color: 'var(--text-tertiary)', fontFamily: "'JetBrains Mono', monospace" }}>{key.key}</div>
+                                            <div style={{ fontSize: 12, color: 'var(--text-tertiary)', fontFamily: "'Geist Mono', 'JetBrains Mono', monospace" }}>{key.key}</div>
                                         </div>
                                     </div>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -208,7 +208,7 @@ export default function Settings() {
                                             aria-label="Copy API key"
                                             style={{
                                                 width: 28, height: 28, borderRadius: 'var(--radius-sm)',
-                                                background: 'rgba(148,163,184,0.06)', border: 'none',
+                                                background: 'rgba(255,255,255,0.03)', border: 'none',
                                                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                                                 color: 'var(--text-tertiary)', cursor: 'pointer',
                                             }}>
@@ -251,7 +251,7 @@ export default function Settings() {
                                     onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setNotifications(prev => ({ ...prev, [label]: !prev[label] })); } }}
                                     style={{
                                         width: 44, height: 24, borderRadius: 12, cursor: 'pointer',
-                                        background: enabled ? 'var(--color-accent-blue)' : 'rgba(148,163,184,0.2)',
+                                        background: enabled ? '#D4A853' : 'rgba(255,255,255,0.08)',
                                         position: 'relative', transition: 'background var(--transition-fast)',
                                     }}>
                                     <div style={{
@@ -282,11 +282,11 @@ export default function Settings() {
                             </div>
                         </div>
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 20 }}>
-                            <div style={{ padding: '12px', borderRadius: 'var(--radius-md)', background: 'rgba(148,163,184,0.04)' }}>
+                            <div style={{ padding: '12px', borderRadius: 'var(--radius-md)', background: 'rgba(255,255,255,0.02)' }}>
                                 <div style={{ fontSize: 11, color: 'var(--text-tertiary)', fontWeight: 600 }}>RUNS USED</div>
                                 <div style={{ fontSize: 18, fontWeight: 700, marginTop: 4 }}>147 <span style={{ fontSize: 13, color: 'var(--text-tertiary)' }}>/ 200</span></div>
                             </div>
-                            <div style={{ padding: '12px', borderRadius: 'var(--radius-md)', background: 'rgba(148,163,184,0.04)' }}>
+                            <div style={{ padding: '12px', borderRadius: 'var(--radius-md)', background: 'rgba(255,255,255,0.02)' }}>
                                 <div style={{ fontSize: 11, color: 'var(--text-tertiary)', fontWeight: 600 }}>RENEWAL</div>
                                 <div style={{ fontSize: 18, fontWeight: 700, marginTop: 4 }}>Mar 15</div>
                             </div>
