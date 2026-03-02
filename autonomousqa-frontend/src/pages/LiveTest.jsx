@@ -106,13 +106,13 @@ export default function LiveTest() {
         if (data?.status === 'completed') return <CheckCircle2 size={20} style={{ color: '#10B981' }} />;
         if (data?.status === 'failed') return <XCircle size={20} style={{ color: '#EF4444' }} />;
         if (data?.status === 'cancelled') return <StopCircle size={20} style={{ color: '#64748B' }} />;
-        return <Loader2 size={20} style={{ color: 'var(--color-accent-blue)', animation: 'spin-slow 2s linear infinite' }} />;
+        return <Loader2 size={20} style={{ color: 'var(--color-accent-gold)', animation: 'spin-slow 2s linear infinite' }} />;
     };
 
     if (loading) {
         return (
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '60vh', gap: 12 }}>
-                <Loader2 size={24} style={{ animation: 'spin-slow 1s linear infinite', color: 'var(--color-accent-blue)' }} />
+                <Loader2 size={24} style={{ animation: 'spin-slow 1s linear infinite', color: 'var(--color-accent-gold)' }} />
                 <span style={{ color: 'var(--text-secondary)' }}>Loading test...</span>
             </div>
         );
@@ -140,24 +140,24 @@ export default function LiveTest() {
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                         <div style={{
-                            width: 42, height: 42, borderRadius: 'var(--radius-md)',
-                            background: 'rgba(59, 130, 246, 0.1)',
+                            width: 42, height: 42, borderRadius: 10,
+                            background: 'rgba(212, 168, 83, 0.08)',
                             display: 'flex', alignItems: 'center', justifyContent: 'center',
                         }}>
                             {getStatusIcon()}
                         </div>
                         <div>
                             <div style={{ fontSize: 16, fontWeight: 700 }}>{isRunning ? 'Test in Progress' : `Test ${data.status === 'completed' ? 'Complete' : data.status}`}</div>
-                            <div style={{ fontSize: 13, color: 'var(--text-accent)', fontFamily: "'JetBrains Mono', monospace" }}>{data.url}</div>
+                            <div style={{ fontSize: 13, color: 'var(--color-accent-gold)', fontFamily: "'Geist Mono', 'JetBrains Mono', monospace" }}>{data.url}</div>
                         </div>
                     </div>
                     <div style={{ display: 'flex', gap: 8 }}>
                         <StatusBadge status={data.status} />
                         {isRunning && (
-                            <button onClick={() => { cancel(); testsApi.cancel(id).catch(() => { }); }} style={{ padding: '6px 14px', fontSize: 12, fontWeight: 600, background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.3)', borderRadius: 'var(--radius-md)', color: '#EF4444', cursor: 'pointer' }}>Cancel</button>
+                            <button onClick={() => { cancel(); testsApi.cancel(id).catch(() => { }); }} style={{ padding: '6px 14px', fontSize: 12, fontWeight: 600, background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.3)', borderRadius: 8, color: '#EF4444', cursor: 'pointer' }}>Cancel</button>
                         )}
                         {data.status === 'completed' && (
-                            <button onClick={() => navigate(`/tests/${id}/report`)} style={{ padding: '6px 14px', fontSize: 12, fontWeight: 600, background: 'rgba(59,130,246,0.12)', border: '1px solid rgba(59,130,246,0.3)', borderRadius: 'var(--radius-md)', color: 'var(--text-accent)', cursor: 'pointer' }}>View Report</button>
+                            <button onClick={() => navigate(`/tests/${id}/report`)} style={{ padding: '6px 14px', fontSize: 12, fontWeight: 600, background: 'rgba(212,168,83,0.12)', border: '1px solid rgba(212,168,83,0.25)', borderRadius: 8, color: 'var(--color-accent-gold)', cursor: 'pointer' }}>View Report</button>
                         )}
                     </div>
                 </div>
@@ -166,11 +166,11 @@ export default function LiveTest() {
                 <div style={{ marginBottom: 8 }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: 'var(--text-tertiary)', marginBottom: 6 }}>
                         <span>Progress</span>
-                        <span style={{ fontWeight: 600, color: 'var(--text-accent)' }}>{data.progress}%</span>
+                        <span style={{ fontWeight: 600, color: 'var(--color-accent-gold)' }}>{data.progress}%</span>
                     </div>
                     <div style={{
-                        height: 6, borderRadius: 3,
-                        background: 'rgba(148, 163, 184, 0.1)',
+                        height: 5, borderRadius: 3,
+                        background: 'rgba(255, 255, 255, 0.06)',
                         overflow: 'hidden',
                     }}>
                         <motion.div
@@ -178,8 +178,8 @@ export default function LiveTest() {
                             transition={{ duration: 0.5 }}
                             style={{
                                 height: '100%', borderRadius: 3,
-                                background: 'var(--gradient-accent)',
-                                boxShadow: '0 0 10px rgba(59,130,246,0.3)',
+                                background: 'linear-gradient(90deg, var(--color-accent-gold), var(--color-accent-gold-bright))',
+                                boxShadow: '0 0 10px rgba(212,168,83,0.3)',
                             }}
                         />
                     </div>
@@ -188,15 +188,15 @@ export default function LiveTest() {
                 {/* Stats row */}
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginTop: 20 }}>
                     {[
-                        { icon: Globe, label: 'Pages Found', value: data.totalPages, color: '#3B82F6' },
+                        { icon: Globe, label: 'Pages Found', value: data.totalPages, color: 'var(--color-accent-gold)' },
                         { icon: CheckCircle2, label: 'Tested', value: data.testedPages, color: '#10B981' },
                         { icon: Bug, label: 'Defects', value: data.defectsFound, color: '#EF4444' },
                         { icon: Clock, label: 'Elapsed', value: elapsed, color: '#F59E0B' },
                     ].map(({ icon: Icon, label, value, color }) => (
                         <div key={label} style={{
                             textAlign: 'center', padding: '14px',
-                            background: 'rgba(148, 163, 184, 0.04)',
-                            borderRadius: 'var(--radius-md)',
+                            background: 'rgba(255, 255, 255, 0.03)',
+                            borderRadius: 10,
                         }}>
                             <Icon size={18} style={{ color, marginBottom: 6 }} />
                             <div style={{ fontSize: 22, fontWeight: 800, letterSpacing: '-0.02em' }}>{value}</div>
@@ -216,7 +216,7 @@ export default function LiveTest() {
                     style={{ padding: '24px' }}
                 >
                     <h3 style={{ fontSize: 15, fontWeight: 700, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
-                        <Globe size={16} style={{ color: 'var(--color-accent-blue)' }} />
+                        <Globe size={16} style={{ color: 'var(--color-accent-gold)' }} />
                         Pages Discovered
                     </h3>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 6, maxHeight: 400, overflowY: 'auto' }}>
@@ -233,12 +233,12 @@ export default function LiveTest() {
                                     display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                                     padding: '10px 12px',
                                     borderRadius: 'var(--radius-md)',
-                                    background: page.status === 'testing' ? 'rgba(59, 130, 246, 0.06)' : 'rgba(148, 163, 184, 0.04)',
-                                    border: page.status === 'testing' ? '1px solid rgba(59, 130, 246, 0.2)' : '1px solid transparent',
+                                    background: page.status === 'testing' ? 'rgba(212, 168, 83, 0.05)' : 'rgba(255, 255, 255, 0.02)',
+                                    border: page.status === 'testing' ? '1px solid rgba(212, 168, 83, 0.15)' : '1px solid transparent',
                                 }}
                             >
                                 <div>
-                                    <div style={{ fontSize: 13, fontFamily: "'JetBrains Mono', monospace", color: 'var(--text-secondary)' }}>
+                                    <div style={{ fontSize: 13, fontFamily: "'Geist Mono', 'JetBrains Mono', monospace", color: 'var(--text-secondary)' }}>
                                         {page.url}
                                     </div>
                                     <div style={{ fontSize: 11, color: 'var(--text-tertiary)', marginTop: 2 }}>{page.type}</div>
@@ -284,8 +284,8 @@ export default function LiveTest() {
                                     transition={{ delay: i * 0.08, type: 'spring', stiffness: 300 }}
                                     style={{
                                         padding: '14px',
-                                        borderRadius: 'var(--radius-md)',
-                                        background: 'rgba(148, 163, 184, 0.04)',
+                                        borderRadius: 10,
+                                        background: 'rgba(255, 255, 255, 0.02)',
                                         borderLeft: `3px solid ${getSeverityColor(defect.severity)}`,
                                     }}
                                 >
@@ -296,14 +296,14 @@ export default function LiveTest() {
                                                 {defect.type}
                                             </span>
                                         </div>
-                                        <span style={{ fontSize: 11, color: 'var(--text-tertiary)', fontFamily: "'JetBrains Mono', monospace" }}>
+                                        <span style={{ fontSize: 11, color: 'var(--text-tertiary)', fontFamily: "'Geist Mono', 'JetBrains Mono', monospace" }}>
                                             {defect.time}
                                         </span>
                                     </div>
                                     <div style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.5 }}>
                                         {defect.message}
                                     </div>
-                                    <div style={{ fontSize: 11, color: 'var(--text-tertiary)', marginTop: 6, fontFamily: "'JetBrains Mono', monospace" }}>
+                                    <div style={{ fontSize: 11, color: 'var(--text-tertiary)', marginTop: 6, fontFamily: "'Geist Mono', 'JetBrains Mono', monospace" }}>
                                         {defect.page}
                                     </div>
                                 </motion.div>
