@@ -82,7 +82,7 @@ export default function Dashboard() {
                 if (completedWithScores.length > 0) {
                     setHygieneHistory(completedWithScores.map(r => ({
                         date: r.date,
-                        score: Math.round(r.score),
+                        score: Math.min(100, Math.round(r.score)),
                     })));
                 }
             }

@@ -24,7 +24,7 @@ export default function LiveTest() {
                 url: safePath(p.url),
                 type: p.pageType || 'Unknown',
                 status: p.status === 'tested' ? 'tested' : 'queued',
-                score: p.hygieneScore ? Math.round(p.hygieneScore) : null,
+                score: p.hygieneScore ? Math.min(100, Math.round(p.hygieneScore)) : null,
             }));
             const defects = (testRun.defects || []).map(d => ({
                 id: d.id,

@@ -46,7 +46,7 @@ export default function Report() {
             // Build heatmap from pages
             const heatmapData = (testRun.pages || []).map(p => {
                 const pageDefects = (testRun.defects || []).filter(d => d.pageId === p.id).length;
-                const score = Math.round(p.hygieneScore || 0);
+                const score = Math.min(100, Math.round(p.hygieneScore || 0));
                 return {
                     page: safePath(p.url),
                     score,
@@ -58,7 +58,7 @@ export default function Report() {
             setReportData({
                 runId: testRun.id,
                 url: testRun.url,
-                overallScore: Math.round(testRun.overallScore || 0),
+                overallScore: Math.min(100, Math.round(testRun.overallScore || 0)),
                 totalDefects,
                 totalPages: testRun.totalPages || testRun.pages?.length || 0,
                 duration: testRun.duration || '—',
