@@ -25,7 +25,7 @@ const CustomTooltip = ({ active, payload, label }) => {
                 fontSize: 13,
             }}>
                 <div style={{ color: 'var(--text-tertiary)', marginBottom: 4 }}>{label}</div>
-                <div style={{ fontWeight: 700, color: 'var(--color-accent-blue)' }}>Score: {payload[0].value}</div>
+                <div style={{ fontWeight: 700, color: 'var(--color-accent-gold)' }}>Score: {payload[0].value}</div>
             </div>
         );
     }
@@ -119,14 +119,14 @@ export default function Dashboard() {
                         <AreaChart data={hygieneHistory}>
                             <defs>
                                 <linearGradient id="scoreGradient" x1="0" y1="0" x2="0" y2="1">
-                                    <stop offset="0%" stopColor="#3B82F6" stopOpacity={0.3} />
-                                    <stop offset="100%" stopColor="#3B82F6" stopOpacity={0} />
+                                    <stop offset="0%" stopColor="#D4A853" stopOpacity={0.25} />
+                                    <stop offset="100%" stopColor="#D4A853" stopOpacity={0} />
                                 </linearGradient>
                             </defs>
-                            <XAxis dataKey="date" tick={{ fill: '#64748B', fontSize: 11 }} axisLine={false} tickLine={false} />
-                            <YAxis domain={[60, 100]} tick={{ fill: '#64748B', fontSize: 11 }} axisLine={false} tickLine={false} />
+                            <XAxis dataKey="date" tick={{ fill: '#52525B', fontSize: 11 }} axisLine={false} tickLine={false} />
+                            <YAxis domain={[60, 100]} tick={{ fill: '#52525B', fontSize: 11 }} axisLine={false} tickLine={false} />
                             <Tooltip content={<CustomTooltip />} />
-                            <Area type="monotone" dataKey="score" stroke="#3B82F6" strokeWidth={2.5} fill="url(#scoreGradient)" dot={false} />
+                            <Area type="monotone" dataKey="score" stroke="#D4A853" strokeWidth={2} fill="url(#scoreGradient)" dot={false} />
                         </AreaChart>
                     </ResponsiveContainer>
                 </motion.div>
@@ -145,16 +145,16 @@ export default function Dashboard() {
                             placeholder="https://your-app.com"
                             style={{
                                 flex: 1, padding: '12px 16px', fontSize: 14,
-                                background: 'rgba(148, 163, 184, 0.06)',
-                                border: '1px solid var(--border-default)',
+                                background: 'rgba(255, 255, 255, 0.03)',
+                                border: '1px solid rgba(255,255,255,0.06)',
                                 borderRadius: 'var(--radius-md)',
                                 color: 'var(--text-primary)',
                                 outline: 'none',
                                 transition: 'border-color var(--transition-fast)',
-                                fontFamily: "'JetBrains Mono', monospace",
+                                fontFamily: "'Geist Mono', 'JetBrains Mono', monospace",
                             }}
-                            onFocus={(e) => e.target.style.borderColor = 'var(--color-accent-blue)'}
-                            onBlur={(e) => e.target.style.borderColor = 'var(--border-default)'}
+                            onFocus={(e) => e.target.style.borderColor = 'var(--color-accent-gold)'}
+                            onBlur={(e) => e.target.style.borderColor = 'rgba(255,255,255,0.06)'}}
                         />
                         <motion.button
                             whileHover={{ scale: 1.04 }}
@@ -165,7 +165,7 @@ export default function Dashboard() {
                                 background: 'var(--gradient-primary)', color: '#fff',
                                 border: 'none', borderRadius: 'var(--radius-md)',
                                 cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6,
-                                boxShadow: 'var(--shadow-glow-blue)',
+                                boxShadow: '0 0 20px rgba(212,168,83,0.15)',
                                 flexShrink: 0,
                             }}
                         >
@@ -185,22 +185,22 @@ export default function Dashboard() {
                                 style={{
                                     display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                                     padding: '10px 12px',
-                                    background: 'rgba(148, 163, 184, 0.04)',
+                                    background: 'rgba(255, 255, 255, 0.03)',
                                     borderRadius: 'var(--radius-md)',
                                     cursor: 'pointer',
                                     transition: 'all var(--transition-fast)',
                                     border: '1px solid transparent',
                                 }}
                                 onMouseEnter={(e) => {
-                                    e.currentTarget.style.background = 'rgba(59, 130, 246, 0.06)';
-                                    e.currentTarget.style.borderColor = 'var(--border-accent)';
+                                    e.currentTarget.style.background = 'rgba(212, 168, 83, 0.04)';
+                                    e.currentTarget.style.borderColor = 'rgba(212,168,83,0.15)';
                                 }}
                                 onMouseLeave={(e) => {
-                                    e.currentTarget.style.background = 'rgba(148, 163, 184, 0.04)';
+                                    e.currentTarget.style.background = 'rgba(255, 255, 255, 0.03)';
                                     e.currentTarget.style.borderColor = 'transparent';
                                 }}
                             >
-                                <span style={{ fontSize: 13, color: 'var(--text-secondary)', fontFamily: "'JetBrains Mono', monospace" }}>
+                                <span style={{ fontSize: 13, color: 'var(--text-secondary)', fontFamily: "'Geist Mono', 'JetBrains Mono', monospace" }}>
                                     {run.url.replace('https://', '')}
                                 </span>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -252,10 +252,10 @@ export default function Dashboard() {
                                     transition={{ delay: i * 0.05 }}
                                     onClick={() => navigate(`/tests/${run.id}/report`)}
                                     style={{ cursor: 'pointer', transition: 'background var(--transition-fast)' }}
-                                    onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(59, 130, 246, 0.04)'}
-                                    onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                                    onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(212, 168, 83, 0.03)'}
+                                    onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}}
                                 >
-                                    <td style={{ padding: '14px', fontSize: 13, fontFamily: "'JetBrains Mono', monospace", color: 'var(--text-accent)' }}>
+                                    <td style={{ padding: '14px', fontSize: 13, fontFamily: "'Geist Mono', 'JetBrains Mono', monospace", color: 'var(--color-accent-gold)' }}>
                                         {run.url.replace('https://', '')}
                                     </td>
                                     <td style={{ padding: '14px' }}><StatusBadge status={run.status} size="sm" /></td>
@@ -267,7 +267,7 @@ export default function Dashboard() {
                                     </td>
                                     <td style={{ padding: '14px', fontSize: 13, color: 'var(--text-secondary)' }}>{run.defects}</td>
                                     <td style={{ padding: '14px', fontSize: 13, color: 'var(--text-secondary)' }}>{run.pages}</td>
-                                    <td style={{ padding: '14px', fontSize: 13, color: 'var(--text-secondary)', fontFamily: "'JetBrains Mono', monospace" }}>{run.duration}</td>
+                                    <td style={{ padding: '14px', fontSize: 13, color: 'var(--text-secondary)', fontFamily: "'Geist Mono', 'JetBrains Mono', monospace" }}>{run.duration}</td>
                                     <td style={{ padding: '14px', fontSize: 13, color: 'var(--text-tertiary)' }}>{run.date}</td>
                                 </motion.tr>
                             ))}

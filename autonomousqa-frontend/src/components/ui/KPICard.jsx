@@ -52,16 +52,16 @@ export default function KPICard({ icon: Icon, label, value, change, prefix = '',
 
             <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 16 }}>
                 <div style={{
-                    width: 42,
-                    height: 42,
-                    borderRadius: 'var(--radius-md)',
-                    background: 'rgba(59, 130, 246, 0.1)',
-                    border: '1px solid rgba(59, 130, 246, 0.15)',
+                    width: 40,
+                    height: 40,
+                    borderRadius: 10,
+                    background: 'rgba(212, 168, 83, 0.08)',
+                    border: '1px solid rgba(212, 168, 83, 0.12)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                 }}>
-                    <Icon size={20} style={{ color: 'var(--color-accent-blue)' }} />
+                    <Icon size={19} style={{ color: 'var(--color-accent-gold)' }} />
                 </div>
                 {change != null && (
                     <div style={{
