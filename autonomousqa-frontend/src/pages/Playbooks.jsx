@@ -66,7 +66,7 @@ export default function Playbooks() {
     if (loading) {
         return (
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '60vh', gap: 12 }}>
-                <Loader2 size={24} style={{ animation: 'spin-slow 1s linear infinite', color: 'var(--color-accent-blue)' }} />
+                <Loader2 size={24} style={{ animation: 'spin-slow 1s linear infinite', color: '#D4A853' }} />
                 <span style={{ color: 'var(--text-secondary)' }}>Loading playbooks...</span>
             </div>
         );
@@ -90,7 +90,7 @@ export default function Playbooks() {
                         background: 'var(--gradient-primary)', color: '#fff',
                         border: 'none', borderRadius: 'var(--radius-md)',
                         cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6,
-                        boxShadow: 'var(--shadow-glow-blue)',
+                        boxShadow: 'var(--shadow-glow-gold)',
                     }}
                 >
                     <Plus size={16} /> New Playbook
@@ -114,21 +114,21 @@ export default function Playbooks() {
                         >
                             <div style={{
                                 position: 'absolute', top: 0, left: 0, right: 0, height: 2,
-                                background: pb.status === 'active' ? 'var(--gradient-success)' : 'rgba(148,163,184,0.2)',
+                                background: pb.status === 'active' ? 'var(--gradient-success)' : 'rgba(255,255,255,0.06)',
                             }} />
                             <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 14 }}>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                                     <div style={{
                                         width: 40, height: 40, borderRadius: 'var(--radius-md)',
-                                        background: 'rgba(59, 130, 246, 0.1)',
-                                        border: '1px solid rgba(59, 130, 246, 0.15)',
+                                        background: 'rgba(212, 168, 83, 0.08)',
+                                        border: '1px solid rgba(212, 168, 83, 0.12)',
                                         display: 'flex', alignItems: 'center', justifyContent: 'center',
                                     }}>
-                                        <Icon size={18} style={{ color: 'var(--color-accent-blue)' }} />
+                                        <Icon size={18} style={{ color: '#D4A853' }} />
                                     </div>
                                     <div>
                                         <div style={{ fontSize: 15, fontWeight: 700 }}>{pb.name}</div>
-                                        <div style={{ fontSize: 12, color: 'var(--text-tertiary)', fontFamily: "'JetBrains Mono', monospace" }}>{pb.domain}</div>
+                                        <div style={{ fontSize: 12, color: 'var(--text-tertiary)', fontFamily: "'Geist Mono', 'JetBrains Mono', monospace" }}>{pb.domain}</div>
                                     </div>
                                 </div>
                                 <StatusBadge status={pb.status} size="sm" />
@@ -137,7 +137,7 @@ export default function Playbooks() {
                             <div style={{
                                 display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10,
                                 padding: '12px',
-                                background: 'rgba(148, 163, 184, 0.04)',
+                                background: 'rgba(255, 255, 255, 0.02)',
                                 borderRadius: 'var(--radius-md)',
                                 marginBottom: 14,
                             }}>
@@ -158,7 +158,7 @@ export default function Playbooks() {
                                         aria-label="Edit playbook"
                                         style={{
                                             width: 30, height: 30, borderRadius: 'var(--radius-sm)',
-                                            background: 'rgba(148,163,184,0.06)', border: '1px solid var(--border-subtle)',
+                                            background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border-subtle)',
                                             display: 'flex', alignItems: 'center', justifyContent: 'center',
                                             color: 'var(--text-tertiary)', cursor: 'pointer',
                                         }}
@@ -216,7 +216,7 @@ export default function Playbooks() {
                                 <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}
                                     onClick={() => setShowModal(false)}
                                     aria-label="Close modal"
-                                    style={{ width: 32, height: 32, borderRadius: 'var(--radius-md)', background: 'rgba(148,163,184,0.06)', border: '1px solid var(--border-subtle)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-secondary)', cursor: 'pointer' }}
+                                    style={{ width: 32, height: 32, borderRadius: 'var(--radius-md)', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border-subtle)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-secondary)', cursor: 'pointer' }}
                                 >
                                     <X size={16} />
                                 </motion.button>
@@ -230,7 +230,7 @@ export default function Playbooks() {
                                     <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 6, display: 'block', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{label}</label>
                                     <input placeholder={placeholder} value={newPlaybook[field]} onChange={(e) => setNewPlaybook(p => ({ ...p, [field]: e.target.value }))} style={{
                                         width: '100%', padding: '10px 14px', fontSize: 14,
-                                        background: 'rgba(148,163,184,0.06)', border: '1px solid var(--border-default)',
+                                        background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border-default)',
                                         borderRadius: 'var(--radius-md)', color: 'var(--text-primary)', outline: 'none',
                                     }} />
                                 </div>
@@ -240,7 +240,7 @@ export default function Playbooks() {
                                 <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 6, display: 'block', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Auth Type</label>
                                 <select value={newPlaybook.authType} onChange={(e) => setNewPlaybook(p => ({ ...p, authType: e.target.value }))} style={{
                                     width: '100%', padding: '10px 14px', fontSize: 14,
-                                    background: 'rgba(148,163,184,0.06)', border: '1px solid var(--border-default)',
+                                    background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border-default)',
                                     borderRadius: 'var(--radius-md)', color: 'var(--text-primary)', outline: 'none', appearance: 'none', cursor: 'pointer',
                                 }}>
                                     <option>Form-based Login</option>
@@ -258,7 +258,7 @@ export default function Playbooks() {
                                     width: '100%', padding: '12px', fontSize: 14, fontWeight: 600,
                                     background: 'var(--gradient-primary)', color: '#fff',
                                     border: 'none', borderRadius: 'var(--radius-md)',
-                                    cursor: 'pointer', boxShadow: 'var(--shadow-glow-blue)',
+                                    cursor: 'pointer', boxShadow: 'var(--shadow-glow-gold)',
                                 }}
                                 onClick={handleCreate}
                                 disabled={saving || !newPlaybook.name || !newPlaybook.domain}
