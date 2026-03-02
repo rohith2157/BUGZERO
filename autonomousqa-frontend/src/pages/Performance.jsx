@@ -68,7 +68,7 @@ export default function Performance() {
     if (loading) {
         return (
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '60vh', gap: 12 }}>
-                <Loader2 size={24} style={{ animation: 'spin-slow 1s linear infinite', color: 'var(--color-accent-blue)' }} />
+                <Loader2 size={24} style={{ animation: 'spin-slow 1s linear infinite', color: 'var(--color-accent-gold)' }} />
                 <span style={{ color: 'var(--text-secondary)' }}>Loading performance...</span>
             </div>
         );
@@ -117,23 +117,23 @@ export default function Performance() {
                         <AreaChart data={performanceData.history}>
                             <defs>
                                 <linearGradient id="lcpGrad" x1="0" y1="0" x2="0" y2="1">
-                                    <stop offset="0%" stopColor="#3B82F6" stopOpacity={0.2} />
-                                    <stop offset="100%" stopColor="#3B82F6" stopOpacity={0} />
+                                    <stop offset="0%" stopColor="#D4A853" stopOpacity={0.2} />
+                                    <stop offset="100%" stopColor="#D4A853" stopOpacity={0} />
                                 </linearGradient>
                                 <linearGradient id="ttfbGrad" x1="0" y1="0" x2="0" y2="1">
-                                    <stop offset="0%" stopColor="#8B5CF6" stopOpacity={0.2} />
-                                    <stop offset="100%" stopColor="#8B5CF6" stopOpacity={0} />
+                                    <stop offset="0%" stopColor="#A78BFA" stopOpacity={0.2} />
+                                    <stop offset="100%" stopColor="#A78BFA" stopOpacity={0} />
                                 </linearGradient>
                             </defs>
-                            <XAxis dataKey="date" tick={{ fill: '#64748B', fontSize: 11 }} axisLine={false} tickLine={false} />
-                            <YAxis tick={{ fill: '#64748B', fontSize: 11 }} axisLine={false} tickLine={false} />
+                            <XAxis dataKey="date" tick={{ fill: '#52525B', fontSize: 11 }} axisLine={false} tickLine={false} />
+                            <YAxis tick={{ fill: '#52525B', fontSize: 11 }} axisLine={false} tickLine={false} />
                             <Tooltip contentStyle={{
                                 background: 'var(--color-bg-elevated)', border: '1px solid var(--border-default)',
                                 borderRadius: 'var(--radius-md)', fontSize: 13,
                             }} />
-                            <Area type="monotone" dataKey="lcp" stroke="#3B82F6" fill="url(#lcpGrad)" strokeWidth={2} dot={false} name="LCP (s)" />
-                            <Line type="monotone" dataKey="fid" stroke="#10B981" strokeWidth={2} dot={false} name="FID (ms)" />
-                            <Area type="monotone" dataKey="ttfb" stroke="#8B5CF6" fill="url(#ttfbGrad)" strokeWidth={2} dot={false} name="TTFB (ms)" />
+                            <Area type="monotone" dataKey="lcp" stroke="#D4A853" fill="url(#lcpGrad)" strokeWidth={2} dot={false} name="LCP (s)" />
+                            <Line type="monotone" dataKey="fid" stroke="#34D399" strokeWidth={2} dot={false} name="FID (ms)" />
+                            <Area type="monotone" dataKey="ttfb" stroke="#A78BFA" fill="url(#ttfbGrad)" strokeWidth={2} dot={false} name="TTFB (ms)" />
                         </AreaChart>
                     </ResponsiveContainer>
                 )}
@@ -150,12 +150,12 @@ export default function Performance() {
                                 <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                                     <div style={{
                                         width: 120, fontSize: 11, color: 'var(--text-secondary)',
-                                        fontFamily: "'JetBrains Mono', monospace",
+                                        fontFamily: "'Geist Mono', 'JetBrains Mono', monospace",
                                         overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flexShrink: 0,
                                     }}>
                                         {res.resource}
                                     </div>
-                                    <div style={{ flex: 1, height: 18, position: 'relative', background: 'rgba(148,163,184,0.04)', borderRadius: 3 }}>
+                                    <div style={{ flex: 1, height: 18, position: 'relative', background: 'rgba(255,255,255,0.03)', borderRadius: 3 }}>
                                         <motion.div
                                             initial={{ width: 0 }}
                                             animate={{ width: `${(res.duration / maxDur) * 100}%` }}
@@ -170,7 +170,7 @@ export default function Performance() {
                                             }}
                                         />
                                     </div>
-                                    <span style={{ fontSize: 11, color: 'var(--text-tertiary)', fontFamily: "'JetBrains Mono', monospace", width: 50, textAlign: 'right', flexShrink: 0 }}>
+                                    <span style={{ fontSize: 11, color: 'var(--text-tertiary)', fontFamily: "'Geist Mono', 'JetBrains Mono', monospace", width: 50, textAlign: 'right', flexShrink: 0 }}>
                                         {res.duration}ms
                                     </span>
                                 </div>
@@ -202,7 +202,7 @@ export default function Performance() {
                                         <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)' }}>{reg.metric}</span>
                                         <StatusBadge status={reg.severity} size="sm" />
                                     </div>
-                                    <div style={{ fontSize: 12, color: 'var(--text-secondary)', fontFamily: "'JetBrains Mono', monospace", marginBottom: 6 }}>
+                                    <div style={{ fontSize: 12, color: 'var(--text-secondary)', fontFamily: "'Geist Mono', 'JetBrains Mono', monospace", marginBottom: 6 }}>
                                         {reg.page}
                                     </div>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: 12, fontSize: 13 }}>

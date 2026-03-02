@@ -42,7 +42,7 @@ export default function Compliance() {
     if (loading) {
         return (
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '60vh', gap: 12 }}>
-                <Loader2 size={24} style={{ animation: 'spin-slow 1s linear infinite', color: 'var(--color-accent-blue)' }} />
+                <Loader2 size={24} style={{ animation: 'spin-slow 1s linear infinite', color: 'var(--color-accent-gold)' }} />
                 <span style={{ color: 'var(--text-secondary)' }}>Loading compliance...</span>
             </div>
         );
@@ -80,10 +80,10 @@ export default function Compliance() {
                                 onClick={() => setFilter(f)}
                                 style={{
                                     padding: '6px 14px', fontSize: 12, fontWeight: 600,
-                                    background: filter === f ? 'rgba(59, 130, 246, 0.12)' : 'rgba(148, 163, 184, 0.06)',
-                                    border: `1px solid ${filter === f ? 'rgba(59, 130, 246, 0.3)' : 'var(--border-subtle)'}`,
+                                    background: filter === f ? 'rgba(212, 168, 83, 0.1)' : 'rgba(255, 255, 255, 0.03)',
+                                    border: `1px solid ${filter === f ? 'rgba(212, 168, 83, 0.2)' : 'rgba(255,255,255,0.05)'}`,
                                     borderRadius: 'var(--radius-full)',
-                                    color: filter === f ? 'var(--text-accent)' : 'var(--text-secondary)',
+                                    color: filter === f ? 'var(--color-accent-gold)' : 'var(--text-secondary)',
                                     cursor: 'pointer', transition: 'all var(--transition-fast)',
                                 }}
                             >
@@ -128,7 +128,7 @@ export default function Compliance() {
                                     </td>
                                     <td style={{ padding: '14px', fontSize: 13, color: 'var(--text-primary)', fontWeight: 500 }}>{v.criterion}</td>
                                     <td style={{ padding: '14px' }}><StatusBadge status={v.severity} size="sm" /></td>
-                                    <td style={{ padding: '14px', fontSize: 12, fontFamily: "'JetBrains Mono', monospace", color: 'var(--text-secondary)' }}>{v.page}</td>
+                                    <td style={{ padding: '14px', fontSize: 12, fontFamily: "'Geist Mono', 'JetBrains Mono', monospace", color: 'var(--text-secondary)' }}>{v.page}</td>
                                     <td style={{ padding: '14px', fontSize: 13, color: 'var(--text-secondary)', maxWidth: 300 }}>{v.description}</td>
                                     <td style={{ padding: '14px', fontSize: 14, fontWeight: 700, color: 'var(--text-primary)' }}>{v.count}</td>
                                 </motion.tr>
