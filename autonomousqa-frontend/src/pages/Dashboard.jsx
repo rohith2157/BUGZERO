@@ -154,7 +154,7 @@ export default function Dashboard() {
                                 fontFamily: "'Geist Mono', 'JetBrains Mono', monospace",
                             }}
                             onFocus={(e) => e.target.style.borderColor = 'var(--color-accent-gold)'}
-                            onBlur={(e) => e.target.style.borderColor = 'rgba(255,255,255,0.06)'}}
+                            onBlur={(e) => e.target.style.borderColor = 'rgba(255,255,255,0.06)'}
                         />
                         <motion.button
                             whileHover={{ scale: 1.04 }}
