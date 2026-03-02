@@ -101,6 +101,10 @@ router.delete('/:id', authenticate, uuidParam, validate, async (req, res) => {
 
             const io = req.app.get('io');
             io.to(`test:${req.params.id}`).emit('test:cancelled', { runId: req.params.id });
+
+            // Signal the AI Core to abort (best-effort)
+            const FASTAPI_URL = process.env.FASTAPI_URL || 'http://localhost:8000';
+            fetch(`${FASTAPI_URL}/api/test/cancel/${req.params.id}`, { method: 'POST' }).catch(() => { });
         }
 
         res.json({ message: 'Test run cancelled' });

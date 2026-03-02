@@ -23,7 +23,7 @@ export default function KPICard({ icon: Icon, label, value, change, prefix = '',
         });
 
         return () => { anim.stop(); unsub(); };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [numericValue, delay, prefix, suffix]);
 
     return (

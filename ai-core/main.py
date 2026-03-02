@@ -47,10 +47,18 @@ async def run_test(request: TestRequest):
     return result
 
 
+@app.post("/api/test/cancel/{run_id}")
+async def cancel_test(run_id: str):
+    """Cancel an in-progress test run."""
+    cancelled = orchestrator.cancel(run_id)
+    return {"run_id": run_id, "cancelled": cancelled}
+
+
 @app.get("/api/test/status/{run_id}")
 async def test_status(run_id: str):
-    """Check the status of a test run (placeholder for future state tracking)."""
-    return {"run_id": run_id, "status": "check gateway for status"}
+    """Check the status of a test run."""
+    active = run_id in orchestrator.active_runs
+    return {"run_id": run_id, "status": "running" if active else "not_active"}
 
 
 if __name__ == "__main__":

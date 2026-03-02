@@ -127,9 +127,9 @@ export default function Report() {
                                     const blob = new Blob([JSON.stringify(reportData, null, 2)], { type: 'application/json' });
                                     const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `report-${id}.json`; a.click();
                                 } else if (label === 'CSV') {
-                                    const rows = [['Type','Severity','Page','Message','Fix']];
+                                    const rows = [['Type', 'Severity', 'Page', 'Message', 'Fix']];
                                     reportData.defects.forEach(d => rows.push([d.type, d.severity, d.page, d.message, d.fix]));
-                                    const csv = rows.map(r => r.map(c => `"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
+                                    const csv = rows.map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(',')).join('\n');
                                     const blob = new Blob([csv], { type: 'text/csv' });
                                     const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `report-${id}.csv`; a.click();
                                 }

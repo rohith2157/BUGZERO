@@ -33,7 +33,7 @@ export default function Playbooks() {
                 successRate: pb.successRate ? `${Math.round(pb.successRate)}%` : '—',
                 lastUsed: pb.lastUsed ? new Date(pb.lastUsed).toLocaleDateString() : 'Never',
             })));
-        }).catch(() => {}).finally(() => setLoading(false));
+        }).catch(() => { }).finally(() => setLoading(false));
     };
 
     const handleCreate = async () => {

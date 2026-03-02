@@ -78,25 +78,35 @@ export default function Settings() {
                 <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="glass-card" style={{ padding: '28px', maxWidth: 600 }}>
                     <h3 style={{ fontSize: 17, fontWeight: 700, marginBottom: 24 }}>Profile Settings</h3>
                     {[
-                        { label: 'Full Name', value: 'Rohith Kumar', type: 'text' },
-                        { label: 'Email', value: 'rohith@autonomousqa.io', type: 'email' },
-                        { label: 'Organization', value: 'AutonomousQA Inc.', type: 'text' },
-                        { label: 'Role', value: 'Owner', type: 'text' },
-                    ].map(({ label, value, type }) => (
+                        { label: 'Full Name', field: 'name', value: 'Rohith Kumar', type: 'text' },
+                        { label: 'Email', field: 'email', value: 'rohith@autonomousqa.io', type: 'email', disabled: true },
+                        { label: 'Organization', field: 'organization', value: 'AutonomousQA Inc.', type: 'text', disabled: true },
+                        { label: 'Role', field: 'role', value: 'Owner', type: 'text', disabled: true },
+                    ].map(({ label, field, value, type, disabled }) => (
                         <div key={label} style={{ marginBottom: 18 }}>
                             <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 6, display: 'block', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{label}</label>
-                            <input type={type} defaultValue={value} style={{
-                                width: '100%', padding: '10px 14px', fontSize: 14,
-                                background: 'rgba(148,163,184,0.06)', border: '1px solid var(--border-default)',
-                                borderRadius: 'var(--radius-md)', color: 'var(--text-primary)', outline: 'none',
-                            }} />
+                            <input type={type} defaultValue={value} disabled={disabled}
+                                onChange={(e) => setProfileForm(f => ({ ...f, [field]: e.target.value }))}
+                                style={{
+                                    width: '100%', padding: '10px 14px', fontSize: 14,
+                                    background: 'rgba(148,163,184,0.06)', border: '1px solid var(--border-default)',
+                                    borderRadius: 'var(--radius-md)', color: 'var(--text-primary)', outline: 'none',
+                                    opacity: disabled ? 0.6 : 1,
+                                }} />
                         </div>
                     ))}
-                    <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} style={{
-                        padding: '10px 24px', fontSize: 14, fontWeight: 600,
-                        background: 'var(--gradient-primary)', color: '#fff',
-                        border: 'none', borderRadius: 'var(--radius-md)', cursor: 'pointer',
-                    }}>Save Changes</motion.button>
+                    <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
+                        disabled={profileSaving}
+                        onClick={async () => {
+                            if (!profileForm.name) return;
+                            setProfileSaving(true);
+                            try { await settingsApi.updateProfile({ name: profileForm.name }); } catch (err) { console.error('Save profile failed:', err); } finally { setProfileSaving(false); }
+                        }}
+                        style={{
+                            padding: '10px 24px', fontSize: 14, fontWeight: 600,
+                            background: 'var(--gradient-primary)', color: '#fff',
+                            border: 'none', borderRadius: 'var(--radius-md)', cursor: profileSaving ? 'wait' : 'pointer',
+                        }}>{profileSaving ? 'Saving...' : 'Save Changes'}</motion.button>
                 </motion.div>
             )}
 
@@ -217,35 +227,44 @@ export default function Settings() {
                 <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="glass-card" style={{ padding: '28px', maxWidth: 600 }}>
                     <h3 style={{ fontSize: 17, fontWeight: 700, marginBottom: 24 }}>Notification Preferences</h3>
                     {[
-                        { label: 'Test Completed', desc: 'When a test run finishes', enabled: true },
-                        { label: 'Critical Defects', desc: 'When critical defects are found', enabled: true },
-                        { label: 'Weekly Report', desc: 'Weekly hygiene score summary', enabled: true },
-                        { label: 'Performance Alerts', desc: 'When regressions are detected', enabled: false },
-                        { label: 'Team Activity', desc: 'When team members run tests', enabled: false },
-                    ].map(({ label, desc, enabled }) => (
-                        <div key={label} style={{
-                            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                            padding: '14px 0', borderBottom: '1px solid var(--border-subtle)',
-                        }}>
-                            <div>
-                                <div style={{ fontSize: 14, fontWeight: 600 }}>{label}</div>
-                                <div style={{ fontSize: 12, color: 'var(--text-tertiary)' }}>{desc}</div>
-                            </div>
-                            <div style={{
-                                width: 44, height: 24, borderRadius: 12, cursor: 'pointer',
-                                background: enabled ? 'var(--color-accent-blue)' : 'rgba(148,163,184,0.2)',
-                                position: 'relative', transition: 'background var(--transition-fast)',
+                        { label: 'Test Completed', desc: 'When a test run finishes' },
+                        { label: 'Critical Defects', desc: 'When critical defects are found' },
+                        { label: 'Weekly Report', desc: 'Weekly hygiene score summary' },
+                        { label: 'Performance Alerts', desc: 'When regressions are detected' },
+                        { label: 'Team Activity', desc: 'When team members run tests' },
+                    ].map(({ label, desc }) => {
+                        const enabled = notifications[label];
+                        return (
+                            <div key={label} style={{
+                                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                                padding: '14px 0', borderBottom: '1px solid var(--border-subtle)',
                             }}>
-                                <div style={{
-                                    width: 18, height: 18, borderRadius: '50%', background: '#fff',
-                                    position: 'absolute', top: 3,
-                                    left: enabled ? 23 : 3,
-                                    transition: 'left var(--transition-fast)',
-                                    boxShadow: 'var(--shadow-sm)',
-                                }} />
+                                <div>
+                                    <div style={{ fontSize: 14, fontWeight: 600 }}>{label}</div>
+                                    <div style={{ fontSize: 12, color: 'var(--text-tertiary)' }}>{desc}</div>
+                                </div>
+                                <div
+                                    onClick={() => setNotifications(prev => ({ ...prev, [label]: !prev[label] }))}
+                                    role="switch"
+                                    aria-checked={enabled}
+                                    tabIndex={0}
+                                    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setNotifications(prev => ({ ...prev, [label]: !prev[label] })); } }}
+                                    style={{
+                                        width: 44, height: 24, borderRadius: 12, cursor: 'pointer',
+                                        background: enabled ? 'var(--color-accent-blue)' : 'rgba(148,163,184,0.2)',
+                                        position: 'relative', transition: 'background var(--transition-fast)',
+                                    }}>
+                                    <div style={{
+                                        width: 18, height: 18, borderRadius: '50%', background: '#fff',
+                                        position: 'absolute', top: 3,
+                                        left: enabled ? 23 : 3,
+                                        transition: 'left var(--transition-fast)',
+                                        boxShadow: 'var(--shadow-sm)',
+                                    }} />
+                                </div>
                             </div>
-                        </div>
-                    ))}
+                        );
+                    })}
                 </motion.div>
             )}
 

@@ -16,12 +16,22 @@ class Orchestrator:
             headless=settings.headless,
             browser_type=settings.browser,
         )
+        self.active_runs: set[str] = set()
+
+    def cancel(self, run_id: str) -> bool:
+        """Request cancellation of a run."""
+        if run_id in self.active_runs:
+            self.active_runs.discard(run_id)
+            return True
+        return False
 
     async def run_test(self, request: TestRequest) -> TestResult:
         """Execute a full autonomous test run."""
         config = request.config or TestConfig()
         crawler = CrawlerAgent(self.playwright)
         tester = TesterAgent(self.playwright)
+        run_id = request.run_id
+        self.active_runs.add(run_id)
 
         try:
             await self.playwright.start()
@@ -34,7 +44,7 @@ class Orchestrator:
 
             if not discovered:
                 return TestResult(
-                    run_id=request.run_id,
+                    run_id=run_id,
                     url=request.url,
                     status="failed",
                     pages=[],
@@ -47,13 +57,28 @@ class Orchestrator:
             total_defects = 0
 
             for page_info in discovered:
-                page_result = await tester.test_page(
-                    page_info["url"],
-                    modules=config.modules,
-                )
-                page_result.page_type = page_info.get("page_type", "Content")
-                pages.append(page_result)
-                total_defects += len(page_result.defects)
+                # Check for cancellation
+                if run_id not in self.active_runs:
+                    return TestResult(
+                        run_id=run_id,
+                        url=request.url,
+                        status="cancelled",
+                        pages=pages,
+                        overall_score=0,
+                        total_defects=total_defects,
+                    )
+
+                try:
+                    page_result = await tester.test_page(
+                        page_info["url"],
+                        modules=config.modules,
+                    )
+                    page_result.page_type = page_info.get("page_type", "Content")
+                    pages.append(page_result)
+                    total_defects += len(page_result.defects)
+                except Exception as e:
+                    print(f"Error testing page {page_info['url']}: {e}")
+                    continue
 
             # Calculate overall score
             if pages:
@@ -63,7 +88,7 @@ class Orchestrator:
                 overall_score = 0
 
             return TestResult(
-                run_id=request.run_id,
+                run_id=run_id,
                 url=request.url,
                 status="completed",
                 pages=pages,
@@ -72,4 +97,5 @@ class Orchestrator:
             )
 
         finally:
+            self.active_runs.discard(run_id)
             await self.playwright.stop()

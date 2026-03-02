@@ -16,11 +16,16 @@ router.get('/team', authenticate, async (req, res) => {
 
         const members = await prisma.user.findMany({
             where: { orgId: req.user.orgId },
-            select: { id: true, name: true, email: true, role: true, avatar: true, createdAt: true },
+            select: { id: true, name: true, email: true, role: true, avatar: true, createdAt: true, updatedAt: true },
             orderBy: { createdAt: 'asc' },
         });
 
-        res.json({ members });
+        const formatted = members.map(m => ({
+            ...m,
+            lastActive: m.updatedAt ? new Date(m.updatedAt).toLocaleDateString() : 'Never',
+        }));
+
+        res.json({ members: formatted });
     } catch (err) {
         console.error('Get team error:', err);
         res.status(500).json({ error: 'Failed to get team' });
@@ -95,8 +100,13 @@ router.post('/api-keys', authenticate, [
 // DELETE /api/settings/api-keys/:id — Revoke an API key
 router.delete('/api-keys/:id', authenticate, async (req, res) => {
     try {
+        const keyId = req.params.id;
+        if (!keyId) {
+            return res.status(400).json({ error: 'API key ID required' });
+        }
+
         const key = await prisma.apiKey.findFirst({
-            where: { id: req.params.id, userId: req.user.id },
+            where: { id: keyId, userId: req.user.id },
         });
 
         if (!key) {
