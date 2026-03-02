@@ -90,50 +90,50 @@ export default function TopBar() {
                     whileTap={{ scale: 0.9 }}
                     aria-label="Toggle theme"
                     style={{
-                        width: 36,
-                        height: 36,
+                        width: 34,
+                        height: 34,
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        background: 'rgba(148, 163, 184, 0.06)',
-                        border: '1px solid var(--border-subtle)',
-                        borderRadius: 'var(--radius-md)',
+                        background: 'rgba(255,255,255,0.03)',
+                        border: '1px solid rgba(255,255,255,0.06)',
+                        borderRadius: 8,
                         color: 'var(--text-secondary)',
                         cursor: 'pointer',
                     }}
                 >
-                    <Moon size={16} />
+                    <Moon size={15} />
                 </motion.button>
 
                 {/* Notifications */}
                 <motion.button
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
+                    whileHover={{ scale: 1.08 }}
+                    whileTap={{ scale: 0.92 }}
                     aria-label="Notifications"
                     style={{
-                        width: 36,
-                        height: 36,
+                        width: 34,
+                        height: 34,
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        background: 'rgba(148, 163, 184, 0.06)',
-                        border: '1px solid var(--border-subtle)',
-                        borderRadius: 'var(--radius-md)',
+                        background: 'rgba(255,255,255,0.03)',
+                        border: '1px solid rgba(255,255,255,0.06)',
+                        borderRadius: 8,
                         color: 'var(--text-secondary)',
                         cursor: 'pointer',
                         position: 'relative',
                     }}
                 >
-                    <Bell size={16} />
+                    <Bell size={15} />
                     <span style={{
                         position: 'absolute',
-                        top: 6,
-                        right: 6,
-                        width: 8,
-                        height: 8,
+                        top: 7,
+                        right: 7,
+                        width: 6,
+                        height: 6,
                         borderRadius: '50%',
-                        background: 'var(--color-error)',
-                        border: '2px solid var(--color-bg-primary)',
+                        background: 'var(--color-accent-gold)',
+                        border: '2px solid #0C0C0E',
                     }} />
                 </motion.button>
 
@@ -141,19 +141,19 @@ export default function TopBar() {
                 <motion.div
                     whileHover={{ scale: 1.05 }}
                     style={{
-                        width: 36,
-                        height: 36,
-                        borderRadius: 'var(--radius-md)',
+                        width: 32,
+                        height: 32,
+                        borderRadius: 8,
                         background: 'var(--gradient-primary)',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
                         cursor: 'pointer',
-                        boxShadow: 'var(--shadow-glow-blue)',
-                        marginLeft: 4,
+                        boxShadow: 'var(--shadow-glow-gold)',
+                        marginLeft: 2,
                     }}
                 >
-                    <User size={18} color="#fff" />
+                    <User size={16} color="#09090B" />
                 </motion.div>
             </div>
         </motion.header>
