@@ -82,7 +82,7 @@ export default function Report() {
     if (loading) {
         return (
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '60vh', gap: 12 }}>
-                <Loader2 size={24} style={{ animation: 'spin-slow 1s linear infinite', color: 'var(--color-accent-blue)' }} />
+                <Loader2 size={24} style={{ animation: 'spin-slow 1s linear infinite', color: 'var(--color-accent-gold)' }} />
                 <span style={{ color: 'var(--text-secondary)' }}>Loading report...</span>
             </div>
         );
@@ -108,7 +108,7 @@ export default function Report() {
             <motion.div variants={item} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
                 <div>
                     <h2 style={{ fontSize: 20, fontWeight: 800, marginBottom: 4 }}>Test Report</h2>
-                    <div style={{ fontSize: 13, color: 'var(--text-accent)', fontFamily: "'JetBrains Mono', monospace" }}>
+                    <div style={{ fontSize: 13, color: 'var(--color-accent-gold)', fontFamily: "'Geist Mono', 'JetBrains Mono', monospace" }}>
                         {reportData.url} • {reportData.date} • {reportData.duration}
                     </div>
                 </div>
@@ -136,9 +136,9 @@ export default function Report() {
                             }}
                             style={{
                                 padding: '8px 14px', fontSize: 12, fontWeight: 600,
-                                background: 'rgba(148, 163, 184, 0.06)',
-                                border: '1px solid var(--border-subtle)',
-                                borderRadius: 'var(--radius-md)',
+                                background: 'rgba(255, 255, 255, 0.03)',
+                                border: '1px solid rgba(255,255,255,0.06)',
+                                borderRadius: 8,
                                 color: 'var(--text-secondary)', cursor: 'pointer',
                                 display: 'flex', alignItems: 'center', gap: 6,
                             }}
@@ -159,8 +159,8 @@ export default function Report() {
                     <h3 style={{ fontSize: 15, fontWeight: 700, marginBottom: 18 }}>Score Breakdown</h3>
                     <ResponsiveContainer width="100%" height={200}>
                         <BarChart data={scoreData} layout="vertical">
-                            <XAxis type="number" domain={[0, 100]} tick={{ fill: '#64748B', fontSize: 11 }} axisLine={false} tickLine={false} />
-                            <YAxis dataKey="name" type="category" tick={{ fill: '#94A3B8', fontSize: 12, fontWeight: 500 }} axisLine={false} tickLine={false} width={100} />
+                            <XAxis type="number" domain={[0, 100]} tick={{ fill: '#52525B', fontSize: 11 }} axisLine={false} tickLine={false} />
+                            <YAxis dataKey="name" type="category" tick={{ fill: '#71717A', fontSize: 12, fontWeight: 500 }} axisLine={false} tickLine={false} width={100} />
                             <Tooltip
                                 contentStyle={{
                                     background: 'var(--color-bg-elevated)', border: '1px solid var(--border-default)',
@@ -202,7 +202,7 @@ export default function Report() {
                                 }}
                             >
                                 <div style={{ fontSize: 24, fontWeight: 800, color: riskColor, marginBottom: 4 }}>{page.score}</div>
-                                <div style={{ fontSize: 12, color: 'var(--text-secondary)', fontFamily: "'JetBrains Mono', monospace", marginBottom: 6 }}>
+                                <div style={{ fontSize: 12, color: 'var(--text-secondary)', fontFamily: "'Geist Mono', 'JetBrains Mono', monospace", marginBottom: 6 }}>
                                     {page.page}
                                 </div>
                                 <div style={{
@@ -233,8 +233,8 @@ export default function Report() {
                                 transition={{ delay: i * 0.04 }}
                                 style={{
                                     padding: '18px',
-                                    borderRadius: 'var(--radius-md)',
-                                    background: 'rgba(148, 163, 184, 0.04)',
+                                    borderRadius: 10,
+                                    background: 'rgba(255, 255, 255, 0.02)',
                                     borderLeft: `3px solid ${sev?.color || '#64748B'}`,
                                 }}
                             >
@@ -250,7 +250,7 @@ export default function Report() {
                                             {defect.type}
                                         </span>
                                     </div>
-                                    <span style={{ fontSize: 12, color: 'var(--text-tertiary)', fontFamily: "'JetBrains Mono', monospace" }}>
+                                    <span style={{ fontSize: 12, color: 'var(--text-tertiary)', fontFamily: "'Geist Mono', 'JetBrains Mono', monospace" }}>
                                         {defect.page}
                                     </span>
                                 </div>
