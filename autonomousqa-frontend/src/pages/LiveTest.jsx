@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Activity, Bug, Clock, Globe, Loader2, CheckCircle2, AlertTriangle, XCircle, StopCircle } from 'lucide-react';
 import StatusBadge from '../components/ui/StatusBadge';
+import { GridBackground } from '../components/ui/GridBackground';
 import { tests as testsApi } from '../lib/api';
 import { useWebSocket } from '../hooks/useWebSocket';
 
@@ -206,20 +207,31 @@ export default function LiveTest() {
                 </div>
             </motion.div>
 
+            <GridBackground
+                title={isRunning ? `Testing ${data.url}…` : `Test ${data.status === 'completed' ? 'Complete' : data.status}`}
+                description={isRunning ? 'Live activity — results appear as each page is tested' : `${data.testedPages} pages tested · ${data.defectsFound} defects found`}
+                showAvailability={isRunning}
+                className="mt-4 !px-4 !py-6"
+            >
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
                 {/* Pages Discovered */}
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.1 }}
-                    className="glass-card"
-                    style={{ padding: '24px' }}
+                    style={{
+                        padding: '20px',
+                        borderRadius: 'var(--radius-lg)',
+                        border: '1px solid var(--border-subtle)',
+                        background: 'rgba(255,255,255,0.03)',
+                        backdropFilter: 'blur(8px)',
+                    }}
                 >
                     <h3 style={{ fontSize: 15, fontWeight: 700, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
                         <Globe size={16} style={{ color: 'var(--color-accent-gold)' }} />
                         Pages Discovered
                     </h3>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 6, maxHeight: 400, overflowY: 'auto' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 6, maxHeight: 280, overflowY: 'auto' }}>
                         {data.pagesDiscovered.length === 0 && (
                             <div style={{ textAlign: 'center', padding: '40px 0', color: 'var(--text-tertiary)', fontSize: 13 }}>Discovering pages...</div>
                         )}
@@ -264,14 +276,19 @@ export default function LiveTest() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.2 }}
-                    className="glass-card"
-                    style={{ padding: '24px' }}
+                    style={{
+                        padding: '20px',
+                        borderRadius: 'var(--radius-lg)',
+                        border: '1px solid var(--border-subtle)',
+                        background: 'rgba(255,255,255,0.03)',
+                        backdropFilter: 'blur(8px)',
+                    }}
                 >
                     <h3 style={{ fontSize: 15, fontWeight: 700, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
                         <Bug size={16} style={{ color: '#EF4444' }} />
                         Live Defects Feed
                     </h3>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 10, maxHeight: 400, overflowY: 'auto' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 10, maxHeight: 280, overflowY: 'auto' }}>
                         <AnimatePresence>
                             {data.liveDefects.length === 0 && (
                                 <div style={{ textAlign: 'center', padding: '40px 0', color: 'var(--text-tertiary)', fontSize: 13 }}>No defects found yet.</div>
@@ -312,6 +329,7 @@ export default function LiveTest() {
                     </div>
                 </motion.div>
             </div>
+            </GridBackground>
         </motion.div>
     );
 }
