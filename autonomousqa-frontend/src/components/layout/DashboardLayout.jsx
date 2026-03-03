@@ -11,7 +11,7 @@ export default function DashboardLayout() {
             <Sidebar collapsed={collapsed} setCollapsed={setCollapsed} />
             <div style={{
                 flex: 1,
-                marginLeft: collapsed ? 72 : 260,
+                marginLeft: collapsed ? 68 : 240,
                 display: 'flex',
                 flexDirection: 'column',
                 minHeight: '100vh',
