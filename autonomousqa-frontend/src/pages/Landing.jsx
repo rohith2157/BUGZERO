@@ -5,7 +5,7 @@ import {
     ArrowRight, Github, Chrome, Mail, FlaskConical,
     Sparkles, Bot, Globe, ChevronRight, Sun, Moon
 } from 'lucide-react';
-import WarpBackground from '../components/ui/WarpBackground';
+import { WarpBackground } from '../components/ui/WarpBackground';
 import useThemeStore from '../store/themeStore';
 
 const features = [
@@ -328,66 +328,54 @@ export default function Landing() {
                     </p>
                 </motion.div>
 
-                <WarpBackground
-                    beamsPerSide={4}
-                    beamSize={4}
-                    beamDuration={3}
-                    beamDelayMax={3}
-                    perspective={100}
-                    style={{ borderRadius: 'var(--radius-xl)' }}
+                <motion.div
+                    variants={container}
+                    initial="hidden"
+                    whileInView="show"
+                    viewport={{ once: true }}
+                    style={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+                        gap: 20,
+                    }}
                 >
-                    <motion.div
-                        variants={container}
-                        initial="hidden"
-                        whileInView="show"
-                        viewport={{ once: true }}
-                        style={{
-                            display: 'grid',
-                            gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-                            gap: 1,
-                            background: 'var(--glass-muted)',
-                            borderRadius: 'var(--radius-xl)',
-                            border: '1px solid var(--border-subtle)',
-                            overflow: 'hidden',
-                        }}
-                    >
-                        {features.map(({ icon: Icon, title, desc, accent }) => (
-                            <motion.div
-                                key={title}
-                                variants={item}
-                                whileHover={{ background: 'var(--glass-subtle-hover)' }}
-                                style={{
-                                    padding: '32px 28px',
-                                    cursor: 'pointer',
-                                    position: 'relative',
-                                    overflow: 'hidden',
-                                    background: 'var(--glass-card-surface)',
-                                    transition: 'all 0.2s ease',
-                                    display: 'flex', flexDirection: 'column', gap: 12,
-                                    backdropFilter: 'blur(8px)',
-                                }}
+                    {features.map(({ icon: Icon, title, desc, accent }) => (
+                        <motion.div key={title} variants={item}>
+                            <WarpBackground
+                                beamsPerSide={3}
+                                beamSize={5}
+                                beamDuration={3}
+                                beamDelayMax={3}
+                                perspective={100}
+                                gridColor="var(--border-default)"
+                                style={{ borderColor: 'var(--border-subtle)' }}
                             >
                                 <div style={{
-                                    width: 40, height: 40, borderRadius: 10,
-                                    background: 'var(--glass-subtle)',
-                                    border: '1px solid var(--border-subtle)',
-                                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                    display: 'flex', flexDirection: 'column', gap: 12,
+                                    cursor: 'pointer',
                                 }}>
-                                    <Icon size={20} style={{ color: accent }} />
+                                    <div style={{
+                                        width: 40, height: 40, borderRadius: 10,
+                                        background: 'var(--glass-subtle)',
+                                        border: '1px solid var(--border-subtle)',
+                                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                    }}>
+                                        <Icon size={20} style={{ color: accent }} />
+                                    </div>
+                                    <h3 style={{ fontSize: 15, fontWeight: 700, letterSpacing: '-0.01em', color: 'var(--text-primary)' }}>
+                                        {title}
+                                    </h3>
+                                    <p style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.6, margin: 0 }}>
+                                        {desc}
+                                    </p>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: accent, fontWeight: 600, marginTop: 4 }}>
+                                        Learn more <ChevronRight size={13} />
+                                    </div>
                                 </div>
-                                <h3 style={{ fontSize: 15, fontWeight: 700, letterSpacing: '-0.01em', color: 'var(--text-primary)' }}>
-                                    {title}
-                                </h3>
-                                <p style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.6, margin: 0 }}>
-                                    {desc}
-                                </p>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: accent, fontWeight: 600, marginTop: 4 }}>
-                                    Learn more <ChevronRight size={13} />
-                                </div>
-                            </motion.div>
-                        ))}
-                    </motion.div>
-                </WarpBackground>
+                            </WarpBackground>
+                        </motion.div>
+                    ))}
+                </motion.div>
             </section>
 
             {/* Bottom CTA */}
