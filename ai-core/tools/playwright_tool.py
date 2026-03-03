@@ -78,8 +78,9 @@ class PlaywrightTool:
         browser = self._ensure_browser()
         context = browser.new_context(
             viewport={"width": 1280, "height": 720},
-            user_agent="AutonomousQA/1.0",
+            user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
         )
+        context.set_default_timeout(8000)
         try:
             discovered = []
             visited = set()
@@ -94,7 +95,7 @@ class PlaywrightTool:
                 page = None
                 try:
                     page = context.new_page()
-                    response = page.goto(current_url, wait_until="domcontentloaded", timeout=15000)
+                    response = page.goto(current_url, wait_until="commit", timeout=8000)
                     if not response:
                         page.close()
                         continue
@@ -144,7 +145,11 @@ class PlaywrightTool:
     def _test_page_sync(self, url: str) -> dict:
         """Test a single page using the persistent browser — fresh context per page."""
         browser = self._ensure_browser()
-        context = browser.new_context(viewport={"width": 1280, "height": 720})
+        context = browser.new_context(
+            viewport={"width": 1280, "height": 720},
+            user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+        )
+        context.set_default_timeout(10000)
         page = context.new_page()
 
         results = {
@@ -155,7 +160,7 @@ class PlaywrightTool:
         }
 
         try:
-            response = page.goto(url, wait_until="domcontentloaded", timeout=30000)
+            response = page.goto(url, wait_until="domcontentloaded", timeout=12000)
             results["status_code"] = response.status if response else 0
             results["title"] = page.title()
 
@@ -352,11 +357,6 @@ class PlaywrightTool:
             return 'Content';
         }""")
         return classification
-
-
-
-class PlaywrightTool:
-    """Manages Playwright browser for crawling and page interaction."""
 
     def __init__(self, headless: bool = True, browser_type: str = "chromium"):
         self._headless = headless

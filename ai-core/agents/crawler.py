@@ -10,6 +10,6 @@ class CrawlerAgent:
         self.tool = playwright_tool
 
     async def crawl(self, url: str, depth: str = "standard") -> list[dict]:
-        max_pages = {"shallow": 10, "standard": 50, "deep": 200}.get(depth, 50)
+        max_pages = {"shallow": 5, "standard": 20, "deep": 100}.get(depth, 20)
         pages = await self.tool.crawl(url, max_pages=max_pages)
         return pages
