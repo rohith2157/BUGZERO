@@ -385,10 +385,12 @@ export default function Landing() {
             }}>
                 <WarpBackground
                     beamsPerSide={3}
-                    beamSize={3}
+                    beamSize={5}
                     beamDuration={4}
                     beamDelayMax={4}
                     perspective={120}
+                    gridColor="var(--border-default)"
+                    style={{ borderColor: 'var(--border-accent)' }}
                 >
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
