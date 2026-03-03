@@ -284,7 +284,7 @@ export default function NewTest() {
                 disabled={!url || launching}
                 style={{
                     width: '100%', padding: '16px', fontSize: 16, fontWeight: 700,
-                    background: !url ? 'rgba(212,168,83,0.3)' : 'var(--color-accent-gold)', color: '#09090B',
+                    background: !url ? 'rgba(212,168,83,0.3)' : 'var(--color-accent-gold)', color: 'var(--on-accent)',
                     border: 'none', borderRadius: 12,
                     cursor: !url || launching ? 'not-allowed' : 'pointer',
                     display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
