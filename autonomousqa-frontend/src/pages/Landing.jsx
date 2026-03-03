@@ -397,19 +397,16 @@ export default function Landing() {
                 maxWidth: 700, margin: '0 auto', padding: '60px 24px 80px',
                 textAlign: 'center', position: 'relative', zIndex: 1,
             }}>
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
+                <WarpBackground
+                    beamsPerSide={3}
+                    beamSize={5}
+                    beamDuration={4}
+                    beamDelayMax={4}
+                    perspective={120}
+                    gridColor="var(--border-default)"
+                    className="!p-0"
                     style={{
-                        borderRadius: 'var(--radius-xl)',
-                        border: '1px solid var(--border-accent)',
-                        background: isDark
-                            ? 'linear-gradient(135deg, rgba(212,168,83,0.04) 0%, rgba(9,9,11,0.9) 100%)'
-                            : 'linear-gradient(135deg, rgba(184,134,11,0.04) 0%, rgba(255,255,255,0.9) 100%)',
-                        backdropFilter: 'blur(12px)',
-                        padding: '52px 44px',
-                        position: 'relative',
+                        borderColor: 'var(--border-accent)',
                         overflow: 'hidden',
                         boxShadow: 'var(--shadow-glow-gold)',
                     }}
@@ -418,7 +415,20 @@ export default function Landing() {
                         className="-top-40 left-0 md:left-48 md:-top-20"
                         fill="var(--color-accent-gold)"
                     />
-                    <div style={{ position: 'relative', zIndex: 2 }}>
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        style={{
+                            padding: '52px 44px',
+                            position: 'relative',
+                            zIndex: 2,
+                            background: isDark
+                                ? 'linear-gradient(135deg, rgba(212,168,83,0.04) 0%, rgba(9,9,11,0.7) 100%)'
+                                : 'linear-gradient(135deg, rgba(184,134,11,0.04) 0%, rgba(255,255,255,0.7) 100%)',
+                            backdropFilter: 'blur(12px)',
+                        }}
+                    >
                         <h3 style={{ fontSize: 26, fontWeight: 800, letterSpacing: '-0.03em', marginBottom: 12, color: 'var(--text-primary)' }}>
                             Ready to ship with confidence?
                         </h3>
@@ -440,8 +450,8 @@ export default function Landing() {
                         >
                             Get Started Free <ArrowRight size={15} />
                         </motion.button>
-                    </div>
-                </motion.div>
+                    </motion.div>
+                </WarpBackground>
             </section>
 
             {/* Footer */}
