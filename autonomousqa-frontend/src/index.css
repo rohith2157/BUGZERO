@@ -369,27 +369,79 @@ a:hover {
 }
 
 @keyframes border-follow {
-  0% { left: 0; top: 0; transform: translate(-50%, -50%); }
-  25% { left: 100%; top: 0; transform: translate(-50%, -50%); }
-  50% { left: 100%; top: 100%; transform: translate(-50%, -50%); }
-  75% { left: 0; top: 100%; transform: translate(-50%, -50%); }
-  100% { left: 0; top: 0; transform: translate(-50%, -50%); }
+  0% {
+    left: 0;
+    top: 0;
+    transform: translate(-50%, -50%);
+  }
+
+  25% {
+    left: 100%;
+    top: 0;
+    transform: translate(-50%, -50%);
+  }
+
+  50% {
+    left: 100%;
+    top: 100%;
+    transform: translate(-50%, -50%);
+  }
+
+  75% {
+    left: 0;
+    top: 100%;
+    transform: translate(-50%, -50%);
+  }
+
+  100% {
+    left: 0;
+    top: 0;
+    transform: translate(-50%, -50%);
+  }
 }
 
 @keyframes color-change {
-  0%   { color: #D4A853; }
-  25%  { color: #6C8EEF; }
-  50%  { color: #EF4444; }
-  75%  { color: #34D399; }
-  100% { color: #D4A853; }
+  0% {
+    color: #D4A853;
+  }
+
+  25% {
+    color: #6C8EEF;
+  }
+
+  50% {
+    color: #EF4444;
+  }
+
+  75% {
+    color: #34D399;
+  }
+
+  100% {
+    color: #D4A853;
+  }
 }
 
 @keyframes border-color-change {
-  0%   { border-color: #D4A853; }
-  25%  { border-color: #6C8EEF; }
-  50%  { border-color: #EF4444; }
-  75%  { border-color: #34D399; }
-  100% { border-color: #D4A853; }
+  0% {
+    border-color: #D4A853;
+  }
+
+  25% {
+    border-color: #6C8EEF;
+  }
+
+  50% {
+    border-color: #EF4444;
+  }
+
+  75% {
+    border-color: #34D399;
+  }
+
+  100% {
+    border-color: #D4A853;
+  }
 }
 
 @keyframes spotlight {

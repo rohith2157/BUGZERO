@@ -3,8 +3,123 @@ import prisma from '../db.js';
 import { authenticate } from '../middleware/auth.js';
 import { validate, createTestRules, uuidParam } from '../middleware/validate.js';
 import { triggerAITest } from '../services/testService.js';
+import { emitTestEvent } from '../services/websocket.js';
 
 const router = Router();
+
+// POST /api/tests/progress — internal incremental updates from AI Core (no auth)
+router.post('/progress', async (req, res) => {
+    try {
+        const { event, run_id, ...data } = req.body;
+        if (!run_id || !event) return res.status(400).json({ error: 'run_id and event required' });
+
+        const io = req.app.get('io');
+
+        if (event === 'crawl_complete') {
+            // upsert-style: only update if still running/queued
+            await prisma.testRun.updateMany({
+                where: { id: run_id, status: { in: ['running', 'queued'] } },
+                data: { totalPages: data.total_pages || 0 },
+            });
+            emitTestEvent(io, run_id, 'crawl:complete', { totalPages: data.total_pages });
+
+        } else if (event === 'page_complete') {
+            const page = data.page;
+            if (!page) return res.status(400).json({ error: 'page data required' });
+
+            // Skip if test is already failed/cancelled/completed to avoid FK violations
+            const runExists = await prisma.testRun.findFirst({
+                where: { id: run_id, status: { in: ['running', 'queued'] } },
+                select: { id: true },
+            });
+            if (!runExists) {
+                return res.json({ ok: true, skipped: true });
+            }
+
+            const dbPage = await prisma.page.create({
+                data: {
+                    url: page.url,
+                    pageType: page.page_type,
+                    hygieneScore: Math.min(100, Math.max(0, page.hygiene_score || 0)),
+                    status: 'tested',
+                    runId: run_id,
+                },
+            });
+
+            for (const defect of (page.defects || [])) {
+                await prisma.defect.create({
+                    data: {
+                        type: defect.type,
+                        severity: defect.severity,
+                        message: defect.message,
+                        fix: defect.fix || null,
+                        pageUrl: page.url,
+                        pageId: dbPage.id,
+                        runId: run_id,
+                        confidence: defect.confidence || null,
+                    },
+                });
+            }
+
+            for (const v of (page.compliance || [])) {
+                await prisma.complianceResult.create({
+                    data: {
+                        standard: v.standard,
+                        criterion: v.criterion,
+                        severity: v.severity,
+                        description: v.description,
+                        remediation: v.remediation || null,
+                        pageUrl: page.url,
+                        pageId: dbPage.id,
+                        runId: run_id,
+                    },
+                });
+            }
+
+            for (const [metricName, metricData] of Object.entries(page.performance || {})) {
+                await prisma.performanceMetric.create({
+                    data: {
+                        metricName,
+                        value: metricData.value,
+                        rating: metricData.rating || null,
+                        pageUrl: page.url,
+                        pageId: dbPage.id,
+                        runId: run_id,
+                    },
+                });
+            }
+
+            // Update counters on the run
+            await prisma.testRun.update({
+                where: { id: run_id },
+                data: {
+                    testedPages: { increment: 1 },
+                    defectCount: { increment: (page.defects || []).length },
+                },
+            });
+
+            // Emit real-time WS events
+            emitTestEvent(io, run_id, 'page:complete', {
+                url: page.url,
+                pageType: page.page_type,
+                hygieneScore: page.hygiene_score,
+            });
+            for (const defect of (page.defects || [])) {
+                emitTestEvent(io, run_id, 'defect:found', {
+                    page: page.url,
+                    type: defect.type,
+                    severity: defect.severity,
+                    message: defect.message,
+                });
+            }
+        }
+
+        res.json({ ok: true });
+    } catch (err) {
+        console.error('Progress update error:', err);
+        res.status(500).json({ error: err.message });
+    }
+});
 
 // POST /api/tests — Start a new test run
 router.post('/', authenticate, createTestRules, validate, async (req, res) => {
