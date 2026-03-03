@@ -59,7 +59,7 @@ export function WarpBackground({
     const leftBeams = useMemo(() => generateBeams(), [generateBeams]);
 
     return (
-        <div className={cn("relative rounded-xl border p-6", className)} {...props}>
+        <div className={cn("relative rounded-xl border p-12", className)} style={{ background: 'var(--color-bg-secondary)', ...props.style }} {...props}>
             <div
                 style={{
                     "--perspective": `${perspective}px`,

@@ -6,6 +6,7 @@ import {
     Sparkles, Bot, Globe, ChevronRight, Sun, Moon
 } from 'lucide-react';
 import { WarpBackground } from '../components/ui/WarpBackground';
+import { Spotlight } from '../components/ui/Spotlight';
 import useThemeStore from '../store/themeStore';
 
 const features = [
@@ -304,7 +305,7 @@ export default function Landing() {
 
             {/* Features grid */}
             <section style={{
-                maxWidth: 1080, margin: '0 auto', padding: '80px 24px 100px',
+                maxWidth: 1200, margin: '0 auto', padding: '80px 24px 100px',
                 position: 'relative', zIndex: 1,
             }}>
                 <motion.div
@@ -335,8 +336,8 @@ export default function Landing() {
                     viewport={{ once: true }}
                     style={{
                         display: 'grid',
-                        gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-                        gap: 20,
+                        gridTemplateColumns: 'repeat(3, 1fr)',
+                        gap: 24,
                     }}
                 >
                     {features.map(({ icon: Icon, title, desc, accent }) => (
@@ -348,11 +349,24 @@ export default function Landing() {
                                 beamDelayMax={3}
                                 perspective={100}
                                 gridColor="var(--border-default)"
-                                style={{ borderColor: 'var(--border-subtle)' }}
+                                className="!p-8 group"
+                                style={{ borderColor: 'var(--border-subtle)', minHeight: 280, overflow: 'hidden' }}
                             >
+                                <Spotlight
+                                    className="-top-40 left-0 md:left-32 md:-top-20 opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+                                    fill={accent}
+                                />
                                 <div style={{
+                                    position: 'relative', zIndex: 2,
+                                    background: 'var(--color-bg-card)',
+                                    border: '1px solid var(--border-subtle)',
+                                    borderRadius: 'var(--radius-lg)',
+                                    padding: '24px 20px',
+                                    backdropFilter: 'blur(12px)',
                                     display: 'flex', flexDirection: 'column', gap: 12,
                                     cursor: 'pointer',
+                                    boxShadow: 'var(--shadow-md)',
+                                    transition: 'border-color 0.3s ease, box-shadow 0.3s ease',
                                 }}>
                                     <div style={{
                                         width: 40, height: 40, borderRadius: 10,
@@ -362,7 +376,7 @@ export default function Landing() {
                                     }}>
                                         <Icon size={20} style={{ color: accent }} />
                                     </div>
-                                    <h3 style={{ fontSize: 15, fontWeight: 700, letterSpacing: '-0.01em', color: 'var(--text-primary)' }}>
+                                    <h3 style={{ fontSize: 16, fontWeight: 700, letterSpacing: '-0.01em', color: 'var(--text-primary)' }}>
                                         {title}
                                     </h3>
                                     <p style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.6, margin: 0 }}>
