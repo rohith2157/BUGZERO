@@ -246,13 +246,13 @@ export default function Landing() {
                         ].map(({ icon: Icon, label }) => (
                             <motion.button
                                 key={label}
-                                whileHover={{ scale: 1.03, borderColor: 'rgba(255,255,255,0.12)' }}
+                                whileHover={{ scale: 1.03, borderColor: 'var(--border-default)' }}
                                 whileTap={{ scale: 0.97 }}
                                 onClick={() => navigate('/login')}
                                 style={{
                                     padding: '9px 18px', fontSize: 13, fontWeight: 500,
-                                    background: 'rgba(255,255,255,0.03)',
-                                    border: '1px solid rgba(255,255,255,0.06)',
+                                    background: 'var(--glass-muted)',
+                                    border: '1px solid var(--border-subtle)',
                                     borderRadius: 'var(--radius-md)', color: 'var(--text-tertiary)',
                                     cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8,
                                     transition: 'all var(--transition-fast)',
@@ -281,7 +281,7 @@ export default function Landing() {
                 {stats.map(({ value, label, suffix }, i) => (
                     <motion.div key={label} variants={item} style={{
                         textAlign: 'center', padding: '24px 16px',
-                        borderRight: i < 3 ? '1px solid rgba(255,255,255,0.06)' : 'none',
+                        borderRight: i < 3 ? '1px solid var(--border-subtle)' : 'none',
                     }}>
                         <div style={{
                             fontSize: 40, fontWeight: 800, letterSpacing: '-0.04em',
