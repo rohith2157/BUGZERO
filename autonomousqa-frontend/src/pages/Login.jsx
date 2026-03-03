@@ -111,8 +111,8 @@ export default function Login() {
         style={{
           width: 400,
           padding: 36,
-          background: 'rgba(24, 24, 27, 0.7)',
-          border: '1px solid rgba(255,255,255,0.06)',
+          background: 'var(--color-bg-card)',
+          border: '1px solid var(--border-subtle)',
           borderRadius: 20,
           backdropFilter: 'blur(24px)',
           position: 'relative',
@@ -128,7 +128,7 @@ export default function Login() {
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             boxShadow: 'var(--shadow-glow-gold)',
           }}>
-            <FlaskConical size={17} color="#09090B" />
+            <FlaskConical size={17} color="var(--on-accent)" />
           </div>
           <span style={{ fontWeight: 700, fontSize: 17, letterSpacing: '-0.02em' }}>
             Autonomous<span style={{ color: 'var(--color-accent-gold)' }}>QA</span>
@@ -253,7 +253,7 @@ export default function Login() {
             whileTap={{ scale: 0.98 }}
             style={{
               width: '100%', padding: '13px 0', fontSize: 14, fontWeight: 700,
-              background: 'var(--color-accent-gold)', color: '#09090B',
+              background: 'var(--color-accent-gold)', color: 'var(--on-accent)',
               border: 'none', borderRadius: 'var(--radius-md)',
               cursor: loading ? 'wait' : 'pointer',
               display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,

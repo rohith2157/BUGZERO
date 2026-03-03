@@ -328,56 +328,66 @@ export default function Landing() {
                     </p>
                 </motion.div>
 
-                <motion.div
-                    variants={container}
-                    initial="hidden"
-                    whileInView="show"
-                    viewport={{ once: true }}
-                    style={{
-                        display: 'grid',
-                        gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-                        gap: 1,
-                        background: 'rgba(255,255,255,0.03)',
-                        borderRadius: 'var(--radius-xl)',
-                        border: '1px solid rgba(255,255,255,0.05)',
-                        overflow: 'hidden',
-                    }}
+                <WarpBackground
+                    beamsPerSide={4}
+                    beamSize={4}
+                    beamDuration={3}
+                    beamDelayMax={3}
+                    perspective={100}
+                    style={{ borderRadius: 'var(--radius-xl)' }}
                 >
-                    {features.map(({ icon: Icon, title, desc, accent }) => (
-                        <motion.div
-                            key={title}
-                            variants={item}
-                            whileHover={{ background: 'rgba(255,255,255,0.04)' }}
-                            style={{
-                                padding: '32px 28px',
-                                cursor: 'pointer',
-                                position: 'relative',
-                                overflow: 'hidden',
-                                background: 'rgba(9, 9, 11, 0.6)',
-                                transition: 'all 0.2s ease',
-                                display: 'flex', flexDirection: 'column', gap: 12,
-                            }}
-                        >
-                            <div style={{
-                                width: 40, height: 40, borderRadius: 10,
-                                background: 'rgba(255,255,255,0.04)',
-                                border: '1px solid rgba(255,255,255,0.06)',
-                                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            }}>
-                                <Icon size={20} style={{ color: accent }} />
-                            </div>
-                            <h3 style={{ fontSize: 15, fontWeight: 700, letterSpacing: '-0.01em', color: 'var(--text-primary)' }}>
-                                {title}
-                            </h3>
-                            <p style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.6, margin: 0 }}>
-                                {desc}
-                            </p>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: accent, fontWeight: 600, marginTop: 4 }}>
-                                Learn more <ChevronRight size={13} />
-                            </div>
-                        </motion.div>
-                    ))}
-                </motion.div>
+                    <motion.div
+                        variants={container}
+                        initial="hidden"
+                        whileInView="show"
+                        viewport={{ once: true }}
+                        style={{
+                            display: 'grid',
+                            gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+                            gap: 1,
+                            background: 'var(--glass-muted)',
+                            borderRadius: 'var(--radius-xl)',
+                            border: '1px solid var(--border-subtle)',
+                            overflow: 'hidden',
+                        }}
+                    >
+                        {features.map(({ icon: Icon, title, desc, accent }) => (
+                            <motion.div
+                                key={title}
+                                variants={item}
+                                whileHover={{ background: 'var(--glass-subtle-hover)' }}
+                                style={{
+                                    padding: '32px 28px',
+                                    cursor: 'pointer',
+                                    position: 'relative',
+                                    overflow: 'hidden',
+                                    background: 'var(--glass-card-surface)',
+                                    transition: 'all 0.2s ease',
+                                    display: 'flex', flexDirection: 'column', gap: 12,
+                                    backdropFilter: 'blur(8px)',
+                                }}
+                            >
+                                <div style={{
+                                    width: 40, height: 40, borderRadius: 10,
+                                    background: 'var(--glass-subtle)',
+                                    border: '1px solid var(--border-subtle)',
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                }}>
+                                    <Icon size={20} style={{ color: accent }} />
+                                </div>
+                                <h3 style={{ fontSize: 15, fontWeight: 700, letterSpacing: '-0.01em', color: 'var(--text-primary)' }}>
+                                    {title}
+                                </h3>
+                                <p style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.6, margin: 0 }}>
+                                    {desc}
+                                </p>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: accent, fontWeight: 600, marginTop: 4 }}>
+                                    Learn more <ChevronRight size={13} />
+                                </div>
+                            </motion.div>
+                        ))}
+                    </motion.div>
+                </WarpBackground>
             </section>
 
             {/* Bottom CTA */}
@@ -385,45 +395,56 @@ export default function Landing() {
                 maxWidth: 700, margin: '0 auto', padding: '60px 24px 80px',
                 textAlign: 'center', position: 'relative', zIndex: 1,
             }}>
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    style={{
-                        padding: '48px 40px',
-                        borderRadius: 'var(--radius-xl)',
-                        border: '1px solid rgba(212,168,83,0.12)',
-                        background: 'linear-gradient(135deg, rgba(212,168,83,0.04) 0%, rgba(9,9,11,0.9) 100%)',
-                    }}
+                <WarpBackground
+                    beamsPerSide={3}
+                    beamSize={3}
+                    beamDuration={4}
+                    beamDelayMax={4}
+                    perspective={120}
                 >
-                    <h3 style={{ fontSize: 26, fontWeight: 800, letterSpacing: '-0.03em', marginBottom: 12 }}>
-                        Ready to ship with confidence?
-                    </h3>
-                    <p style={{ fontSize: 14, color: 'var(--text-secondary)', marginBottom: 28, maxWidth: 400, margin: '0 auto 28px' }}>
-                        Join teams using AI-powered QA to find bugs before users do.
-                    </p>
-                    <motion.button
-                        whileHover={{ scale: 1.03, boxShadow: '0 0 40px rgba(212,168,83,0.25)' }}
-                        whileTap={{ scale: 0.97 }}
-                        onClick={() => navigate('/login')}
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
                         style={{
-                            padding: '13px 32px', fontSize: 14, fontWeight: 700,
-                            background: 'var(--color-accent-gold)', color: '#09090B',
-                            border: 'none', borderRadius: 'var(--radius-full)',
-                            cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8,
-                            boxShadow: '0 0 24px rgba(212,168,83,0.2)',
-                            margin: '0 auto',
+                            padding: '48px 40px',
+                            borderRadius: 'var(--radius-xl)',
+                            border: '1px solid var(--border-accent)',
+                            background: isDark
+                                ? 'linear-gradient(135deg, rgba(212,168,83,0.04) 0%, rgba(9,9,11,0.9) 100%)'
+                                : 'linear-gradient(135deg, rgba(184,134,11,0.04) 0%, rgba(255,255,255,0.9) 100%)',
+                            backdropFilter: 'blur(12px)',
                         }}
                     >
-                        Get Started Free <ArrowRight size={15} />
-                    </motion.button>
-                </motion.div>
+                        <h3 style={{ fontSize: 26, fontWeight: 800, letterSpacing: '-0.03em', marginBottom: 12, color: 'var(--text-primary)' }}>
+                            Ready to ship with confidence?
+                        </h3>
+                        <p style={{ fontSize: 14, color: 'var(--text-secondary)', marginBottom: 28, maxWidth: 400, margin: '0 auto 28px' }}>
+                            Join teams using AI-powered QA to find bugs before users do.
+                        </p>
+                        <motion.button
+                            whileHover={{ scale: 1.03, boxShadow: '0 0 40px rgba(212,168,83,0.25)' }}
+                            whileTap={{ scale: 0.97 }}
+                            onClick={() => navigate('/login')}
+                            style={{
+                                padding: '13px 32px', fontSize: 14, fontWeight: 700,
+                                background: 'var(--color-accent-gold)', color: 'var(--on-accent)',
+                                border: 'none', borderRadius: 'var(--radius-full)',
+                                cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8,
+                                boxShadow: 'var(--shadow-glow-gold)',
+                                margin: '0 auto',
+                            }}
+                        >
+                            Get Started Free <ArrowRight size={15} />
+                        </motion.button>
+                    </motion.div>
+                </WarpBackground>
             </section>
 
             {/* Footer */}
             <footer style={{
                 textAlign: 'center', padding: '32px 24px',
-                borderTop: '1px solid rgba(255,255,255,0.04)',
+                borderTop: '1px solid var(--border-subtle)',
                 color: 'var(--text-tertiary)', fontSize: 12,
                 position: 'relative', zIndex: 1,
                 letterSpacing: '0.02em',

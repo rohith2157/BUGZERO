@@ -51,9 +51,10 @@ export default function Sidebar({ collapsed, setCollapsed }) {
                 zIndex: 40,
                 display: 'flex',
                 flexDirection: 'column',
-                background: '#0C0C0E',
-                borderRight: '1px solid rgba(255,255,255,0.05)',
+                background: 'var(--sidebar-bg)',
+                borderRight: '1px solid var(--border-subtle)',
                 overflow: 'hidden',
+                transition: 'background 0.3s ease',
             }}
         >
             {/* Logo */}
@@ -75,7 +76,7 @@ export default function Sidebar({ collapsed, setCollapsed }) {
                     flexShrink: 0,
                     boxShadow: 'var(--shadow-glow-gold)',
                 }}>
-                    <FlaskConical size={17} color="#09090B" />
+                    <FlaskConical size={17} color="var(--on-accent)" />
                 </div>
                 <AnimatePresence>
                     {!collapsed && (
@@ -94,7 +95,7 @@ export default function Sidebar({ collapsed, setCollapsed }) {
             </div>
 
             {/* Divider */}
-            <div style={{ height: 1, background: 'rgba(255,255,255,0.04)', margin: '0 12px' }} />
+            <div style={{ height: 1, background: 'var(--border-subtle)', margin: '0 12px' }} />
 
             {/* Nav */}
             <nav style={{ flex: 1, padding: '12px 8px', display: 'flex', flexDirection: 'column', gap: 2, overflowY: 'auto' }}>
@@ -107,7 +108,7 @@ export default function Sidebar({ collapsed, setCollapsed }) {
                             style={{ textDecoration: 'none' }}
                         >
                             <motion.div
-                                whileHover={{ background: 'rgba(255,255,255,0.04)' }}
+                                whileHover={{ background: 'var(--glass-subtle-hover)' }}
                                 whileTap={{ scale: 0.98 }}
                                 style={{
                                     display: 'flex',
@@ -165,7 +166,7 @@ export default function Sidebar({ collapsed, setCollapsed }) {
             </nav>
 
             {/* Collapse button */}
-            <div style={{ padding: '10px 8px', borderTop: '1px solid rgba(255,255,255,0.04)' }}>
+            <div style={{ padding: '10px 8px', borderTop: '1px solid var(--border-subtle)' }}>
                 <motion.button
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.97 }}
@@ -178,8 +179,8 @@ export default function Sidebar({ collapsed, setCollapsed }) {
                         alignItems: 'center',
                         justifyContent: 'center',
                         gap: 6,
-                        background: 'rgba(255,255,255,0.03)',
-                        border: '1px solid rgba(255,255,255,0.04)',
+                        background: 'var(--glass-subtle)',
+                        border: '1px solid var(--border-subtle)',
                         borderRadius: 8,
                         color: 'var(--text-tertiary)',
                         cursor: 'pointer',

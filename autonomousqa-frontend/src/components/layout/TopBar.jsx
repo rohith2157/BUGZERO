@@ -1,6 +1,7 @@
-import { Bell, Search, User, Moon } from 'lucide-react';
+import { Bell, Search, User, Moon, Sun } from 'lucide-react';
 import { useLocation, useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import useThemeStore from '../../store/themeStore';
 
 const routeTitles = {
     '/dashboard': 'Dashboard',
@@ -23,6 +24,8 @@ function getTitle(pathname) {
 export default function TopBar() {
     const location = useLocation();
     const title = getTitle(location.pathname);
+    const { theme, toggleTheme } = useThemeStore();
+    const isDark = theme === 'dark';
 
     return (
         <motion.header
@@ -34,12 +37,13 @@ export default function TopBar() {
                 alignItems: 'center',
                 justifyContent: 'space-between',
                 padding: '0 28px',
-                background: 'rgba(9, 9, 11, 0.7)',
+                background: 'var(--glass-navbar)',
                 backdropFilter: 'blur(20px)',
-                borderBottom: '1px solid rgba(255,255,255,0.05)',
+                borderBottom: '1px solid var(--border-subtle)',
                 position: 'sticky',
                 top: 0,
                 zIndex: 30,
+                transition: 'background 0.3s ease',
             }}
         >
             {/* Page Title */}
@@ -62,8 +66,8 @@ export default function TopBar() {
                     alignItems: 'center',
                     gap: 8,
                     padding: '7px 14px',
-                    background: 'rgba(255,255,255,0.03)',
-                    border: '1px solid rgba(255,255,255,0.06)',
+                    background: 'var(--glass-subtle)',
+                    border: '1px solid var(--border-subtle)',
                     borderRadius: 'var(--radius-full)',
                     color: 'var(--text-tertiary)',
                     fontSize: 13,
@@ -77,7 +81,7 @@ export default function TopBar() {
                         marginLeft: 'auto',
                         fontSize: 10,
                         padding: '2px 6px',
-                        background: 'rgba(255,255,255,0.06)',
+                        background: 'var(--glass-subtle-hover)',
                         borderRadius: 4,
                         fontFamily: "'Geist Mono', 'JetBrains Mono', monospace",
                         color: 'var(--text-tertiary)',
@@ -89,20 +93,21 @@ export default function TopBar() {
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.9 }}
                     aria-label="Toggle theme"
+                    onClick={toggleTheme}
                     style={{
                         width: 34,
                         height: 34,
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        background: 'rgba(255,255,255,0.03)',
-                        border: '1px solid rgba(255,255,255,0.06)',
+                        background: 'var(--glass-subtle)',
+                        border: '1px solid var(--border-subtle)',
                         borderRadius: 8,
                         color: 'var(--text-secondary)',
                         cursor: 'pointer',
                     }}
                 >
-                    <Moon size={15} />
+                    {isDark ? <Sun size={15} /> : <Moon size={15} />}
                 </motion.button>
 
                 {/* Notifications */}
@@ -116,8 +121,8 @@ export default function TopBar() {
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        background: 'rgba(255,255,255,0.03)',
-                        border: '1px solid rgba(255,255,255,0.06)',
+                        background: 'var(--glass-subtle)',
+                        border: '1px solid var(--border-subtle)',
                         borderRadius: 8,
                         color: 'var(--text-secondary)',
                         cursor: 'pointer',
@@ -133,7 +138,7 @@ export default function TopBar() {
                         height: 6,
                         borderRadius: '50%',
                         background: 'var(--color-accent-gold)',
-                        border: '2px solid #0C0C0E',
+                        border: '2px solid var(--notification-border)',
                     }} />
                 </motion.button>
 
@@ -153,7 +158,7 @@ export default function TopBar() {
                         marginLeft: 2,
                     }}
                 >
-                    <User size={16} color="#09090B" />
+                    <User size={16} color="var(--on-accent)" />
                 </motion.div>
             </div>
         </motion.header>
