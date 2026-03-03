@@ -3,8 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import {
     Zap, Shield, Eye, BarChart3, Gauge, Scale,
     ArrowRight, Github, Chrome, Mail, FlaskConical,
-    Sparkles, Bot, Globe, ChevronRight
+    Sparkles, Bot, Globe, ChevronRight, Sun, Moon
 } from 'lucide-react';
+import WarpBackground from '../components/ui/WarpBackground';
+import useThemeStore from '../store/themeStore';
 
 const features = [
     { icon: Zap, title: 'Self-Healing Tests', desc: 'Tests that auto-repair when UI changes. Zero maintenance.', accent: 'var(--color-accent-gold)' },
@@ -30,6 +32,8 @@ const item = {
 
 export default function Landing() {
     const navigate = useNavigate();
+    const { theme, toggleTheme } = useThemeStore();
+    const isDark = theme === 'dark';
 
     return (
         <div style={{
@@ -37,6 +41,7 @@ export default function Landing() {
             background: 'var(--color-bg-primary)',
             position: 'relative',
             overflow: 'hidden',
+            transition: 'background 0.3s ease',
         }}>
             {/* Subtle grid */}
             <div className="grid-pattern" style={{ position: 'fixed', inset: 0, zIndex: 0 }} />
@@ -44,17 +49,23 @@ export default function Landing() {
             {/* Ambient orbs — gold theme */}
             <div style={{
                 position: 'fixed', top: '-18%', right: '-8%', width: 700, height: 700,
-                borderRadius: '50%', background: 'radial-gradient(circle, rgba(212,168,83,0.06) 0%, transparent 65%)',
+                borderRadius: '50%', background: isDark
+                    ? 'radial-gradient(circle, rgba(212,168,83,0.06) 0%, transparent 65%)'
+                    : 'radial-gradient(circle, rgba(184,134,11,0.04) 0%, transparent 65%)',
                 pointerEvents: 'none', zIndex: 0,
             }} />
             <div style={{
                 position: 'fixed', bottom: '-15%', left: '-8%', width: 500, height: 500,
-                borderRadius: '50%', background: 'radial-gradient(circle, rgba(167,139,250,0.04) 0%, transparent 65%)',
+                borderRadius: '50%', background: isDark
+                    ? 'radial-gradient(circle, rgba(167,139,250,0.04) 0%, transparent 65%)'
+                    : 'radial-gradient(circle, rgba(167,139,250,0.03) 0%, transparent 65%)',
                 pointerEvents: 'none', zIndex: 0,
             }} />
             <div style={{
                 position: 'fixed', top: '40%', left: '50%', transform: 'translate(-50%, -50%)', width: 900, height: 900,
-                borderRadius: '50%', background: 'radial-gradient(circle, rgba(212,168,83,0.03) 0%, transparent 50%)',
+                borderRadius: '50%', background: isDark
+                    ? 'radial-gradient(circle, rgba(212,168,83,0.03) 0%, transparent 50%)'
+                    : 'radial-gradient(circle, rgba(184,134,11,0.02) 0%, transparent 50%)',
                 pointerEvents: 'none', zIndex: 0,
             }} />
 
@@ -67,10 +78,11 @@ export default function Landing() {
                     position: 'fixed', top: 12, left: 20, right: 20, zIndex: 50,
                     display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                     padding: '12px 24px',
-                    background: 'rgba(9, 9, 11, 0.75)',
+                    background: 'var(--glass-navbar)',
                     backdropFilter: 'blur(24px) saturate(1.2)',
-                    border: '1px solid rgba(255,255,255,0.06)',
+                    border: '1px solid var(--border-subtle)',
                     borderRadius: 16,
+                    transition: 'background 0.3s ease, border-color 0.3s ease',
                 }}
             >
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -80,7 +92,7 @@ export default function Landing() {
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
                         boxShadow: 'var(--shadow-glow-gold)',
                     }}>
-                        <FlaskConical size={15} color="#09090B" />
+                        <FlaskConical size={15} color="var(--on-accent)" />
                     </div>
                     <span style={{ fontWeight: 700, fontSize: 15, letterSpacing: '-0.02em', color: 'var(--text-primary)' }}>
                         Autonomous<span style={{ color: 'var(--color-accent-gold)' }}>QA</span>
@@ -89,15 +101,32 @@ export default function Landing() {
                 <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
                     <span style={{ fontSize: 13, color: 'var(--text-tertiary)', cursor: 'pointer', fontWeight: 500 }}>Docs</span>
                     <span style={{ fontSize: 13, color: 'var(--text-tertiary)', cursor: 'pointer', fontWeight: 500 }}>Pricing</span>
+                    <motion.button
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.9 }}
+                        onClick={toggleTheme}
+                        aria-label="Toggle theme"
+                        style={{
+                            width: 34, height: 34,
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            background: 'var(--glass-subtle)',
+                            border: '1px solid var(--border-subtle)',
+                            borderRadius: 8,
+                            color: 'var(--text-secondary)',
+                            cursor: 'pointer',
+                        }}
+                    >
+                        {isDark ? <Sun size={15} /> : <Moon size={15} />}
+                    </motion.button>
                     <button
                         onClick={() => navigate('/login')}
                         style={{
                             padding: '7px 18px', fontSize: 13, fontWeight: 600,
                             background: 'var(--color-accent-gold)',
-                            color: '#09090B',
+                            color: 'var(--on-accent)',
                             border: 'none', borderRadius: 'var(--radius-full)',
                             cursor: 'pointer',
-                            boxShadow: '0 0 20px rgba(212,168,83,0.2)',
+                            boxShadow: 'var(--shadow-glow-gold)',
                             transition: 'all var(--transition-fast)',
                         }}
                     >
@@ -174,22 +203,22 @@ export default function Landing() {
                             style={{
                                 padding: '13px 30px', fontSize: 14, fontWeight: 700,
                                 background: 'var(--color-accent-gold)',
-                                color: '#09090B',
+                                color: 'var(--on-accent)',
                                 border: 'none', borderRadius: 'var(--radius-full)',
                                 cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8,
-                                boxShadow: '0 0 24px rgba(212,168,83,0.2)',
+                                boxShadow: 'var(--shadow-glow-gold)',
                                 letterSpacing: '-0.01em',
                             }}
                         >
                             <Bot size={17} /> Start Testing Free <ArrowRight size={15} />
                         </motion.button>
                         <motion.button
-                            whileHover={{ scale: 1.03, borderColor: 'rgba(255,255,255,0.15)' }}
+                            whileHover={{ scale: 1.03, borderColor: 'var(--border-default)' }}
                             whileTap={{ scale: 0.97 }}
                             style={{
                                 padding: '13px 30px', fontSize: 14, fontWeight: 600,
-                                background: 'rgba(255, 255, 255, 0.04)',
-                                border: '1px solid rgba(255,255,255,0.08)',
+                                background: 'var(--glass-subtle)',
+                                border: '1px solid var(--border-subtle)',
                                 borderRadius: 'var(--radius-full)',
                                 color: 'var(--text-primary)',
                                 cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8,
