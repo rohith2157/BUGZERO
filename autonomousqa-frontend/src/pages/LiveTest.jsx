@@ -233,9 +233,8 @@ export default function LiveTest() {
                         style={{
                             padding: '20px',
                             borderRadius: 'var(--radius-lg)',
-                            border: '1px solid var(--border-subtle)',
-                            background: 'rgba(255,255,255,0.03)',
-                            backdropFilter: 'blur(8px)',
+                            border: '1px solid rgba(255,255,255,0.06)',
+                            background: 'transparent',
                         }}
                     >
                         <h3 style={{ fontSize: 15, fontWeight: 700, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -245,7 +244,7 @@ export default function LiveTest() {
                                 : 'Pages Discovered'
                             }
                         </h3>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: 6, maxHeight: 280, overflowY: 'auto' }}>
+                        <div className="dark-scroll" style={{ display: 'flex', flexDirection: 'column', gap: 6, maxHeight: 280, overflowY: 'auto' }}>
                             {data.pagesDiscovered.length === 0 && (
                                 <div style={{ textAlign: 'center', padding: '40px 0', fontSize: 13 }}>
                                     {isRunning
@@ -298,9 +297,8 @@ export default function LiveTest() {
                         style={{
                             padding: '20px',
                             borderRadius: 'var(--radius-lg)',
-                            border: '1px solid var(--border-subtle)',
-                            background: 'rgba(255,255,255,0.03)',
-                            backdropFilter: 'blur(8px)',
+                            border: '1px solid rgba(255,255,255,0.06)',
+                            background: 'transparent',
                         }}
                     >
                         <h3 style={{ fontSize: 15, fontWeight: 700, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -310,7 +308,7 @@ export default function LiveTest() {
                                 : 'Live Defects Feed'
                             }
                         </h3>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: 10, maxHeight: 280, overflowY: 'auto' }}>
+                        <div className="dark-scroll" style={{ display: 'flex', flexDirection: 'column', gap: 10, maxHeight: 280, overflowY: 'auto' }}>
                             <AnimatePresence>
                                 {data.liveDefects.length === 0 && (
                                     <div style={{ textAlign: 'center', padding: '40px 0', fontSize: 13 }}>

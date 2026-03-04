@@ -242,6 +242,37 @@ body::before {
   background: rgba(0, 0, 0, 0.2);
 }
 
+/* Dark scrollable panel — used in LiveTest pages/defects lists */
+.dark-scroll::-webkit-scrollbar {
+  width: 4px;
+}
+
+.dark-scroll::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 4px;
+}
+
+.dark-scroll::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 4px;
+}
+
+.dark-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(212, 168, 83, 0.3);
+}
+
+[data-theme="light"] .dark-scroll::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+[data-theme="light"] .dark-scroll::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="light"] .dark-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(184, 134, 11, 0.3);
+}
+
 /* === SELECTION === */
 ::selection {
   background: rgba(212, 168, 83, 0.25);
@@ -363,8 +394,13 @@ a:hover {
 }
 
 @keyframes text-shimmer {
-  from { background-position: 100% center; }
-  to   { background-position:   0% center; }
+  from {
+    background-position: 100% center;
+  }
+
+  to {
+    background-position: 0% center;
+  }
 }
 
 @keyframes spin-slow {
