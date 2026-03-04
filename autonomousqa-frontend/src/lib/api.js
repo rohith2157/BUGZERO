@@ -76,6 +76,8 @@ export const settings = {
     createApiKey: (data) => request('/settings/api-keys', { method: 'POST', body: JSON.stringify(data) }),
     revokeApiKey: (id) => request(`/settings/api-keys/${encodeURIComponent(id)}`, { method: 'DELETE' }),
     notifications: () => request('/settings/notifications'),
+    updateNotifications: (preferences) => request('/settings/notifications', { method: 'PUT', body: JSON.stringify({ preferences }) }),
+    billing: () => request('/settings/billing'),
 };
 
 export default { auth, tests, playbooks, settings };

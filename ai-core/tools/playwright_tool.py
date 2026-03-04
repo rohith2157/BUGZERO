@@ -277,12 +277,14 @@ class PlaywrightTool:
                     "fix": "Ensure text has at least 4.5:1 contrast ratio against background",
                 })
 
-            # Performance metrics
+            # Performance metrics — collect all 4 Core Web Vitals
+            # Step 1: Inject PerformanceObserver for LCP, CLS, and FID before anything
+            # We use page.evaluate with a promise-based approach + setTimeout fallback
             perf = page.evaluate("""() => {
-                const t = performance.timing;
                 const nav = performance.getEntriesByType('navigation')[0];
+                const t = performance.timing;
                 return {
-                    ttfb: nav ? nav.responseStart - nav.requestStart : 0,
+                    ttfb: nav ? nav.responseStart - nav.requestStart : (t.responseStart - t.requestStart),
                     dom_load: t.domContentLoadedEventEnd - t.navigationStart,
                     full_load: t.loadEventEnd - t.navigationStart,
                 };
@@ -294,11 +296,100 @@ class PlaywrightTool:
                     "rating": "good" if perf["ttfb"] < 800 else "needs-improvement" if perf["ttfb"] < 1800 else "poor",
                 }
 
-            if perf.get("full_load", 0) > 0:
-                lcp_estimate = perf["full_load"] / 1000
+            # LCP — use PerformanceObserver entries if available, otherwise estimate from full_load
+            lcp_val = page.evaluate("""() => {
+                try {
+                    const entries = performance.getEntriesByType('largest-contentful-paint');
+                    if (entries && entries.length > 0) {
+                        return entries[entries.length - 1].startTime / 1000;
+                    }
+                } catch(e) {}
+                return null;
+            }""")
+            if lcp_val is None and perf.get("full_load", 0) > 0:
+                lcp_val = perf["full_load"] / 1000
+            if lcp_val is not None and lcp_val > 0:
+                lcp_val = round(lcp_val, 2)
                 results["performance"]["LCP"] = {
-                    "value": round(lcp_estimate, 2),
-                    "rating": "good" if lcp_estimate < 2.5 else "needs-improvement" if lcp_estimate < 4 else "poor",
+                    "value": lcp_val,
+                    "rating": "good" if lcp_val < 2.5 else "needs-improvement" if lcp_val < 4 else "poor",
+                }
+
+            # CLS — measure layout shift from PerformanceObserver entries
+            cls_val = page.evaluate("""() => {
+                try {
+                    const entries = performance.getEntriesByType('layout-shift');
+                    if (entries && entries.length > 0) {
+                        let cls = 0;
+                        for (const entry of entries) {
+                            if (!entry.hadRecentInput) cls += entry.value;
+                        }
+                        return cls;
+                    }
+                } catch(e) {}
+                return null;
+            }""")
+            # If PerformanceObserver entries aren't available, inject an observer and wait briefly
+            if cls_val is None:
+                cls_val = page.evaluate("""() => {
+                    return new Promise((resolve) => {
+                        let cls = 0;
+                        try {
+                            const observer = new PerformanceObserver((list) => {
+                                for (const entry of list.getEntries()) {
+                                    if (!entry.hadRecentInput) cls += entry.value;
+                                }
+                            });
+                            observer.observe({type: 'layout-shift', buffered: true});
+                            setTimeout(() => { observer.disconnect(); resolve(cls); }, 1500);
+                        } catch(e) { resolve(0); }
+                    });
+                }""")
+            if cls_val is not None:
+                cls_val = round(cls_val, 4)
+                results["performance"]["CLS"] = {
+                    "value": cls_val,
+                    "rating": "good" if cls_val <= 0.1 else "needs-improvement" if cls_val <= 0.25 else "poor",
+                }
+
+            # FID — cannot be measured without real user interaction, so we measure TBT as proxy
+            # TBT (Total Blocking Time) correlates strongly with FID
+            fid_val = page.evaluate("""() => {
+                try {
+                    const entries = performance.getEntriesByType('longtask');
+                    if (entries && entries.length > 0) {
+                        let tbt = 0;
+                        for (const entry of entries) {
+                            const blocking = entry.duration - 50;
+                            if (blocking > 0) tbt += blocking;
+                        }
+                        return tbt;
+                    }
+                } catch(e) {}
+                return null;
+            }""")
+            # If longtask entries not available, inject observer
+            if fid_val is None:
+                fid_val = page.evaluate("""() => {
+                    return new Promise((resolve) => {
+                        let tbt = 0;
+                        try {
+                            const observer = new PerformanceObserver((list) => {
+                                for (const entry of list.getEntries()) {
+                                    const blocking = entry.duration - 50;
+                                    if (blocking > 0) tbt += blocking;
+                                }
+                            });
+                            observer.observe({type: 'longtask', buffered: true});
+                            setTimeout(() => { observer.disconnect(); resolve(tbt); }, 1500);
+                        } catch(e) { resolve(0); }
+                    });
+                }""")
+            if fid_val is not None:
+                fid_val = round(fid_val, 1)
+                results["performance"]["FID"] = {
+                    "value": fid_val,
+                    "rating": "good" if fid_val <= 100 else "needs-improvement" if fid_val <= 300 else "poor",
                 }
 
             # GDPR cookie consent check

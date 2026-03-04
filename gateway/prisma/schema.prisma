@@ -21,10 +21,24 @@ model User {
   testRuns      TestRun[]
   apiKeys       ApiKey[]
   notifications Notification[]
+  notificationPrefs NotificationPreference?
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
 
   @@map("users")
+}
+
+model NotificationPreference {
+  id                String  @id @default(uuid())
+  testCompleted     Boolean @default(true)
+  criticalDefects   Boolean @default(true)
+  weeklyReport      Boolean @default(true)
+  performanceAlerts Boolean @default(false)
+  teamActivity      Boolean @default(false)
+  userId            String  @unique
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("notification_preferences")
 }
 
 model Organization {

@@ -128,16 +128,96 @@ router.delete('/api-keys/:id', authenticate, async (req, res) => {
 // GET /api/settings/notifications — Get notification preferences
 router.get('/notifications', authenticate, async (req, res) => {
     try {
-        const notifications = await prisma.notification.findMany({
+        let prefs = await prisma.notificationPreference.findUnique({
             where: { userId: req.user.id },
-            orderBy: { createdAt: 'desc' },
-            take: 50,
         });
 
-        res.json({ notifications });
+        if (!prefs) {
+            prefs = await prisma.notificationPreference.create({
+                data: { userId: req.user.id },
+            });
+        }
+
+        res.json({
+            preferences: {
+                'Test Completed': prefs.testCompleted,
+                'Critical Defects': prefs.criticalDefects,
+                'Weekly Report': prefs.weeklyReport,
+                'Performance Alerts': prefs.performanceAlerts,
+                'Team Activity': prefs.teamActivity,
+            },
+        });
     } catch (err) {
-        console.error('Get notifications error:', err);
-        res.status(500).json({ error: 'Failed to get notifications' });
+        console.error('Get notification preferences error:', err);
+        res.status(500).json({ error: 'Failed to get notification preferences' });
+    }
+});
+
+// PUT /api/settings/notifications — Update notification preferences
+router.put('/notifications', authenticate, async (req, res) => {
+    try {
+        const { preferences } = req.body;
+        if (!preferences || typeof preferences !== 'object') {
+            return res.status(400).json({ error: 'preferences object required' });
+        }
+
+        const data = {};
+        if ('Test Completed' in preferences) data.testCompleted = Boolean(preferences['Test Completed']);
+        if ('Critical Defects' in preferences) data.criticalDefects = Boolean(preferences['Critical Defects']);
+        if ('Weekly Report' in preferences) data.weeklyReport = Boolean(preferences['Weekly Report']);
+        if ('Performance Alerts' in preferences) data.performanceAlerts = Boolean(preferences['Performance Alerts']);
+        if ('Team Activity' in preferences) data.teamActivity = Boolean(preferences['Team Activity']);
+
+        const prefs = await prisma.notificationPreference.upsert({
+            where: { userId: req.user.id },
+            update: data,
+            create: { userId: req.user.id, ...data },
+        });
+
+        res.json({
+            preferences: {
+                'Test Completed': prefs.testCompleted,
+                'Critical Defects': prefs.criticalDefects,
+                'Weekly Report': prefs.weeklyReport,
+                'Performance Alerts': prefs.performanceAlerts,
+                'Team Activity': prefs.teamActivity,
+            },
+        });
+    } catch (err) {
+        console.error('Update notification preferences error:', err);
+        res.status(500).json({ error: 'Failed to update notification preferences' });
+    }
+});
+
+// GET /api/settings/billing — Get billing info
+router.get('/billing', authenticate, async (req, res) => {
+    try {
+        const user = await prisma.user.findUnique({
+            where: { id: req.user.id },
+            include: { org: true },
+        });
+
+        const plan = user.org?.plan || 'free';
+        const plans = {
+            free: { name: 'Free', price: 0, runsLimit: 10 },
+            growth: { name: 'Growth', price: 9999, runsLimit: 200 },
+            enterprise: { name: 'Enterprise', price: 49999, runsLimit: -1 },
+        };
+        const current = plans[plan] || plans.free;
+
+        const runsUsed = await prisma.testRun.count({
+            where: { userId: req.user.id },
+        });
+
+        res.json({
+            plan: current.name,
+            price: current.price,
+            runsLimit: current.runsLimit,
+            runsUsed,
+        });
+    } catch (err) {
+        console.error('Get billing error:', err);
+        res.status(500).json({ error: 'Failed to get billing info' });
     }
 });
 

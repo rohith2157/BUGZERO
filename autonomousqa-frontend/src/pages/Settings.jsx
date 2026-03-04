@@ -27,6 +27,9 @@ export default function Settings() {
         'Performance Alerts': false,
         'Team Activity': false,
     });
+    const [loadingNotifs, setLoadingNotifs] = useState(false);
+    const [billing, setBilling] = useState(null);
+    const [loadingBilling, setLoadingBilling] = useState(false);
 
     useEffect(() => {
         if (activeTab === 'team' && teamMembers.length === 0) {
@@ -42,6 +45,22 @@ export default function Settings() {
                 .then(data => setApiKeys(data.apiKeys || []))
                 .catch(() => { })
                 .finally(() => setLoadingKeys(false));
+        }
+        if (activeTab === 'notifications' && !loadingNotifs) {
+            setLoadingNotifs(true);
+            settingsApi.notifications()
+                .then(data => {
+                    if (data.preferences) setNotifications(data.preferences);
+                })
+                .catch(() => { })
+                .finally(() => setLoadingNotifs(false));
+        }
+        if (activeTab === 'billing' && !billing) {
+            setLoadingBilling(true);
+            settingsApi.billing()
+                .then(data => setBilling(data))
+                .catch(() => { })
+                .finally(() => setLoadingBilling(false));
         }
     }, [activeTab]);
 
@@ -244,11 +263,15 @@ export default function Settings() {
                                     <div style={{ fontSize: 12, color: 'var(--text-tertiary)' }}>{desc}</div>
                                 </div>
                                 <div
-                                    onClick={() => setNotifications(prev => ({ ...prev, [label]: !prev[label] }))}
+                                    onClick={() => {
+                                        const updated = { ...notifications, [label]: !notifications[label] };
+                                        setNotifications(updated);
+                                        settingsApi.updateNotifications(updated).catch(() => { });
+                                    }}
                                     role="switch"
                                     aria-checked={enabled}
                                     tabIndex={0}
-                                    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setNotifications(prev => ({ ...prev, [label]: !prev[label] })); } }}
+                                    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); const updated = { ...notifications, [label]: !notifications[label] }; setNotifications(updated); settingsApi.updateNotifications(updated).catch(() => { }); } }}
                                     style={{
                                         width: 44, height: 24, borderRadius: 12, cursor: 'pointer',
                                         background: enabled ? '#D4A853' : 'rgba(255,255,255,0.08)',
@@ -271,34 +294,41 @@ export default function Settings() {
             {/* Billing Tab */}
             {activeTab === 'billing' && (
                 <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-                    <div className="glass-card" style={{ padding: '28px', marginBottom: 20, maxWidth: 600 }}>
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-                            <div>
-                                <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-tertiary)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>Current Plan</div>
-                                <div style={{ fontSize: 22, fontWeight: 800 }} className="text-gradient">Growth</div>
-                            </div>
-                            <div style={{ textAlign: 'right' }}>
-                                <div style={{ fontSize: 28, fontWeight: 800 }}>₹9,999<span style={{ fontSize: 14, color: 'var(--text-tertiary)', fontWeight: 400 }}>/mo</span></div>
-                            </div>
+                    {loadingBilling ? (
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 40, gap: 8 }}>
+                            <Loader2 size={18} style={{ animation: 'spin-slow 1s linear infinite', color: '#D4A853' }} />
+                            <span style={{ fontSize: 13, color: 'var(--text-secondary)' }}>Loading billing...</span>
                         </div>
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 20 }}>
-                            <div style={{ padding: '12px', borderRadius: 'var(--radius-md)', background: 'rgba(255,255,255,0.02)' }}>
-                                <div style={{ fontSize: 11, color: 'var(--text-tertiary)', fontWeight: 600 }}>RUNS USED</div>
-                                <div style={{ fontSize: 18, fontWeight: 700, marginTop: 4 }}>147 <span style={{ fontSize: 13, color: 'var(--text-tertiary)' }}>/ 200</span></div>
+                    ) : (
+                        <div className="glass-card" style={{ padding: '28px', marginBottom: 20, maxWidth: 600 }}>
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+                                <div>
+                                    <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-tertiary)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>Current Plan</div>
+                                    <div style={{ fontSize: 22, fontWeight: 800 }} className="text-gradient">{billing?.plan || 'Free'}</div>
+                                </div>
+                                <div style={{ textAlign: 'right' }}>
+                                    <div style={{ fontSize: 28, fontWeight: 800 }}>{billing?.price ? `₹${billing.price.toLocaleString()}` : 'Free'}<span style={{ fontSize: 14, color: 'var(--text-tertiary)', fontWeight: 400 }}>{billing?.price ? '/mo' : ''}</span></div>
+                                </div>
                             </div>
-                            <div style={{ padding: '12px', borderRadius: 'var(--radius-md)', background: 'rgba(255,255,255,0.02)' }}>
-                                <div style={{ fontSize: 11, color: 'var(--text-tertiary)', fontWeight: 600 }}>RENEWAL</div>
-                                <div style={{ fontSize: 18, fontWeight: 700, marginTop: 4 }}>Mar 15</div>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 20 }}>
+                                <div style={{ padding: '12px', borderRadius: 'var(--radius-md)', background: 'rgba(255,255,255,0.02)' }}>
+                                    <div style={{ fontSize: 11, color: 'var(--text-tertiary)', fontWeight: 600 }}>RUNS USED</div>
+                                    <div style={{ fontSize: 18, fontWeight: 700, marginTop: 4 }}>{billing?.runsUsed ?? 0} <span style={{ fontSize: 13, color: 'var(--text-tertiary)' }}>/ {billing?.runsLimit === -1 ? '∞' : (billing?.runsLimit ?? 10)}</span></div>
+                                </div>
+                                <div style={{ padding: '12px', borderRadius: 'var(--radius-md)', background: 'rgba(255,255,255,0.02)' }}>
+                                    <div style={{ fontSize: 11, color: 'var(--text-tertiary)', fontWeight: 600 }}>PLAN TYPE</div>
+                                    <div style={{ fontSize: 18, fontWeight: 700, marginTop: 4 }}>{billing?.plan || 'Free'}</div>
+                                </div>
                             </div>
+                            <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} style={{
+                                width: '100%', padding: '12px', fontSize: 14, fontWeight: 600,
+                                background: 'rgba(139, 92, 246, 0.1)', border: '1px solid rgba(139, 92, 246, 0.25)',
+                                borderRadius: 'var(--radius-md)', color: '#8B5CF6', cursor: 'pointer',
+                            }}>
+                                Upgrade to Enterprise
+                            </motion.button>
                         </div>
-                        <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} style={{
-                            width: '100%', padding: '12px', fontSize: 14, fontWeight: 600,
-                            background: 'rgba(139, 92, 246, 0.1)', border: '1px solid rgba(139, 92, 246, 0.25)',
-                            borderRadius: 'var(--radius-md)', color: '#8B5CF6', cursor: 'pointer',
-                        }}>
-                            Upgrade to Enterprise
-                        </motion.button>
-                    </div>
+                    )}
                 </motion.div>
             )}
         </motion.div>
