@@ -33,13 +33,13 @@ export function useWebSocket(runId, handlers = {}) {
                 });
 
                 socket.on('disconnect', () => setConnected(false));
-                socket.on('test:started',   (data) => handlersRef.current.onStarted?.(data));
+                socket.on('test:started', (data) => handlersRef.current.onStarted?.(data));
                 socket.on('crawl:complete', (data) => handlersRef.current.onCrawlComplete?.(data));
-                socket.on('page:discovered',(data) => handlersRef.current.onPageDiscovered?.(data));
-                socket.on('page:complete',  (data) => handlersRef.current.onPageComplete?.(data));
-                socket.on('defect:found',   (data) => handlersRef.current.onDefectFound?.(data));
-                socket.on('test:complete',  (data) => handlersRef.current.onComplete?.(data));
-                socket.on('test:failed',    (data) => handlersRef.current.onFailed?.(data));
+                socket.on('page:discovered', (data) => handlersRef.current.onPageDiscovered?.(data));
+                socket.on('page:complete', (data) => handlersRef.current.onPageComplete?.(data));
+                socket.on('defect:found', (data) => handlersRef.current.onDefectFound?.(data));
+                socket.on('test:complete', (data) => handlersRef.current.onComplete?.(data));
+                socket.on('test:failed', (data) => handlersRef.current.onFailed?.(data));
                 socket.on('test:cancelled', (data) => handlersRef.current.onCancelled?.(data));
             }).catch(() => {
                 // socket.io-client not installed — ignore

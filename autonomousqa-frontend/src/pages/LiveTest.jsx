@@ -64,13 +64,13 @@ export default function LiveTest() {
 
     // WebSocket for real-time updates
     const { connected, cancel } = useWebSocket(id, {
-        onStarted:      () => fetchData(),
-        onCrawlComplete:() => fetchData(), // immediately show page count when crawl finishes
+        onStarted: () => fetchData(),
+        onCrawlComplete: () => fetchData(), // immediately show page count when crawl finishes
         onPageComplete: () => fetchData(),
-        onDefectFound:  () => fetchData(),
-        onComplete:     () => fetchData(),
-        onFailed:       () => fetchData(),
-        onCancelled:    () => fetchData(),
+        onDefectFound: () => fetchData(),
+        onComplete: () => fetchData(),
+        onFailed: () => fetchData(),
+        onCancelled: () => fetchData(),
     });
 
     useEffect(() => {
