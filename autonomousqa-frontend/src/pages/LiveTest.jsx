@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Activity, Bug, Clock, Globe, Loader2, CheckCircle2, AlertTriangle, XCircle, StopCircle } from 'lucide-react';
 import StatusBadge from '../components/ui/StatusBadge';
 import { GridBackground } from '../components/ui/GridBackground';
+import { TextShimmer } from '../components/ui/TextShimmer';
 import { tests as testsApi } from '../lib/api';
 import { useWebSocket } from '../hooks/useWebSocket';
 
@@ -150,7 +151,12 @@ export default function LiveTest() {
                             {getStatusIcon()}
                         </div>
                         <div>
-                            <div style={{ fontSize: 16, fontWeight: 700 }}>{isRunning ? 'Test in Progress' : `Test ${data.status === 'completed' ? 'Complete' : data.status}`}</div>
+                            <div style={{ fontSize: 16, fontWeight: 700 }}>
+                                {isRunning
+                                    ? <TextShimmer duration={2} spread={3}>Test in Progress</TextShimmer>
+                                    : `Test ${data.status === 'completed' ? 'Complete' : data.status}`
+                                }
+                            </div>
                             <div style={{ fontSize: 13, color: 'var(--color-accent-gold)', fontFamily: "'Geist Mono', 'JetBrains Mono', monospace" }}>{data.url}</div>
                         </div>
                     </div>
@@ -168,7 +174,10 @@ export default function LiveTest() {
                 {/* Progress Bar */}
                 <div style={{ marginBottom: 8 }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: 'var(--text-tertiary)', marginBottom: 6 }}>
-                        <span>Progress</span>
+                        {isRunning
+                            ? <TextShimmer duration={2.5} spread={2}>Progress</TextShimmer>
+                            : <span>Progress</span>
+                        }
                         <span style={{ fontWeight: 600, color: 'var(--color-accent-gold)' }}>{data.progress}%</span>
                     </div>
                     <div style={{
@@ -231,11 +240,19 @@ export default function LiveTest() {
                     >
                         <h3 style={{ fontSize: 15, fontWeight: 700, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
                             <Globe size={16} style={{ color: 'var(--color-accent-gold)' }} />
-                            Pages Discovered
+                            {isRunning
+                                ? <TextShimmer duration={3} spread={2}>Pages Discovered</TextShimmer>
+                                : 'Pages Discovered'
+                            }
                         </h3>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 6, maxHeight: 280, overflowY: 'auto' }}>
                             {data.pagesDiscovered.length === 0 && (
-                                <div style={{ textAlign: 'center', padding: '40px 0', color: 'var(--text-tertiary)', fontSize: 13 }}>Discovering pages...</div>
+                                <div style={{ textAlign: 'center', padding: '40px 0', fontSize: 13 }}>
+                                    {isRunning
+                                        ? <TextShimmer duration={2} spread={3}>Discovering pages...</TextShimmer>
+                                        : <span style={{ color: 'var(--text-tertiary)' }}>No pages found.</span>
+                                    }
+                                </div>
                             )}
                             {data.pagesDiscovered.map((page, i) => (
                                 <motion.div
@@ -288,12 +305,20 @@ export default function LiveTest() {
                     >
                         <h3 style={{ fontSize: 15, fontWeight: 700, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
                             <Bug size={16} style={{ color: '#EF4444' }} />
-                            Live Defects Feed
+                            {isRunning
+                                ? <TextShimmer duration={2.8} spread={2}>Live Defects Feed</TextShimmer>
+                                : 'Live Defects Feed'
+                            }
                         </h3>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 10, maxHeight: 280, overflowY: 'auto' }}>
                             <AnimatePresence>
                                 {data.liveDefects.length === 0 && (
-                                    <div style={{ textAlign: 'center', padding: '40px 0', color: 'var(--text-tertiary)', fontSize: 13 }}>No defects found yet.</div>
+                                    <div style={{ textAlign: 'center', padding: '40px 0', fontSize: 13 }}>
+                                        {isRunning
+                                            ? <TextShimmer duration={2.2} spread={2.5}>Scanning for defects...</TextShimmer>
+                                            : <span style={{ color: 'var(--text-tertiary)' }}>No defects found.</span>
+                                        }
+                                    </div>
                                 )}
                                 {data.liveDefects.map((defect, i) => (
                                     <motion.div

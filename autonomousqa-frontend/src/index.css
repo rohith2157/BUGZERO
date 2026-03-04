@@ -3,6 +3,10 @@
 
 :root {
   /* === AUTONOMOUSQA PREMIUM DESIGN TOKENS === */
+  /* TextShimmer — dark mode: white sweep on zinc base */
+  --shimmer-text-base: #71717a;
+  --shimmer-text-highlight: #ffffff;
+
   /* Primary Palette — Deep Obsidian */
   --color-bg-primary: #09090B;
   --color-bg-secondary: #0F0F12;
@@ -103,6 +107,10 @@
 
 /* ===== LIGHT THEME ===== */
 [data-theme="light"] {
+  /* TextShimmer — light mode: dark sweep on zinc base */
+  --shimmer-text-base: #a1a1aa;
+  --shimmer-text-highlight: #09090b;
+
   /* Primary Palette — Clean White */
   --color-bg-primary: #FAFAFA;
   --color-bg-secondary: #F4F4F5;
