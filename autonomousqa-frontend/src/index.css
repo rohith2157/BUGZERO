@@ -362,6 +362,11 @@ a:hover {
   }
 }
 
+@keyframes text-shimmer {
+  from { background-position: 100% center; }
+  to   { background-position:   0% center; }
+}
+
 @keyframes spin-slow {
   from {
     transform: rotate(0deg);
