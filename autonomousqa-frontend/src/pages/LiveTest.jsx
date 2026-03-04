@@ -138,8 +138,13 @@ export default function LiveTest() {
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="glass-card"
-                style={{ padding: '24px', marginBottom: 20 }}
+                style={{
+                    padding: '24px',
+                    marginBottom: 20,
+                    borderRadius: 'var(--radius-lg)',
+                    border: '1px solid rgba(255,255,255,0.06)',
+                    background: 'var(--color-bg-secondary)',
+                }}
             >
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
@@ -207,7 +212,7 @@ export default function LiveTest() {
                     ].map(({ icon: Icon, label, value, color }) => (
                         <div key={label} style={{
                             textAlign: 'center', padding: '14px',
-                            background: 'rgba(255, 255, 255, 0.03)',
+                            background: 'transparent',
                             borderRadius: 10,
                         }}>
                             <Icon size={18} style={{ color, marginBottom: 6 }} />
