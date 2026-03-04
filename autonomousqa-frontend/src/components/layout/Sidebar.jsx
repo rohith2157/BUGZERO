@@ -20,11 +20,25 @@ export default function Sidebar({ collapsed, setCollapsed }) {
     const [latestTestId, setLatestTestId] = useState(null);
     const location = useLocation();
 
+    // Re-fetch on every navigation so Live Test always points to the running test
     useEffect(() => {
-        testsApi.list({ limit: 1 }).then(data => {
-            if (data.testRuns?.[0]) setLatestTestId(data.testRuns[0].id);
-        }).catch(() => { });
-    }, []);
+        const findActiveTest = async () => {
+            try {
+                // Prefer running → queued → latest completed
+                for (const status of ['running', 'queued']) {
+                    const data = await testsApi.list({ limit: 1, status });
+                    if (data.testRuns?.[0]) {
+                        setLatestTestId(data.testRuns[0].id);
+                        return;
+                    }
+                }
+                // No active test — fall back to most recent
+                const data = await testsApi.list({ limit: 1 });
+                if (data.testRuns?.[0]) setLatestTestId(data.testRuns[0].id);
+            } catch { /* ignore */ }
+        };
+        findActiveTest();
+    }, [location.pathname]);
 
     // Build nav items with dynamic test ID
     const navItems = [
