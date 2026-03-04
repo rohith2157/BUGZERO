@@ -73,8 +73,14 @@ class PlaywrightTool:
     async def stop(self):
         await _run_sync(self._stop_sync)
 
-    def _crawl_sync(self, url: str, max_pages: int) -> list[dict]:
-        """Crawl using the persistent browser — one fresh context, one page per URL."""
+    def _crawl_sync(self, url: str, max_pages: int, max_depth: int = 999) -> list[dict]:
+        """Crawl using the persistent browser — tracks real URL depth levels.
+        
+        Queue items are (url, depth) tuples. max_depth enforces the level cap:
+          shallow  → max_depth=1  (root + direct links only)
+          standard → max_depth=3  (3 levels deep)
+          deep     → max_depth=999 (unlimited, stops at max_pages)
+        """
         browser = self._ensure_browser()
         context = browser.new_context(
             viewport={"width": 1280, "height": 720},
@@ -84,11 +90,12 @@ class PlaywrightTool:
         try:
             discovered = []
             visited = set()
-            queue = [url]
+            # Queue items: (url, depth) — depth 0 = the root URL
+            queue = [(url, 0)]
             base_domain = urlparse(url).netloc
 
             while queue and len(visited) < max_pages:
-                current_url = queue.pop(0)
+                current_url, depth = queue.pop(0)
                 if current_url in visited:
                     continue
 
@@ -108,20 +115,23 @@ class PlaywrightTool:
                         "page_type": page_type,
                         "status_code": response.status,
                         "title": page.title(),
+                        "depth": depth,
                     })
 
-                    links = page.evaluate("""() => {
-                        return Array.from(document.querySelectorAll('a[href]'))
-                            .map(a => a.href)
-                            .filter(href => href.startsWith('http'));
-                    }""")
+                    # Only follow links if we haven't hit the depth cap
+                    if depth < max_depth:
+                        links = page.evaluate("""() => {
+                            return Array.from(document.querySelectorAll('a[href]'))
+                                .map(a => a.href)
+                                .filter(href => href.startsWith('http'));
+                        }""")
 
-                    for link in links:
-                        parsed = urlparse(link)
-                        if parsed.netloc == base_domain and link not in visited:
-                            clean_link = f"{parsed.scheme}://{parsed.netloc}{parsed.path}"
-                            if clean_link not in visited:
-                                queue.append(clean_link)
+                        for link in links:
+                            parsed = urlparse(link)
+                            if parsed.netloc == base_domain and link not in visited:
+                                clean_link = f"{parsed.scheme}://{parsed.netloc}{parsed.path}"
+                                if clean_link not in visited:
+                                    queue.append((clean_link, depth + 1))
 
                 except Exception as e:
                     print(f"Crawl error on {current_url}: {e}")
@@ -139,8 +149,8 @@ class PlaywrightTool:
             except Exception:
                 pass
 
-    async def crawl(self, url: str, max_pages: int = 50) -> list[dict]:
-        return await _run_sync(self._crawl_sync, url, max_pages)
+    async def crawl(self, url: str, max_pages: int = 50, max_depth: int = 999) -> list[dict]:
+        return await _run_sync(self._crawl_sync, url, max_pages, max_depth)
 
     def _test_page_sync(self, url: str) -> dict:
         """Test a single page using the persistent browser — fresh context per page."""
