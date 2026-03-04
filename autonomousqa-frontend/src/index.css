@@ -325,6 +325,22 @@ a:hover {
   border-radius: var(--radius-lg);
   transition: all var(--transition-normal);
   box-shadow: var(--shadow-inset);
+  position: relative;
+  isolation: isolate;
+}
+
+/* Mouse-tracking radial gradient overlay */
+.glass-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(320px circle at var(--mouse-x, -9999px) var(--mouse-y, -9999px),
+      rgba(212, 168, 83, 0.09),
+      transparent 70%);
+  pointer-events: none;
+  z-index: -1;
+  transition: background 0.05s ease;
 }
 
 .glass-card:hover {
