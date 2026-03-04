@@ -323,12 +323,12 @@ a:hover {
   -webkit-backdrop-filter: blur(24px);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-lg);
-  transition: border-color var(--transition-normal), box-shadow var(--transition-normal);
+  transition: all var(--transition-normal);
   box-shadow: var(--shadow-inset);
-  position: relative;
 }
 
 .glass-card:hover {
+  background: var(--color-bg-card-hover);
   border-color: var(--border-default);
   box-shadow: var(--shadow-inset), var(--shadow-md);
 }

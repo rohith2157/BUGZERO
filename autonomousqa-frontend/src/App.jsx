@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 import DashboardLayout from './components/layout/DashboardLayout';
@@ -15,8 +14,6 @@ import Settings from './pages/Settings';
 import History from './pages/History';
 
 function App() {
-
-
     return (
         <BrowserRouter>
             <AnimatePresence mode="wait">
