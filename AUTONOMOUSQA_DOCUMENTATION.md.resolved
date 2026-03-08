@@ -1,0 +1,1053 @@
+# AutonomousQA — Enterprise Technical Documentation
+
+> **Document Version:** 1.0.0 | **Last Updated:** 2026-03-04 | **Classification:** Internal — Engineering  
+> **Prepared by:** Engineering Documentation Team | **Project Codename:** BUGZERO
+
+---
+
+## Table of Contents
+
+1. [Executive Summary](#1-executive-summary)
+2. [System Architecture](#2-system-architecture)
+3. [Service Breakdown](#3-service-breakdown)
+   - 3.1 [AI Core (Python FastAPI)](#31-ai-core--python-fastapi)
+   - 3.2 [API Gateway (Express.js)](#32-api-gateway--expressjs)
+   - 3.3 [Frontend (React + Vite)](#33-frontend--react--vite)
+4. [Database Architecture](#4-database-architecture)
+5. [API Reference](#5-api-reference)
+6. [Real-Time Communication](#6-real-time-communication)
+7. [Infrastructure & Deployment](#7-infrastructure--deployment)
+8. [Security Architecture](#8-security-architecture)
+9. [Data Flow & Sequence Diagrams](#9-data-flow--sequence-diagrams)
+10. [File-by-File Reference](#10-file-by-file-reference)
+11. [Configuration & Environment Variables](#11-configuration--environment-variables)
+12. [Dependencies & Technology Stack](#12-dependencies--technology-stack)
+
+---
+
+## 1. Executive Summary
+
+### What It Is
+
+**AutonomousQA** is an AI-powered, fully autonomous Quality Assurance platform that crawls, analyzes, and tests any web application — **without a single line of test script**. Users point it at a URL, and the system autonomously discovers every page, runs accessibility audits (WCAG 2.1), performance analysis (Core Web Vitals), SEO checks, compliance scanning (GDPR), and functional testing — then reports all defects with full evidence in real time.
+
+### The Problem It Solves
+
+| Challenge | How AutonomousQA Addresses It |
+|-----------|-------------------------------|
+| Writing test scripts is slow, expensive, and brittle | Zero-script AI agents explore the app intelligently |
+| Manual QA can't keep pace with CI/CD velocity | Autonomous testing runs 24/7, on-demand |
+| Critical bugs slip through because testing doesn't scale | AI agents test every reachable page, form, and flow |
+| Compliance auditing is manual and error-prone | Automated WCAG + GDPR scanning with remediation advice |
+
+### How It Works (High-Level)
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant Frontend
+    participant Gateway
+    participant AICore
+    participant Browser
+
+    User->>Frontend: Enter URL, click "Start Test"
+    Frontend->>Gateway: POST /api/tests {url, config}
+    Gateway->>Gateway: Create TestRun in PostgreSQL
+    Gateway->>AICore: POST /api/test/run {run_id, url, config}
+    AICore->>Browser: Launch headless Chromium via Playwright
+    Browser->>AICore: Crawl & discover pages (BFS traversal)
+    AICore->>Gateway: POST /progress {crawl_complete}
+    loop For each discovered page
+        Browser->>AICore: Navigate, analyze, test
+        AICore->>Gateway: POST /progress {page_complete}
+        Gateway->>Frontend: WebSocket → page:complete, defect:found
+    end
+    AICore->>Gateway: Return full TestResult
+    Gateway->>Gateway: Finalize TestRun (score, duration)
+    Gateway->>Frontend: WebSocket → test:complete
+    Frontend->>User: Display dashboard, report, compliance
+```
+
+---
+
+## 2. System Architecture
+
+### Three-Tier Architecture
+
+```
+┌──────────────────────────────────────────────────────────┐
+│                     CLIENT TIER                          │
+│              React 19 + Vite 7 + TailwindCSS 4           │
+│         Framer Motion • Recharts • Socket.io-client      │
+│                     Port 5173                            │
+└────────────────────────┬─────────────────────────────────┘
+                         │ HTTP REST + WebSocket
+┌────────────────────────┼─────────────────────────────────┐
+│                  APPLICATION TIER                        │
+│        Express.js 4 + Prisma ORM + Socket.io             │
+│     JWT Auth • Rate Limiting • express-validator          │
+│                     Port 3000                            │
+└────────────────────────┬─────────────────────────────────┘
+                         │ HTTP REST (internal)
+┌────────────────────────┼─────────────────────────────────┐
+│                  AI / COMPUTE TIER                       │
+│           Python FastAPI + Playwright + axe-core          │
+│      Multi-Agent Pipeline (Crawler → Tester → Reporter)  │
+│                     Port 8000                            │
+└────────────────────────┬─────────────────────────────────┘
+                         │
+┌────────────────────────┼─────────────────────────────────┐
+│                  DATA / STORAGE TIER                     │
+│         PostgreSQL 16 │ Redis 7 │ Neo4j 5 Community      │
+│         Port 5432     │ Port 6379 │ Port 7474/7687       │
+└──────────────────────────────────────────────────────────┘
+```
+
+### Service Communication Matrix
+
+| From → To | Protocol | Purpose |
+|-----------|----------|---------|
+| Frontend → Gateway | HTTP REST | Auth, CRUD, test initiation |
+| Frontend → Gateway | WebSocket (Socket.io) | Real-time test progress updates |
+| Gateway → AI Core | HTTP REST (internal) | Trigger test runs, cancel tests |
+| AI Core → Gateway | HTTP REST (callback) | Incremental progress reporting |
+| Gateway → PostgreSQL | Prisma ORM (TCP) | Persistent data storage |
+| AI Core → Target Web App | Playwright (Chromium) | Crawling & testing target URLs |
+
+---
+
+## 3. Service Breakdown
+
+---
+
+### 3.1 AI Core — Python FastAPI
+
+> **Location:** [ai-core/](file:///c:/testproject/ai-core)  
+> **Runtime:** Python 3.11+ | FastAPI | Uvicorn  
+> **Port:** `8000`
+
+#### Purpose
+
+The AI Core is the autonomous testing engine. It launches headless browsers, crawls target websites, discovers all reachable pages via BFS traversal, and runs a comprehensive test suite on each page including accessibility, performance, SEO, compliance, and functional checks.
+
+#### Architecture Pattern: Multi-Agent Pipeline
+
+```mermaid
+graph LR
+    A[Orchestrator] --> B[CrawlerAgent]
+    A --> C[TesterAgent]
+    B --> D[PlaywrightTool]
+    C --> D
+    D --> E[Headless Chromium]
+```
+
+#### File-by-File Breakdown
+
+##### [main.py](file:///c:/testproject/ai-core/main.py) — FastAPI Entrypoint
+
+- **What:** The application entry point that initializes the FastAPI server, configures CORS, and defines the HTTP API endpoints.
+- **Why:** Provides the HTTP interface through which the Gateway communicates with the AI engine. Separates HTTP concerns from business logic.
+- **How:**
+  - Sets `WindowsProactorEventLoopPolicy` on Windows for Playwright subprocess support
+  - Configures CORS to allow `localhost:3000` (Gateway) and `localhost:5173` (Frontend)
+  - Creates a singleton [Orchestrator](file:///c:/testproject/ai-core/orchestrator.py#12-128) instance
+  - Exposes three endpoints:
+    - `GET /health` — Health check with browser readiness status
+    - `POST /api/test/run` — Starts an autonomous test run (accepts [TestRequest](file:///c:/testproject/ai-core/models/schemas.py#20-24), returns [TestResult](file:///c:/testproject/ai-core/models/schemas.py#56-63))
+    - `POST /api/test/cancel/{run_id}` — Cancels an in-progress run
+    - `GET /api/test/status/{run_id}` — Checks if a run is active
+  - Runs via `uvicorn` with hot-reload, excluding `venv/`, `screenshots/`, and `results/` directories
+
+##### [orchestrator.py](file:///c:/testproject/ai-core/orchestrator.py) — Pipeline Coordinator
+
+- **What:** The central coordinator that manages the end-to-end autonomous test pipeline, from crawling to testing to result aggregation.
+- **Why:** Implements the orchestrator pattern to decouple crawling and testing concerns while maintaining a clean pipeline flow with progress reporting and cancellation support.
+- **How:**
+  - Maintains `active_runs: set[str]` to track in-progress test runs (supports cancellation)
+  - **Stage 1 — Crawl:** Calls `CrawlerAgent.crawl()` to discover all reachable pages, respecting the configured `crawl_depth` (shallow/standard/deep)
+  - **Stage 2 — Test:** Iterates over each discovered page, calls `TesterAgent.test_page()`, and collects results
+  - **Progress Reporting:** After each stage, sends HTTP callbacks to the Gateway (`POST /api/tests/progress`) so the frontend can show real-time updates
+  - **Cancellation:** Before testing each page, checks if `run_id` is still in `active_runs`. If not, returns early with status `cancelled`
+  - **Score Calculation:** Averages `hygiene_score` across all tested pages to compute `overall_score`
+  - **Resource Management:** Creates a fresh [PlaywrightTool](file:///c:/testproject/ai-core/tools/playwright_tool.py#17-461) per run and ensures browser cleanup in `finally` block
+
+##### [config.py](file:///c:/testproject/ai-core/config.py) — Application Settings
+
+- **What:** Pydantic-based configuration that loads settings from environment variables and [.env](file:///c:/testproject/gateway/.env) file.
+- **Why:** Centralizes configuration with strong typing, defaults, and automatic [.env](file:///c:/testproject/gateway/.env) file loading via `pydantic-settings`.
+- **How:**
+  - `host` (default: `0.0.0.0`), [port](file:///c:/testproject/ai-core/orchestrator.py#25-35) (default: `8000`)
+  - `openai_api_key` — Reserved for future LLM-powered features
+  - `gateway_url` (default: `http://localhost:3000`) — Where to send progress callbacks
+  - `headless` (default: `True`) — Browser launch mode
+  - [browser](file:///c:/testproject/ai-core/tools/playwright_tool.py#31-52) (default: `chromium`) — Browser engine selector
+
+##### [crawl.py](file:///c:/testproject/ai-core/crawl.py) — Standalone CLI Crawler
+
+- **What:** A standalone CLI entry point that runs the advanced [BugzeroCrawler](file:///c:/testproject/ai-core/crawler/crawler.py#47-200) independently from the API, with Rich-formatted terminal output.
+- **Why:** Enables developers and engineers to run crawls directly from the command line for debugging, prototyping, and ad-hoc website analysis without needing the full stack.
+- **How:**
+  - Accepts URL and max pages as command-line arguments (or prompts interactively)
+  - Instantiates [BugzeroCrawler](file:///c:/testproject/ai-core/crawler/crawler.py#47-200) from the `crawler/` package
+  - Displays a Rich-formatted summary table (total pages, broken links, broken images, missing alts, form issues, crawl duration)
+  - Shows a per-page breakdown with URL, type, status code, issue count, and load time
+  - Saves full results to `results/crawl_result.json`
+  - Saves screenshots to `screenshots/`
+
+---
+
+#### Sub-Packages
+
+##### `agents/` — AI Agent Implementations
+
+###### [agents/crawler.py](file:///c:/testproject/ai-core/agents/crawler.py) — CrawlerAgent
+
+- **What:** Thin agent wrapper that translates crawl depth presets into concrete `max_pages` and `max_depth` parameters.
+- **Why:** Abstracts crawl configuration behind a semantic API (`shallow`, `standard`, `deep`) so the orchestrator doesn't need to know about pagination limits.
+- **How:**
+  - `shallow` → 5 pages, depth 1 (root + direct links)
+  - `standard` → 20 pages, depth 3 (3 levels deep)
+  - `deep` → 100 pages, depth 999 (unlimited depth, stops at page limit)
+  - Delegates to `PlaywrightTool.crawl()`
+
+###### [agents/tester.py](file:///c:/testproject/ai-core/agents/tester.py) — TesterAgent
+
+- **What:** Tests each discovered page for defects, compliance violations, and performance degradation, then computes a hygiene score.
+- **Why:** Encapsulates the defect classification logic and the hygiene score algorithm, converting raw Playwright test results into structured [PageResult](file:///c:/testproject/ai-core/models/schemas.py#47-54) objects.
+- **How:**
+  - Calls `PlaywrightTool.test_page(url)` to get raw test data
+  - Converts raw defect dicts → [DefectResult](file:///c:/testproject/ai-core/models/schemas.py#26-32) models
+  - Converts raw accessibility data → [ComplianceViolation](file:///c:/testproject/ai-core/models/schemas.py#34-40) models
+  - Converts raw performance data → [PerformanceMetric](file:///c:/testproject/ai-core/models/schemas.py#42-45) models
+  - **Hygiene Score Algorithm:** `score = 100 - Σ(severity_weights)`, clamped to `[0, 100]`
+    - `critical` = 15 points, `major` = 8, `minor` = 3, `warning` = 1
+
+---
+
+##### `models/` — Pydantic Data Schemas
+
+###### [models/schemas.py](file:///c:/testproject/ai-core/models/schemas.py) — Request/Response Models
+
+| Model | Purpose | Key Fields |
+|-------|---------|------------|
+| [TestConfig](file:///c:/testproject/ai-core/models/schemas.py#7-18) | Test run configuration | [browser](file:///c:/testproject/ai-core/tools/playwright_tool.py#31-52), `crawl_depth`, `modules[]`, `playbook_id` |
+| [TestRequest](file:///c:/testproject/ai-core/models/schemas.py#20-24) | Incoming test request | `run_id`, [url](file:///c:/testproject/ai-core/crawler/utils.py#29-32), `config?` |
+| [DefectResult](file:///c:/testproject/ai-core/models/schemas.py#26-32) | Single defect finding | `type`, `severity`, `message`, `fix?`, `confidence?` |
+| [ComplianceViolation](file:///c:/testproject/ai-core/models/schemas.py#34-40) | Compliance issue | `standard`, `criterion`, `severity`, `description`, `remediation?` |
+| [PerformanceMetric](file:///c:/testproject/ai-core/models/schemas.py#42-45) | Single metric | `value`, `rating?` |
+| [PageResult](file:///c:/testproject/ai-core/models/schemas.py#47-54) | Results for one page | [url](file:///c:/testproject/ai-core/crawler/utils.py#29-32), `page_type?`, `hygiene_score?`, `defects[]`, `compliance[]`, `performance{}` |
+| [TestResult](file:///c:/testproject/ai-core/models/schemas.py#56-63) | Full test run results | `run_id`, [url](file:///c:/testproject/ai-core/crawler/utils.py#29-32), [status](file:///c:/testproject/ai-core/main.py#57-62), `pages[]`, `overall_score?`, `total_defects` |
+| [HealthResponse](file:///c:/testproject/ai-core/models/schemas.py#65-69) | Health check response | [status](file:///c:/testproject/ai-core/main.py#57-62), `version`, `browser_ready` |
+
+---
+
+##### `tools/` — Browser Automation
+
+###### [tools/playwright_tool.py](file:///c:/testproject/ai-core/tools/playwright_tool.py) — Playwright Browser Wrapper (462 lines)
+
+- **What:** The most critical file in the AI Core — manages a persistent headless browser instance and implements all crawling, testing, and page classification logic.
+- **Why:** Centralizes all browser interactions behind an async-safe API. Uses a `ThreadPoolExecutor` to run Playwright's sync API without blocking the FastAPI event loop.
+- **How:**
+
+  **Browser Lifecycle:**
+  - One browser instance per [PlaywrightTool](file:///c:/testproject/ai-core/tools/playwright_tool.py#17-461) (per test run)
+  - [_ensure_browser()](file:///c:/testproject/ai-core/tools/playwright_tool.py#31-52) — Lazy-launches Chromium with `--no-sandbox` and `--disable-dev-shm-usage`
+  - [start()](file:///c:/testproject/ai-core/tools/playwright_tool.py#70-72) / [stop()](file:///c:/testproject/ai-core/tools/playwright_tool.py#73-75) — Async wrappers that delegate to thread pool
+  - Automatically recovers from disconnected browser states
+
+  **Crawling ([_crawl_sync](file:///c:/testproject/ai-core/tools/playwright_tool.py#76-151)):**
+  - BFS traversal with [(url, depth)](file:///c:/testproject/autonomousqa-frontend/src/lib/api.js#45-46) tuples
+  - Respects `max_pages` (total page limit) and `max_depth` (URL level cap)
+  - Domain-scoped: only follows same-domain links
+  - Strips URL fragments and query parameters for deduplication
+  - Classifies each page via [_classify_page_sync()](file:///c:/testproject/ai-core/tools/playwright_tool.py#443-461)
+  - Creates a fresh browser context per crawl session
+
+  **Page Testing ([_test_page_sync](file:///c:/testproject/ai-core/tools/playwright_tool.py#155-439)):**
+  - Creates a fresh browser context per page (isolation)
+  - **Tests performed:**
+
+  | Test Category | What It Checks | Severity |
+  |--------------|----------------|----------|
+  | Alt text | `<img>` without [alt](file:///c:/testproject/ai-core/main.py#34-41) | major |
+  | Heading hierarchy | Missing H1, multiple H1s, skipped levels | major / minor |
+  | Meta description | Missing `<meta name="description">` | minor |
+  | Form labels | Inputs without `<label>`, `aria-label`, or `aria-labelledby` | critical |
+  | Color contrast | Elements where `color === backgroundColor` | major |
+  | GDPR cookie consent | No cookie consent mechanism detected | warning |
+  | Privacy policy | No privacy policy link found | minor |
+
+  - **Performance Metrics (Core Web Vitals):**
+
+  | Metric | How Measured | Good | Needs Improvement | Poor |
+  |--------|-------------|------|-------------------|------|
+  | **TTFB** | `performance.timing.responseStart − requestStart` | <800ms | <1800ms | ≥1800ms |
+  | **LCP** | `PerformanceObserver` entries or `full_load` fallback | <2.5s | <4s | ≥4s |
+  | **CLS** | Layout-shift entries (buffered + observer) | ≤0.1 | ≤0.25 | >0.25 |
+  | **FID** | TBT proxy via `longtask` entries | ≤100ms | ≤300ms | >300ms |
+
+  **Page Classification ([_classify_page_sync](file:///c:/testproject/ai-core/tools/playwright_tool.py#443-461)):**
+  - URL-based: checks for [login](file:///c:/testproject/autonomousqa-frontend/src/lib/api.js#44-45), `signin`, [auth](file:///c:/testproject/gateway/src/middleware/auth.js#3-20), `setting`, `dashboard`, etc.
+  - Content-based: form inputs > 3 → [Form](file:///c:/testproject/ai-core/crawler/page_analyzer.py#36-41), tables → `Data Table`, canvas/svg > 2 → `Dashboard`
+  - Default: `Content`
+
+---
+
+##### `crawler/` — Standalone Crawler Package
+
+###### [crawler/\_\_init\_\_.py](file:///c:/testproject/ai-core/crawler/__init__.py) — Package Exports
+
+Exports: [BugzeroCrawler](file:///c:/testproject/ai-core/crawler/crawler.py#47-200), [CrawlResult](file:///c:/testproject/ai-core/crawler/crawler.py#32-42), [PageResult](file:///c:/testproject/ai-core/models/schemas.py#47-54), [PageAnalyzer](file:///c:/testproject/ai-core/crawler/page_analyzer.py#57-259), [PageAnalysis](file:///c:/testproject/ai-core/crawler/page_analyzer.py#43-52), [PageClassifier](file:///c:/testproject/ai-core/crawler/page_classifier.py#17-77)
+
+###### [crawler/crawler.py](file:///c:/testproject/ai-core/crawler/crawler.py) — BugzeroCrawler (200 lines)
+
+- **What:** A full-featured async web crawler that uses `playwright.async_api` to discover and analyze pages.
+- **Why:** Provides a standalone, more advanced crawling capability compared to the simpler `PlaywrightTool.crawl()`. Used by the CLI entry point ([crawl.py](file:///c:/testproject/ai-core/crawl.py)).
+- **How:**
+  - Uses `asyncio.Queue` for BFS page discovery with deduplication via `_visited` and `_enqueued` sets
+  - Polite crawling with random delays (0.3–1.0s) between page visits
+  - For each page: navigates → classifies → analyzes → discovers outbound links
+  - Respects `max_pages` limit
+  - Captures console errors via page event listener
+  - Produces [CrawlResult](file:///c:/testproject/ai-core/crawler/crawler.py#32-42) with aggregated metrics (total broken links, images, missing alts, form issues, duration)
+
+###### [crawler/page_analyzer.py](file:///c:/testproject/ai-core/crawler/page_analyzer.py) — PageAnalyzer (259 lines)
+
+- **What:** Deep page analysis engine that checks every page for broken links, broken images, missing alt text, form accessibility issues, and load performance.
+- **Why:** Centralizes all page-level quality checks with parallel execution for performance.
+- **How:**
+  - **Parallel execution:** Runs link checks, image checks, alt checks, form checks, and screenshots concurrently via `asyncio.create_task()`
+  - **Broken link detection:** Extracts all `<a>` hrefs, performs HEAD requests (with GET fallback) on up to 30 links using `aiohttp`
+  - **Broken image detection:** Checks `naturalWidth === 0` for all `<img>` elements
+  - **Missing alt detection:** Finds `<img>` without [alt](file:///c:/testproject/ai-core/main.py#34-41) attribute or with empty [alt](file:///c:/testproject/ai-core/main.py#34-41)
+  - **Form analysis:** Checks if inputs have associated `<label>`, `aria-label`, or `aria-labelledby`
+  - **Screenshots:** Full-page screenshots saved with URL-derived filenames
+  - **Performance:** Captures `performance.timing` (load time in ms) and DOM element count
+
+###### [crawler/page_classifier.py](file:///c:/testproject/ai-core/crawler/page_classifier.py) — PageClassifier (77 lines)
+
+- **What:** Heuristic-based page type classifier using URL path analysis and HTML content signals.
+- **Why:** Classifying pages enables category-specific testing strategies and meaningful dashboard grouping.
+- **How:** Priority-ordered classification:
+  1. **URL keywords** (strongest signal): [login](file:///c:/testproject/autonomousqa-frontend/src/lib/api.js#44-45), `dashboard`, `wizard`, [report](file:///c:/testproject/ai-core/orchestrator.py#25-35), etc.
+  2. **Root page** detection → `home`
+  3. **HTML content signals** (keyword counting): auth signals ≥2, dashboard signals ≥2, wizard signals ≥2, report signals ≥2
+  4. **Form detection**: input/textarea/select count > 3 → [form](file:///c:/testproject/autonomousqa-frontend/src/lib/api.js#60-61)
+  5. **Table/list detection**: `<table>` or `<li>` count > 10 → [list](file:///c:/testproject/autonomousqa-frontend/src/lib/api.js#65-66)
+  6. **Default**: `detail`
+
+###### [crawler/utils.py](file:///c:/testproject/ai-core/crawler/utils.py) — URL Utilities (40 lines)
+
+| Function | Purpose |
+|----------|---------|
+| [sanitize_url_for_filename(url)](file:///c:/testproject/ai-core/crawler/utils.py#7-19) | Converts URL to safe filename (e.g., `example.com_path_page`) |
+| [is_same_domain(url, base_url)](file:///c:/testproject/ai-core/crawler/utils.py#21-27) | Checks domain equality for scope enforcement |
+| [is_valid_url(url)](file:///c:/testproject/ai-core/crawler/utils.py#29-32) | Validates `http://` or `https://` protocol |
+| [normalize_url(url, base_url)](file:///c:/testproject/ai-core/crawler/utils.py#34-40) | Resolves relative URLs, strips fragments |
+
+---
+
+### 3.2 API Gateway — Express.js
+
+> **Location:** [gateway/](file:///c:/testproject/gateway)  
+> **Runtime:** Node.js 20+ | Express.js 4  
+> **Port:** `3000`
+
+#### Purpose
+
+The API Gateway serves as the central orchestration layer between the frontend and the AI Core. It handles authentication, authorization, data persistence (PostgreSQL via Prisma), real-time communication (WebSocket via Socket.io), and rate limiting.
+
+#### File-by-File Breakdown
+
+##### [src/index.js](file:///c:/testproject/gateway/src/index.js) — Express Server Entry Point
+
+- **What:** Initializes the Express HTTP server, Socket.io WebSocket server, global middleware, and route mounting.
+- **Why:** Single entry point that wires all concerns together with proper middleware ordering.
+- **How:**
+  - Creates HTTP server from Express app for Socket.io compatibility
+  - CORS: Allows `localhost:5173`, `localhost:5174`, `localhost:3001`
+  - Rate limiting: 500 requests per 15-minute window on `/api/` routes
+  - JSON body size: 10MB limit
+  - Route mounting: `/api/auth`, `/api/tests`, `/api/playbooks`, `/api/settings`
+  - Socket.io instance shared with routes via `app.set('io', io)`
+  - Global error handler for unhandled exceptions
+
+##### [src/db.js](file:///c:/testproject/gateway/src/db.js) — Prisma Client Singleton
+
+- **What:** Creates and exports a singleton `PrismaClient` instance for database access.
+- **Why:** Ensures a single database connection pool is shared across all route handlers.
+
+---
+
+##### `src/routes/` — REST API Route Handlers
+
+###### [routes/auth.js](file:///c:/testproject/gateway/src/routes/auth.js) — Authentication Routes (119 lines)
+
+| Endpoint | Method | Auth | Description |
+|----------|--------|------|-------------|
+| `/api/auth/register` | POST | ❌ | User registration with optional organization creation |
+| `/api/auth/login` | POST | ❌ | Email/password login, returns JWT |
+| `/api/auth/refresh` | POST | ✅ | Refresh JWT token |
+| `/api/auth/me` | GET | ✅ | Retrieve current user profile |
+| `/api/auth/logout` | DELETE | ✅ | Logout (client discards token) |
+
+- Password hashing: `bcryptjs` with 12 salt rounds
+- JWT payload: `{ id, email, orgId, role }`
+- Token expiry: configurable via `JWT_EXPIRES_IN` env var (default: 7 days)
+- Organization auto-creation on registration when `orgName` is provided
+
+###### [routes/tests.js](file:///c:/testproject/gateway/src/routes/tests.js) — Test Run Routes (311 lines)
+
+| Endpoint | Method | Auth | Description |
+|----------|--------|------|-------------|
+| `/api/tests` | POST | ✅ | Start a new autonomous test run |
+| `/api/tests` | GET | ✅ | List all test runs with pagination & filtering |
+| `/api/tests/:id` | GET | ✅ | Get full test run results (pages + defects) |
+| `/api/tests/:id` | DELETE | ✅ | Cancel an in-progress test run |
+| `/api/tests/:id/pages` | GET | ✅ | Page-level results for a run |
+| `/api/tests/:id/compliance` | GET | ✅ | Compliance report with WCAG/GDPR scores |
+| `/api/tests/:id/performance` | GET | ✅ | Performance metrics with Core Web Vitals averages |
+| `/api/tests/progress` | POST | ❌* | Internal callback from AI Core for incremental updates |
+
+> \* The `/progress` endpoint is intentionally unauthenticated — it's called by the AI Core internally.
+
+**Key Design Decisions:**
+- **Incremental writes:** The `/progress` endpoint writes page results to the DB as they arrive from the AI Core, enabling real-time dashboard updates
+- **Compliance scoring:** `overall = 100 - (violations × 3)`, `WCAG = 100 - (wcag_violations × 4)`, `GDPR = 100 - (gdpr_violations × 5)`
+- **Performance aggregation:** Groups metrics by page, calculates averages for each Web Vital
+- **Cancellation flow:** Updates DB status → emits `test:cancelled` WebSocket event → signals AI Core via HTTP
+
+###### [routes/playbooks.js](file:///c:/testproject/gateway/src/routes/playbooks.js) — Playbook Routes (95 lines)
+
+| Endpoint | Method | Auth | Description |
+|----------|--------|------|-------------|
+| `/api/playbooks` | GET | ✅ | List all playbooks for user's organization |
+| `/api/playbooks` | POST | ✅ | Create a new auth playbook |
+| `/api/playbooks/:id` | PUT | ✅ | Update an existing playbook |
+| `/api/playbooks/:id` | DELETE | ✅ | Delete a playbook |
+
+- Organization-scoped: Playbooks belong to the user's `orgId`
+- Supports auth types: Google SSO, OAuth2, form + TOTP, basic form, Microsoft SSO
+
+###### [routes/settings.js](file:///c:/testproject/gateway/src/routes/settings.js) — Settings Routes (225 lines)
+
+| Endpoint | Method | Auth | Description |
+|----------|--------|------|-------------|
+| `/api/settings/team` | GET | ✅ | List organization team members |
+| `/api/settings/profile` | PUT | ✅ | Update user name/avatar |
+| `/api/settings/api-keys` | GET | ✅ | List API keys (masked) |
+| `/api/settings/api-keys` | POST | ✅ | Generate a new API key |
+| `/api/settings/api-keys/:id` | DELETE | ✅ | Revoke an API key |
+| `/api/settings/notifications` | GET | ✅ | Get notification preferences |
+| `/api/settings/notifications` | PUT | ✅ | Update notification preferences |
+| `/api/settings/billing` | GET | ✅ | Get billing/plan info |
+
+- **API Key generation:** `aq_` prefix + 32 random bytes (hex) = 67 character keys
+- **Key masking:** Only shows first 8 and last 4 characters in list views
+- **Billing plans:** Free (0, 10 runs), Growth ($99.99, 200 runs), Enterprise ($499.99, unlimited)
+- **Notification preferences:** Test completed, critical defects, weekly report, performance alerts, team activity
+
+---
+
+##### `src/middleware/` — Express Middleware
+
+###### [middleware/auth.js](file:///c:/testproject/gateway/src/middleware/auth.js) — JWT Authentication (34 lines)
+
+| Function | Purpose |
+|----------|---------|
+| [authenticate](file:///c:/testproject/gateway/src/middleware/auth.js#3-20) | **Required auth** — Extracts Bearer token, verifies JWT, attaches `req.user`. Returns 401 on failure. |
+| [optionalAuth](file:///c:/testproject/gateway/src/middleware/auth.js#21-34) | **Optional auth** — Same as above but doesn't reject unauthenticated requests. Attaches user if token is valid. |
+
+###### [middleware/validate.js](file:///c:/testproject/gateway/src/middleware/validate.js) — Request Validation (36 lines)
+
+| Export | Rules |
+|--------|-------|
+| [validate](file:///c:/testproject/gateway/src/middleware/validate.js#3-10) | Runs `express-validator` result check, returns 400 with error array |
+| `registerRules` | Email (valid + normalized), password (min 6 chars), name (non-empty) |
+| `loginRules` | Email (valid), password (non-empty) |
+| `createTestRules` | URL (valid with protocol), config (optional object) |
+| `playbookRules` | Name, domain, authType (all non-empty) |
+| `uuidParam` | [id](file:///c:/testproject/gateway/src/middleware/validate.js#3-10) param must be valid UUID |
+
+---
+
+##### `src/services/` — Business Logic
+
+###### [services/testService.js](file:///c:/testproject/gateway/src/services/testService.js) — AI Test Orchestration (211 lines)
+
+- **What:** The bridge between the Gateway and the AI Core. Triggers test runs, monitors completion, and persists final results.
+- **Why:** Isolates the complex async test lifecycle from the route handlers. Handles the dual-write pattern (incremental + fallback).
+- **How:**
+  - **Custom HTTP client ([httpFetch](file:///c:/testproject/gateway/src/services/testService.js#9-46)):** Uses Node.js built-in [http](file:///c:/testproject/gateway/src/services/testService.js#9-46)/`https` modules instead of `fetch` to avoid undici's 300s `headersTimeout` limitation. Long-running AI tests regularly exceed this.
+  - **Test lifecycle:**
+    1. Mark `TestRun` as `running` in DB
+    2. Emit `test:started` WebSocket event
+    3. Call AI Core's `POST /api/test/run` (30-minute timeout)
+    4. **Dual-write pattern:** If incremental writes via `/progress` already persisted pages, skip. Otherwise, write all results from the response (fallback)
+    5. Calculate overall score (average hygiene score across pages)
+    6. Update `TestRun` with final status, duration, scores
+    7. Emit `test:complete` WebSocket event
+  - **Error handling:** On failure, updates status to `failed` and emits `test:failed`
+
+###### [services/websocket.js](file:///c:/testproject/gateway/src/services/websocket.js) — WebSocket Management (42 lines)
+
+- **What:** Socket.io event setup for real-time test progress streaming.
+- **Why:** Enables live dashboard updates without polling.
+- **How:**
+  - **Room-based architecture:** Each test run gets a room `test:{runId}`
+  - Client events: `test:subscribe`, `test:unsubscribe`, `test:cancel`
+  - [emitTestEvent(io, runId, event, data)](file:///c:/testproject/gateway/src/services/websocket.js#38-42) — Helper to emit events to a specific test room
+
+---
+
+##### [prisma/](file:///c:/testproject/gateway/prisma/schema.prisma) — Database Schema & Seeding
+
+###### [prisma/schema.prisma](file:///c:/testproject/gateway/prisma/schema.prisma) — Database Schema (195 lines)
+
+See [Section 4: Database Architecture](#4-database-architecture) for complete schema documentation.
+
+###### [prisma/seed.js](file:///c:/testproject/gateway/prisma/seed.js) — Database Seeder (107 lines)
+
+- **What:** Populates the database with realistic demo data for development and demonstration.
+- **Why:** Enables immediate frontend development and testing without running actual AI tests.
+- **Data created:**
+  - 1 Organization ("AutonomousQA", Growth plan, 200 API quota)
+  - 4 Users (owner: `rohith@autonomousqa.io` / `password123`, + 3 team members)
+  - 5 Auth Playbooks (Google SSO, GitHub OAuth, Form+TOTP, Basic Form, Microsoft SSO)
+  - 5 Test Runs (completed, running, failed — with various scores and defect counts)
+  - 3 API Keys (2 active, 1 revoked)
+
+---
+
+### 3.3 Frontend — React + Vite
+
+> **Location:** [autonomousqa-frontend/](file:///c:/testproject/autonomousqa-frontend)  
+> **Runtime:** React 19 | Vite 7 | TailwindCSS 4  
+> **Port:** `5173`
+
+#### Purpose
+
+The frontend is a premium dark-theme dashboard application that provides real-time test monitoring, defect browsing, compliance reporting, performance visualization, and team/settings management.
+
+#### File-by-File Breakdown
+
+##### [src/main.jsx](file:///c:/testproject/autonomousqa-frontend/src/main.jsx) — React Entry Point
+
+Renders `<App />` into the root DOM element.
+
+##### [src/App.jsx](file:///c:/testproject/autonomousqa-frontend/src/App.jsx) — Application Router
+
+- **What:** Defines all frontend routes using React Router v7 with animated transitions via Framer Motion.
+- **Route structure:**
+
+| Route | Component | Layout | Description |
+|-------|-----------|--------|-------------|
+| `/` | `Landing` | None | Public landing page |
+| `/login` | `Login` | None | Authentication page |
+| `/dashboard` | `Dashboard` | Sidebar | Main overview dashboard |
+| `/tests/new` | `NewTest` | Sidebar | Start new test |
+| `/tests/:id` | `LiveTest` | Sidebar | Live test monitoring |
+| `/tests/:id/report` | `Report` | Sidebar | Full test report |
+| `/tests/:id/compliance` | [Compliance](file:///c:/testproject/ai-core/models/schemas.py#34-40) | Sidebar | Compliance report |
+| `/tests/:id/performance` | [Performance](file:///c:/testproject/ai-core/models/schemas.py#42-45) | Sidebar | Performance report |
+| `/playbooks` | `Playbooks` | Sidebar | Auth playbook management |
+| `/settings` | [Settings](file:///c:/testproject/ai-core/config.py#4-13) | Sidebar | User/team/billing settings |
+| `/history` | `History` | Sidebar | Test run history |
+| `*` | Redirect | — | Catch-all → `/` |
+
+---
+
+##### `src/lib/` — Utilities & API Client
+
+###### [lib/api.js](file:///c:/testproject/autonomousqa-frontend/src/lib/api.js) — HTTP API Client (84 lines)
+
+- **What:** Centralized API client with auto-auth, error handling, and structured endpoints.
+- **Why:** DRY principle — avoids duplicated fetch logic across 11 pages.
+- **How:**
+  - Token management: Reads from `localStorage` key `aq_token`
+  - Auto-redirect: On 401 response, clears tokens and redirects to `/`
+  - Exports organized by domain: [auth](file:///c:/testproject/gateway/src/middleware/auth.js#3-20), `tests`, `playbooks`, `settings`
+
+---
+
+##### `src/store/` — State Management (Zustand)
+
+###### [store/authStore.js](file:///c:/testproject/autonomousqa-frontend/src/store/authStore.js) — Auth State (26 lines)
+
+- Persists `user` and `token` to `localStorage`
+- Methods: [setAuth()](file:///c:/testproject/autonomousqa-frontend/src/store/authStore.js#8-13), [logout()](file:///c:/testproject/autonomousqa-frontend/src/store/authStore.js#14-19), [updateUser()](file:///c:/testproject/autonomousqa-frontend/src/store/authStore.js#20-25)
+- Hydrates from `localStorage` on app load
+
+###### [store/themeStore.js](file:///c:/testproject/autonomousqa-frontend/src/store/themeStore.js) — Theme State (19 lines)
+
+- Dark/light mode toggle persisted to `localStorage` key `aq-theme`
+- Sets `data-theme` attribute on `<html>` for CSS variable switching
+- Default: `dark`
+
+---
+
+##### `src/hooks/` — Custom Hooks
+
+###### [hooks/useWebSocket.js](file:///c:/testproject/autonomousqa-frontend/src/hooks/useWebSocket.js) — Real-Time Updates (68 lines)
+
+- **What:** React hook that manages the Socket.io connection lifecycle for a specific test run.
+- **Why:** Abstracts WebSocket complexity from page components.
+- **How:**
+  - Dynamically imports `socket.io-client` to avoid bundle errors if not installed
+  - Auto-subscribes to `test:{runId}` room on connect
+  - Auto-unsubscribes and disconnects on cleanup
+  - Supports 8 event callbacks: `onStarted`, `onCrawlComplete`, `onPageDiscovered`, `onPageComplete`, `onDefectFound`, `onComplete`, `onFailed`, `onCancelled`
+  - Returns `{ connected, cancel }` — connection status and cancel function
+  - Graceful fallback: Does nothing if Socket.io isn't available
+
+---
+
+##### `src/components/` — Reusable Components
+
+###### Layout Components
+
+| Component | File | Purpose |
+|-----------|------|---------|
+| `DashboardLayout` | [DashboardLayout.jsx](file:///c:/testproject/autonomousqa-frontend/src/components/layout/DashboardLayout.jsx) | Sidebar + TopBar + content area wrapper |
+| `Sidebar` | [Sidebar.jsx](file:///c:/testproject/autonomousqa-frontend/src/components/layout/Sidebar.jsx) | Navigation sidebar with route links |
+| `TopBar` | [TopBar.jsx](file:///c:/testproject/autonomousqa-frontend/src/components/layout/TopBar.jsx) | Top header bar with user info, notifications |
+
+###### UI Components
+
+| Component | File | Purpose |
+|-----------|------|---------|
+| `GridBackground` | [GridBackground.jsx](file:///c:/testproject/autonomousqa-frontend/src/components/ui/GridBackground.jsx) | Animated grid background effect |
+| `HygieneScoreGauge` | [HygieneScoreGauge.jsx](file:///c:/testproject/autonomousqa-frontend/src/components/ui/HygieneScoreGauge.jsx) | Circular score gauge visualization |
+| `KPICard` | [KPICard.jsx](file:///c:/testproject/autonomousqa-frontend/src/components/ui/KPICard.jsx) | Key Performance Indicator card |
+| `Spotlight` | [Spotlight.jsx](file:///c:/testproject/autonomousqa-frontend/src/components/ui/Spotlight.jsx) | Spotlight/glow effect component |
+| `StatusBadge` | [StatusBadge.jsx](file:///c:/testproject/autonomousqa-frontend/src/components/ui/StatusBadge.jsx) | Test status badge (running, completed, failed) |
+| `TextShimmer` | [TextShimmer.jsx](file:///c:/testproject/autonomousqa-frontend/src/components/ui/TextShimmer.jsx) | Animated text shimmer effect |
+| `WarpBackground` | [WarpBackground.jsx](file:///c:/testproject/autonomousqa-frontend/src/components/ui/WarpBackground.jsx) | Warp-speed background animation |
+| `card` | [card.jsx](file:///c:/testproject/autonomousqa-frontend/src/components/ui/card.jsx) | Reusable card component |
+
+---
+
+##### `src/pages/` — Page Components
+
+| Page | Size | Purpose |
+|------|------|---------|
+| [Landing.jsx](file:///c:/testproject/autonomousqa-frontend/src/pages/Landing.jsx) | 25KB | Public landing page with hero, features, pricing |
+| [Login.jsx](file:///c:/testproject/autonomousqa-frontend/src/pages/Login.jsx) | 11KB | Login + Registration forms |
+| [Dashboard.jsx](file:///c:/testproject/autonomousqa-frontend/src/pages/Dashboard.jsx) | 16KB | Main dashboard with KPIs, recent tests, charts |
+| [NewTest.jsx](file:///c:/testproject/autonomousqa-frontend/src/pages/NewTest.jsx) | 16KB | Start new test form (URL, browser, depth, modules) |
+| [LiveTest.jsx](file:///c:/testproject/autonomousqa-frontend/src/pages/LiveTest.jsx) | 21KB | Real-time test monitoring with WebSocket |
+| [Report.jsx](file:///c:/testproject/autonomousqa-frontend/src/pages/Report.jsx) | 15KB | Full test report with defects and page details |
+| [Compliance.jsx](file:///c:/testproject/autonomousqa-frontend/src/pages/Compliance.jsx) | 9KB | WCAG/GDPR compliance report |
+| [Performance.jsx](file:///c:/testproject/autonomousqa-frontend/src/pages/Performance.jsx) | 20KB | Core Web Vitals performance dashboard |
+| [Playbooks.jsx](file:///c:/testproject/autonomousqa-frontend/src/pages/Playbooks.jsx) | 16KB | Auth playbook CRUD management |
+| [Settings.jsx](file:///c:/testproject/autonomousqa-frontend/src/pages/Settings.jsx) | 22KB | Profile, team, API keys, notifications, billing |
+| [History.jsx](file:///c:/testproject/autonomousqa-frontend/src/pages/History.jsx) | 12KB | Test run history with filtering |
+
+---
+
+##### `src/data/` — Mock Data
+
+###### [data/mockData.js](file:///c:/testproject/autonomousqa-frontend/src/data/mockData.js) — Development Fallback (13KB)
+
+Contains comprehensive mock data for all dashboard views, enabling frontend development without a running backend.
+
+---
+
+## 4. Database Architecture
+
+### Entity-Relationship Diagram
+
+```mermaid
+erDiagram
+    Organization ||--o{ User : "has members"
+    Organization ||--o{ TestRun : "owns"
+    Organization ||--o{ AuthPlaybook : "owns"
+    User ||--o{ TestRun : "creates"
+    User ||--o{ ApiKey : "owns"
+    User ||--o{ Notification : "receives"
+    User ||--o| NotificationPreference : "has"
+    TestRun ||--o{ Page : "discovers"
+    TestRun ||--o{ Defect : "finds"
+    TestRun ||--o{ ComplianceResult : "produces"
+    TestRun ||--o{ PerformanceMetric : "measures"
+    Page ||--o{ Defect : "contains"
+    Page ||--o{ ComplianceResult : "has"
+    Page ||--o{ PerformanceMetric : "has"
+```
+
+### Schema Reference
+
+| Model | Table | Purpose | Key Relations |
+|-------|-------|---------|---------------|
+| **User** | `users` | Application users | → Organization, → TestRun[], → ApiKey[], → Notification[] |
+| **Organization** | `organizations` | Multi-tenant org | → User[], → TestRun[], → AuthPlaybook[] |
+| **TestRun** | `test_runs` | A single test execution | → Page[], → Defect[], → ComplianceResult[], → PerformanceMetric[] |
+| **Page** | [pages](file:///c:/testproject/autonomousqa-frontend/src/lib/api.js#58-59) | A single tested page | → Defect[], → ComplianceResult[], → PerformanceMetric[] |
+| **Defect** | `defects` | Individual defect finding | → Page?, → TestRun |
+| **ComplianceResult** | `compliance_results` | WCAG/GDPR violation | → Page?, → TestRun |
+| **PerformanceMetric** | `performance_metrics` | Core Web Vital metric | → Page?, → TestRun |
+| **AuthPlaybook** | `auth_playbooks` | Saved auth config | → Organization |
+| **ApiKey** | `api_keys` | API access key | → User |
+| **Notification** | [notifications](file:///c:/testproject/autonomousqa-frontend/src/lib/api.js#78-79) | User notification | → User |
+| **NotificationPreference** | `notification_preferences` | Notification settings | → User (1:1) |
+
+### Key Design Decisions
+
+- **Cascade deletes:** `TestRun → Page`, `TestRun → Defect`, `TestRun → ComplianceResult`, `TestRun → PerformanceMetric`
+- **SetNull on page delete:** Page deletion sets `pageId = null` on related Defect/ComplianceResult/PerformanceMetric
+- **Dual foreign keys on defects:** Both `pageId` (optional, nullable) and `runId` (required) to support defects that couldn't be assigned to a specific page
+- **Multi-tenant isolation:** All queries are scoped by `userId` or `orgId`
+
+---
+
+## 5. API Reference
+
+> Full endpoint documentation is organized by domain in Section 3.2. See the route files for complete details.
+
+### Quick Reference
+
+| Domain | Base Path | Endpoints |
+|--------|-----------|-----------|
+| Auth | `/api/auth` | register, login, refresh, me, logout |
+| Tests | `/api/tests` | create, list, get, cancel, pages, compliance, performance, progress |
+| Playbooks | `/api/playbooks` | list, create, update, delete |
+| Settings | `/api/settings` | team, profile, api-keys, notifications, billing |
+
+### Authentication
+
+All authenticated endpoints require:
+```
+Authorization: Bearer <JWT_TOKEN>
+```
+
+---
+
+## 6. Real-Time Communication
+
+### WebSocket Architecture
+
+```mermaid
+sequenceDiagram
+    participant Client as Frontend (Socket.io-client)
+    participant Server as Gateway (Socket.io)
+    participant AI as AI Core
+
+    Client->>Server: connect()
+    Client->>Server: test:subscribe {runId}
+    Server->>Server: socket.join("test:{runId}")
+    
+    AI->>Server: POST /progress {crawl_complete}
+    Server->>Client: crawl:complete {totalPages}
+    
+    AI->>Server: POST /progress {page_complete}
+    Server->>Client: page:complete {url, pageType, hygieneScore}
+    Server->>Client: defect:found {page, type, severity, message}
+    
+    AI->>Server: Return TestResult
+    Server->>Client: test:complete {totalScore, totalPages, totalDefects, duration}
+```
+
+### Event Catalog
+
+| Event | Direction | Payload | When |
+|-------|-----------|---------|------|
+| `test:subscribe` | Client → Server | `{runId}` | Client wants to watch a test |
+| `test:unsubscribe` | Client → Server | `{runId}` | Client stops watching |
+| `test:cancel` | Client → Server | `{runId}` | User requests cancellation |
+| `test:started` | Server → Client | `{url, status}` | AI Core acknowledged the test |
+| `crawl:complete` | Server → Client | `{totalPages}` | Crawl phase finished |
+| `page:complete` | Server → Client | `{url, pageType, hygieneScore}` | One page fully tested |
+| `defect:found` | Server → Client | `{page, type, severity, message}` | Defect detected in real time |
+| `test:complete` | Server → Client | `{totalScore, totalPages, totalDefects, duration}` | Test fully done |
+| `test:failed` | Server → Client | `{error}` | Test encountered a fatal error |
+| `test:cancelled` | Server → Client | `{runId}` | Test was cancelled |
+
+---
+
+## 7. Infrastructure & Deployment
+
+### Docker Compose Services
+
+Defined in [docker-compose.yml](file:///c:/testproject/docker-compose.yml):
+
+| Service | Image | Port | Purpose | Health Check |
+|---------|-------|------|---------|--------------|
+| **PostgreSQL** | `postgres:16-alpine` | 5432 | Primary database | `pg_isready -U postgres` |
+| **Redis** | `redis:7-alpine` | 6379 | Cache, sessions, job queues | `redis-cli ping` |
+| **Neo4j** | `neo4j:5-community` | 7474, 7687 | Graph DB for page relationships | — |
+
+### Setup Commands
+
+```bash
+# Full setup (one command)
+npm run setup    # → docker-compose up -d → prisma db push → seed
+
+# Individual services
+npm run dev:frontend    # → cd autonomousqa-frontend && npm run dev
+npm run dev:gateway     # → cd gateway && npm run dev
+npm run dev:ai-core     # → cd ai-core && python main.py
+
+# Database management
+npm run db:up           # Start Docker containers
+npm run db:down         # Stop Docker containers
+npm run db:migrate      # Push schema changes
+npm run db:seed         # Seed demo data
+npm run db:studio       # Open Prisma Studio GUI
+```
+
+---
+
+## 8. Security Architecture
+
+### Authentication Flow
+
+```mermaid
+sequenceDiagram
+    participant Client
+    participant Gateway
+    participant DB as PostgreSQL
+
+    Client->>Gateway: POST /api/auth/login {email, password}
+    Gateway->>DB: Find user by email
+    DB->>Gateway: User record
+    Gateway->>Gateway: bcrypt.compare(password, hash) [12 rounds]
+    Gateway->>Gateway: jwt.sign({id, email, orgId, role}, JWT_SECRET, {expiresIn: 7d})
+    Gateway->>Client: {token, user}
+    
+    Note over Client: Client stores token in localStorage
+    
+    Client->>Gateway: GET /api/tests (Authorization: Bearer <token>)
+    Gateway->>Gateway: jwt.verify(token, JWT_SECRET)
+    Gateway->>Gateway: Attach decoded payload to req.user
+    Gateway->>DB: Query scoped by req.user.id
+```
+
+### Security Measures
+
+| Layer | Mechanism | Implementation |
+|-------|-----------|----------------|
+| **Password Storage** | bcrypt (12 rounds) | `bcryptjs` library |
+| **Authentication** | JWT Bearer tokens | 7-day expiry, HS256 signing |
+| **Rate Limiting** | IP-based | 500 req / 15 min window |
+| **Input Validation** | Schema-based | `express-validator` rules per endpoint |
+| **CORS** | Whitelist-based | Specific localhost origins only |
+| **SQL Injection** | ORM-based | Prisma parameterized queries |
+| **API Key Security** | Masked display | Only first 8 + last 4 chars shown |
+| **Multi-Tenancy** | Query scoping | All queries filtered by `userId` / `orgId` |
+
+---
+
+## 9. Data Flow & Sequence Diagrams
+
+### Complete Test Run Lifecycle
+
+```mermaid
+stateDiagram-v2
+    [*] --> queued: User starts test
+    queued --> running: Gateway triggers AI Core
+    running --> running: Pages being tested (incremental)
+    running --> completed: All pages tested
+    running --> cancelled: User cancels
+    running --> failed: AI Core error / timeout
+    completed --> [*]
+    cancelled --> [*]
+    failed --> [*]
+```
+
+### Incremental Progress Architecture
+
+The system uses a **dual-write pattern** for resilience:
+
+1. **Primary path (incremental):** AI Core sends page results one-by-one via `POST /api/tests/progress`. Gateway writes to DB immediately and emits WebSocket events. This enables real-time dashboard updates.
+
+2. **Fallback path (batch):** When the AI Core completes, [testService.js](file:///c:/testproject/gateway/src/services/testService.js) checks if any pages were already written. If not (e.g., the progress endpoint was unreachable), it writes all results from the final [TestResult](file:///c:/testproject/ai-core/models/schemas.py#56-63) response.
+
+---
+
+## 10. File-by-File Reference
+
+### Complete File Tree
+
+```
+BUGZERO/
+├── ai-core/                         # Python FastAPI AI Engine
+│   ├── main.py                      # FastAPI entrypoint (73 lines)
+│   ├── orchestrator.py              # Pipeline coordinator (128 lines)
+│   ├── config.py                    # Pydantic settings (16 lines)
+│   ├── crawl.py                     # Standalone CLI crawler (122 lines)
+│   ├── requirements.txt             # Python dependencies (10 lines)
+│   ├── agents/
+│   │   ├── __init__.py
+│   │   ├── crawler.py               # CrawlerAgent — depth presets (24 lines)
+│   │   └── tester.py                # TesterAgent — hygiene scoring (57 lines)
+│   ├── models/
+│   │   ├── __init__.py
+│   │   └── schemas.py               # Pydantic models (69 lines)
+│   ├── tools/
+│   │   ├── __init__.py
+│   │   └── playwright_tool.py       # Browser automation (462 lines) ⭐
+│   ├── crawler/
+│   │   ├── __init__.py              # Package exports (15 lines)
+│   │   ├── crawler.py               # BugzeroCrawler — async BFS (200 lines)
+│   │   ├── page_analyzer.py         # Deep page analysis (259 lines)
+│   │   ├── page_classifier.py       # Heuristic classifier (77 lines)
+│   │   └── utils.py                 # URL utilities (40 lines)
+│   ├── screenshots/                 # Crawl screenshot output
+│   └── results/                     # Crawl JSON output
+│
+├── gateway/                         # Express.js API Gateway
+│   ├── src/
+│   │   ├── index.js                 # Express server (75 lines)
+│   │   ├── db.js                    # Prisma singleton (6 lines)
+│   │   ├── routes/
+│   │   │   ├── auth.js              # Auth endpoints (119 lines)
+│   │   │   ├── tests.js             # Test run endpoints (311 lines)
+│   │   │   ├── playbooks.js         # Playbook CRUD (95 lines)
+│   │   │   └── settings.js          # Settings endpoints (225 lines)
+│   │   ├── middleware/
+│   │   │   ├── auth.js              # JWT middleware (34 lines)
+│   │   │   └── validate.js          # Validation rules (36 lines)
+│   │   └── services/
+│   │       ├── testService.js       # AI Core orchestration (211 lines) ⭐
+│   │       └── websocket.js         # Socket.io setup (42 lines)
+│   ├── prisma/
+│   │   ├── schema.prisma            # Database schema (195 lines) ⭐
+│   │   └── seed.js                  # Demo data seeder (107 lines)
+│   └── package.json
+│
+├── autonomousqa-frontend/           # React + Vite Frontend
+│   ├── src/
+│   │   ├── main.jsx                 # React entry
+│   │   ├── App.jsx                  # Router (47 lines)
+│   │   ├── App.css / index.css      # Global styles
+│   │   ├── lib/
+│   │   │   ├── api.js               # HTTP API client (84 lines)
+│   │   │   └── utils.js             # Utility functions
+│   │   ├── store/
+│   │   │   ├── authStore.js         # Zustand auth state (26 lines)
+│   │   │   └── themeStore.js        # Theme toggle (19 lines)
+│   │   ├── hooks/
+│   │   │   └── useWebSocket.js      # Real-time hook (68 lines)
+│   │   ├── components/
+│   │   │   ├── layout/
+│   │   │   │   ├── DashboardLayout.jsx
+│   │   │   │   ├── Sidebar.jsx
+│   │   │   │   └── TopBar.jsx
+│   │   │   └── ui/
+│   │   │       ├── GridBackground.jsx
+│   │   │       ├── HygieneScoreGauge.jsx
+│   │   │       ├── KPICard.jsx
+│   │   │       ├── Spotlight.jsx
+│   │   │       ├── StatusBadge.jsx
+│   │   │       ├── TextShimmer.jsx
+│   │   │       ├── WarpBackground.jsx
+│   │   │       └── card.jsx
+│   │   ├── pages/
+│   │   │   ├── Landing.jsx          (25KB)
+│   │   │   ├── Login.jsx            (11KB)
+│   │   │   ├── Dashboard.jsx        (16KB)
+│   │   │   ├── NewTest.jsx          (16KB)
+│   │   │   ├── LiveTest.jsx         (21KB) ⭐
+│   │   │   ├── Report.jsx           (15KB)
+│   │   │   ├── Compliance.jsx       (9KB)
+│   │   │   ├── Performance.jsx      (20KB)
+│   │   │   ├── Playbooks.jsx        (16KB)
+│   │   │   ├── Settings.jsx         (22KB)
+│   │   │   └── History.jsx          (12KB)
+│   │   └── data/
+│   │       └── mockData.js          (13KB)
+│   ├── index.html
+│   ├── vite.config.js
+│   └── package.json
+│
+├── docker-compose.yml               # PostgreSQL + Redis + Neo4j
+├── package.json                     # Root workspace scripts
+├── README.md                        # Project README
+├── CONTRIBUTING.md                  # Contribution guidelines
+├── CODE_OF_CONDUCT.md               # Community standards
+├── SECURITY.md                      # Security policy
+└── LICENSE                          # MIT License
+```
+
+---
+
+## 11. Configuration & Environment Variables
+
+### AI Core ([.env](file:///c:/testproject/gateway/.env))
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `HOST` | `0.0.0.0` | Server bind address |
+| `PORT` | `8000` | Server port |
+| `OPENAI_API_KEY` | — | OpenAI key (future LLM features) |
+| `GATEWAY_URL` | `http://localhost:3000` | Gateway callback URL |
+| `HEADLESS` | `true` | Chromium headless mode |
+| `BROWSER` | `chromium` | Browser engine |
+
+### Gateway ([.env](file:///c:/testproject/gateway/.env))
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `PORT` | `3000` | Server port |
+| `DATABASE_URL` | — | PostgreSQL connection string |
+| `JWT_SECRET` | — | JWT signing secret |
+| `JWT_EXPIRES_IN` | `7d` | Token expiry duration |
+| `FASTAPI_URL` | `http://localhost:8000` | AI Core URL |
+| `REDIS_URL` | — | Redis connection string |
+
+---
+
+## 12. Dependencies & Technology Stack
+
+### AI Core (Python)
+
+| Package | Version | Purpose |
+|---------|---------|---------|
+| `fastapi` | 0.115.0 | HTTP API framework |
+| `uvicorn[standard]` | 0.34.0 | ASGI server |
+| `pydantic` | 2.10.0 | Data validation & serialization |
+| `pydantic-settings` | 2.7.0 | Settings management |
+| `httpx` | 0.28.0 | Async HTTP client |
+| `playwright` | 1.49.0 | Browser automation |
+| `python-dotenv` | 1.0.1 | Environment variable loading |
+| `aiohttp` | (crawler) | Async link checking |
+| `rich` | (crawler) | Terminal formatting |
+
+### Gateway (Node.js)
+
+| Package | Version | Purpose |
+|---------|---------|---------|
+| `express` | 4.21.2 | HTTP framework |
+| `@prisma/client` | 6.5.0 | Database ORM |
+| `socket.io` | 4.8.1 | WebSocket server |
+| `jsonwebtoken` | 9.0.2 | JWT token handling |
+| `bcryptjs` | 2.4.3 | Password hashing |
+| `cors` | 2.8.5 | CORS middleware |
+| `express-rate-limit` | 7.5.0 | Rate limiting |
+| `express-validator` | 7.2.1 | Input validation |
+| `dotenv` | 16.4.7 | Environment loading |
+| `uuid` | 11.1.0 | UUID generation |
+| [prisma](file:///c:/testproject/gateway/prisma/schema.prisma) (dev) | 6.5.0 | Schema tooling |
+| `nodemon` (dev) | 3.1.9 | Hot reload |
+
+### Frontend (React)
+
+| Package | Version | Purpose |
+|---------|---------|---------|
+| `react` | 19.2.4 | UI framework |
+| `react-dom` | 19.2.4 | DOM rendering |
+| `react-router-dom` | 7.13.1 | Client-side routing |
+| `framer-motion` | 12.34.3 | Animations & transitions |
+| `recharts` | 3.7.0 | Charts & data visualization |
+| `zustand` | 5.0.11 | State management |
+| `lucide-react` | 0.575.0 | Icon library |
+| `socket.io-client` | 4.8.3 | WebSocket client |
+| `tailwindcss` | 4.2.1 | Utility-first CSS |
+| `clsx` | 2.1.1 | Class name utility |
+| `tailwind-merge` | 3.5.0 | TailwindCSS class merging |
+| `vite` (dev) | 7.3.1 | Build tool & dev server |
+| `typescript` (dev) | 5.9.3 | Type checking |
+
+---
+
+> **Document End** — AutonomousQA Enterprise Technical Documentation v1.0.0
