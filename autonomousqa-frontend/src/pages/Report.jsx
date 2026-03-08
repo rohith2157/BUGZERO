@@ -7,7 +7,7 @@ import StatusBadge from '../components/ui/StatusBadge';
 import { severityConfig, defectTypeColors } from '../data/mockData';
 import { tests as testsApi } from '../lib/api';
 
-import { BarChart, Bar, BarYAxis, Grid, ChartTooltip } from '../components/ui/bar-chart';
+// Bar chart replaced with custom inline bars for accurate score display
 
 function safePath(url) { try { return new URL(url).pathname || url; } catch { return url; } }
 
