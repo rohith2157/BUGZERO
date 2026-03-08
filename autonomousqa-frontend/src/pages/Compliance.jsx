@@ -17,6 +17,8 @@ export default function Compliance() {
     const [complianceData, setComplianceData] = useState(null);
     const [loading, setLoading] = useState(true);
 
+    useEffect(() => { document.title = 'Compliance — AutonomousQA'; }, []);
+
     useEffect(() => {
         testsApi.compliance(id).then(data => {
             setComplianceData({
@@ -48,7 +50,7 @@ export default function Compliance() {
         );
     }
 
-    const filtered = filter === 'all'
+    const filtered = !complianceData ? [] : filter === 'all'
         ? complianceData.violations
         : complianceData.violations.filter(v => v.standard === filter);
 

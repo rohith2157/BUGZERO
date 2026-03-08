@@ -22,6 +22,16 @@ export default function Playbooks() {
     const [newPlaybook, setNewPlaybook] = useState({ name: '', domain: '', authType: 'Form-based Login' });
     const [saving, setSaving] = useState(false);
 
+    useEffect(() => { document.title = 'Auth Playbooks — AutonomousQA'; }, []);
+
+    // Escape key closes modal
+    useEffect(() => {
+        if (!showModal) return;
+        const handler = (e) => { if (e.key === 'Escape') setShowModal(false); };
+        document.addEventListener('keydown', handler);
+        return () => document.removeEventListener('keydown', handler);
+    }, [showModal]);
+
     const fetchPlaybooks = () => {
         playbooksApi.list().then(data => {
             setPlaybooks((data.playbooks || []).map(pb => ({
@@ -183,6 +193,15 @@ export default function Playbooks() {
                     );
                 })}
             </div>
+
+            {playbooks.length === 0 && (
+                <motion.div
+                    variants={item}
+                    style={{ textAlign: 'center', padding: '60px 0', color: 'var(--text-tertiary)', fontSize: 14 }}
+                >
+                    No playbooks yet. Create one to save your auth strategies.
+                </motion.div>
+            )}
 
             {/* Modal */}
             <AnimatePresence>

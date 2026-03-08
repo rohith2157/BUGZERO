@@ -19,6 +19,9 @@ export default function Dashboard() {
     const [kpiData, setKpiData] = useState(mockKpi);
     const [hygieneHistory, setHygieneHistory] = useState(mockHistory);
     const [recentRuns, setRecentRuns] = useState(mockRuns);
+    const [quickUrl, setQuickUrl] = useState('');
+
+    useEffect(() => { document.title = 'Dashboard — AutonomousQA'; }, []);
 
     useEffect(() => {
         // Fetch real test runs from API, fall back to mock
@@ -137,6 +140,9 @@ export default function Dashboard() {
                         <input
                             type="url"
                             placeholder="https://your-app.com"
+                            value={quickUrl}
+                            onChange={(e) => setQuickUrl(e.target.value)}
+                            onKeyDown={(e) => { if (e.key === 'Enter' && quickUrl) navigate('/tests/new', { state: { url: quickUrl } }); }}
                             style={{
                                 flex: 1, padding: '12px 16px', fontSize: 14,
                                 background: 'rgba(255, 255, 255, 0.03)',
@@ -195,7 +201,7 @@ export default function Dashboard() {
                                 }}
                             >
                                 <span style={{ fontSize: 13, color: 'var(--text-secondary)', fontFamily: "'Geist Mono', 'JetBrains Mono', monospace" }}>
-                                    {run.url.replace('https://', '')}
+                                    {(run.url || '').replace('https://', '')}
                                 </span>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                                     <StatusBadge status={run.status} size="sm" />
@@ -250,14 +256,14 @@ export default function Dashboard() {
                                     onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
                                 >
                                     <td style={{ padding: '14px', fontSize: 13, fontFamily: "'Geist Mono', 'JetBrains Mono', monospace", color: 'var(--color-accent-gold)' }}>
-                                        {run.url.replace('https://', '')}
+                                        {(run.url || '').replace('https://', '') || '—'}
                                     </td>
                                     <td style={{ padding: '14px' }}><StatusBadge status={run.status} size="sm" /></td>
                                     <td style={{
                                         padding: '14px', fontSize: 14, fontWeight: 700,
                                         color: run.score ? (run.score >= 85 ? '#10B981' : run.score >= 70 ? '#F59E0B' : '#EF4444') : 'var(--text-tertiary)',
                                     }}>
-                                        {run.score || '—'}
+                                        {run.score != null ? run.score : '—'}
                                     </td>
                                     <td style={{ padding: '14px', fontSize: 13, color: 'var(--text-secondary)' }}>{run.defects}</td>
                                     <td style={{ padding: '14px', fontSize: 13, color: 'var(--text-secondary)' }}>{run.pages}</td>
@@ -265,6 +271,13 @@ export default function Dashboard() {
                                     <td style={{ padding: '14px', fontSize: 13, color: 'var(--text-tertiary)' }}>{run.date}</td>
                                 </motion.tr>
                             ))}
+                            {recentRuns.length === 0 && (
+                                <tr>
+                                    <td colSpan={7} style={{ textAlign: 'center', padding: '40px 0', color: 'var(--text-tertiary)', fontSize: 13 }}>
+                                        No test runs yet. Start your first test above!
+                                    </td>
+                                </tr>
+                            )}
                         </tbody>
                     </table>
                 </div>

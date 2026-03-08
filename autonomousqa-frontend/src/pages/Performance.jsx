@@ -9,6 +9,8 @@ import { AreaChart, Area, Grid, XAxis, ChartTooltip } from '../components/ui/are
 const container = { hidden: {}, show: { transition: { staggerChildren: 0.06 } } };
 const item = { hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0, transition: { duration: 0.5 } } };
 
+// document.title set inside component below
+
 const vitalConfig = {
     ttfb: { label: 'Time to First Byte', unit: 'ms', icon: Zap, good: 200, mid: 600, desc: 'Server response time — how fast the first byte arrives' },
     lcp: { label: 'Largest Contentful Paint', unit: 's', icon: Eye, good: 2.5, mid: 4.0, desc: 'Time to render the biggest visible element on the page' },
@@ -32,6 +34,8 @@ export default function Performance() {
     const { id } = useParams();
     const [performanceData, setPerformanceData] = useState(null);
     const [loading, setLoading] = useState(true);
+
+    useEffect(() => { document.title = 'Performance — AutonomousQA'; }, []);
 
     useEffect(() => {
         testsApi.performance(id).then(data => {

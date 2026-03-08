@@ -1,10 +1,17 @@
 import { useState } from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, Navigate } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import TopBar from './TopBar';
+import { useAuthStore } from '../../store/authStore';
 
 export default function DashboardLayout() {
     const [collapsed, setCollapsed] = useState(false);
+    const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+
+    // Redirect to login if not authenticated
+    if (!isAuthenticated) {
+        return <Navigate to="/login" replace />;
+    }
 
     return (
         <div style={{ display: 'flex', minHeight: '100vh' }}>
@@ -29,3 +36,4 @@ export default function DashboardLayout() {
         </div>
     );
 }
+

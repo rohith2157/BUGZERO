@@ -1,7 +1,16 @@
 import { create } from 'zustand';
 
+function safeParseUser() {
+    try {
+        return JSON.parse(localStorage.getItem('aq_user') || 'null');
+    } catch {
+        localStorage.removeItem('aq_user');
+        return null;
+    }
+}
+
 export const useAuthStore = create((set, get) => ({
-    user: JSON.parse(localStorage.getItem('aq_user') || 'null'),
+    user: safeParseUser(),
     token: localStorage.getItem('aq_token') || null,
     isAuthenticated: !!localStorage.getItem('aq_token'),
 

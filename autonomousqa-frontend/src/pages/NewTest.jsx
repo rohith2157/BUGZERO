@@ -17,6 +17,8 @@ export default function NewTest() {
     const [playbooks, setPlaybooks] = useState([]);
     const [error, setError] = useState('');
 
+    useEffect(() => { document.title = 'New Test — AutonomousQA'; }, []);
+
     useEffect(() => {
         playbooksApi.list()
             .then(data => setPlaybooks(data.playbooks || []))
@@ -32,13 +34,25 @@ export default function NewTest() {
 
     const handleLaunch = async () => {
         if (!url) return;
+        // Auto-prefix protocol if missing
+        let targetUrl = url.trim();
+        if (!/^https?:\/\//i.test(targetUrl)) {
+            targetUrl = 'https://' + targetUrl;
+        }
+        // Basic URL validation
+        try {
+            new URL(targetUrl);
+        } catch {
+            setError('Please enter a valid URL (e.g. https://example.com)');
+            return;
+        }
         setLaunching(true);
         setError('');
         try {
             const depthMap = { 'Shallow (top-level only)': 'shallow', 'Standard (3 levels deep)': 'standard', 'Deep (entire site)': 'deep' };
             const enabledModules = Object.entries(features).filter(([, v]) => v).map(([k]) => k);
             const result = await testsApi.create({
-                url,
+                url: targetUrl,
                 config: {
                     browser: browser.toLowerCase(),
                     crawl_depth: depthMap[depth] || 'standard',
@@ -46,7 +60,9 @@ export default function NewTest() {
                     playbook_id: playbook || undefined,
                 },
             });
-            navigate(`/tests/${result.testRun.id}`);
+            const testId = result?.testRun?.id;
+            if (!testId) throw new Error('Unexpected response — no test ID returned');
+            navigate(`/tests/${testId}`);
         } catch (err) {
             setError(err.message || 'Failed to start test. Is the backend running?');
         } finally {

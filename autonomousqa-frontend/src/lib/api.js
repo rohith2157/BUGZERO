@@ -25,11 +25,22 @@ async function request(endpoint, options = {}) {
     if (res.status === 401) {
         localStorage.removeItem('aq_token');
         localStorage.removeItem('aq_user');
-        window.location.href = '/';
+        window.location.href = '/login';
         throw new Error('Unauthorized');
     }
 
-    const data = await res.json();
+    // Handle empty/204 responses
+    if (res.status === 204 || res.headers.get('content-length') === '0') {
+        if (!res.ok) throw new Error(`Request failed: ${res.status}`);
+        return {};
+    }
+
+    let data;
+    try {
+        data = await res.json();
+    } catch {
+        throw new Error(`Invalid response from server (status ${res.status})`);
+    }
 
     if (!res.ok) {
         throw new Error(data.error || `Request failed: ${res.status}`);

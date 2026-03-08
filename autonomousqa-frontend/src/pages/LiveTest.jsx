@@ -75,12 +75,14 @@ export default function LiveTest() {
     });
 
     useEffect(() => {
+        document.title = 'Live Test — AutonomousQA';
         fetchData();
         // Poll every 3 seconds for live updates
         pollRef.current = setInterval(fetchData, 3000);
         return () => {
             if (pollRef.current) clearInterval(pollRef.current);
             if (elapsedRef.current) clearInterval(elapsedRef.current);
+            cancel(); // Clean up WebSocket on unmount
         };
     }, [id, fetchData]);
 
@@ -279,7 +281,7 @@ export default function LiveTest() {
                                         <div style={{ fontSize: 11, color: 'var(--text-tertiary)', marginTop: 2 }}>{page.type}</div>
                                     </div>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                                        {page.score && (
+                                        {page.score != null && (
                                             <span style={{
                                                 fontSize: 13, fontWeight: 700,
                                                 color: page.score >= 85 ? '#10B981' : page.score >= 70 ? '#F59E0B' : '#EF4444'

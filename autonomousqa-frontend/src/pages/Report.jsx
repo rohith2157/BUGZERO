@@ -19,6 +19,8 @@ export default function Report() {
     const [reportData, setReportData] = useState(null);
     const [loading, setLoading] = useState(true);
 
+    useEffect(() => { document.title = 'Test Report — AutonomousQA'; }, []);
+
     useEffect(() => {
         testsApi.get(id).then(({ testRun }) => {
             // Build score breakdown from page scores by type

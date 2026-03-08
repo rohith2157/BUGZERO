@@ -20,6 +20,9 @@ export default function Settings() {
     const [loadingKeys, setLoadingKeys] = useState(false);
     const [profileForm, setProfileForm] = useState({ name: '', email: '', organization: '', role: '' });
     const [profileSaving, setProfileSaving] = useState(false);
+    const [copiedKeyId, setCopiedKeyId] = useState(null);
+
+    useEffect(() => { document.title = 'Settings — AutonomousQA'; }, []);
     const [notifications, setNotifications] = useState({
         'Test Completed': true,
         'Critical Defects': true,
@@ -163,7 +166,7 @@ export default function Settings() {
                                             display: 'flex', alignItems: 'center', justifyContent: 'center',
                                             fontSize: 14, fontWeight: 700, color: '#fff',
                                         }}>
-                                            {m.name.charAt(0)}
+                                            {(m.name || 'U').charAt(0)}
                                         </div>
                                         <div>
                                             <div style={{ fontSize: 14, fontWeight: 600 }}>{m.name}</div>
@@ -225,13 +228,20 @@ export default function Settings() {
                                         <StatusBadge status={key.status} size="sm" />
                                         <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}
                                             aria-label="Copy API key"
+                                            onClick={() => {
+                                                navigator.clipboard.writeText(key.key).then(() => {
+                                                    setCopiedKeyId(key.id);
+                                                    setTimeout(() => setCopiedKeyId(null), 2000);
+                                                }).catch(() => { });
+                                            }}
                                             style={{
                                                 width: 28, height: 28, borderRadius: 'var(--radius-sm)',
-                                                background: 'rgba(255,255,255,0.03)', border: 'none',
+                                                background: copiedKeyId === key.id ? 'rgba(16,185,129,0.1)' : 'rgba(255,255,255,0.03)', border: 'none',
                                                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                                color: 'var(--text-tertiary)', cursor: 'pointer',
+                                                color: copiedKeyId === key.id ? '#10B981' : 'var(--text-tertiary)', cursor: 'pointer',
+                                                transition: 'all 0.2s',
                                             }}>
-                                            <Copy size={13} />
+                                            {copiedKeyId === key.id ? '✓' : <Copy size={13} />}
                                         </motion.button>
                                     </div>
                                 </div>

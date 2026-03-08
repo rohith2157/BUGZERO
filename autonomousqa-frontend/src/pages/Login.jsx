@@ -14,6 +14,8 @@ export default function Login() {
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
+  useEffect(() => { document.title = mode === 'login' ? 'Sign In — AutonomousQA' : 'Create Account — AutonomousQA'; }, [mode]);
+
   const [form, setForm] = useState({
     email: '',
     password: '',

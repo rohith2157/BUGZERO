@@ -13,6 +13,8 @@ export default function History() {
     const [allRuns, setAllRuns] = useState([]);
     const [loading, setLoading] = useState(true);
 
+    useEffect(() => { document.title = 'Test History — AutonomousQA'; }, []);
+
     useEffect(() => {
         testsApi.list({ limit: 50 }).then(data => {
             if (data.testRuns) {
@@ -161,7 +163,7 @@ export default function History() {
                                     onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
                                 >
                                     <td style={{ padding: '14px', fontSize: 13, fontFamily: "'Geist Mono', 'JetBrains Mono', monospace", color: 'var(--color-accent-gold)' }}>
-                                        {run.url.replace('https://', '')}
+                                        {(run.url || '').replace('https://', '') || '—'}
                                     </td>
                                     <td style={{ padding: '14px' }}><StatusBadge status={run.status} size="sm" /></td>
                                     <td style={{ padding: '14px' }}>
