@@ -430,14 +430,17 @@ export interface BarChartProps {
     data: Record<string, unknown>[]; xDataKey?: string; margin?: Partial<Margin>;
     animationDuration?: number; aspectRatio?: string; barGap?: number; barWidth?: number;
     orientation?: "vertical" | "horizontal"; stacked?: boolean; stackGap?: number; className?: string; children: ReactNode;
+    /** Fixed maximum for the value axis. If omitted, auto-calculates from data. */
+    yMax?: number;
 }
 
 const DEFAULT_MARGIN: Margin = { top: 40, right: 40, bottom: 40, left: 40 };
 
-function BarChartInner({ width, height, data, xDataKey, margin, animationDuration, barGap, barWidth, orientation, stacked, stackGap, children, containerRef }: {
+function BarChartInner({ width, height, data, xDataKey, margin, animationDuration, barGap, barWidth, orientation, stacked, stackGap, children, containerRef, yMax }: {
     width: number; height: number; data: Record<string, unknown>[]; xDataKey: string; margin: Margin;
     animationDuration: number; barGap: number; barWidth?: number; orientation: "vertical" | "horizontal";
     stacked: boolean; stackGap: number; children: ReactNode; containerRef: RefObject<HTMLDivElement | null>;
+    yMax?: number;
 }) {
     const [isLoaded, setIsLoaded] = useState(false);
     const [hoveredBarIndex, setHoveredBarIndex] = useState<number | null>(null);
@@ -455,11 +458,16 @@ function BarChartInner({ width, height, data, xDataKey, margin, animationDuratio
 
     const yScale = useMemo(() => {
         let maxValue = 0;
-        if (stacked) { for (const d of data) { let sum = 0; for (const bar of bars) { const value = d[bar.dataKey]; if (typeof value === "number") sum += value; } if (sum > maxValue) maxValue = sum; } }
-        else { for (const bar of bars) for (const d of data) { const value = d[bar.dataKey]; if (typeof value === "number" && value > maxValue) maxValue = value; } }
-        if (maxValue === 0) maxValue = 100;
-        return scaleLinear<number>({ range: isHorizontal ? [innerWidth, 0] : [innerHeight, 0], domain: [0, maxValue * 1.1], nice: true });
-    }, [data, bars, innerWidth, innerHeight, stacked, isHorizontal]);
+        if (yMax != null) {
+            maxValue = yMax;
+        } else {
+            if (stacked) { for (const d of data) { let sum = 0; for (const bar of bars) { const value = d[bar.dataKey]; if (typeof value === "number") sum += value; } if (sum > maxValue) maxValue = sum; } }
+            else { for (const bar of bars) for (const d of data) { const value = d[bar.dataKey]; if (typeof value === "number" && value > maxValue) maxValue = value; } }
+            if (maxValue === 0) maxValue = 100;
+            maxValue = maxValue * 1.1;
+        }
+        return scaleLinear<number>({ range: isHorizontal ? [innerWidth, 0] : [innerHeight, 0], domain: [0, maxValue], nice: yMax == null });
+    }, [data, bars, innerWidth, innerHeight, stacked, isHorizontal, yMax]);
 
     const stackOffsets = useMemo(() => {
         if (!stacked) return new Map<number, Map<string, number>>();
@@ -507,13 +515,13 @@ function BarChartInner({ width, height, data, xDataKey, margin, animationDuratio
     );
 }
 
-export function BarChart({ data, xDataKey = "name", margin: marginProp, animationDuration = 1100, aspectRatio = "2 / 1", barGap = 0.2, barWidth, orientation = "vertical", stacked = false, stackGap = 0, className = "", children }: BarChartProps) {
+export function BarChart({ data, xDataKey = "name", margin: marginProp, animationDuration = 1100, aspectRatio = "2 / 1", barGap = 0.2, barWidth, orientation = "vertical", stacked = false, stackGap = 0, className = "", children, yMax }: BarChartProps) {
     const containerRef = useRef<HTMLDivElement>(null);
     const margin = { ...DEFAULT_MARGIN, ...marginProp };
     return (
         <div className={cn("relative w-full", className)} ref={containerRef} style={{ aspectRatio, touchAction: "none" }}>
             <ParentSize debounceTime={10}>
-                {({ width, height }) => (<BarChartInner animationDuration={animationDuration} barGap={barGap} barWidth={barWidth} containerRef={containerRef} data={data} height={height} margin={margin} orientation={orientation} stacked={stacked} stackGap={stackGap} width={width} xDataKey={xDataKey}>{children}</BarChartInner>)}
+                {({ width, height }) => (<BarChartInner animationDuration={animationDuration} barGap={barGap} barWidth={barWidth} containerRef={containerRef} data={data} height={height} margin={margin} orientation={orientation} stacked={stacked} stackGap={stackGap} width={width} xDataKey={xDataKey} yMax={yMax}>{children}</BarChartInner>)}
             </ParentSize>
         </div>
     );
