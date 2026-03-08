@@ -19,12 +19,21 @@
     "noEmit": true,
     "jsx": "react-jsx",
     "allowJs": true,
+    /* Path aliases */
+    "baseUrl": ".",
+    "paths": {
+      "@/*": [
+        "./src/*"
+      ]
+    },
     /* Linting */
     "strict": false,
     "noFallthroughCasesInSwitch": true
   },
   "include": [
     "src/**/*.js",
-    "src/**/*.jsx"
+    "src/**/*.jsx",
+    "src/**/*.ts",
+    "src/**/*.tsx"
   ]
 }

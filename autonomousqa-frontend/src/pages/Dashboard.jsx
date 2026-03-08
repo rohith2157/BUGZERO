@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, Area, AreaChart } from 'recharts';
 import { Activity, Bug, Shield, Gauge, ArrowRight, ExternalLink } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import KPICard from '../components/ui/KPICard';
 import StatusBadge from '../components/ui/StatusBadge';
+import { AreaChart, Area, Grid, XAxis, ChartTooltip } from '../components/ui/area-chart';
 import { kpiData as mockKpi, hygieneHistory as mockHistory, recentRuns as mockRuns } from '../data/mockData';
 import { tests as testsApi } from '../lib/api';
 
@@ -12,24 +12,6 @@ const container = { hidden: {}, show: { transition: { staggerChildren: 0.06 } } 
 const item = {
     hidden: { opacity: 0, y: 20 },
     show: { opacity: 1, y: 0, transition: { duration: 0.5 } }
-};
-
-const CustomTooltip = ({ active, payload, label }) => {
-    if (active && payload?.[0]) {
-        return (
-            <div style={{
-                background: 'var(--color-bg-elevated)',
-                border: '1px solid var(--border-default)',
-                borderRadius: 'var(--radius-md)',
-                padding: '10px 14px',
-                fontSize: 13,
-            }}>
-                <div style={{ color: 'var(--text-tertiary)', marginBottom: 4 }}>{label}</div>
-                <div style={{ fontWeight: 700, color: 'var(--color-accent-gold)' }}>Score: {payload[0].value}</div>
-            </div>
-        );
-    }
-    return null;
 };
 
 export default function Dashboard() {
@@ -92,6 +74,12 @@ export default function Dashboard() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
+    // Convert hygieneHistory to Date objects for the visx chart
+    const chartData = hygieneHistory.map(h => ({
+        date: new Date(h.date),
+        score: h.score,
+    }));
+
     return (
         <motion.div variants={container} initial="hidden" animate="show">
             {/* KPI Row */}
@@ -115,20 +103,26 @@ export default function Dashboard() {
                         <h2 style={{ fontSize: 16, fontWeight: 700 }}>Hygiene Score Trend</h2>
                         <span style={{ fontSize: 12, color: 'var(--text-tertiary)' }}>Last 60 days</span>
                     </div>
-                    <ResponsiveContainer width="100%" height={220}>
-                        <AreaChart data={hygieneHistory}>
-                            <defs>
-                                <linearGradient id="scoreGradient" x1="0" y1="0" x2="0" y2="1">
-                                    <stop offset="0%" stopColor="#D4A853" stopOpacity={0.25} />
-                                    <stop offset="100%" stopColor="#D4A853" stopOpacity={0} />
-                                </linearGradient>
-                            </defs>
-                            <XAxis dataKey="date" tick={{ fill: '#52525B', fontSize: 11 }} axisLine={false} tickLine={false} />
-                            <YAxis domain={[60, 100]} tick={{ fill: '#52525B', fontSize: 11 }} axisLine={false} tickLine={false} />
-                            <Tooltip content={<CustomTooltip />} />
-                            <Area type="monotone" dataKey="score" stroke="#D4A853" strokeWidth={2} fill="url(#scoreGradient)" dot={false} />
-                        </AreaChart>
-                    </ResponsiveContainer>
+                    <AreaChart data={chartData} aspectRatio="2.2 / 1" margin={{ top: 20, right: 20, bottom: 30, left: 40 }}>
+                        <Grid horizontal numTicksRows={4} />
+                        <Area
+                            dataKey="score"
+                            fill="var(--chart-line-primary)"
+                            fillOpacity={0.25}
+                            stroke="var(--chart-line-primary)"
+                            fadeEdges
+                        />
+                        <XAxis numTicks={4} />
+                        <ChartTooltip
+                            rows={(point) => [
+                                {
+                                    color: 'var(--chart-line-primary)',
+                                    label: 'Score',
+                                    value: point.score != null ? point.score : '—',
+                                },
+                            ]}
+                        />
+                    </AreaChart>
                 </motion.div>
 
                 {/* Quick Start */}

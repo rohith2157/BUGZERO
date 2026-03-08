@@ -1,6 +1,26 @@
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Geist+Mono:wght@400;500;600&display=swap');
 @import "tailwindcss";
 
+@theme inline {
+  --color-popover: var(--chart-tooltip-background);
+  --color-popover-foreground: var(--chart-tooltip-foreground);
+  --color-chart-label: var(--chart-label);
+  --color-chart-ring-background: var(--chart-ring-background);
+  --color-chart-marker-foreground: var(--chart-marker-foreground);
+  --color-chart-marker-border: var(--chart-marker-border);
+  --color-chart-marker-background: var(--chart-marker-background);
+  --color-chart-tooltip-muted: var(--chart-tooltip-muted);
+  --color-chart-tooltip-foreground: var(--chart-tooltip-foreground);
+  --color-chart-tooltip-background: var(--chart-tooltip-background);
+  --color-chart-grid: var(--chart-grid);
+  --color-chart-crosshair: var(--chart-crosshair);
+  --color-chart-line-secondary: var(--chart-line-secondary);
+  --color-chart-line-primary: var(--chart-line-primary);
+  --color-chart-foreground-muted: var(--chart-foreground-muted);
+  --color-chart-foreground: var(--chart-foreground);
+  --color-chart-background: var(--chart-background);
+}
+
 :root {
   /* === AUTONOMOUSQA PREMIUM DESIGN TOKENS === */
   /* TextShimmer — dark mode: white sweep on zinc base */
@@ -103,6 +123,29 @@
   --grid-line-color: rgba(255, 255, 255, 0.02);
   --on-accent: #09090B;
   --notification-border: #0C0C0E;
+
+  /* Chart variables — dark mode */
+  --chart-background: #09090B;
+  --chart-foreground: #FAFAFA;
+  --chart-foreground-muted: #71717A;
+  --chart-line-primary: #D4A853;
+  --chart-line-secondary: #A78BFA;
+  --chart-crosshair: rgba(212, 168, 83, 0.5);
+  --chart-grid: rgba(255, 255, 255, 0.06);
+  --chart-tooltip-background: rgba(28, 28, 32, 0.92);
+  --chart-tooltip-foreground: #FAFAFA;
+  --chart-tooltip-muted: #A1A1AA;
+  --chart-marker-background: rgba(28, 28, 32, 0.9);
+  --chart-marker-border: rgba(255, 255, 255, 0.1);
+  --chart-marker-foreground: #FAFAFA;
+  --chart-ring-background: rgba(212, 168, 83, 0.15);
+  --chart-label: #71717A;
+  --chart-indicator-color: #D4A853;
+  --chart-indicator-secondary-color: #A78BFA;
+  --chart-marker-badge-background: rgba(212, 168, 83, 0.15);
+  --chart-marker-badge-foreground: #D4A853;
+  --chart-segment-background: rgba(212, 168, 83, 0.08);
+  --chart-segment-line: #D4A853;
 }
 
 /* ===== LIGHT THEME ===== */
@@ -169,6 +212,29 @@
   --grid-line-color: rgba(0, 0, 0, 0.05);
   --on-accent: #FFFFFF;
   --notification-border: #F8F8FA;
+
+  /* Chart variables — light mode */
+  --chart-background: #FAFAFA;
+  --chart-foreground: #09090B;
+  --chart-foreground-muted: #71717A;
+  --chart-line-primary: #B8860B;
+  --chart-line-secondary: #7C3AED;
+  --chart-crosshair: rgba(184, 134, 11, 0.4);
+  --chart-grid: rgba(0, 0, 0, 0.08);
+  --chart-tooltip-background: rgba(255, 255, 255, 0.95);
+  --chart-tooltip-foreground: #09090B;
+  --chart-tooltip-muted: #71717A;
+  --chart-marker-background: rgba(255, 255, 255, 0.95);
+  --chart-marker-border: rgba(0, 0, 0, 0.1);
+  --chart-marker-foreground: #09090B;
+  --chart-ring-background: rgba(184, 134, 11, 0.12);
+  --chart-label: #71717A;
+  --chart-indicator-color: #B8860B;
+  --chart-indicator-secondary-color: #7C3AED;
+  --chart-marker-badge-background: rgba(184, 134, 11, 0.1);
+  --chart-marker-badge-foreground: #B8860B;
+  --chart-segment-background: rgba(184, 134, 11, 0.06);
+  --chart-segment-line: #B8860B;
 }
 
 /* === GLOBAL RESET & BASE === */

@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { Gauge, AlertTriangle, TrendingDown, Loader2, Zap, Eye, MousePointerClick, Move } from 'lucide-react';
 import StatusBadge from '../components/ui/StatusBadge';
 import { tests as testsApi } from '../lib/api';
-import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, AreaChart, Area, BarChart, Bar } from 'recharts';
+import { AreaChart, Area, Grid, XAxis, ChartTooltip } from '../components/ui/area-chart';
 
 const container = { hidden: {}, show: { transition: { staggerChildren: 0.06 } } };
 const item = { hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0, transition: { duration: 0.5 } } };
@@ -49,11 +49,12 @@ export default function Performance() {
             }
 
             // Build per-page data
-            const history = Object.entries(data.byPage || {}).map(([url, metrics]) => {
+            const history = Object.entries(data.byPage || {}).map(([url, metrics], idx) => {
                 let path;
                 try { path = new URL(url).pathname; } catch { path = url; }
                 return {
-                    date: path.length > 20 ? '…' + path.slice(-18) : path,
+                    date: new Date(Date.now() - (Object.keys(data.byPage).length - idx) * 24 * 60 * 60 * 1000),
+                    label: path.length > 20 ? '…' + path.slice(-18) : path,
                     fullPath: path,
                     lcp: Math.round((metrics.LCP?.value || 0) * 100) / 100,
                     fid: Math.round((metrics.FID?.value || 0) * 100) / 100,
@@ -70,7 +71,7 @@ export default function Performance() {
                 if (h.fid > 0) { total++; if (h.fid <= 100) good++; }
                 if (h.cls > 0) { total++; if (h.cls <= 0.1) good++; }
                 const score = total > 0 ? Math.round((good / total) * 100) : 0;
-                return { page: h.fullPath || h.date, score };
+                return { page: h.fullPath || h.label, score };
             });
 
             setPerformanceData({ webVitals: rawVitals, history, pageScores, totalPages: history.length });
@@ -187,29 +188,38 @@ export default function Performance() {
                 {performanceData.history.length === 0 ? (
                     <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text-tertiary)' }}>No per-page data available.</div>
                 ) : (
-                    <ResponsiveContainer width="100%" height={260}>
-                        <AreaChart data={performanceData.history}>
-                            <defs>
-                                <linearGradient id="lcpGrad" x1="0" y1="0" x2="0" y2="1">
-                                    <stop offset="0%" stopColor="#D4A853" stopOpacity={0.2} />
-                                    <stop offset="100%" stopColor="#D4A853" stopOpacity={0} />
-                                </linearGradient>
-                                <linearGradient id="ttfbGrad" x1="0" y1="0" x2="0" y2="1">
-                                    <stop offset="0%" stopColor="#A78BFA" stopOpacity={0.2} />
-                                    <stop offset="100%" stopColor="#A78BFA" stopOpacity={0} />
-                                </linearGradient>
-                            </defs>
-                            <XAxis dataKey="date" tick={{ fill: '#52525B', fontSize: 11 }} axisLine={false} tickLine={false} />
-                            <YAxis tick={{ fill: '#52525B', fontSize: 11 }} axisLine={false} tickLine={false} />
-                            <Tooltip contentStyle={{
-                                background: 'var(--color-bg-elevated)', border: '1px solid var(--border-default)',
-                                borderRadius: 'var(--radius-md)', fontSize: 13,
-                            }} />
-                            <Area type="monotone" dataKey="lcp" stroke="#D4A853" fill="url(#lcpGrad)" strokeWidth={2} dot={false} name="LCP (s)" />
-                            <Line type="monotone" dataKey="fid" stroke="#34D399" strokeWidth={2} dot={false} name="FID (ms)" />
-                            <Area type="monotone" dataKey="ttfb" stroke="#A78BFA" fill="url(#ttfbGrad)" strokeWidth={2} dot={false} name="TTFB (ms)" />
-                        </AreaChart>
-                    </ResponsiveContainer>
+                    <AreaChart data={performanceData.history} aspectRatio="2.5 / 1" margin={{ top: 20, right: 20, bottom: 30, left: 40 }}>
+                        <Grid horizontal numTicksRows={4} />
+                        <Area
+                            dataKey="lcp"
+                            fill="var(--chart-line-primary)"
+                            fillOpacity={0.2}
+                            stroke="var(--chart-line-primary)"
+                            fadeEdges
+                        />
+                        <Area
+                            dataKey="ttfb"
+                            fill="var(--chart-line-secondary)"
+                            fillOpacity={0.2}
+                            stroke="var(--chart-line-secondary)"
+                            fadeEdges
+                        />
+                        <Area
+                            dataKey="fid"
+                            fill="#34D399"
+                            fillOpacity={0.15}
+                            stroke="#34D399"
+                            fadeEdges
+                        />
+                        <XAxis numTicks={4} />
+                        <ChartTooltip
+                            rows={(point) => [
+                                { color: 'var(--chart-line-primary)', label: 'LCP', value: `${point.lcp}s` },
+                                { color: 'var(--chart-line-secondary)', label: 'TTFB', value: `${point.ttfb}ms` },
+                                { color: '#34D399', label: 'FID', value: `${point.fid}ms` },
+                            ]}
+                        />
+                    </AreaChart>
                 )}
             </motion.div>
 
