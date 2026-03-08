@@ -6,6 +6,7 @@ import {
     Sparkles, Bot, Globe, ChevronRight, Sun, Moon
 } from 'lucide-react';
 import { WarpBackground } from '../components/ui/WarpBackground';
+import HeroText from '../components/ui/hero-shutter-text';
 import { Spotlight } from '../components/ui/Spotlight';
 import useThemeStore from '../store/themeStore';
 
@@ -185,7 +186,7 @@ export default function Landing() {
                             WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
                             backgroundClip: 'text',
                         }}>Your Entire App</span><br />
-                        <span style={{ color: 'var(--text-primary)' }}>Autonomously</span>
+                        <HeroText text="Autonomously" color="var(--text-primary)" accentColor="var(--color-accent-gold)" />
                     </h1>
 
                     <p style={{
