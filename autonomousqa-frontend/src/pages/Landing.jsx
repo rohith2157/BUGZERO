@@ -9,6 +9,7 @@ import { WarpBackground } from '../components/ui/WarpBackground';
 import HeroText from '../components/ui/hero-shutter-text';
 import FlipTextReveal from '../components/ui/next-reveal';
 import { Spotlight } from '../components/ui/Spotlight';
+import { AnimatedThemeToggle } from '../components/ui/animated-theme-toggle';
 import useThemeStore from '../store/themeStore';
 
 const features = [
@@ -35,7 +36,7 @@ const item = {
 
 export default function Landing() {
     const navigate = useNavigate();
-    const { theme, toggleTheme } = useThemeStore();
+    const { theme } = useThemeStore();
     const isDark = theme === 'dark';
 
     return (
@@ -104,23 +105,7 @@ export default function Landing() {
                 <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
                     <span style={{ fontSize: 13, color: 'var(--text-tertiary)', cursor: 'pointer', fontWeight: 500 }}>Docs</span>
                     <span style={{ fontSize: 13, color: 'var(--text-tertiary)', cursor: 'pointer', fontWeight: 500 }}>Pricing</span>
-                    <motion.button
-                        whileHover={{ scale: 1.1 }}
-                        whileTap={{ scale: 0.9 }}
-                        onClick={toggleTheme}
-                        aria-label="Toggle theme"
-                        style={{
-                            width: 34, height: 34,
-                            display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            background: 'var(--glass-subtle)',
-                            border: '1px solid var(--border-subtle)',
-                            borderRadius: 8,
-                            color: 'var(--text-secondary)',
-                            cursor: 'pointer',
-                        }}
-                    >
-                        {isDark ? <Sun size={15} /> : <Moon size={15} />}
-                    </motion.button>
+                    <AnimatedThemeToggle />
                     <button
                         onClick={() => navigate('/login')}
                         style={{

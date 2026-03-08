@@ -1,35 +1,16 @@
 import { cn } from "@/lib/utils";
-import { useState, useEffect } from "react";
 import { Button } from "./button";
 import { motion, useMotionValue, useTransform } from "framer-motion";
 
+import useThemeStore from "../../store/themeStore";
+
 export const AnimatedThemeToggle = ({ className }: { className?: string }) => {
-    // Try to load theme from localStorage or default to system preference/light
-    const [theme, setTheme] = useState(() => {
-        if (typeof window !== "undefined") {
-            const savedTheme = localStorage.getItem("aq_theme");
-            if (savedTheme) return savedTheme;
-            if (window.matchMedia("(prefers-color-scheme: dark)").matches) return "dark";
-        }
-        return "light";
-    });
-
+    const { theme, toggleTheme } = useThemeStore();
     const isDark = theme === "dark";
-
-    useEffect(() => {
-        if (theme === "dark") {
-            document.body.classList.add("dark", "dark-theme");
-            document.body.classList.remove("light", "light-theme");
-        } else {
-            document.body.classList.add("light", "light-theme");
-            document.body.classList.remove("dark", "dark-theme");
-        }
-        localStorage.setItem("aq_theme", theme);
-    }, [theme]);
 
     return (
         <Button
-            onClick={() => setTheme(isDark ? "light" : "dark")}
+            onClick={toggleTheme}
             className={cn("px-2.5 h-10 w-10 rounded-full border-none bg-black/5 hover:bg-black/10 dark:bg-white/5 dark:hover:bg-white/10 text-[var(--color-accent-gold)]", className)}
             variant="outline"
         >
