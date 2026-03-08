@@ -143,14 +143,13 @@ export default function Sidebar({ collapsed, setCollapsed }) {
                                         layoutId="activeNav"
                                         style={{
                                             position: 'absolute',
-                                            left: 0,
-                                            top: '50%',
-                                            transform: 'translateY(-50%)',
-                                            width: 2,
-                                            height: 16,
-                                            borderRadius: 2,
+                                            left: -8,
+                                            top: 'calc(50% - 10px)',
+                                            width: 3,
+                                            height: 20,
+                                            borderRadius: '0 4px 4px 0',
                                             background: 'var(--color-accent-gold)',
-                                            boxShadow: '0 0 8px rgba(212,168,83,0.4)',
+                                            boxShadow: '2px 0 8px rgba(212,168,83,0.4)',
                                         }}
                                         transition={{ type: 'spring', stiffness: 500, damping: 35 }}
                                     />
