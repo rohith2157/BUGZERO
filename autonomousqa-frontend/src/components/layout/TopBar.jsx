@@ -1,9 +1,9 @@
-import { Bell, Search, User, Moon, Sun, LogOut, Settings, ChevronDown } from 'lucide-react';
+import { Bell, Search, User, LogOut, Settings, ChevronDown } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useRef, useEffect } from 'react';
-import useThemeStore from '../../store/themeStore';
 import { useAuthStore } from '../../store/authStore';
+import { AnimatedThemeToggle } from '../ui/animated-theme-toggle';
 
 const routeTitles = {
     '/dashboard': 'Dashboard',
@@ -27,9 +27,7 @@ export default function TopBar() {
     const location = useLocation();
     const navigate = useNavigate();
     const title = getTitle(location.pathname);
-    const { theme, toggleTheme } = useThemeStore();
     const { user, logout } = useAuthStore();
-    const isDark = theme === 'dark';
     const [profileOpen, setProfileOpen] = useState(false);
     const dropdownRef = useRef(null);
 
@@ -111,26 +109,7 @@ export default function TopBar() {
                 </div>
 
                 {/* Dark mode toggle */}
-                <motion.button
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    aria-label="Toggle theme"
-                    onClick={toggleTheme}
-                    style={{
-                        width: 34,
-                        height: 34,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        background: 'var(--glass-subtle)',
-                        border: '1px solid var(--border-subtle)',
-                        borderRadius: 8,
-                        color: 'var(--text-secondary)',
-                        cursor: 'pointer',
-                    }}
-                >
-                    {isDark ? <Sun size={15} /> : <Moon size={15} />}
-                </motion.button>
+                <AnimatedThemeToggle />
 
                 {/* Notifications */}
                 <motion.button
