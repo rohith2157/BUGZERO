@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { Mail, Lock, User, Building2, ArrowRight, FlaskConical, Eye, EyeOff } from 'lucide-react';
 import { auth as authApi } from '../lib/api';
 import { useAuthStore } from '../store/authStore';
+import TextBlockAnimation from '../components/ui/text-block-animation';
 
 export default function Login() {
   const navigate = useNavigate();
@@ -130,9 +131,11 @@ export default function Login() {
           }}>
             <FlaskConical size={17} color="var(--on-accent)" />
           </div>
-          <span style={{ fontWeight: 700, fontSize: 17, letterSpacing: '-0.02em' }}>
-            Autonomous<span style={{ color: 'var(--color-accent-gold)' }}>QA</span>
-          </span>
+          <TextBlockAnimation animateOnScroll={false} delay={0.3} blockColor="var(--color-accent-gold)" duration={0.5}>
+            <span style={{ fontWeight: 700, fontSize: 17, letterSpacing: '-0.02em' }}>
+              Autonomous<span style={{ color: 'var(--color-accent-gold)' }}>QA</span>
+            </span>
+          </TextBlockAnimation>
         </div>
 
         {/* Mode toggle */}
@@ -246,24 +249,26 @@ export default function Login() {
             </div>
           )}
 
-          <motion.button
-            type="submit"
-            disabled={loading}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            style={{
-              width: '100%', padding: '13px 0', fontSize: 14, fontWeight: 700,
-              background: 'var(--color-accent-gold)', color: 'var(--on-accent)',
-              border: 'none', borderRadius: 'var(--radius-md)',
-              cursor: loading ? 'wait' : 'pointer',
-              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-              opacity: loading ? 0.7 : 1,
-              boxShadow: '0 0 20px rgba(212,168,83,0.2)',
-            }}
-          >
-            {loading ? 'Please wait...' : mode === 'login' ? 'Sign In' : 'Create Account'}
-            {!loading && <ArrowRight size={16} />}
-          </motion.button>
+          <TextBlockAnimation animateOnScroll={false} delay={0.6} blockColor="var(--color-accent-gold)" duration={0.5}>
+            <motion.button
+              type="submit"
+              disabled={loading}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              style={{
+                width: '100%', padding: '13px 0', fontSize: 14, fontWeight: 700,
+                background: 'var(--color-accent-gold)', color: 'var(--on-accent)',
+                border: 'none', borderRadius: 'var(--radius-md)',
+                cursor: loading ? 'wait' : 'pointer',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                opacity: loading ? 0.7 : 1,
+                boxShadow: '0 0 20px rgba(212,168,83,0.2)',
+              }}
+            >
+              {loading ? 'Please wait...' : mode === 'login' ? 'Sign In' : 'Create Account'}
+              {!loading && <ArrowRight size={16} />}
+            </motion.button>
+          </TextBlockAnimation>
         </form>
 
         {/* Divider */}
@@ -277,21 +282,23 @@ export default function Login() {
         </div>
 
         {/* Demo login */}
-        <motion.button
-          onClick={handleDemoLogin}
-          whileHover={{ scale: 1.02, y: -1 }}
-          whileTap={{ scale: 0.98 }}
-          style={{
-            width: '100%', padding: '12px 0', fontSize: 13, fontWeight: 600,
-            background: 'rgba(212, 168, 83, 0.06)',
-            border: '1px solid rgba(212, 168, 83, 0.15)',
-            borderRadius: 'var(--radius-md)',
-            color: 'var(--color-accent-gold)',
-            cursor: 'pointer',
-          }}
-        >
-          🚀 Quick Demo Login
-        </motion.button>
+        <TextBlockAnimation animateOnScroll={false} delay={0.8} blockColor="var(--color-accent-purple)" duration={0.5}>
+          <motion.button
+            onClick={handleDemoLogin}
+            whileHover={{ scale: 1.02, y: -1 }}
+            whileTap={{ scale: 0.98 }}
+            style={{
+              width: '100%', padding: '12px 0', fontSize: 13, fontWeight: 600,
+              background: 'rgba(212, 168, 83, 0.06)',
+              border: '1px solid rgba(212, 168, 83, 0.15)',
+              borderRadius: 'var(--radius-md)',
+              color: 'var(--color-accent-gold)',
+              cursor: 'pointer',
+            }}
+          >
+            🚀 Quick Demo Login
+          </motion.button>
+        </TextBlockAnimation>
       </motion.div>
     </div>
   );
