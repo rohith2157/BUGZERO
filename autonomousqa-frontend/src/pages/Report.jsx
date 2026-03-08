@@ -7,7 +7,7 @@ import StatusBadge from '../components/ui/StatusBadge';
 import { severityConfig, defectTypeColors } from '../data/mockData';
 import { tests as testsApi } from '../lib/api';
 
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
+import { BarChart, Bar, BarYAxis, Grid, ChartTooltip } from '../components/ui/bar-chart';
 
 function safePath(url) { try { return new URL(url).pathname || url; } catch { return url; } }
 
@@ -157,23 +157,27 @@ export default function Report() {
 
                 <motion.div variants={item} className="glass-card" style={{ padding: '24px' }}>
                     <h3 style={{ fontSize: 15, fontWeight: 700, marginBottom: 18 }}>Score Breakdown</h3>
-                    <ResponsiveContainer width="100%" height={200}>
-                        <BarChart data={scoreData} layout="vertical">
-                            <XAxis type="number" domain={[0, 100]} tick={{ fill: '#52525B', fontSize: 11 }} axisLine={false} tickLine={false} />
-                            <YAxis dataKey="name" type="category" tick={{ fill: '#71717A', fontSize: 12, fontWeight: 500 }} axisLine={false} tickLine={false} width={100} />
-                            <Tooltip
-                                contentStyle={{
-                                    background: 'var(--color-bg-elevated)', border: '1px solid var(--border-default)',
-                                    borderRadius: 'var(--radius-md)', fontSize: 13,
-                                }}
-                            />
-                            <Bar dataKey="score" radius={[0, 6, 6, 0]} barSize={18}>
-                                {scoreData.map((entry, index) => (
-                                    <Cell key={index} fill={entry.color} />
-                                ))}
-                            </Bar>
-                        </BarChart>
-                    </ResponsiveContainer>
+                    <BarChart
+                        data={scoreData}
+                        xDataKey="name"
+                        orientation="horizontal"
+                        aspectRatio="2.5 / 1"
+                        barGap={0.3}
+                        margin={{ top: 10, right: 20, bottom: 10, left: 100 }}
+                    >
+                        <Grid vertical numTicksColumns={5} fadeVertical={false} horizontal={false} />
+                        <Bar dataKey="score" fill="var(--chart-line-primary)" lineCap="round" />
+                        <BarYAxis />
+                        <ChartTooltip
+                            rows={(point) => [
+                                {
+                                    color: point.score >= 85 ? '#10B981' : point.score >= 70 ? '#F59E0B' : '#EF4444',
+                                    label: String(point.name),
+                                    value: `${point.score}/100`,
+                                },
+                            ]}
+                        />
+                    </BarChart>
                 </motion.div>
             </div>
 
