@@ -157,27 +157,36 @@ export default function Report() {
 
                 <motion.div variants={item} className="glass-card" style={{ padding: '24px' }}>
                     <h3 style={{ fontSize: 15, fontWeight: 700, marginBottom: 18 }}>Score Breakdown</h3>
-                    <BarChart
-                        data={scoreData}
-                        xDataKey="name"
-                        orientation="horizontal"
-                        aspectRatio="2.5 / 1"
-                        barGap={0.3}
-                        margin={{ top: 10, right: 20, bottom: 10, left: 100 }}
-                    >
-                        <Grid vertical numTicksColumns={5} fadeVertical={false} horizontal={false} />
-                        <Bar dataKey="score" fill="var(--chart-line-primary)" lineCap="round" />
-                        <BarYAxis />
-                        <ChartTooltip
-                            rows={(point) => [
-                                {
-                                    color: point.score >= 85 ? '#10B981' : point.score >= 70 ? '#F59E0B' : '#EF4444',
-                                    label: String(point.name),
-                                    value: `${point.score}/100`,
-                                },
-                            ]}
-                        />
-                    </BarChart>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+                        {scoreData.map((entry, i) => (
+                            <div key={entry.name} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                                <span style={{
+                                    width: 100, fontSize: 12, fontWeight: 500,
+                                    color: 'var(--text-secondary)', textAlign: 'right', flexShrink: 0,
+                                }}>{entry.name}</span>
+                                <div style={{
+                                    flex: 1, height: 22, borderRadius: 6,
+                                    background: 'rgba(255,255,255,0.04)',
+                                    overflow: 'hidden', position: 'relative',
+                                }}>
+                                    <motion.div
+                                        initial={{ width: 0 }}
+                                        animate={{ width: `${entry.score}%` }}
+                                        transition={{ duration: 0.8, delay: i * 0.1, ease: [0.22, 1, 0.36, 1] }}
+                                        style={{
+                                            height: '100%', borderRadius: 6,
+                                            background: entry.color,
+                                        }}
+                                    />
+                                </div>
+                                <span style={{
+                                    width: 36, fontSize: 13, fontWeight: 700,
+                                    color: entry.color, textAlign: 'right', flexShrink: 0,
+                                    fontFamily: "'Geist Mono', 'JetBrains Mono', monospace",
+                                }}>{entry.score}</span>
+                            </div>
+                        ))}
+                    </div>
                 </motion.div>
             </div>
 

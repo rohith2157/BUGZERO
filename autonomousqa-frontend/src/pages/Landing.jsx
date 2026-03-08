@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import { WarpBackground } from '../components/ui/WarpBackground';
 import HeroText from '../components/ui/hero-shutter-text';
+import FlipTextReveal from '../components/ui/next-reveal';
 import { Spotlight } from '../components/ui/Spotlight';
 import useThemeStore from '../store/themeStore';
 
@@ -180,12 +181,8 @@ export default function Landing() {
                         maxWidth: 840,
                         margin: '0 auto 24px',
                     }}>
-                        <span style={{ color: 'var(--text-primary)' }}>AI That Tests</span><br />
-                        <span style={{
-                            background: 'linear-gradient(135deg, var(--color-accent-gold) 0%, var(--color-accent-gold-bright) 50%, var(--color-accent-gold) 100%)',
-                            WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
-                            backgroundClip: 'text',
-                        }}>Your Entire App</span><br />
+                        <FlipTextReveal word="AI That Tests" color="var(--text-primary)" /><br />
+                        <FlipTextReveal word="Your Entire App" color="var(--color-accent-gold)" stagger={0.05} /><br />
                         <HeroText text="Autonomously" color="var(--text-primary)" accentColor="var(--color-accent-gold)" />
                     </h1>
 
