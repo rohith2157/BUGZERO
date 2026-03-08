@@ -167,7 +167,7 @@ export default function Report() {
                         margin={{ top: 10, right: 30, bottom: 10, left: 100 }}
                     >
                         <Grid vertical numTicksColumns={5} fadeVertical={false} horizontal={false} strokeDasharray="2,4" />
-                        <Bar dataKey="score" fill="var(--chart-line-primary)" lineCap={4} />
+                        <Bar dataKey="score" fillKey="color" fill="#10B981" lineCap={4} />
                         <BarYAxis />
                         <ChartTooltip
                             showCrosshair={false}

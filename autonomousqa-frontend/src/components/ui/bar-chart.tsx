@@ -334,6 +334,8 @@ export function BarYAxis({ showAllLabels = true, maxLabels = 20 }: BarYAxisProps
 export interface BarProps {
     dataKey: string; fill?: string; stroke?: string; lineCap?: "round" | "butt" | number;
     animate?: boolean; animationType?: "grow" | "fade"; fadedOpacity?: number; staggerDelay?: number; stackGap?: number;
+    /** Data field key for per-bar fill color. Each data record's value at this key overrides the default fill. */
+    fillKey?: string;
 }
 
 function resolveRadius(lineCap: "round" | "butt" | number, barWidth: number): number {
@@ -342,7 +344,7 @@ function resolveRadius(lineCap: "round" | "butt" | number, barWidth: number): nu
     return lineCap;
 }
 
-export function Bar({ dataKey, fill = chartCssVars.linePrimary, stroke, lineCap = "round", animate = true, animationType = "grow", fadedOpacity = 0.3, staggerDelay, stackGap = 0 }: BarProps) {
+export function Bar({ dataKey, fill = chartCssVars.linePrimary, stroke, lineCap = "round", animate = true, animationType = "grow", fadedOpacity = 0.3, staggerDelay, stackGap = 0, fillKey }: BarProps) {
     const { data, xScale, yScale, innerHeight, innerWidth, bandWidth, hoveredBarIndex, isLoaded, animationDuration, xDataKey, orientation, stacked, stackOffsets, bars, barWidth: fixedBarWidth } = useChart();
     const isHorizontal = orientation === "horizontal";
     const barIndex = bars.findIndex((b) => b.dataKey === dataKey);
@@ -394,8 +396,10 @@ export function Bar({ dataKey, fill = chartCssVars.linePrimary, stroke, lineCap 
                 const growAnimate = isHorizontal ? { scaleX: 1, opacity: barOpacity } : { scaleY: 1, opacity: barOpacity };
                 const growTransition = { [isHorizontal ? "scaleX" : "scaleY"]: { duration: animationDuration / 1000, ease: [0.85, 0, 0.15, 1] as [number, number, number, number], delay }, opacity: { duration: 0.3, ease: "easeInOut" as const } };
 
+                const barFill = fillKey && typeof d[fillKey] === "string" ? (d[fillKey] as string) : fill;
+
                 return (
-                    <motion.path key={`${category}-${dataKey}`} d={path} fill={fill} style={{ transformOrigin: `${originX}px ${originY}px` }}
+                    <motion.path key={`${category}-${dataKey}`} d={path} fill={barFill} style={{ transformOrigin: `${originX}px ${originY}px` }}
                         initial={shouldAnimateEntry && animationType === "grow" ? growInitial : shouldAnimateEntry && animationType === "fade" ? { opacity: 0, filter: "blur(4px)" } : { opacity: barOpacity }}
                         animate={shouldAnimateEntry && animationType === "grow" ? growAnimate : shouldAnimateEntry && animationType === "fade" ? { opacity: barOpacity, filter: "blur(0px)" } : { opacity: barOpacity }}
                         transition={shouldAnimateEntry && animationType === "grow" ? growTransition : shouldAnimateEntry && animationType === "fade" ? { duration: 0.5, delay, ease: "easeOut" } : { opacity: { duration: 0.3, ease: "easeInOut" } }}
