@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { Mail, Lock, User, Building2, ArrowRight, FlaskConical, Eye, EyeOff } from 'lucide-react';
