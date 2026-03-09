@@ -115,11 +115,12 @@ export default function Sidebar({ collapsed, setCollapsed }) {
             <nav style={{ flex: 1, padding: '12px 8px', display: 'flex', flexDirection: 'column', gap: 2, overflowY: 'auto' }}>
                 {navItems.map(({ to, icon: Icon, label }) => {
                     const isActive = location.pathname === to;
+                    const isSettings = to === '/settings';
                     return (
                         <NavLink
                             key={to}
                             to={to}
-                            style={{ textDecoration: 'none' }}
+                            style={{ textDecoration: 'none', ...(isSettings ? { marginTop: 'auto' } : {}) }}
                         >
                             <motion.div
                                 whileHover={{ background: 'var(--glass-subtle-hover)' }}
