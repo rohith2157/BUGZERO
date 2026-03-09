@@ -7,6 +7,7 @@ import {
     Activity, FlaskConical
 } from 'lucide-react';
 import { tests as testsApi } from '../../lib/api';
+import { InteractiveHoverButton } from '../ui/interactive-hover-button';
 
 const staticNavItems = [
     { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
@@ -122,58 +123,12 @@ export default function Sidebar({ collapsed, setCollapsed }) {
                             to={to}
                             style={{ textDecoration: 'none', ...(isSettings ? { marginTop: 'auto' } : {}) }}
                         >
-                            <motion.div
-                                whileHover={{ background: 'var(--glass-subtle-hover)' }}
-                                whileTap={{ scale: 0.98 }}
-                                style={{
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: 10,
-                                    padding: collapsed ? '10px 14px' : '9px 12px',
-                                    borderRadius: 8,
-                                    cursor: 'pointer',
-                                    position: 'relative',
-                                    color: isActive ? 'var(--text-primary)' : 'var(--text-tertiary)',
-                                    background: isActive ? 'rgba(212, 168, 83, 0.08)' : 'transparent',
-                                    transition: 'all 0.15s ease',
-                                    justifyContent: collapsed ? 'center' : 'flex-start',
-                                }}
-                            >
-                                {isActive && (
-                                    <motion.div
-                                        layoutId="activeNav"
-                                        style={{
-                                            position: 'absolute',
-                                            left: -8,
-                                            top: 'calc(50% - 10px)',
-                                            width: 3,
-                                            height: 20,
-                                            borderRadius: '0 4px 4px 0',
-                                            background: 'var(--color-accent-gold)',
-                                            boxShadow: '2px 0 8px rgba(212,168,83,0.4)',
-                                        }}
-                                        transition={{ type: 'spring', stiffness: 500, damping: 35 }}
-                                    />
-                                )}
-                                <Icon size={18} style={{ flexShrink: 0, opacity: isActive ? 1 : 0.55, color: isActive ? 'var(--color-accent-gold)' : undefined }} />
-                                <AnimatePresence>
-                                    {!collapsed && (
-                                        <motion.span
-                                            initial={{ opacity: 0 }}
-                                            animate={{ opacity: 1 }}
-                                            exit={{ opacity: 0 }}
-                                            style={{
-                                                fontSize: 13,
-                                                fontWeight: isActive ? 600 : 400,
-                                                whiteSpace: 'nowrap',
-                                                letterSpacing: '-0.01em',
-                                            }}
-                                        >
-                                            {label}
-                                        </motion.span>
-                                    )}
-                                </AnimatePresence>
-                            </motion.div>
+                            <InteractiveHoverButton
+                                text={label}
+                                icon={<Icon size={18} />}
+                                isActive={isActive}
+                                collapsed={collapsed}
+                            />
                         </NavLink>
                     );
                 })}
