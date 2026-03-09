@@ -3,6 +3,7 @@ import { Outlet, Navigate } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import TopBar from './TopBar';
 import { useAuthStore } from '../../store/authStore';
+import { InfiniteGridBackground } from '../ui/infinite-grid';
 
 export default function DashboardLayout() {
     const [collapsed, setCollapsed] = useState(false);
@@ -25,15 +26,20 @@ export default function DashboardLayout() {
                 transition: 'margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
             }}>
                 <TopBar />
-                <main style={{
-                    flex: 1,
-                    padding: '28px 32px',
-                    overflowY: 'auto',
-                }} className="grid-pattern">
-                    <Outlet />
-                </main>
+
+                <InfiniteGridBackground gridSize={65}>
+                    <main style={{
+                        flex: 1,
+                        padding: '28px 32px',
+                        overflowY: 'auto',
+                        width: '100%',
+                        height: '100%'
+                    }}>
+                        <Outlet />
+                    </main>
+                </InfiniteGridBackground>
+
             </div>
         </div>
     );
 }
-
