@@ -4,10 +4,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
     LayoutDashboard, Plus, History, Shield, BookKey,
     Settings, Zap, ChevronLeft, ChevronRight, Bug,
-    Activity, FlaskConical
+    Activity, FlaskConical, ArrowRight
 } from 'lucide-react';
 import { tests as testsApi } from '../../lib/api';
-import { InteractiveHoverButton } from '../ui/interactive-hover-button';
 
 const staticNavItems = [
     { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
@@ -123,12 +122,74 @@ export default function Sidebar({ collapsed, setCollapsed }) {
                             to={to}
                             style={{ textDecoration: 'none', ...(isSettings ? { marginTop: 'auto' } : {}) }}
                         >
-                            <InteractiveHoverButton
-                                text={label}
-                                icon={<Icon size={18} />}
-                                isActive={isActive}
-                                collapsed={collapsed}
-                            />
+                            <motion.div
+                                whileHover={{ background: 'var(--glass-subtle-hover)' }}
+                                whileTap={{ scale: 0.98 }}
+                                className={`group relative overflow-hidden flex items-center`}
+                                style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 10,
+                                    padding: collapsed ? '10px 14px' : '9px 12px',
+                                    borderRadius: 8,
+                                    cursor: 'pointer',
+                                    color: isActive ? 'var(--text-primary)' : 'var(--text-tertiary)',
+                                    background: isActive ? 'rgba(212, 168, 83, 0.08)' : 'transparent',
+                                    transition: 'all 0.15s ease',
+                                    justifyContent: collapsed ? 'center' : 'flex-start',
+                                }}
+                            >
+                                {isActive && (
+                                    <motion.div
+                                        layoutId="activeNav"
+                                        style={{
+                                            position: 'absolute',
+                                            left: 0,
+                                            top: '20%',
+                                            width: 3,
+                                            height: '60%',
+                                            borderRadius: '0 4px 4px 0',
+                                            background: 'var(--color-accent-gold)',
+                                            boxShadow: '2px 0 8px rgba(212,168,83,0.4)',
+                                            zIndex: 30,
+                                        }}
+                                        transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+                                    />
+                                )}
+
+                                {/* Visible Text & Icon */}
+                                <div className={`flex items-center gap-[10px] relative z-10 transition-all duration-300 w-full ${!collapsed ? 'group-hover:translate-x-12 group-hover:opacity-0' : ''}`} style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 10 }}>
+                                    <Icon size={18} style={{ flexShrink: 0, opacity: isActive ? 1 : 0.55, color: isActive ? 'var(--color-accent-gold)' : undefined }} />
+                                    <AnimatePresence>
+                                        {!collapsed && (
+                                            <motion.span
+                                                initial={{ opacity: 0 }}
+                                                animate={{ opacity: 1 }}
+                                                exit={{ opacity: 0 }}
+                                                style={{
+                                                    fontSize: 13,
+                                                    fontWeight: isActive ? 600 : 400,
+                                                    whiteSpace: 'nowrap',
+                                                    letterSpacing: '-0.01em',
+                                                }}
+                                            >
+                                                {label}
+                                            </motion.span>
+                                        )}
+                                    </AnimatePresence>
+                                </div>
+
+                                {/* Hover State (Sliding in) */}
+                                {!collapsed && (
+                                    <>
+                                        <div className="absolute left-0 top-0 z-20 flex h-full w-full translate-x-12 items-center text-[var(--color-bg-primary)] opacity-0 transition-all duration-300 group-hover:translate-x-0 group-hover:opacity-100" style={{ paddingLeft: '34px', gap: '10px' }}>
+                                            <span style={{ fontSize: 13, fontWeight: 700, whiteSpace: 'nowrap', letterSpacing: '-0.01em' }}>{label}</span>
+                                            <ArrowRight size={16} strokeWidth={2.5} />
+                                        </div>
+                                        <div className="absolute left-[20%] top-[40%] h-2 w-2 scale-[1] rounded-lg bg-[var(--color-accent-gold)] transition-all duration-300 group-hover:left-[0%] group-hover:top-[0%] group-hover:h-full group-hover:w-full group-hover:scale-[1.8] opacity-0 group-hover:opacity-100 z-10"></div>
+                                    </>
+                                )}
+                            </motion.div>
                         </NavLink>
                     );
                 })}
