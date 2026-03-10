@@ -5,6 +5,7 @@ import { Gauge, AlertTriangle, TrendingDown, Loader2, Zap, Eye, MousePointerClic
 import StatusBadge from '../components/ui/StatusBadge';
 import { tests as testsApi } from '../lib/api';
 import { AreaChart, Area, Grid, XAxis, ChartTooltip } from '../components/ui/area-chart';
+import { CardSpotlight } from '../components/ui/card-spotlight';
 
 const container = { hidden: {}, show: { transition: { staggerChildren: 0.06 } } };
 const item = { hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0, transition: { duration: 0.5 } } };
@@ -116,40 +117,55 @@ export default function Performance() {
                     const color = getStatusColor(status);
 
                     return (
-                        <motion.div key={key} variants={item} className="glass-card" style={{ padding: '22px', position: 'relative', overflow: 'hidden' }}>
-                            <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 2, background: color }} />
+                        <motion.div key={key} variants={item} style={{ height: '100%' }}>
+                            <CardSpotlight
+                                className="glass-card h-full w-full"
+                                color="rgba(255, 255, 255, 0.05)"
+                                style={{
+                                    padding: '22px',
+                                    position: 'relative',
+                                    overflow: 'hidden',
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    justifyContent: 'center'
+                                }}
+                            >
+                                <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 2, background: color, zIndex: 20 }} />
 
-                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
-                                <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-tertiary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                                    {key.toUpperCase()}
+                                <div className="relative z-20" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+                                    <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-tertiary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                                        {key.toUpperCase()}
+                                    </div>
+                                    <div style={{
+                                        width: 30, height: 30, borderRadius: 8,
+                                        background: `${color}15`,
+                                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                    }}>
+                                        <Icon size={15} style={{ color }} />
+                                    </div>
                                 </div>
-                                <div style={{
-                                    width: 30, height: 30, borderRadius: 8,
-                                    background: `${color}15`,
-                                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                }}>
-                                    <Icon size={15} style={{ color }} />
+
+                                <div className="relative z-20" style={{ display: 'flex', alignItems: 'baseline', gap: 4, marginBottom: 4 }}>
+                                    <span style={{ fontSize: 32, fontWeight: 800, color: hasValue ? color : 'var(--text-tertiary)', letterSpacing: '-0.03em' }}>
+                                        {hasValue ? vital.value : 'N/A'}
+                                    </span>
+                                    {hasValue && cfg.unit && (
+                                        <span style={{ fontSize: 14, color: 'var(--text-tertiary)', fontWeight: 500 }}>{cfg.unit}</span>
+                                    )}
                                 </div>
-                            </div>
 
-                            <div style={{ display: 'flex', alignItems: 'baseline', gap: 4, marginBottom: 4 }}>
-                                <span style={{ fontSize: 32, fontWeight: 800, color: hasValue ? color : 'var(--text-tertiary)', letterSpacing: '-0.03em' }}>
-                                    {hasValue ? vital.value : 'N/A'}
-                                </span>
-                                {hasValue && cfg.unit && (
-                                    <span style={{ fontSize: 14, color: 'var(--text-tertiary)', fontWeight: 500 }}>{cfg.unit}</span>
-                                )}
-                            </div>
+                                <div className="relative z-20" style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 8 }}>{cfg.label}</div>
 
-                            <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 8 }}>{cfg.label}</div>
+                                <div className="relative z-20">
+                                    <StatusBadge status={status === 'unknown' ? 'pending' : status} size="sm" />
+                                </div>
 
-                            <StatusBadge status={status === 'unknown' ? 'pending' : status} size="sm" />
-
-                            {/* Threshold guide */}
-                            <div style={{ marginTop: 10, fontSize: 10, color: 'var(--text-tertiary)', display: 'flex', gap: 10 }}>
-                                <span>Good: ≤{cfg.good}{cfg.unit}</span>
-                                <span>Mid: ≤{cfg.mid}{cfg.unit}</span>
-                            </div>
+                                {/* Threshold guide */}
+                                <div className="relative z-20" style={{ marginTop: 10, fontSize: 10, color: 'var(--text-tertiary)', display: 'flex', gap: 10 }}>
+                                    <span>Good: ≤{cfg.good}{cfg.unit}</span>
+                                    <span>Mid: ≤{cfg.mid}{cfg.unit}</span>
+                                </div>
+                            </CardSpotlight>
                         </motion.div>
                     );
                 })}
