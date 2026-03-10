@@ -323,7 +323,7 @@ export function BarYAxis({ showAllLabels = true, maxLabels = 20 }: BarYAxisProps
     if (!container) return null;
     return createPortal(
         <div className="pointer-events-none absolute inset-0">
-            {labels.map((item) => (<div key={item.label} className="absolute" style={{ left: 0, top: item.y, width: margin.left - 8, display: "flex", justifyContent: "flex-end", transform: "translateY(-50%)" }}><span className="whitespace-nowrap text-chart-label text-xs">{item.label}</span></div>))}
+            {labels.map((item) => (<div key={item.label} className="absolute" style={{ left: 0, top: item.y, width: margin.left - 8, display: "flex", justifyContent: "flex-start", paddingLeft: "8px", transform: "translateY(-50%)" }}><span className="whitespace-nowrap text-chart-label text-sm font-semibold">{item.label}</span></div>))}
         </div>,
         container
     );
@@ -364,7 +364,7 @@ export function Bar({ dataKey, fill = chartCssVars.linePrimary, stroke, lineCap 
 
                 let barX: number, barY: number, barW: number, barH: number;
                 if (isHorizontal) {
-                    const barLength = innerWidth - (yScale(value) ?? innerWidth);
+                    const barLength = yScale(value) ?? 0;
                     barY = bandStart + (stacked ? 0 : barIndex * singleBarWidth);
                     barH = actualBarWidth; barW = barLength; barX = stacked ? stackOffset : 0;
                     if (stacked && stackGap > 0 && barIndex > 0) { barX += stackGap; barW = Math.max(0, barW - stackGap); }
@@ -399,11 +399,39 @@ export function Bar({ dataKey, fill = chartCssVars.linePrimary, stroke, lineCap 
                 const barFill = fillKey && typeof d[fillKey] === "string" ? (d[fillKey] as string) : fill;
 
                 return (
-                    <motion.path key={`${category}-${dataKey}`} d={path} fill={barFill} style={{ transformOrigin: `${originX}px ${originY}px` }}
-                        initial={shouldAnimateEntry && animationType === "grow" ? growInitial : shouldAnimateEntry && animationType === "fade" ? { opacity: 0, filter: "blur(4px)" } : { opacity: barOpacity }}
-                        animate={shouldAnimateEntry && animationType === "grow" ? growAnimate : shouldAnimateEntry && animationType === "fade" ? { opacity: barOpacity, filter: "blur(0px)" } : { opacity: barOpacity }}
-                        transition={shouldAnimateEntry && animationType === "grow" ? growTransition : shouldAnimateEntry && animationType === "fade" ? { duration: 0.5, delay, ease: "easeOut" } : { opacity: { duration: 0.3, ease: "easeInOut" } }}
-                    />
+                    <g key={`${category}-${dataKey}`}>
+                        <motion.path d={path} fill={barFill} style={{ transformOrigin: `${originX}px ${originY}px` }}
+                            initial={shouldAnimateEntry && animationType === "grow" ? growInitial : shouldAnimateEntry && animationType === "fade" ? { opacity: 0, filter: "blur(4px)" } : { opacity: barOpacity }}
+                            animate={shouldAnimateEntry && animationType === "grow" ? growAnimate : shouldAnimateEntry && animationType === "fade" ? { opacity: barOpacity, filter: "blur(0px)" } : { opacity: barOpacity }}
+                            transition={shouldAnimateEntry && animationType === "grow" ? growTransition : shouldAnimateEntry && animationType === "fade" ? { duration: 0.5, delay, ease: "easeOut" } : { opacity: { duration: 0.3, ease: "easeInOut" } }}
+                        />
+                        {isHorizontal && (
+                            <motion.text
+                                x={barX + barW + 12}
+                                y={barY + barH / 2}
+                                dominantBaseline="central"
+                                style={{ fill: barFill, fontSize: "13px", fontWeight: 700, pointerEvents: "none" }}
+                                initial={{ opacity: 0, x: -10 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ duration: 0.4, delay: delay + 0.2 }}
+                            >
+                                {value}
+                            </motion.text>
+                        )}
+                        {!isHorizontal && (
+                            <motion.text
+                                x={barX + barW / 2}
+                                y={barY - 12}
+                                textAnchor="middle"
+                                style={{ fill: barFill, fontSize: "13px", fontWeight: 700, pointerEvents: "none" }}
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ duration: 0.4, delay: delay + 0.2 }}
+                            >
+                                {value}
+                            </motion.text>
+                        )}
+                    </g>
                 );
             })}
         </>
@@ -470,7 +498,7 @@ function BarChartInner({ width, height, data, xDataKey, margin, animationDuratio
             if (maxValue === 0) maxValue = 100;
             maxValue = maxValue * 1.1;
         }
-        return scaleLinear<number>({ range: isHorizontal ? [innerWidth, 0] : [innerHeight, 0], domain: [0, maxValue], nice: yMax == null });
+        return scaleLinear<number>({ range: isHorizontal ? [0, innerWidth] : [innerHeight, 0], domain: [0, maxValue], nice: yMax == null });
     }, [data, bars, innerWidth, innerHeight, stacked, isHorizontal, yMax]);
 
     const stackOffsets = useMemo(() => {
@@ -478,7 +506,7 @@ function BarChartInner({ width, height, data, xDataKey, margin, animationDuratio
         const offsets = new Map<number, Map<string, number>>();
         for (let i = 0; i < data.length; i++) {
             const d = data[i]!; let cumulative = 0; const barOffsets = new Map<string, number>();
-            for (const bar of bars) { barOffsets.set(bar.dataKey, cumulative); const value = d[bar.dataKey]; if (typeof value === "number") { if (isHorizontal) cumulative += innerWidth - (yScale(value) ?? innerWidth); else cumulative += innerHeight - (yScale(value) ?? innerHeight); } }
+            for (const bar of bars) { barOffsets.set(bar.dataKey, cumulative); const value = d[bar.dataKey]; if (typeof value === "number") { if (isHorizontal) cumulative += yScale(value) ?? 0; else cumulative += innerHeight - (yScale(value) ?? innerHeight); } }
             offsets.set(i, barOffsets);
         }
         return offsets;
@@ -495,8 +523,8 @@ function BarChartInner({ width, height, data, xDataKey, margin, animationDuratio
         if (foundIndex >= 0) {
             setHoveredBarIndex(foundIndex); const d = data[foundIndex]!;
             const yPositions: Record<string, number> = {}; const xPositions: Record<string, number> = {};
-            for (const bar of bars) { const value = d[bar.dataKey]; if (typeof value === "number") { if (isHorizontal) { xPositions[bar.dataKey] = innerWidth - (yScale(value) ?? innerWidth); yPositions[bar.dataKey] = (xScale(domain[foundIndex]!) ?? 0) + bandWidth / 2; } else { yPositions[bar.dataKey] = yScale(value) ?? 0; xPositions[bar.dataKey] = (xScale(domain[foundIndex]!) ?? 0) + bandWidth / 2; } } }
-            const tooltipX = isHorizontal ? innerWidth - (yScale(Number(d[bars[0]?.dataKey ?? ""] ?? 0)) ?? 0) : (xScale(domain[foundIndex]!) ?? 0) + bandWidth / 2;
+            for (const bar of bars) { const value = d[bar.dataKey]; if (typeof value === "number") { if (isHorizontal) { xPositions[bar.dataKey] = yScale(value) ?? 0; yPositions[bar.dataKey] = (xScale(domain[foundIndex]!) ?? 0) + bandWidth / 2; } else { yPositions[bar.dataKey] = yScale(value) ?? 0; xPositions[bar.dataKey] = (xScale(domain[foundIndex]!) ?? 0) + bandWidth / 2; } } }
+            const tooltipX = isHorizontal ? (yScale(Number(d[bars[0]?.dataKey ?? ""] ?? 0)) ?? 0) : (xScale(domain[foundIndex]!) ?? 0) + bandWidth / 2;
             setTooltipData({ point: d, index: foundIndex, x: tooltipX, yPositions, xPositions });
         } else { setHoveredBarIndex(null); setTooltipData(null); }
     }, [xScale, yScale, data, bars, margin, bandWidth, isHorizontal, innerWidth]);

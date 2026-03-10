@@ -208,7 +208,7 @@ export default function Report() {
                             aspectRatio="2.5 / 1"
                             barGap={0.3}
                             yMax={100}
-                            margin={{ top: 10, right: 30, bottom: 10, left: 100 }}
+                            margin={{ top: 10, right: 50, bottom: 10, left: 100 }}
                         >
                             <Grid vertical numTicksColumns={5} fadeVertical={false} horizontal={false} strokeDasharray="2,4" />
                             <Bar dataKey="score" fillKey="color" fill="#10B981" lineCap={4} />
