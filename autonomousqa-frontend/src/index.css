@@ -642,3 +642,43 @@ a:hover {
   flex-direction: column;
   gap: 8px;
 }
+
+/* === HYGIENE COMPONENT ANIMATIONS === */
+.database {
+  offset-anchor: 10px 0px;
+  animation: database-animation-path;
+  animation-iteration-count: infinite;
+  animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
+  animation-duration: 4s;
+  animation-delay: 1s;
+}
+
+.db-light-1 {
+  offset-path: path("M 50 22 v 28 q 0 10 10 10 h 180 q 10 0 10 10 v 50");
+}
+
+.db-light-2 {
+  offset-path: path("M 150 22 v 28 q 0 10 10 10 h 80 q 10 0 10 10 v 50");
+}
+
+.db-light-3 {
+  offset-path: path("M 250 22 v 98");
+}
+
+.db-light-4 {
+  offset-path: path("M 350 22 v 28 q 0 10 -10 10 h -80 q -10 0 -10 10 v 50");
+}
+
+.db-light-5 {
+  offset-path: path("M 450 22 v 28 q 0 10 -10 10 h -180 q -10 0 -10 10 v 50");
+}
+
+@keyframes database-animation-path {
+  0% {
+    offset-distance: 0%;
+  }
+
+  100% {
+    offset-distance: 100%;
+  }
+}

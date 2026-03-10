@@ -8,6 +8,7 @@ import { severityConfig, defectTypeColors } from '../data/mockData';
 import { tests as testsApi } from '../lib/api';
 
 import { BarChart, Bar, BarYAxis, Grid, ChartTooltip } from '../components/ui/bar-chart';
+import DatabaseWithRestApi from '../components/ui/database-with-rest-api';
 
 function safePath(url) { try { return new URL(url).pathname || url; } catch { return url; } }
 
@@ -18,6 +19,7 @@ export default function Report() {
     const { id } = useParams();
     const [reportData, setReportData] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [viewMode, setViewMode] = useState('visual');
 
     useEffect(() => { document.title = 'Test Report — AutonomousQA'; }, []);
 
@@ -151,40 +153,81 @@ export default function Report() {
                 </div>
             </motion.div>
 
-            {/* Score Section */}
-            <div style={{ display: 'grid', gridTemplateColumns: '280px 1fr', gap: 20, marginBottom: 24 }}>
-                <motion.div variants={item} className="glass-card" style={{ padding: '28px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <HygieneScoreGauge score={reportData.overallScore} size={200} />
-                </motion.div>
-
-                <motion.div variants={item} className="glass-card" style={{ padding: '24px' }}>
-                    <h3 style={{ fontSize: 15, fontWeight: 700, marginBottom: 18 }}>Score Breakdown</h3>
-                    <BarChart
-                        data={scoreData}
-                        xDataKey="name"
-                        orientation="horizontal"
-                        aspectRatio="2.5 / 1"
-                        barGap={0.3}
-                        yMax={100}
-                        margin={{ top: 10, right: 30, bottom: 10, left: 100 }}
+            {/* Score Section Overview */}
+            <motion.div variants={item} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+                <h3 style={{ fontSize: 16, fontWeight: 700, margin: 0 }}>Score Overview</h3>
+                <div style={{ display: 'flex', background: 'rgba(255,255,255,0.05)', borderRadius: 8, padding: 4 }}>
+                    <button
+                        onClick={() => setViewMode('visual')}
+                        style={{
+                            padding: '6px 12px', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer',
+                            border: 'none', transition: 'all 0.2s',
+                            background: viewMode === 'visual' ? 'var(--color-accent-gold)' : 'transparent',
+                            color: viewMode === 'visual' ? '#000' : 'var(--text-secondary)',
+                        }}
                     >
-                        <Grid vertical numTicksColumns={5} fadeVertical={false} horizontal={false} strokeDasharray="2,4" />
-                        <Bar dataKey="score" fillKey="color" fill="#10B981" lineCap={4} />
-                        <BarYAxis />
-                        <ChartTooltip
-                            showCrosshair={false}
-                            showDots={false}
-                            rows={(point) => [
-                                {
-                                    color: point.score >= 85 ? '#10B981' : point.score >= 70 ? '#F59E0B' : '#EF4444',
-                                    label: String(point.name),
-                                    value: `${point.score}/100`,
-                                },
-                            ]}
+                        Visual
+                    </button>
+                    <button
+                        onClick={() => setViewMode('chart')}
+                        style={{
+                            padding: '6px 12px', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer',
+                            border: 'none', transition: 'all 0.2s',
+                            background: viewMode === 'chart' ? 'var(--color-accent-gold)' : 'transparent',
+                            color: viewMode === 'chart' ? '#000' : 'var(--text-secondary)',
+                        }}
+                    >
+                        Chart
+                    </button>
+                </div>
+            </motion.div>
+
+            {viewMode === 'visual' ? (
+                <div style={{ marginBottom: 24 }}>
+                    <motion.div variants={item} className="glass-card" style={{ padding: '32px 24px', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+                        <DatabaseWithRestApi
+                            overallScore={reportData.overallScore}
+                            categories={scoreData.map(s => ({ label: s.name, score: s.score, color: s.color }))}
+                            title="Aggregated Hygiene Score Connection"
+                            lightColor="var(--color-accent-gold)"
                         />
-                    </BarChart>
-                </motion.div>
-            </div>
+                    </motion.div>
+                </div>
+            ) : (
+                <div style={{ display: 'grid', gridTemplateColumns: '280px 1fr', gap: 20, marginBottom: 24 }}>
+                    <motion.div variants={item} className="glass-card" style={{ padding: '28px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <HygieneScoreGauge score={reportData.overallScore} size={200} />
+                    </motion.div>
+
+                    <motion.div variants={item} className="glass-card" style={{ padding: '24px' }}>
+                        <h3 style={{ fontSize: 15, fontWeight: 700, marginBottom: 18 }}>Score Breakdown</h3>
+                        <BarChart
+                            data={scoreData}
+                            xDataKey="name"
+                            orientation="horizontal"
+                            aspectRatio="2.5 / 1"
+                            barGap={0.3}
+                            yMax={100}
+                            margin={{ top: 10, right: 30, bottom: 10, left: 100 }}
+                        >
+                            <Grid vertical numTicksColumns={5} fadeVertical={false} horizontal={false} strokeDasharray="2,4" />
+                            <Bar dataKey="score" fillKey="color" fill="#10B981" lineCap={4} />
+                            <BarYAxis />
+                            <ChartTooltip
+                                showCrosshair={false}
+                                showDots={false}
+                                rows={(point) => [
+                                    {
+                                        color: point.score >= 85 ? '#10B981' : point.score >= 70 ? '#F59E0B' : '#EF4444',
+                                        label: String(point.name),
+                                        value: `${point.score}/100`,
+                                    },
+                                ]}
+                            />
+                        </BarChart>
+                    </motion.div>
+                </div>
+            )}
 
             {/* Risk Heatmap */}
             <motion.div variants={item} className="glass-card" style={{ padding: '24px', marginBottom: 24 }}>
