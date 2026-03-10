@@ -1,6 +1,7 @@
 import { motion, animate, useMotionValue, useTransform } from 'framer-motion';
 import { useEffect, useRef } from 'react';
 import { TrendingUp, TrendingDown } from 'lucide-react';
+import { CardSpotlight } from './card-spotlight';
 
 export default function KPICard({ icon: Icon, label, value, change, prefix = '', suffix = '', delay = 0 }) {
     const motionVal = useMotionValue(0);
@@ -31,76 +32,86 @@ export default function KPICard({ icon: Icon, label, value, change, prefix = '',
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay }}
-            className="glass-card noise-overlay"
-            style={{
-                padding: '24px',
-                position: 'relative',
-                overflow: 'hidden',
-                cursor: 'pointer',
-            }}
+            style={{ height: '100%' }}
         >
-            {/* Accent gradient top border */}
-            <div style={{
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                right: 0,
-                height: 2,
-                background: 'var(--gradient-accent)',
-                opacity: 0.6,
-            }} />
-
-            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 16 }}>
-                <div style={{
-                    width: 40,
-                    height: 40,
-                    borderRadius: 10,
-                    background: 'rgba(212, 168, 83, 0.08)',
-                    border: '1px solid rgba(212, 168, 83, 0.12)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                }}>
-                    <Icon size={19} style={{ color: 'var(--color-accent-gold)' }} />
-                </div>
-                {change != null && (
-                    <div style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 4,
-                        padding: '4px 8px',
-                        borderRadius: 'var(--radius-full)',
-                        background: isPositive ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)',
-                        fontSize: 12,
-                        fontWeight: 600,
-                        color: isPositive ? 'var(--color-success)' : 'var(--color-error)',
-                    }}>
-                        {isPositive ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
-                        {isPositive ? '+' : ''}{change}%
-                    </div>
-                )}
-            </div>
-
-            <div
-                ref={valRef}
+            <CardSpotlight
+                className="glass-card noise-overlay h-full w-full"
+                color="rgba(255, 255, 255, 0.05)"
                 style={{
-                    fontSize: 32,
-                    fontWeight: 800,
-                    color: 'var(--text-primary)',
-                    lineHeight: 1.1,
-                    letterSpacing: '-0.03em',
-                    marginBottom: 4,
+                    padding: '24px',
+                    position: 'relative',
+                    overflow: 'hidden',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center',
                 }}
             >
-                {prefix}0{suffix}
-            </div>
-            <div style={{
-                fontSize: 13,
-                color: 'var(--text-tertiary)',
-                fontWeight: 500,
-            }}>
-                {label}
-            </div>
+                {/* Accent gradient top border */}
+                <div style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    height: 2,
+                    background: 'var(--gradient-accent)',
+                    opacity: 0.6,
+                    zIndex: 20,
+                }} />
+
+                <div className="relative z-20" style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 16 }}>
+                    <div style={{
+                        width: 40,
+                        height: 40,
+                        borderRadius: 10,
+                        background: 'rgba(212, 168, 83, 0.08)',
+                        border: '1px solid rgba(212, 168, 83, 0.12)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                    }}>
+                        <Icon size={19} style={{ color: 'var(--color-accent-gold)' }} />
+                    </div>
+                    {change != null && (
+                        <div style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 4,
+                            padding: '4px 8px',
+                            borderRadius: 'var(--radius-full)',
+                            background: isPositive ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)',
+                            fontSize: 12,
+                            fontWeight: 600,
+                            color: isPositive ? 'var(--color-success)' : 'var(--color-error)',
+                        }}>
+                            {isPositive ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
+                            {isPositive ? '+' : ''}{change}%
+                        </div>
+                    )}
+                </div>
+
+                <div
+                    ref={valRef}
+                    className="relative z-20"
+                    style={{
+                        fontSize: 32,
+                        fontWeight: 800,
+                        color: 'var(--text-primary)',
+                        lineHeight: 1.1,
+                        letterSpacing: '-0.03em',
+                        marginBottom: 4,
+                    }}
+                >
+                    {prefix}0{suffix}
+                </div>
+                <div className="relative z-20" style={{
+                    fontSize: 13,
+                    color: 'var(--text-tertiary)',
+                    fontWeight: 500,
+                }}>
+                    {label}
+                </div>
+            </CardSpotlight>
         </motion.div>
     );
 }
