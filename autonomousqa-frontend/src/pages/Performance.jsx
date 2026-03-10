@@ -120,7 +120,6 @@ export default function Performance() {
                         <motion.div key={key} variants={item} style={{ height: '100%' }}>
                             <CardSpotlight
                                 className="glass-card h-full w-full"
-                                color="rgba(255, 255, 255, 0.05)"
                                 style={{
                                     padding: '22px',
                                     position: 'relative',

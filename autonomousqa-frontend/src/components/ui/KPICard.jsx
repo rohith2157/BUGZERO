@@ -36,7 +36,6 @@ export default function KPICard({ icon: Icon, label, value, change, prefix = '',
         >
             <CardSpotlight
                 className="glass-card noise-overlay h-full w-full"
-                color="rgba(255, 255, 255, 0.05)"
                 style={{
                     padding: '24px',
                     position: 'relative',
