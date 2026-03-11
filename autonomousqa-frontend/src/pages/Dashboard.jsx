@@ -16,9 +16,9 @@ const item = {
 
 export default function Dashboard() {
     const navigate = useNavigate();
-    const [kpiData, setKpiData] = useState(mockKpi);
-    const [hygieneHistory, setHygieneHistory] = useState(mockHistory);
-    const [recentRuns, setRecentRuns] = useState(mockRuns);
+    const [kpiData, setKpiData] = useState({ totalRuns: 0, avgHygieneScore: 0, totalDefects: 0, complianceScore: 0, complianceChange: null, runsChange: null, hygieneChange: null, defectsChange: null });
+    const [hygieneHistory, setHygieneHistory] = useState([]);
+    const [recentRuns, setRecentRuns] = useState([]);
     const [quickUrl, setQuickUrl] = useState('');
 
     useEffect(() => { document.title = 'Dashboard — AutonomousQA'; }, []);
@@ -72,7 +72,7 @@ export default function Dashboard() {
                 }
             }
         }).catch(() => {
-            // Keep mock data
+            // Error silently, leave empty
         });
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);

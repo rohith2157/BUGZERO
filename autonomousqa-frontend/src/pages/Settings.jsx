@@ -21,6 +21,8 @@ export default function Settings() {
     const [profileForm, setProfileForm] = useState({ name: '', email: '', organization: '', role: '' });
     const [profileSaving, setProfileSaving] = useState(false);
     const [copiedKeyId, setCopiedKeyId] = useState(null);
+    const [showKeyId, setShowKeyId] = useState(null);
+    const [profileError, setProfileError] = useState('');
 
     useEffect(() => { document.title = 'Settings — AutonomousQA'; }, []);
     const [notifications, setNotifications] = useState({
@@ -117,12 +119,14 @@ export default function Settings() {
                                 }} />
                         </div>
                     ))}
+                    {profileError && <div style={{ marginBottom: 16, color: '#EF4444', fontSize: 13, background: 'rgba(239, 68, 68, 0.1)', padding: '10px 14px', borderRadius: 6 }}>{profileError}</div>}
                     <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
                         disabled={profileSaving}
                         onClick={async () => {
-                            if (!profileForm.name) return;
+                            if (!profileForm.name?.trim()) { setProfileError('Name cannot be empty.'); return; }
                             setProfileSaving(true);
-                            try { await settingsApi.updateProfile({ name: profileForm.name }); } catch (err) { console.error('Save profile failed:', err); } finally { setProfileSaving(false); }
+                            setProfileError('');
+                            try { await settingsApi.updateProfile({ name: profileForm.name }); } catch (err) { setProfileError(err.message || 'Failed to save profile'); } finally { setProfileSaving(false); }
                         }}
                         style={{
                             padding: '10px 24px', fontSize: 14, fontWeight: 600,
@@ -220,7 +224,12 @@ export default function Settings() {
                                         <Key size={16} style={{ color: 'var(--text-tertiary)' }} />
                                         <div>
                                             <div style={{ fontSize: 14, fontWeight: 600 }}>{key.name}</div>
-                                            <div style={{ fontSize: 12, color: 'var(--text-tertiary)', fontFamily: "'Geist Mono', 'JetBrains Mono', monospace" }}>{key.key}</div>
+                                            <div style={{ fontSize: 12, color: 'var(--text-tertiary)', fontFamily: "'Geist Mono', 'JetBrains Mono', monospace", display: 'flex', alignItems: 'center', gap: 6 }}>
+                                                {showKeyId === key.id ? key.key : (key.key.length > 8 ? key.key.slice(0, 4) + '****' + key.key.slice(-4) : '********')}
+                                                <button onClick={() => setShowKeyId(s => s === key.id ? null : key.id)} style={{ background: 'none', border: 'none', color: 'inherit', cursor: 'pointer', padding: 2, display: 'flex' }}>
+                                                    {showKeyId === key.id ? <EyeOff size={14} /> : <Eye size={14} />}
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>

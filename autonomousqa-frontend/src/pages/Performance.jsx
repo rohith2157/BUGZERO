@@ -54,11 +54,12 @@ export default function Performance() {
             }
 
             // Build per-page data
-            const history = Object.entries(data.byPage || {}).map(([url, metrics], idx) => {
+            const history = Object.entries(data?.byPage || {}).map(([url, metrics], idx) => {
                 let path;
                 try { path = new URL(url).pathname; } catch { path = url; }
+                const fallbackMetrics = metrics || {};
                 return {
-                    date: new Date(Date.now() - (Object.keys(data.byPage).length - idx) * 24 * 60 * 60 * 1000),
+                    date: new Date(Date.now() - (Object.keys(data?.byPage || {}).length - idx) * 24 * 60 * 60 * 1000),
                     label: path.length > 20 ? '…' + path.slice(-18) : path,
                     fullPath: path,
                     lcp: Math.round((metrics.LCP?.value || 0) * 100) / 100,

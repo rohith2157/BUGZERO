@@ -504,15 +504,15 @@ export default function Login() {
         </div>
 
         <div className="relative z-20 flex items-center gap-8 text-sm text-primary-foreground/60">
-          <a href="#" className="hover:text-primary-foreground transition-colors">
+          <button type="button" className="hover:text-primary-foreground transition-colors focus:outline-none">
             Privacy Policy
-          </a>
-          <a href="#" className="hover:text-primary-foreground transition-colors">
+          </button>
+          <button type="button" className="hover:text-primary-foreground transition-colors focus:outline-none">
             Terms of Service
-          </a>
-          <a href="#" className="hover:text-primary-foreground transition-colors">
+          </button>
+          <button type="button" className="hover:text-primary-foreground transition-colors focus:outline-none">
             Contact
-          </a>
+          </button>
         </div>
 
         {/* Decorative elements */}
@@ -592,12 +592,12 @@ export default function Login() {
                   Remember for 30 days
                 </Label>
               </div>
-              <a
-                href="#"
-                className="text-sm text-[var(--color-accent-gold)] hover:underline font-medium"
+              <button
+                type="button"
+                className="text-sm text-[var(--color-accent-gold)] hover:underline font-medium focus:outline-none"
               >
                 Forgot password?
-              </a>
+              </button>
             </div>
 
             {error && (
@@ -648,9 +648,9 @@ export default function Login() {
           {/* Sign Up Link */}
           <div className="text-center text-sm text-muted-foreground mt-8">
             Don't have an account?{" "}
-            <a href="#" className="text-foreground font-medium hover:underline">
+            <button type="button" className="text-foreground font-medium hover:underline focus:outline-none">
               Sign Up
-            </a>
+            </button>
           </div>
         </div>
       </div>

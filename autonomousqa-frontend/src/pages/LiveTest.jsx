@@ -136,6 +136,11 @@ export default function LiveTest() {
 
     return (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+            {error && data && (
+                <div style={{ padding: '12px 16px', marginBottom: 20, background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.2)', borderRadius: 10, color: '#F87171', display: 'flex', alignItems: 'center', gap: 10, fontSize: 13, fontWeight: 500 }}>
+                    <AlertTriangle size={16} /> Connection dropped or failed to poll updates: {error}
+                </div>
+            )}
             {/* Header info */}
             <motion.div
                 initial={{ opacity: 0, y: 20 }}

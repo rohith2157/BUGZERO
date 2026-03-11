@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 import { ErrorBoundary } from './ErrorBoundary';
 import DashboardLayout from './components/layout/DashboardLayout';
+import ProtectedRoute from './components/ProtectedRoute';
 import Landing from './pages/Landing';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
@@ -24,21 +25,23 @@ function App() {
                         <Route path="/" element={<Landing />} />
                         <Route path="/login" element={<Login />} />
 
-                        {/* Dashboard routes (with sidebar) */}
-                        <Route element={<DashboardLayout />}>
-                            <Route path="/dashboard" element={<Dashboard />} />
-                            <Route path="/tests/new" element={<NewTest />} />
-                            <Route path="/tests/:id" element={<LiveTest />} />
-                            <Route path="/tests/:id/report" element={<Report />} />
-                            <Route path="/tests/:id/compliance" element={<Compliance />} />
-                            <Route path="/tests/:id/performance" element={<Performance />} />
-                            <Route path="/playbooks" element={<Playbooks />} />
-                            <Route path="/settings" element={<Settings />} />
-                            <Route path="/history" element={<History />} />
+                        {/* Dashboard routes (with sidebar) - Protected */}
+                        <Route element={<ProtectedRoute />}>
+                            <Route element={<DashboardLayout />}>
+                                <Route path="/dashboard" element={<Dashboard />} />
+                                <Route path="/tests/new" element={<NewTest />} />
+                                <Route path="/tests/:id" element={<LiveTest />} />
+                                <Route path="/tests/:id/report" element={<Report />} />
+                                <Route path="/tests/:id/compliance" element={<Compliance />} />
+                                <Route path="/tests/:id/performance" element={<Performance />} />
+                                <Route path="/playbooks" element={<Playbooks />} />
+                                <Route path="/settings" element={<Settings />} />
+                                <Route path="/history" element={<History />} />
+                            </Route>
                         </Route>
 
-                        {/* Catch-all redirect */}
-                        <Route path="*" element={<Navigate to="/" replace />} />
+                        {/* Catch-all redirect to dashboard if logged in, otherwise landing */}
+                        <Route path="*" element={<Navigate to="/dashboard" replace />} />
                     </Routes>
                 </AnimatePresence>
             </BrowserRouter>

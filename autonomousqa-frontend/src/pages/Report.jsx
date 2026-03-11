@@ -44,7 +44,12 @@ export default function Report() {
             const scoreBreakdown = {};
             categories.forEach(cat => {
                 const count = defectsByType[cat] || 0;
-                scoreBreakdown[cat] = Math.max(0, Math.round(100 - (count / Math.max(totalDefects, 1)) * 100));
+                // Avoid division by zero if totalDefects is 0. If 0 defects, score is 100.
+                if (totalDefects === 0) {
+                    scoreBreakdown[cat] = 100;
+                } else {
+                    scoreBreakdown[cat] = Math.max(0, Math.round(100 - (count / totalDefects) * 100));
+                }
             });
 
             // Build heatmap from pages
@@ -132,8 +137,16 @@ export default function Report() {
                                     const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `report-${id}.json`; a.click();
                                 } else if (label === 'CSV') {
                                     const rows = [['Type', 'Severity', 'Page', 'Message', 'Fix']];
+                                    
+                                    // Prevent CSV Formula Injection
+                                    const sanitizeCsv = (val) => {
+                                        let str = String(val).replace(/"/g, '""');
+                                        if (/^[=+\-@\t\r]/.test(str)) str = "'" + str;
+                                        return `"${str}"`;
+                                    };
+
                                     reportData.defects.forEach(d => rows.push([d.type, d.severity, d.page, d.message, d.fix]));
-                                    const csv = rows.map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(',')).join('\n');
+                                    const csv = rows.map(r => r.map(sanitizeCsv).join(',')).join('\n');
                                     const blob = new Blob([csv], { type: 'text/csv' });
                                     const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `report-${id}.csv`; a.click();
                                 }
@@ -275,53 +288,60 @@ export default function Report() {
                     Defects ({reportData.defects.length})
                 </h3>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                    {reportData.defects.map((defect, i) => {
-                        const sev = severityConfig[defect.severity];
-                        return (
-                            <motion.div
-                                key={defect.id}
-                                initial={{ opacity: 0, x: -10 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                transition={{ delay: i * 0.04 }}
-                                style={{
-                                    padding: '18px',
-                                    borderRadius: 10,
-                                    background: 'rgba(255, 255, 255, 0.02)',
-                                    borderLeft: `3px solid ${sev?.color || '#64748B'}`,
-                                }}
-                            >
-                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                                        <StatusBadge status={defect.severity} size="sm" />
-                                        <span style={{
-                                            fontSize: 11, fontWeight: 600, padding: '2px 8px',
-                                            borderRadius: 4,
-                                            background: `${defectTypeColors[defect.type] || '#64748B'}14`,
-                                            color: defectTypeColors[defect.type] || '#64748B',
-                                        }}>
-                                            {defect.type}
+                    {reportData.defects.length === 0 ? (
+                        <div style={{ padding: '32px', textAlign: 'center', color: 'var(--text-tertiary)', background: 'rgba(255, 255, 255, 0.02)', borderRadius: 10 }}>
+                            No defects found. Excellent job!
+                        </div>
+                    ) : (
+                        reportData.defects.map((defect, i) => {
+                            const sev = severityConfig[defect.severity];
+                            return (
+                                <motion.div
+                                    key={defect.id}
+                                    initial={{ opacity: 0, x: -10 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    transition={{ delay: i * 0.04 }}
+                                    style={{
+                                        padding: '18px',
+                                        borderRadius: 10,
+                                        background: 'rgba(255, 255, 255, 0.02)',
+                                        borderLeft: `3px solid ${sev?.color || '#64748B'}`,
+                                    }}
+                                >
+                                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8, flexWrap: 'wrap', gap: 8 }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                            <StatusBadge status={defect.severity} size="sm" />
+                                            <span style={{
+                                                fontSize: 11, fontWeight: 600, padding: '2px 8px',
+                                                borderRadius: 4,
+                                                background: `${defectTypeColors[defect.type] || '#64748B'}14`,
+                                                color: defectTypeColors[defect.type] || '#64748B',
+                                            }}>
+                                                {defect.type}
+                                            </span>
+                                        </div>
+                                        <span style={{ fontSize: 12, color: 'var(--text-tertiary)', fontFamily: "'Geist Mono', 'JetBrains Mono', monospace", wordBreak: 'break-all' }}>
+                                            {defect.page}
                                         </span>
                                     </div>
-                                    <span style={{ fontSize: 12, color: 'var(--text-tertiary)', fontFamily: "'Geist Mono', 'JetBrains Mono', monospace" }}>
-                                        {defect.page}
-                                    </span>
-                                </div>
-                                <div style={{ fontSize: 14, color: 'var(--text-primary)', fontWeight: 500, marginBottom: 8, lineHeight: 1.5 }}>
-                                    {defect.message}
-                                </div>
-                                <div style={{
-                                    fontSize: 12, color: 'var(--text-secondary)',
-                                    padding: '10px 12px',
-                                    background: 'rgba(16, 185, 129, 0.06)',
-                                    border: '1px solid rgba(16, 185, 129, 0.15)',
-                                    borderRadius: 'var(--radius-sm)',
-                                    lineHeight: 1.5,
-                                }}>
-                                    💡 <strong>Fix:</strong> {defect.fix}
-                                </div>
-                            </motion.div>
-                        );
-                    })}
+                                    <div style={{ fontSize: 14, color: 'var(--text-primary)', fontWeight: 500, marginBottom: 8, lineHeight: 1.5, wordBreak: 'break-word' }}>
+                                        {defect.message}
+                                    </div>
+                                    <div style={{
+                                        fontSize: 12, color: 'var(--text-secondary)',
+                                        padding: '10px 12px',
+                                        background: 'rgba(16, 185, 129, 0.06)',
+                                        border: '1px solid rgba(16, 185, 129, 0.15)',
+                                        borderRadius: 'var(--radius-sm)',
+                                        lineHeight: 1.5,
+                                        wordBreak: 'break-word'
+                                    }}>
+                                        💡 <strong>Fix:</strong> {defect.fix}
+                                    </div>
+                                </motion.div>
+                            );
+                        })
+                    )}
                 </div>
             </motion.div>
         </motion.div>

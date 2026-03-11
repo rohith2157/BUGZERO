@@ -1,9 +1,13 @@
 // API client for AutonomousQA Gateway
 
-const API_BASE = 'http://localhost:3000/api';
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
 
 function getToken() {
-    return localStorage.getItem('aq_token');
+    try {
+        return localStorage.getItem('aq_token');
+    } catch {
+        return null;
+    }
 }
 
 async function request(endpoint, options = {}) {
@@ -23,10 +27,16 @@ async function request(endpoint, options = {}) {
     });
 
     if (res.status === 401) {
-        localStorage.removeItem('aq_token');
-        localStorage.removeItem('aq_user');
+        try {
+            localStorage.removeItem('aq_token');
+            localStorage.removeItem('aq_user');
+        } catch {}
         window.location.href = '/login';
         throw new Error('Unauthorized');
+    }
+
+    if (res.status === 429) {
+        throw new Error('Too many requests. Please try again later.');
     }
 
     // Handle empty/204 responses
@@ -37,7 +47,8 @@ async function request(endpoint, options = {}) {
 
     let data;
     try {
-        data = await res.json();
+        const text = await res.text();
+        data = text ? JSON.parse(text) : {};
     } catch {
         throw new Error(`Invalid response from server (status ${res.status})`);
     }

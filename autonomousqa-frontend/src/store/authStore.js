@@ -9,26 +9,36 @@ function safeParseUser() {
     }
 }
 
+function getToken() {
+    try { return localStorage.getItem('aq_token'); } catch { return null; }
+}
+
 export const useAuthStore = create((set, get) => ({
     user: safeParseUser(),
-    token: localStorage.getItem('aq_token') || null,
-    isAuthenticated: !!localStorage.getItem('aq_token'),
+    token: getToken(),
+    isAuthenticated: !!getToken(),
 
     setAuth: (user, token) => {
-        localStorage.setItem('aq_user', JSON.stringify(user));
-        localStorage.setItem('aq_token', token);
+        try {
+            localStorage.setItem('aq_user', JSON.stringify(user));
+            localStorage.setItem('aq_token', token);
+        } catch {}
         set({ user, token, isAuthenticated: true });
     },
 
     logout: () => {
-        localStorage.removeItem('aq_user');
-        localStorage.removeItem('aq_token');
+        try {
+            localStorage.removeItem('aq_user');
+            localStorage.removeItem('aq_token');
+        } catch {}
         set({ user: null, token: null, isAuthenticated: false });
     },
 
     updateUser: (updates) => {
         const user = { ...get().user, ...updates };
-        localStorage.setItem('aq_user', JSON.stringify(user));
+        try {
+            localStorage.setItem('aq_user', JSON.stringify(user));
+        } catch {}
         set({ user });
     },
 }));

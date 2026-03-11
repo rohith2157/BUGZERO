@@ -32,10 +32,11 @@ export default function NewTest() {
 
     const toggleFeature = (key) => setFeatures(prev => ({ ...prev, [key]: !prev[key] }));
 
-    const handleLaunch = async () => {
+    const handleLaunch = async (e) => {
+        if (e && e.preventDefault) e.preventDefault();
         if (!url) return;
         // Auto-prefix protocol if missing
-        let targetUrl = url.trim();
+        let targetUrl = url.trim().replace(/\/+$/, ''); // trim trailing slashes and whitespace
         if (!/^https?:\/\//i.test(targetUrl)) {
             targetUrl = 'https://' + targetUrl;
         }
@@ -95,45 +96,48 @@ export default function NewTest() {
             </div>
 
             {/* URL Input */}
-            <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1 }}
-                className="glass-card"
-                style={{ padding: '28px', marginBottom: 20 }}
-            >
-                <label style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 10, display: 'block', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                    Target URL
-                </label>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                    <div style={{
-                        width: 42, height: 42, borderRadius: 10,
-                        background: 'rgba(212, 168, 83, 0.08)',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        flexShrink: 0,
-                    }}>
-                        <Globe size={20} style={{ color: 'var(--color-accent-gold)' }} />
+            <form onSubmit={handleLaunch}>
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.1 }}
+                    className="glass-card"
+                    style={{ padding: '28px', marginBottom: 20 }}
+                >
+                    <label style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 10, display: 'block', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                        Target URL
+                    </label>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                        <div style={{
+                            width: 42, height: 42, borderRadius: 10,
+                            background: 'rgba(212, 168, 83, 0.08)',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            flexShrink: 0,
+                        }}>
+                            <Globe size={20} style={{ color: 'var(--color-accent-gold)' }} />
+                        </div>
+                        <input
+                            type="url"
+                            value={url}
+                            onChange={(e) => { setUrl(e.target.value); setError(''); }}
+                            placeholder="https://your-application.com"
+                            onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleLaunch(e); } }}
+                            style={{
+                                flex: 1, padding: '14px 18px', fontSize: 15,
+                                background: 'rgba(255, 255, 255, 0.03)',
+                                border: '1px solid rgba(255,255,255,0.06)',
+                                borderRadius: 10,
+                                color: 'var(--text-primary)',
+                                outline: 'none',
+                                fontFamily: "'Geist Mono', 'JetBrains Mono', monospace",
+                                transition: 'border-color var(--transition-fast)',
+                            }}
+                            onFocus={(e) => e.target.style.borderColor = 'var(--color-accent-gold)'}
+                            onBlur={(e) => e.target.style.borderColor = 'rgba(255,255,255,0.06)'}
+                        />
                     </div>
-                    <input
-                        type="url"
-                        value={url}
-                        onChange={(e) => setUrl(e.target.value)}
-                        placeholder="https://your-application.com"
-                        style={{
-                            flex: 1, padding: '14px 18px', fontSize: 15,
-                            background: 'rgba(255, 255, 255, 0.03)',
-                            border: '1px solid rgba(255,255,255,0.06)',
-                            borderRadius: 10,
-                            color: 'var(--text-primary)',
-                            outline: 'none',
-                            fontFamily: "'Geist Mono', 'JetBrains Mono', monospace",
-                            transition: 'border-color var(--transition-fast)',
-                        }}
-                        onFocus={(e) => e.target.style.borderColor = 'var(--color-accent-gold)'}
-                        onBlur={(e) => e.target.style.borderColor = 'rgba(255,255,255,0.06)'}
-                    />
-                </div>
-            </motion.div>
+                </motion.div>
+            </form>
 
             {/* Config Grid */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 20 }}>
@@ -294,6 +298,7 @@ export default function NewTest() {
                 </div>
             )}
             <motion.button
+                type="button"
                 whileHover={{ scale: 1.02, boxShadow: '0 0 40px rgba(212,168,83,0.25)' }}
                 whileTap={{ scale: 0.98 }}
                 onClick={handleLaunch}
