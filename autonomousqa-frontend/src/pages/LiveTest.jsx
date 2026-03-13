@@ -25,13 +25,20 @@ export default function LiveTest() {
     const fetchData = useCallback(() => {
         testsApi.get(id).then(({ testRun }) => {
             const pages = (testRun.pages || []).map(p => ({
+                id: p.id,
                 url: safePath(p.url),
                 fullUrl: p.url || '',
                 type: p.pageType || 'Unknown',
                 status: p.status === 'tested' ? 'tested' : 'queued',
-                score: p.hygieneScore ? Math.min(100, Math.round(p.hygieneScore)) : null,
-                defectCount: p.defectCount || p._count?.defects || 0,
-                testedAt: p.testedAt || p.updatedAt || null,
+                score: p.hygieneScore != null ? Math.min(100, Math.round(p.hygieneScore)) : null,
+                rawScore: p.hygieneScore,
+                defectCount: p._count?.defects ?? 0,
+                createdAt: p.createdAt || null,
+                // Performance metrics per page (from gateway include)
+                performanceMetrics: (p.performanceMetrics || []).reduce((acc, m) => {
+                    acc[m.metricName] = { value: m.value, rating: m.rating };
+                    return acc;
+                }, {}),
             }));
             const defects = (testRun.defects || []).map(d => ({
                 id: d.id,
@@ -40,10 +47,11 @@ export default function LiveTest() {
                 type: d.type,
                 severity: d.severity,
                 message: d.message,
+                fix: d.fix || null,
+                confidence: d.confidence != null ? Math.round(d.confidence * 100) : null,
+                screenshot: d.screenshot || null,
                 time: d.createdAt ? new Date(d.createdAt).toLocaleTimeString() : '',
                 timestamp: d.createdAt || '',
-                selector: d.selector || '',
-                instances: d.instances || d.count || 1,
             }));
 
             const totalPages = testRun.totalPages || pages.length || 1;
@@ -333,30 +341,50 @@ export default function LiveTest() {
                                                         <div style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-tertiary)', marginBottom: 4 }}>Full URL</div>
                                                         <div style={{ fontSize: 12, fontFamily: "'Geist Mono', 'JetBrains Mono', monospace", color: 'var(--text-secondary)', background: 'rgba(0,0,0,0.2)', padding: '8px 10px', borderRadius: 6, wordBreak: 'break-all' }}>{page.fullUrl || page.url}</div>
                                                     </div>
-                                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }}>
                                                         <div>
                                                             <div style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-tertiary)', marginBottom: 4 }}>Hygiene Score</div>
-                                                            <div style={{ fontSize: 18, fontWeight: 800, color: page.score != null ? (page.score >= 85 ? '#10B981' : page.score >= 70 ? '#F59E0B' : '#EF4444') : 'var(--text-tertiary)' }}>{page.score != null ? page.score : 'N/A'}</div>
+                                                            <div style={{ fontSize: 20, fontWeight: 800, color: page.score != null ? (page.score >= 85 ? '#10B981' : page.score >= 70 ? '#F59E0B' : '#EF4444') : 'var(--text-tertiary)' }}>
+                                                                {page.score != null ? page.score : 'N/A'}
+                                                                {page.rawScore != null && <span style={{ fontSize: 11, fontWeight: 400, color: 'var(--text-tertiary)', marginLeft: 4 }}>({Math.round(page.rawScore * 10) / 10})</span>}
+                                                            </div>
                                                         </div>
                                                         <div>
                                                             <div style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-tertiary)', marginBottom: 4 }}>Status</div>
-                                                            <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-secondary)' }}>{page.status}</div>
+                                                            <div style={{ fontSize: 13, fontWeight: 600, color: page.status === 'tested' ? '#10B981' : 'var(--text-secondary)', textTransform: 'capitalize' }}>{page.status}</div>
+                                                        </div>
+                                                        <div>
+                                                            <div style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-tertiary)', marginBottom: 4 }}>Defects Found</div>
+                                                            <div style={{ fontSize: 16, color: page.defectCount > 0 ? '#EF4444' : '#10B981', fontWeight: 700 }}>{page.defectCount}</div>
                                                         </div>
                                                     </div>
                                                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                                                         <div>
                                                             <div style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-tertiary)', marginBottom: 4 }}>Page Type</div>
-                                                            <div style={{ fontSize: 13, color: 'var(--text-secondary)' }}>{page.type}</div>
+                                                            <div style={{ fontSize: 13, color: 'var(--text-secondary)', textTransform: 'capitalize' }}>{page.type}</div>
                                                         </div>
-                                                        <div>
-                                                            <div style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-tertiary)', marginBottom: 4 }}>Defects Found</div>
-                                                            <div style={{ fontSize: 13, color: page.defectCount > 0 ? '#EF4444' : '#10B981', fontWeight: 600 }}>{page.defectCount}</div>
-                                                        </div>
+                                                        {page.createdAt && (
+                                                            <div>
+                                                                <div style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-tertiary)', marginBottom: 4 }}>Tested At</div>
+                                                                <div style={{ fontSize: 12, fontFamily: "'Geist Mono', 'JetBrains Mono', monospace", color: 'var(--text-secondary)' }}>{new Date(page.createdAt).toLocaleString()}</div>
+                                                            </div>
+                                                        )}
                                                     </div>
-                                                    {page.testedAt && (
+                                                    {/* Performance Metrics — real data from backend */}
+                                                    {page.performanceMetrics && Object.keys(page.performanceMetrics).length > 0 && (
                                                         <div>
-                                                            <div style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-tertiary)', marginBottom: 4 }}>Tested At</div>
-                                                            <div style={{ fontSize: 12, fontFamily: "'Geist Mono', 'JetBrains Mono', monospace", color: 'var(--text-secondary)' }}>{new Date(page.testedAt).toLocaleString()}</div>
+                                                            <div style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-tertiary)', marginBottom: 8 }}>Performance Metrics</div>
+                                                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))', gap: 8 }}>
+                                                                {Object.entries(page.performanceMetrics).map(([name, metric]) => (
+                                                                    <div key={name} style={{ background: 'rgba(0,0,0,0.15)', borderRadius: 6, padding: '8px 10px', textAlign: 'center' }}>
+                                                                        <div style={{ fontSize: 10, color: 'var(--text-tertiary)', fontWeight: 600, marginBottom: 2 }}>{name}</div>
+                                                                        <div style={{ fontSize: 14, fontWeight: 700, color: metric.rating === 'good' ? '#10B981' : metric.rating === 'needs-improvement' ? '#F59E0B' : metric.rating === 'poor' ? '#EF4444' : 'var(--text-secondary)' }}>
+                                                                            {name === 'CLS' ? (Math.round(metric.value * 1000) / 1000) : `${Math.round(metric.value)}ms`}
+                                                                        </div>
+                                                                        {metric.rating && <div style={{ fontSize: 9, color: 'var(--text-tertiary)', textTransform: 'capitalize', marginTop: 2 }}>{metric.rating}</div>}
+                                                                    </div>
+                                                                ))}
+                                                            </div>
                                                         </div>
                                                     )}
                                                 </div>
@@ -452,40 +480,51 @@ export default function LiveTest() {
                                                             <div style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-tertiary)', marginBottom: 4 }}>Message</div>
                                                             <div style={{ fontSize: 12, fontFamily: "'Geist Mono', 'JetBrains Mono', monospace", color: 'var(--text-secondary)', background: 'rgba(0,0,0,0.2)', padding: '8px 10px', borderRadius: 6, wordBreak: 'break-all', lineHeight: 1.6 }}>{defect.message}</div>
                                                         </div>
-                                                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                                                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }}>
                                                             <div>
                                                                 <div style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-tertiary)', marginBottom: 4 }}>Severity</div>
                                                                 <div style={{ fontSize: 13, fontWeight: 700, color: getSeverityColor(defect.severity), textTransform: 'capitalize' }}>{defect.severity}</div>
                                                             </div>
                                                             <div>
                                                                 <div style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-tertiary)', marginBottom: 4 }}>Type</div>
-                                                                <div style={{ fontSize: 13, color: 'var(--text-secondary)' }}>{defect.type}</div>
-                                                            </div>
-                                                        </div>
-                                                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-                                                            <div>
-                                                                <div style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-tertiary)', marginBottom: 4 }}>Instances</div>
-                                                                <div style={{ fontSize: 13, color: 'var(--text-secondary)', fontWeight: 600 }}>{defect.instances}</div>
+                                                                <div style={{ fontSize: 13, color: 'var(--text-secondary)', textTransform: 'capitalize' }}>{defect.type}</div>
                                                             </div>
                                                             <div>
                                                                 <div style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-tertiary)', marginBottom: 4 }}>Time Detected</div>
                                                                 <div style={{ fontSize: 12, fontFamily: "'Geist Mono', 'JetBrains Mono', monospace", color: 'var(--text-secondary)' }}>{defect.time}</div>
                                                             </div>
                                                         </div>
+                                                        {defect.confidence != null && (
+                                                            <div>
+                                                                <div style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-tertiary)', marginBottom: 4 }}>AI Confidence</div>
+                                                                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                                                    <div style={{ flex: 1, height: 6, borderRadius: 3, background: 'rgba(255,255,255,0.06)', overflow: 'hidden' }}>
+                                                                        <div style={{ width: `${defect.confidence}%`, height: '100%', borderRadius: 3, background: defect.confidence >= 80 ? '#10B981' : defect.confidence >= 50 ? '#F59E0B' : '#EF4444', transition: 'width 0.3s ease' }} />
+                                                                    </div>
+                                                                    <span style={{ fontSize: 12, fontWeight: 700, color: defect.confidence >= 80 ? '#10B981' : defect.confidence >= 50 ? '#F59E0B' : '#EF4444', minWidth: 36 }}>{defect.confidence}%</span>
+                                                                </div>
+                                                            </div>
+                                                        )}
                                                         <div>
                                                             <div style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-tertiary)', marginBottom: 4 }}>Page URL</div>
                                                             <div style={{ fontSize: 12, fontFamily: "'Geist Mono', 'JetBrains Mono', monospace", color: 'var(--text-secondary)', background: 'rgba(0,0,0,0.2)', padding: '8px 10px', borderRadius: 6, wordBreak: 'break-all' }}>{defect.fullPageUrl || defect.page}</div>
                                                         </div>
+                                                        {defect.fix && (
+                                                            <div>
+                                                                <div style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-tertiary)', marginBottom: 4 }}>Suggested Fix</div>
+                                                                <div style={{ fontSize: 12, fontFamily: "'Geist Mono', 'JetBrains Mono', monospace", color: '#10B981', background: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.12)', padding: '8px 10px', borderRadius: 6, wordBreak: 'break-all', lineHeight: 1.6 }}>{defect.fix}</div>
+                                                            </div>
+                                                        )}
                                                         {defect.timestamp && (
                                                             <div>
-                                                                <div style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-tertiary)', marginBottom: 4 }}>Timestamp</div>
+                                                                <div style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-tertiary)', marginBottom: 4 }}>Timestamp (ISO)</div>
                                                                 <div style={{ fontSize: 12, fontFamily: "'Geist Mono', 'JetBrains Mono', monospace", color: 'var(--text-secondary)' }}>{defect.timestamp}</div>
                                                             </div>
                                                         )}
-                                                        {defect.selector && (
+                                                        {defect.screenshot && (
                                                             <div>
-                                                                <div style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-tertiary)', marginBottom: 4 }}>CSS Selector</div>
-                                                                <div style={{ fontSize: 12, fontFamily: "'Geist Mono', 'JetBrains Mono', monospace", color: 'var(--text-secondary)', background: 'rgba(0,0,0,0.2)', padding: '8px 10px', borderRadius: 6, wordBreak: 'break-all' }}>{defect.selector}</div>
+                                                                <div style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-tertiary)', marginBottom: 4 }}>Screenshot</div>
+                                                                <img src={defect.screenshot} alt="Defect screenshot" style={{ maxWidth: '100%', borderRadius: 6, border: '1px solid rgba(255,255,255,0.06)' }} />
                                                             </div>
                                                         )}
                                                     </div>

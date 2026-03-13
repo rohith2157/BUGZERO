@@ -181,8 +181,14 @@ router.get('/:id', authenticate, uuidParam, validate, async (req, res) => {
         const testRun = await prisma.testRun.findFirst({
             where: { id: req.params.id, userId: req.user.id },
             include: {
-                pages: { orderBy: { createdAt: 'asc' } },
-                defects: { orderBy: { severity: 'asc' } },
+                pages: {
+                    orderBy: { createdAt: 'asc' },
+                    include: {
+                        _count: { select: { defects: true } },
+                        performanceMetrics: true,
+                    },
+                },
+                defects: { orderBy: { createdAt: 'desc' } },
             },
         });
 
