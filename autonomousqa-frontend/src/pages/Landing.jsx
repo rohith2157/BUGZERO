@@ -5,6 +5,7 @@ import {
     ArrowRight, Github, Chrome, Mail, FlaskConical,
     Sparkles, Bot, Globe, ChevronRight, Sun, Moon
 } from 'lucide-react';
+import ButtonWithIcon from '../components/ui/button-with-icon';
 import { WarpBackground } from '../components/ui/WarpBackground';
 import HeroText from '../components/ui/hero-shutter-text';
 import FlipTextReveal from '../components/ui/next-reveal';
@@ -180,22 +181,10 @@ export default function Landing() {
 
                     {/* CTA Buttons */}
                     <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
-                        <motion.button
-                            whileHover={{ scale: 1.03, boxShadow: '0 0 40px rgba(212,168,83,0.25)' }}
-                            whileTap={{ scale: 0.97 }}
+                        <ButtonWithIcon
+                            text="Start Testing Free"
                             onClick={() => navigate('/login')}
-                            style={{
-                                padding: '13px 30px', fontSize: 14, fontWeight: 700,
-                                background: 'var(--color-accent-gold)',
-                                color: 'var(--on-accent)',
-                                border: 'none', borderRadius: 'var(--radius-full)',
-                                cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8,
-                                boxShadow: 'var(--shadow-glow-gold)',
-                                letterSpacing: '-0.01em',
-                            }}
-                        >
-                            <Bot size={17} /> Start Testing Free <ArrowRight size={15} />
-                        </motion.button>
+                        />
                         <motion.button
                             whileHover={{ scale: 1.03, borderColor: 'var(--border-default)' }}
                             whileTap={{ scale: 0.97 }}
@@ -418,21 +407,10 @@ export default function Landing() {
                         <p style={{ fontSize: 14, color: 'var(--text-secondary)', marginBottom: 28, maxWidth: 400, margin: '0 auto 28px' }}>
                             Join teams using AI-powered QA to find bugs before users do.
                         </p>
-                        <motion.button
-                            whileHover={{ scale: 1.03, boxShadow: '0 0 40px rgba(212,168,83,0.25)' }}
-                            whileTap={{ scale: 0.97 }}
+                        <ButtonWithIcon
+                            text="Get Started Free"
                             onClick={() => navigate('/login')}
-                            style={{
-                                padding: '13px 32px', fontSize: 14, fontWeight: 700,
-                                background: 'var(--color-accent-gold)', color: 'var(--on-accent)',
-                                border: 'none', borderRadius: 'var(--radius-full)',
-                                cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8,
-                                boxShadow: 'var(--shadow-glow-gold)',
-                                margin: '0 auto',
-                            }}
-                        >
-                            Get Started Free <ArrowRight size={15} />
-                        </motion.button>
+                        />
                     </motion.div>
                 </WarpBackground>
             </section>

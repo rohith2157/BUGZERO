@@ -19,6 +19,21 @@
   --color-chart-foreground-muted: var(--chart-foreground-muted);
   --color-chart-foreground: var(--chart-foreground);
   --color-chart-background: var(--chart-background);
+
+  /* shadcn/ui compatible tokens */
+  --color-background: var(--shadcn-background);
+  --color-foreground: var(--shadcn-foreground);
+  --color-primary: var(--shadcn-primary);
+  --color-primary-foreground: var(--shadcn-primary-foreground);
+  --color-secondary: var(--shadcn-secondary);
+  --color-secondary-foreground: var(--shadcn-secondary-foreground);
+  --color-accent: var(--shadcn-accent);
+  --color-accent-foreground: var(--shadcn-accent-foreground);
+  --color-destructive: var(--shadcn-destructive);
+  --color-destructive-foreground: var(--shadcn-destructive-foreground);
+  --color-input: var(--shadcn-input);
+  --color-ring: var(--shadcn-ring);
+  --ring-offset-background: var(--shadcn-background);
 }
 
 :root {
@@ -26,6 +41,20 @@
   /* TextShimmer — dark mode: white sweep on zinc base */
   --shimmer-text-base: #71717a;
   --shimmer-text-highlight: #ffffff;
+
+  /* shadcn/ui CSS variable bridge — maps to gold theme */
+  --shadcn-background: #09090B;
+  --shadcn-foreground: #FAFAFA;
+  --shadcn-primary: #D4A853;
+  --shadcn-primary-foreground: #09090B;
+  --shadcn-secondary: #18181B;
+  --shadcn-secondary-foreground: #FAFAFA;
+  --shadcn-accent: rgba(212, 168, 83, 0.08);
+  --shadcn-accent-foreground: #FAFAFA;
+  --shadcn-destructive: #EF4444;
+  --shadcn-destructive-foreground: #FAFAFA;
+  --shadcn-input: rgba(255, 255, 255, 0.09);
+  --shadcn-ring: #D4A853;
 
   /* Primary Palette — Deep Obsidian */
   --color-bg-primary: #09090B;
