@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Activity, Bug, Clock, Globe, Loader2, CheckCircle2, AlertTriangle, XCircle, StopCircle } from 'lucide-react';
+import { Activity, Bug, Clock, Globe, Loader2, CheckCircle2, AlertTriangle, XCircle, StopCircle, ChevronDown } from 'lucide-react';
 import StatusBadge from '../components/ui/StatusBadge';
 import { GridBackground } from '../components/ui/GridBackground';
 import { TextShimmer } from '../components/ui/TextShimmer';
@@ -19,22 +19,31 @@ export default function LiveTest() {
     const pollRef = useRef(null);
     const elapsedRef = useRef(null);
     const [elapsed, setElapsed] = useState('—');
+    const [expandedPageUrl, setExpandedPageUrl] = useState(null);
+    const [expandedDefectId, setExpandedDefectId] = useState(null);
 
     const fetchData = useCallback(() => {
         testsApi.get(id).then(({ testRun }) => {
             const pages = (testRun.pages || []).map(p => ({
                 url: safePath(p.url),
+                fullUrl: p.url || '',
                 type: p.pageType || 'Unknown',
                 status: p.status === 'tested' ? 'tested' : 'queued',
                 score: p.hygieneScore ? Math.min(100, Math.round(p.hygieneScore)) : null,
+                defectCount: p.defectCount || p._count?.defects || 0,
+                testedAt: p.testedAt || p.updatedAt || null,
             }));
             const defects = (testRun.defects || []).map(d => ({
                 id: d.id,
                 page: d.pageUrl ? safePath(d.pageUrl) : '/',
+                fullPageUrl: d.pageUrl || '',
                 type: d.type,
                 severity: d.severity,
                 message: d.message,
                 time: d.createdAt ? new Date(d.createdAt).toLocaleTimeString() : '',
+                timestamp: d.createdAt || '',
+                selector: d.selector || '',
+                instances: d.instances || d.count || 1,
             }));
 
             const totalPages = testRun.totalPages || pages.length || 1;
@@ -256,7 +265,7 @@ export default function LiveTest() {
                                 : 'Pages Discovered'
                             }
                         </h3>
-                        <div className="dark-scroll" style={{ display: 'flex', flexDirection: 'column', gap: 6, maxHeight: 280, overflowY: 'auto' }}>
+                        <div className="dark-scroll" style={{ display: 'flex', flexDirection: 'column', gap: 6, maxHeight: 400, overflowY: 'auto' }}>
                             {data.pagesDiscovered.length === 0 && (
                                 <div style={{ textAlign: 'center', padding: '40px 0', fontSize: 13 }}>
                                     {isRunning
@@ -271,31 +280,89 @@ export default function LiveTest() {
                                     initial={{ opacity: 0, x: -10 }}
                                     animate={{ opacity: 1, x: 0 }}
                                     transition={{ delay: i * 0.05 }}
-                                    style={{
-                                        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                                        padding: '10px 12px',
-                                        borderRadius: 'var(--radius-md)',
-                                        background: page.status === 'testing' ? 'rgba(212, 168, 83, 0.05)' : 'rgba(255, 255, 255, 0.02)',
-                                        border: page.status === 'testing' ? '1px solid rgba(212, 168, 83, 0.15)' : '1px solid transparent',
-                                    }}
                                 >
-                                    <div>
-                                        <div style={{ fontSize: 13, fontFamily: "'Geist Mono', 'JetBrains Mono', monospace", color: 'var(--text-secondary)' }}>
-                                            {page.url}
+                                    <div
+                                        onClick={() => setExpandedPageUrl(expandedPageUrl === page.url ? null : page.url)}
+                                        style={{
+                                            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                                            padding: '10px 12px',
+                                            borderRadius: expandedPageUrl === page.url ? '8px 8px 0 0' : 'var(--radius-md)',
+                                            background: expandedPageUrl === page.url ? 'rgba(212, 168, 83, 0.06)' : page.status === 'testing' ? 'rgba(212, 168, 83, 0.05)' : 'rgba(255, 255, 255, 0.02)',
+                                            border: expandedPageUrl === page.url ? '1px solid rgba(212, 168, 83, 0.18)' : page.status === 'testing' ? '1px solid rgba(212, 168, 83, 0.15)' : '1px solid transparent',
+                                            borderBottom: expandedPageUrl === page.url ? '1px solid rgba(255,255,255,0.04)' : undefined,
+                                            cursor: 'pointer',
+                                            transition: 'all 0.15s ease',
+                                        }}
+                                    >
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                            <motion.div animate={{ rotate: expandedPageUrl === page.url ? 180 : 0 }} transition={{ duration: 0.2 }}>
+                                                <ChevronDown size={14} style={{ color: 'var(--text-tertiary)' }} />
+                                            </motion.div>
+                                            <div>
+                                                <div style={{ fontSize: 13, fontFamily: "'Geist Mono', 'JetBrains Mono', monospace", color: 'var(--text-secondary)' }}>
+                                                    {page.url}
+                                                </div>
+                                                <div style={{ fontSize: 11, color: 'var(--text-tertiary)', marginTop: 2 }}>{page.type}</div>
+                                            </div>
                                         </div>
-                                        <div style={{ fontSize: 11, color: 'var(--text-tertiary)', marginTop: 2 }}>{page.type}</div>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                            {page.score != null && (
+                                                <span style={{
+                                                    fontSize: 13, fontWeight: 700,
+                                                    color: page.score >= 85 ? '#10B981' : page.score >= 70 ? '#F59E0B' : '#EF4444'
+                                                }}>
+                                                    {page.score}
+                                                </span>
+                                            )}
+                                            <StatusBadge status={page.status} size="sm" />
+                                        </div>
                                     </div>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                                        {page.score != null && (
-                                            <span style={{
-                                                fontSize: 13, fontWeight: 700,
-                                                color: page.score >= 85 ? '#10B981' : page.score >= 70 ? '#F59E0B' : '#EF4444'
-                                            }}>
-                                                {page.score}
-                                            </span>
+                                    {/* Expandable Detail Panel */}
+                                    <AnimatePresence initial={false}>
+                                        {expandedPageUrl === page.url && (
+                                            <motion.div
+                                                key="page-details"
+                                                initial={{ height: 0, opacity: 0 }}
+                                                animate={{ height: 'auto', opacity: 1 }}
+                                                exit={{ height: 0, opacity: 0 }}
+                                                transition={{ duration: 0.2 }}
+                                                style={{ overflow: 'hidden', borderRadius: '0 0 8px 8px', border: '1px solid rgba(255,255,255,0.04)', borderTop: 'none', background: 'rgba(255,255,255,0.015)' }}
+                                            >
+                                                <div style={{ padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: 12 }}>
+                                                    <div>
+                                                        <div style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-tertiary)', marginBottom: 4 }}>Full URL</div>
+                                                        <div style={{ fontSize: 12, fontFamily: "'Geist Mono', 'JetBrains Mono', monospace", color: 'var(--text-secondary)', background: 'rgba(0,0,0,0.2)', padding: '8px 10px', borderRadius: 6, wordBreak: 'break-all' }}>{page.fullUrl || page.url}</div>
+                                                    </div>
+                                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                                                        <div>
+                                                            <div style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-tertiary)', marginBottom: 4 }}>Hygiene Score</div>
+                                                            <div style={{ fontSize: 18, fontWeight: 800, color: page.score != null ? (page.score >= 85 ? '#10B981' : page.score >= 70 ? '#F59E0B' : '#EF4444') : 'var(--text-tertiary)' }}>{page.score != null ? page.score : 'N/A'}</div>
+                                                        </div>
+                                                        <div>
+                                                            <div style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-tertiary)', marginBottom: 4 }}>Status</div>
+                                                            <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-secondary)' }}>{page.status}</div>
+                                                        </div>
+                                                    </div>
+                                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                                                        <div>
+                                                            <div style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-tertiary)', marginBottom: 4 }}>Page Type</div>
+                                                            <div style={{ fontSize: 13, color: 'var(--text-secondary)' }}>{page.type}</div>
+                                                        </div>
+                                                        <div>
+                                                            <div style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-tertiary)', marginBottom: 4 }}>Defects Found</div>
+                                                            <div style={{ fontSize: 13, color: page.defectCount > 0 ? '#EF4444' : '#10B981', fontWeight: 600 }}>{page.defectCount}</div>
+                                                        </div>
+                                                    </div>
+                                                    {page.testedAt && (
+                                                        <div>
+                                                            <div style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-tertiary)', marginBottom: 4 }}>Tested At</div>
+                                                            <div style={{ fontSize: 12, fontFamily: "'Geist Mono', 'JetBrains Mono', monospace", color: 'var(--text-secondary)' }}>{new Date(page.testedAt).toLocaleString()}</div>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </motion.div>
                                         )}
-                                        <StatusBadge status={page.status} size="sm" />
-                                    </div>
+                                    </AnimatePresence>
                                 </motion.div>
                             ))}
                         </div>
@@ -320,7 +387,7 @@ export default function LiveTest() {
                                 : 'Live Defects Feed'
                             }
                         </h3>
-                        <div className="dark-scroll" style={{ display: 'flex', flexDirection: 'column', gap: 10, maxHeight: 280, overflowY: 'auto' }}>
+                        <div className="dark-scroll" style={{ display: 'flex', flexDirection: 'column', gap: 10, maxHeight: 400, overflowY: 'auto' }}>
                             <AnimatePresence>
                                 {data.liveDefects.length === 0 && (
                                     <div style={{ textAlign: 'center', padding: '40px 0', fontSize: 13 }}>
@@ -336,30 +403,95 @@ export default function LiveTest() {
                                         initial={{ opacity: 0, y: 20, scale: 0.95 }}
                                         animate={{ opacity: 1, y: 0, scale: 1 }}
                                         transition={{ delay: i * 0.08, type: 'spring', stiffness: 300 }}
-                                        style={{
-                                            padding: '14px',
-                                            borderRadius: 10,
-                                            background: 'rgba(255, 255, 255, 0.02)',
-                                            borderLeft: `3px solid ${getSeverityColor(defect.severity)}`,
-                                        }}
                                     >
-                                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                                                <StatusBadge status={defect.severity} size="sm" />
-                                                <span style={{ fontSize: 11, color: 'var(--text-tertiary)', fontWeight: 500, padding: '2px 6px', background: 'rgba(148,163,184,0.08)', borderRadius: 4 }}>
-                                                    {defect.type}
+                                        <div
+                                            onClick={() => setExpandedDefectId(expandedDefectId === defect.id ? null : defect.id)}
+                                            style={{
+                                                padding: '14px',
+                                                borderRadius: expandedDefectId === defect.id ? '10px 10px 0 0' : 10,
+                                                background: expandedDefectId === defect.id ? 'rgba(255, 255, 255, 0.035)' : 'rgba(255, 255, 255, 0.02)',
+                                                borderLeft: `3px solid ${getSeverityColor(defect.severity)}`,
+                                                cursor: 'pointer',
+                                                transition: 'all 0.15s ease',
+                                            }}
+                                        >
+                                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                                                    <motion.div animate={{ rotate: expandedDefectId === defect.id ? 180 : 0 }} transition={{ duration: 0.2 }}>
+                                                        <ChevronDown size={13} style={{ color: 'var(--text-tertiary)' }} />
+                                                    </motion.div>
+                                                    <StatusBadge status={defect.severity} size="sm" />
+                                                    <span style={{ fontSize: 11, color: 'var(--text-tertiary)', fontWeight: 500, padding: '2px 6px', background: 'rgba(148,163,184,0.08)', borderRadius: 4 }}>
+                                                        {defect.type}
+                                                    </span>
+                                                </div>
+                                                <span style={{ fontSize: 11, color: 'var(--text-tertiary)', fontFamily: "'Geist Mono', 'JetBrains Mono', monospace" }}>
+                                                    {defect.time}
                                                 </span>
                                             </div>
-                                            <span style={{ fontSize: 11, color: 'var(--text-tertiary)', fontFamily: "'Geist Mono', 'JetBrains Mono', monospace" }}>
-                                                {defect.time}
-                                            </span>
+                                            <div style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.5 }}>
+                                                {defect.message}
+                                            </div>
+                                            <div style={{ fontSize: 11, color: 'var(--text-tertiary)', marginTop: 6, fontFamily: "'Geist Mono', 'JetBrains Mono', monospace" }}>
+                                                {defect.page}
+                                            </div>
                                         </div>
-                                        <div style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.5 }}>
-                                            {defect.message}
-                                        </div>
-                                        <div style={{ fontSize: 11, color: 'var(--text-tertiary)', marginTop: 6, fontFamily: "'Geist Mono', 'JetBrains Mono', monospace" }}>
-                                            {defect.page}
-                                        </div>
+                                        {/* Expandable Defect Detail Panel */}
+                                        <AnimatePresence initial={false}>
+                                            {expandedDefectId === defect.id && (
+                                                <motion.div
+                                                    key="defect-details"
+                                                    initial={{ height: 0, opacity: 0 }}
+                                                    animate={{ height: 'auto', opacity: 1 }}
+                                                    exit={{ height: 0, opacity: 0 }}
+                                                    transition={{ duration: 0.2 }}
+                                                    style={{ overflow: 'hidden', borderRadius: '0 0 10px 10px', borderLeft: `3px solid ${getSeverityColor(defect.severity)}`, background: 'rgba(255,255,255,0.015)' }}
+                                                >
+                                                    <div style={{ padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: 12 }}>
+                                                        <div>
+                                                            <div style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-tertiary)', marginBottom: 4 }}>Message</div>
+                                                            <div style={{ fontSize: 12, fontFamily: "'Geist Mono', 'JetBrains Mono', monospace", color: 'var(--text-secondary)', background: 'rgba(0,0,0,0.2)', padding: '8px 10px', borderRadius: 6, wordBreak: 'break-all', lineHeight: 1.6 }}>{defect.message}</div>
+                                                        </div>
+                                                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                                                            <div>
+                                                                <div style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-tertiary)', marginBottom: 4 }}>Severity</div>
+                                                                <div style={{ fontSize: 13, fontWeight: 700, color: getSeverityColor(defect.severity), textTransform: 'capitalize' }}>{defect.severity}</div>
+                                                            </div>
+                                                            <div>
+                                                                <div style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-tertiary)', marginBottom: 4 }}>Type</div>
+                                                                <div style={{ fontSize: 13, color: 'var(--text-secondary)' }}>{defect.type}</div>
+                                                            </div>
+                                                        </div>
+                                                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                                                            <div>
+                                                                <div style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-tertiary)', marginBottom: 4 }}>Instances</div>
+                                                                <div style={{ fontSize: 13, color: 'var(--text-secondary)', fontWeight: 600 }}>{defect.instances}</div>
+                                                            </div>
+                                                            <div>
+                                                                <div style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-tertiary)', marginBottom: 4 }}>Time Detected</div>
+                                                                <div style={{ fontSize: 12, fontFamily: "'Geist Mono', 'JetBrains Mono', monospace", color: 'var(--text-secondary)' }}>{defect.time}</div>
+                                                            </div>
+                                                        </div>
+                                                        <div>
+                                                            <div style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-tertiary)', marginBottom: 4 }}>Page URL</div>
+                                                            <div style={{ fontSize: 12, fontFamily: "'Geist Mono', 'JetBrains Mono', monospace", color: 'var(--text-secondary)', background: 'rgba(0,0,0,0.2)', padding: '8px 10px', borderRadius: 6, wordBreak: 'break-all' }}>{defect.fullPageUrl || defect.page}</div>
+                                                        </div>
+                                                        {defect.timestamp && (
+                                                            <div>
+                                                                <div style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-tertiary)', marginBottom: 4 }}>Timestamp</div>
+                                                                <div style={{ fontSize: 12, fontFamily: "'Geist Mono', 'JetBrains Mono', monospace", color: 'var(--text-secondary)' }}>{defect.timestamp}</div>
+                                                            </div>
+                                                        )}
+                                                        {defect.selector && (
+                                                            <div>
+                                                                <div style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-tertiary)', marginBottom: 4 }}>CSS Selector</div>
+                                                                <div style={{ fontSize: 12, fontFamily: "'Geist Mono', 'JetBrains Mono', monospace", color: 'var(--text-secondary)', background: 'rgba(0,0,0,0.2)', padding: '8px 10px', borderRadius: 6, wordBreak: 'break-all' }}>{defect.selector}</div>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </motion.div>
+                                            )}
+                                        </AnimatePresence>
                                     </motion.div>
                                 ))}
                             </AnimatePresence>
