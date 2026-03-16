@@ -33,7 +33,7 @@ const DatabaseWithRestApi = ({
     return (
         <div
             className={cn(
-                "relative flex h-[350px] w-full flex-col items-center mx-auto",
+                "relative flex h-[420px] w-full flex-col items-center mx-auto overflow-visible",
                 className
             )}
         >
@@ -174,6 +174,57 @@ const DatabaseWithRestApi = ({
 
                 {/* box content */}
                 <div className="relative z-10 flex h-[160px] w-[80%] items-center justify-center overflow-hidden rounded-xl border border-zinc-700/40 bg-[#101112]/60 backdrop-blur-md shadow-xl">
+                    {/* Arc layer is clipped by this box to prevent layout overflow */}
+                    <div className="absolute inset-0 z-[5] pointer-events-none">
+                        {[1, 2, 3, 4].map((i) => {
+                            const arcSize = 70 + (i * 40);
+                            const arcBottom = -35 + (i * -12);
+                            const arcOpacity = 0.35 - (i * 0.06);
+
+                            return (
+                                <React.Fragment key={`arc-pair-${i}`}>
+                                    <motion.div
+                                        className="absolute"
+                                        style={{
+                                            bottom: arcBottom,
+                                            left: '50%',
+                                            marginLeft: 10,
+                                            width: arcSize,
+                                            height: arcSize,
+                                            borderTop: `1px solid var(--color-accent-gold)`,
+                                            borderRight: `1px solid var(--color-accent-gold)`,
+                                            borderTopRightRadius: arcSize,
+                                            opacity: arcOpacity,
+                                        }}
+                                        animate={{
+                                            scale: i % 2 === 0 ? [1, 1.02, 1] : [0.98, 1, 0.98],
+                                        }}
+                                        transition={{ duration: 3, repeat: Infinity, delay: i * 0.15, ease: "easeInOut" }}
+                                    />
+
+                                    <motion.div
+                                        className="absolute"
+                                        style={{
+                                            bottom: arcBottom,
+                                            right: '50%',
+                                            marginRight: 10,
+                                            width: arcSize,
+                                            height: arcSize,
+                                            borderTop: `1px solid var(--color-accent-gold)`,
+                                            borderLeft: `1px solid var(--color-accent-gold)`,
+                                            borderTopLeftRadius: arcSize,
+                                            opacity: arcOpacity,
+                                        }}
+                                        animate={{
+                                            scale: i % 2 === 0 ? [1, 1.02, 1] : [0.98, 1, 0.98],
+                                        }}
+                                        transition={{ duration: 3, repeat: Infinity, delay: i * 0.15, ease: "easeInOut" }}
+                                    />
+                                </React.Fragment>
+                            );
+                        })}
+                    </div>
+
                     {/* Decorative Badges */}
                     <div className="absolute bottom-8 left-8 z-10 h-8 rounded-full bg-[#101112] border border-white/10 px-4 text-xs flex items-center gap-2 shadow-md">
                         <ShieldCheck className="size-4 text-emerald-400" />
@@ -183,26 +234,6 @@ const DatabaseWithRestApi = ({
                         <SparklesIcon className="size-4 text-[var(--color-accent-gold)]" />
                         <span className="font-medium text-white">AI Evaluated</span>
                     </div>
-
-                    {/* Glowing Circles */}
-                    {[1, 2, 3, 4].map((i) => (
-                        <motion.div
-                            key={i}
-                            className="absolute border-t border-[var(--color-accent-gold)] opacity-20 bg-accent/5 rounded-full"
-                            style={{
-                                bottom: -14 - (i * 24),
-                                height: 100 + (i * 35),
-                                width: 100 + (i * 35),
-                                left: '50%',
-                                transform: 'translateX(-50%)',
-                            }}
-                            animate={{
-                                scale: i % 2 === 0 ? [1, 1.02, 1] : [0.98, 1, 0.98],
-                                opacity: [0.15, 0.25, 0.15]
-                            }}
-                            transition={{ duration: 3, repeat: Infinity, delay: i * 0.2, ease: "easeInOut" }}
-                        />
-                    ))}
                 </div>
             </div>
         </div>
