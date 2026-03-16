@@ -169,6 +169,35 @@ flowchart LR
 
 ---
 
+## 🔍 Tech Stack Deep-Dive
+
+AutonomousQA operates like a highly advanced human QA engineer. Here's how the core technologies work together:
+
+### 1. Playwright (The "Eyes and Hands")
+- **What it is:** A browser automation tool that launches real headless Chromium browsers.
+- **Why we use it:** Unlike basic HTTP fetchers, Playwright executes JavaScript, renders React/Vue apps, paints CSS, and evaluates the actual Document Object Model (DOM) exactly as a human sees it.
+- **How it works:** Python scripts inject evaluation code directly into the active browser page to measure Core Web Vitals (LCP, CLS, FID), check for accessibility violations, and perform visual heuristics.
+
+### 2. Autonomous Crawling (The "Explorer")
+- **What it is:** A Breadth-First Search (BFS) spider that maps the application.
+- **How it works:** Starting from a seed URL, the crawler scans the DOM for valid `<a>` href links belonging to the same domain. It places these in a queue and visits them sequentially up to the configured `max_depth` and `max_pages`. This requires zero configuration from the user.
+
+### 3. The DOM (Document Object Model) Analysis
+The DOM is the tree-like structure the browser builds from HTML. Our AI uses the DOM as its primary source of truth to detect defects:
+- **Accessibility:** Scans the DOM tree for `<img>` tags missing `alt` attributes, or `<input>` fields detached from `<label>` elements.
+- **SEO & Structure:** Evaluates the heading hierarchy (e.g., checking for exactly one `<h1>` node).
+- **UI Integrity:** Uses `getComputedStyle(element)` to ask the browser engine the exact painted color of text vs background to calculate real mathematical contrast ratios.
+
+### 4. WebSockets / Socket.io (The "Live Broadcaster")
+- **Why we use it:** Full autonomous testing can take 5-20 minutes. Polling is inefficient. WebSockets keep a permanent two-way "phone line" open between the browser and the server.
+- **How it works:**
+  1. The React frontend subscribes to a specific `testRunId` room.
+  2. The Python AI finishes testing a single page and POSTs the result to the Express Gateway.
+  3. The Gateway saves the page to PostgreSQL and instantly broadcasts that data packet over the active WebSocket.
+  4. The React UI instantly receives the data and animates it onto the screen without a page refresh.
+
+---
+
 ## 🚀 Quick Start
 
 ### 📋 Prerequisites

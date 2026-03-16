@@ -48,7 +48,7 @@ export default function Report() {
                 if (totalDefects === 0) {
                     scoreBreakdown[cat] = 100;
                 } else {
-                    scoreBreakdown[cat] = Math.max(0, Math.round(100 - (count / totalDefects) * 100));
+                    scoreBreakdown[cat] = Math.min(100, Math.max(0, Math.round(100 - (count / totalDefects) * 100)));
                 }
             });
 
@@ -259,8 +259,8 @@ export default function Report() {
                                 style={{
                                     padding: '16px 14px',
                                     borderRadius: 'var(--radius-md)',
-                                    background: `${riskColor}08`,
-                                    border: `1px solid ${riskColor}25`,
+                                    background: `${riskColor}18`,
+                                    border: `1px solid ${riskColor}35`,
                                     cursor: 'pointer',
                                     textAlign: 'center',
                                     transition: 'all var(--transition-fast)',
@@ -304,7 +304,8 @@ export default function Report() {
                                     style={{
                                         padding: '18px',
                                         borderRadius: 10,
-                                        background: 'rgba(255, 255, 255, 0.02)',
+                                        background: 'var(--color-bg-card)',
+                                        border: '1px solid var(--border-subtle)',
                                         borderLeft: `3px solid ${sev?.color || '#64748B'}`,
                                     }}
                                 >

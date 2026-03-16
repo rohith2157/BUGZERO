@@ -5,7 +5,7 @@ import {
     ArrowRight, Github, Chrome, Mail, FlaskConical,
     Sparkles, Bot, Globe, ChevronRight, Sun, Moon
 } from 'lucide-react';
-import ButtonWithIcon from '../components/ui/button-with-icon';
+import MotionButton from '../components/ui/motion-button';
 import { WarpBackground } from '../components/ui/WarpBackground';
 import HeroText from '../components/ui/hero-shutter-text';
 import FlipTextReveal from '../components/ui/next-reveal';
@@ -181,8 +181,8 @@ export default function Landing() {
 
                     {/* CTA Buttons */}
                     <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
-                        <ButtonWithIcon
-                            text="Start Testing Free"
+                        <MotionButton
+                            label="Start Testing Free"
                             onClick={() => navigate('/login')}
                         />
                         <motion.button
@@ -407,8 +407,8 @@ export default function Landing() {
                         <p style={{ fontSize: 14, color: 'var(--text-secondary)', marginBottom: 28, maxWidth: 400, margin: '0 auto 28px' }}>
                             Join teams using AI-powered QA to find bugs before users do.
                         </p>
-                        <ButtonWithIcon
-                            text="Get Started Free"
+                        <MotionButton
+                            label="Get Started Free"
                             onClick={() => navigate('/login')}
                         />
                     </motion.div>

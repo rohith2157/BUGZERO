@@ -183,6 +183,20 @@
   --shimmer-text-base: #a1a1aa;
   --shimmer-text-highlight: #09090b;
 
+  /* shadcn/ui CSS variable bridge — maps to light theme */
+  --shadcn-background: #FAFAFA;
+  --shadcn-foreground: #09090B;
+  --shadcn-primary: #B8860B;
+  --shadcn-primary-foreground: #FAFAFA;
+  --shadcn-secondary: #E4E4E7;
+  --shadcn-secondary-foreground: #09090B;
+  --shadcn-accent: rgba(184, 134, 11, 0.08);
+  --shadcn-accent-foreground: #09090B;
+  --shadcn-destructive: #EF4444;
+  --shadcn-destructive-foreground: #FAFAFA;
+  --shadcn-input: rgba(0, 0, 0, 0.12);
+  --shadcn-ring: #B8860B;
+
   /* Primary Palette — Clean White */
   --color-bg-primary: #FAFAFA;
   --color-bg-secondary: #F4F4F5;

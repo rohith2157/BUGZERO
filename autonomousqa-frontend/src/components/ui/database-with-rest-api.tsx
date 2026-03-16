@@ -45,21 +45,26 @@ const DatabaseWithRestApi = ({
                 viewBox="0 0 500 200"
             >
                 <g
-                    stroke="rgba(255,255,255,0.15)"
+                    stroke="rgba(128,128,128,0.45)"
                     fill="none"
                     strokeWidth="1.5"
-                    strokeDasharray="100 100"
-                    pathLength="100"
+                    strokeDasharray="300 300"
+                    pathLength="300"
                 >
-                    <path d="M 50 22 v 28 q 0 10 10 10 h 180 q 10 0 10 10 v 20" />
-                    <path d="M 150 22 v 28 q 0 10 10 10 h 80 q 10 0 10 10 v 20" />
+                    {/* Accessibility (outermost left) — drops deepest: v22 before h, horizontal at y=56 */}
+                    <path d="M 50 22 v 22 q 0 12 12 12 h 178 q 10 0 10 12 v 12" />
+                    {/* Performance (inner left) — drops shallower: v10, horizontal at y=44 */}
+                    <path d="M 150 22 v 10 q 0 12 12 12 h 78 q 10 0 10 12 v 24" />
+                    {/* SEO (center) — straight down */}
                     <path d="M 250 22 v 68" />
-                    <path d="M 350 22 v 28 q 0 10 -10 10 h -80 q -10 0 -10 10 v 20" />
-                    <path d="M 450 22 v 28 q 0 10 -10 10 h -180 q -10 0 -10 10 v 20" />
+                    {/* Functional (inner right) — mirrors Performance */}
+                    <path d="M 350 22 v 10 q 0 12 -12 12 h -78 q -10 0 -10 12 v 24" />
+                    {/* Compliance (outermost right) — mirrors Accessibility */}
+                    <path d="M 450 22 v 22 q 0 12 -12 12 h -178 q -10 0 -10 12 v 12" />
                     {/* Animation For Path Starting */}
                     <animate
                         attributeName="stroke-dashoffset"
-                        from="100"
+                        from="300"
                         to="0"
                         dur="1.5s"
                         fill="freeze"
@@ -119,7 +124,7 @@ const DatabaseWithRestApi = ({
                                 fontWeight="800"
                                 textAnchor="end"
                             >
-                                {cat.score}
+                                {Math.min(100, cat.score)}
                             </text>
                         </g>
                     );
@@ -127,19 +132,19 @@ const DatabaseWithRestApi = ({
 
                 <defs>
                     <mask id="db-mask-1">
-                        <path d="M 50 22 v 28 q 0 10 10 10 h 180 q 10 0 10 10 v 20" strokeWidth="2" stroke="white" />
+                        <path d="M 50 22 v 22 q 0 12 12 12 h 178 q 10 0 10 12 v 12" strokeWidth="2" stroke="white" />
                     </mask>
                     <mask id="db-mask-2">
-                        <path d="M 150 22 v 28 q 0 10 10 10 h 80 q 10 0 10 10 v 20" strokeWidth="2" stroke="white" />
+                        <path d="M 150 22 v 10 q 0 12 12 12 h 78 q 10 0 10 12 v 24" strokeWidth="2" stroke="white" />
                     </mask>
                     <mask id="db-mask-3">
                         <path d="M 250 22 v 68" strokeWidth="2" stroke="white" />
                     </mask>
                     <mask id="db-mask-4">
-                        <path d="M 350 22 v 28 q 0 10 -10 10 h -80 q -10 0 -10 10 v 20" strokeWidth="2" stroke="white" />
+                        <path d="M 350 22 v 10 q 0 12 -12 12 h -78 q -10 0 -10 12 v 24" strokeWidth="2" stroke="white" />
                     </mask>
                     <mask id="db-mask-5">
-                        <path d="M 450 22 v 28 q 0 10 -10 10 h -180 q -10 0 -10 10 v 20" strokeWidth="2" stroke="white" />
+                        <path d="M 450 22 v 22 q 0 12 -12 12 h -178 q -10 0 -10 12 v 12" strokeWidth="2" stroke="white" />
                     </mask>
 
                     <radialGradient id="db-blue-grad" fx="1">
@@ -154,7 +159,7 @@ const DatabaseWithRestApi = ({
                 <div className="absolute -bottom-4 h-[100px] w-[50%] rounded-lg bg-accent/20 blur-[12px]" />
 
                 {/* box title */}
-                <div className="absolute -top-3 z-20 flex items-center justify-center rounded-lg border border-white/10 bg-[#101112] px-3 py-1.5 shadow-lg">
+                <div className="absolute -top-3 z-20 flex items-center justify-center rounded-lg border border-zinc-700/60 bg-[#101112] px-3 py-1.5 shadow-lg">
                     <ActivityIcon className="size-3.5 text-[var(--color-accent-gold)]" />
                     <span className="ml-2 text-xs font-semibold text-white">
                         {title ? title : "Aggregated Hygiene Score Connection"}
@@ -168,15 +173,15 @@ const DatabaseWithRestApi = ({
                 </div>
 
                 {/* box content */}
-                <div className="relative z-10 flex h-[160px] w-[80%] items-center justify-center overflow-hidden rounded-xl border border-white/10 bg-background/80 backdrop-blur-md shadow-xl">
+                <div className="relative z-10 flex h-[160px] w-[80%] items-center justify-center overflow-hidden rounded-xl border border-zinc-700/40 bg-[#101112]/60 backdrop-blur-md shadow-xl">
                     {/* Decorative Badges */}
-                    <div className="absolute bottom-8 left-8 z-10 h-8 rounded-full bg-[#101112]/90 border border-white/10 px-4 text-xs flex items-center gap-2 shadow-md">
+                    <div className="absolute bottom-8 left-8 z-10 h-8 rounded-full bg-[#101112] border border-white/10 px-4 text-xs flex items-center gap-2 shadow-md">
                         <ShieldCheck className="size-4 text-emerald-400" />
-                        <span className="font-medium">All Checks Passed</span>
+                        <span className="font-medium text-white">All Checks Passed</span>
                     </div>
-                    <div className="absolute right-8 z-10 hidden h-8 rounded-full bg-[#101112]/90 border border-white/10 px-4 text-xs sm:flex items-center gap-2 shadow-md">
+                    <div className="absolute right-8 z-10 hidden h-8 rounded-full bg-[#101112] border border-white/10 px-4 text-xs sm:flex items-center gap-2 shadow-md">
                         <SparklesIcon className="size-4 text-[var(--color-accent-gold)]" />
-                        <span className="font-medium">AI Evaluated</span>
+                        <span className="font-medium text-white">AI Evaluated</span>
                     </div>
 
                     {/* Glowing Circles */}
