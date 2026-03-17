@@ -42,7 +42,7 @@ export default function HeroText({
                 >
                     {characters.map((char, i) => (
                         <span
-                            key={i}
+                            key={`shutter-${i}`}
                             className="relative overflow-hidden"
                             style={{ lineHeight: "inherit" }}
                         >

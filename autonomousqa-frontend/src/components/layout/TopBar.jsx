@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useRef, useEffect } from 'react';
 import { useAuthStore } from '../../store/authStore';
 import { AnimatedThemeToggle } from '../ui/animated-theme-toggle';
+import { DialogBox } from '../ui/dialog-box';
 
 const routeTitles = {
     '/dashboard': 'Dashboard',
@@ -225,21 +226,8 @@ export default function TopBar() {
 
                                 {/* Menu items */}
                                 <div style={{ padding: '6px' }}>
-                                    <button
-                                        onClick={() => { navigate('/settings'); setProfileOpen(false); }}
-                                        style={{
-                                            width: '100%', display: 'flex', alignItems: 'center', gap: 10,
-                                            padding: '9px 12px', borderRadius: 8, border: 'none',
-                                            background: 'transparent', cursor: 'pointer',
-                                            color: 'var(--text-secondary)', fontSize: 13, fontWeight: 500,
-                                            transition: 'all 0.1s',
-                                        }}
-                                        onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--glass-subtle)'; e.currentTarget.style.color = 'var(--text-primary)'; }}
-                                        onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--text-secondary)'; }}
-                                    >
-                                        <Settings size={14} />
-                                        Settings
-                                    </button>
+                                    
+                                    <DialogBox />
 
                                     <div style={{ height: 1, background: 'var(--border-subtle)', margin: '4px 0' }} />
 

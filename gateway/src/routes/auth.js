@@ -18,7 +18,8 @@ function generateToken(user) {
 // POST /api/auth/register
 router.post('/register', registerRules, validate, async (req, res) => {
   try {
-    const { email, password, name, orgName } = req.body;
+    const { password, name, orgName } = req.body;
+    const email = req.body.email.toLowerCase();
 
     const existing = await prisma.user.findUnique({ where: { email } });
     if (existing) {
@@ -55,7 +56,8 @@ router.post('/register', registerRules, validate, async (req, res) => {
 // POST /api/auth/login
 router.post('/login', loginRules, validate, async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { password } = req.body;
+    const email = req.body.email.toLowerCase();
 
     const user = await prisma.user.findUnique({ where: { email } });
     if (!user) {

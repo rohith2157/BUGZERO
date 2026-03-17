@@ -252,7 +252,7 @@ export default function Performance() {
                     ) : (
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                             {performanceData.pageScores.map((ps, i) => (
-                                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                                <div key={`perf-stat-${i}`} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                                     <div style={{
                                         width: 130, fontSize: 11, color: 'var(--text-secondary)',
                                         fontFamily: "'Geist Mono', 'JetBrains Mono', monospace",

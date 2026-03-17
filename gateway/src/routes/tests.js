@@ -225,7 +225,9 @@ router.delete('/:id', authenticate, uuidParam, validate, async (req, res) => {
 
             // Signal the AI Core to abort (best-effort)
             const FASTAPI_URL = process.env.FASTAPI_URL || 'http://localhost:8000';
-            fetch(`${FASTAPI_URL}/api/test/cancel/${req.params.id}`, { method: 'POST' }).catch(() => { });
+            fetch(`${FASTAPI_URL}/api/test/cancel/${req.params.id}`, { method: 'POST' }).catch(err => {
+                console.warn(`Failed to signal AI Core cancellation for ${req.params.id}:`, err.message);
+            });
         }
 
         res.json({ message: 'Test run cancelled' });

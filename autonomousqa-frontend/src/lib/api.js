@@ -21,12 +21,18 @@ async function request(endpoint, options = {}) {
         headers['Authorization'] = `Bearer ${token}`;
     }
 
-    const res = await fetch(`${API_BASE}${endpoint}`, {
-        ...options,
-        headers,
-    });
+    let res;
+    try {
+        res = await fetch(`${API_BASE}${endpoint}`, {
+            ...options,
+            headers,
+        });
+    } catch (err) {
+        // Handle network/CORS failures gracefully
+        throw new Error('Network error. Please check your connection and try again.');
+    }
 
-    if (res.status === 401) {
+    if (res.status === 401 && !endpoint.startsWith('/auth/login') && !endpoint.startsWith('/auth/register')) {
         try {
             localStorage.removeItem('aq_token');
             localStorage.removeItem('aq_user');

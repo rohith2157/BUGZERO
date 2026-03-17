@@ -8,7 +8,10 @@ const router = Router();
 // GET /api/playbooks — List all playbooks for user's org
 router.get('/', authenticate, async (req, res) => {
   try {
-    const where = req.user.orgId ? { orgId: req.user.orgId } : {};
+    if (!req.user.orgId) {
+      return res.json({ playbooks: [] });
+    }
+    const where = { orgId: req.user.orgId };
     const playbooks = await prisma.authPlaybook.findMany({
       where,
       orderBy: { updatedAt: 'desc' },
