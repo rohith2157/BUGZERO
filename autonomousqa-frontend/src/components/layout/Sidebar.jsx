@@ -126,41 +126,44 @@ export default function Sidebar({ collapsed, setCollapsed }) {
                                 whileHover={{ background: 'var(--glass-subtle-hover)' }}
                                 whileTap={{ scale: 0.98 }}
                                 className={`group relative overflow-hidden flex items-center`}
-                                style={{
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: 10,
-                                    padding: collapsed ? '10px 14px' : '9px 12px',
-                                    borderRadius: 8,
-                                    cursor: 'pointer',
-                                    color: isActive ? 'var(--text-primary)' : 'var(--text-tertiary)',
-                                    background: isActive ? 'rgba(212, 168, 83, 0.08)' : 'transparent',
-                                    transition: 'all 0.15s ease',
-                                    justifyContent: collapsed ? 'center' : 'flex-start',
-                                }}
-                            >
-                                {isActive && (
-                                    <motion.div
-                                        layoutId="activeNav"
-                                        style={{
-                                            position: 'absolute',
-                                            left: 0,
-                                            top: '20%',
-                                            width: 3,
-                                            height: '60%',
-                                            borderRadius: '0 4px 4px 0',
-                                            background: 'var(--color-accent-gold)',
-                                            boxShadow: '2px 0 8px rgba(212,168,83,0.4)',
-                                            zIndex: 30,
-                                        }}
-                                        transition={{ type: 'spring', stiffness: 500, damping: 35 }}
-                                    />
-                                )}
+                                    style={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: 10,
+                                        padding: collapsed ? '10px 14px' : '9px 12px',
+                                        borderRadius: 8,
+                                        cursor: 'pointer',
+                                        color: isActive ? '#0ea5e9' : 'var(--text-tertiary)',
+                                        background: 'transparent',
+                                        transition: 'all 0.15s ease',
+                                        justifyContent: collapsed ? 'center' : 'flex-start',
+                                    }}
+                                >
+                                    {isActive && (
+                                        <motion.div
+                                            layoutId="activeNav"
+                                            style={{
+                                                position: 'absolute',
+                                                left: 0,
+                                                top: 0,
+                                                width: 1,
+                                                height: '100%',
+                                                background: 'linear-gradient(to bottom, transparent, #0ea5e9, transparent)',
+                                                zIndex: 30,
+                                            }}
+                                            transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+                                        >
+                                            {/* Glowing hot center blur */}
+                                            <div style={{ position: 'absolute', top: '50%', transform: 'translateY(-50%)', left: '-1px', height: '60%', width: '4px', background: '#38bdf8', filter: 'blur(3px)' }} />
+                                            {/* Horizontal wash gradient */}
+                                            <div style={{ position: 'absolute', left: 0, top: 0, height: '100%', width: '120px', background: 'linear-gradient(to right, rgba(14, 165, 233, 0.12), transparent)', pointerEvents: 'none' }} />
+                                        </motion.div>
+                                    )}
 
-                                {/* Visible Text & Icon */}
-                                <div className={`flex items-center gap-[10px] relative z-10 transition-all duration-300 w-full ${!collapsed ? 'group-hover:translate-x-12 group-hover:opacity-0' : ''}`} style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 10 }}>
-                                    <Icon size={18} style={{ flexShrink: 0, opacity: isActive ? 1 : 0.55, color: isActive ? 'var(--color-accent-gold)' : undefined }} />
-                                    <AnimatePresence>
+                                    {/* Visible Text & Icon */}
+                                    <div className={`flex items-center gap-[10px] relative z-10 transition-all duration-300 w-full ${!collapsed ? 'group-hover:translate-x-12 group-hover:opacity-0' : ''}`} style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 10 }}>
+                                        <Icon size={18} style={{ flexShrink: 0, opacity: isActive ? 1 : 0.6, color: isActive ? '#0ea5e9' : undefined }} />
+                                        <AnimatePresence>
                                         {!collapsed && (
                                             <motion.span
                                                 initial={{ opacity: 0 }}
@@ -186,7 +189,7 @@ export default function Sidebar({ collapsed, setCollapsed }) {
                                             <span style={{ fontSize: 13, fontWeight: 700, whiteSpace: 'nowrap', letterSpacing: '-0.01em' }}>{label}</span>
                                             <ArrowRight size={16} strokeWidth={2.5} />
                                         </div>
-                                        <div className="absolute left-[20%] top-[40%] h-2 w-2 scale-[1] rounded-lg bg-[var(--color-accent-gold)] transition-all duration-300 group-hover:left-[0%] group-hover:top-[0%] group-hover:h-full group-hover:w-full group-hover:scale-[1.8] opacity-0 group-hover:opacity-100 z-10"></div>
+                                        <div className="absolute left-[20%] top-[40%] h-2 w-2 scale-[1] rounded-lg bg-[#0ea5e9] transition-all duration-300 group-hover:left-[0%] group-hover:top-[0%] group-hover:h-full group-hover:w-full group-hover:scale-[1.8] opacity-0 group-hover:opacity-100 z-10"></div>
                                     </>
                                 )}
                             </motion.div>
