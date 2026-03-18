@@ -9,15 +9,17 @@ class CrawlerAgent:
     def __init__(self, playwright_tool: PlaywrightTool):
         self.tool = playwright_tool
 
-    async def crawl(self, url: str, depth: str = "standard") -> list[dict]:
-        # max_pages = page count limit, max_depth = URL level cap
-        # shallow: 5 pages, only root + its direct links (depth 0 and 1)
-        # standard: 20 pages, up to 3 levels deep
-        # deep: 100 pages, no depth cap — follows all links until max_pages
-        config = {
-            "shallow":  {"max_pages": 5,   "max_depth": 1},
-            "standard": {"max_pages": 20,  "max_depth": 3},
-            "deep":     {"max_pages": 100, "max_depth": 999},
-        }.get(depth, {"max_pages": 20, "max_depth": 3})
-        pages = await self.tool.crawl(url, **config)
-        return pages
+    async def crawl(self, url: str, depth: str = "standard", max_pages: int = 50, on_page=None) -> list[dict]:
+        """Execute BFS crawl using autonomous crawler logic.
+        
+        Depth maps:
+          shallow  -> max depth 1
+          standard -> max depth 3
+          deep     -> max depth 999
+        """
+        # Assuming logger is imported elsewhere or will be handled by the user
+        # from loguru import logger
+        # logger.info(f"Crawler started on {url} (depth={depth}, max_pages={max_pages})")
+        depth_map = {"shallow": 1, "standard": 3, "deep": 999}
+        max_d = depth_map.get(depth, 3)
+        return await self.tool.crawl(url, max_pages=max_pages, max_depth=max_d, on_page=on_page)

@@ -12,6 +12,7 @@ export default function NewTest() {
     const [url, setUrl] = useState('');
     const [browser, setBrowser] = useState('Chromium');
     const [depth, setDepth] = useState('Standard (3 levels deep)');
+    const [maxPages, setMaxPages] = useState(50);
     const [playbook, setPlaybook] = useState('');
     const [launching, setLaunching] = useState(false);
     const [playbooks, setPlaybooks] = useState([]);
@@ -57,6 +58,7 @@ export default function NewTest() {
                 config: {
                     browser: browser.toLowerCase(),
                     crawl_depth: depthMap[depth] || 'standard',
+                    max_pages: maxPages,
                     modules: enabledModules,
                     playbook_id: playbook || undefined,
                 },
@@ -203,6 +205,36 @@ export default function NewTest() {
                     </div>
                 </motion.div>
             </div>
+
+            {/* Max Pages Slider */}
+            <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.22 }}
+                className="glass-card"
+                style={{ padding: '24px', marginBottom: 20 }}
+            >
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+                    <label style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                        Max Pages to Test
+                    </label>
+                    <span style={{ fontSize: 16, fontWeight: 700, color: 'var(--color-accent-gold)' }}>
+                        {maxPages}
+                    </span>
+                </div>
+                <input
+                    type="range"
+                    min="1"
+                    max="100"
+                    value={maxPages}
+                    onChange={(e) => setMaxPages(parseInt(e.target.value))}
+                    style={{ width: '100%', cursor: 'pointer', accentColor: 'var(--color-accent-gold)' }}
+                />
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: 'var(--text-tertiary)', marginTop: 8 }}>
+                    <span>1 page (Fast)</span>
+                    <span>100 pages (Comprehensive)</span>
+                </div>
+            </motion.div>
 
             {/* Auth Playbook */}
             <motion.div

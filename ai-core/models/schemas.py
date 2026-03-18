@@ -15,6 +15,7 @@ class TestConfig(BaseModel):
         "compliance",
     ]
     playbook_id: Optional[str] = None
+    max_pages: Optional[int] = None
 
 
 class TestRequest(BaseModel):

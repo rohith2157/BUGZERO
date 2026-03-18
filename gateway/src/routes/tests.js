@@ -23,6 +23,12 @@ router.post('/progress', async (req, res) => {
             });
             emitTestEvent(io, run_id, 'crawl:complete', { totalPages: data.total_pages });
 
+        } else if (event === 'page_discovered') {
+            const page = data.page;
+            if (page) {
+                emitTestEvent(io, run_id, 'page:discovered', page);
+            }
+
         } else if (event === 'page_complete') {
             const page = data.page;
             if (!page) return res.status(400).json({ error: 'page data required' });

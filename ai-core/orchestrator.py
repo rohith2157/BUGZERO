@@ -74,9 +74,26 @@ class Orchestrator:
             # ────────────────────────────────────────────────
             logger.info(f"[{run_id}] Stage 1: BFS Crawl starting on {request.url}")
 
+            loop = asyncio.get_running_loop()
+
+            def on_page_discovered(page_data):
+                # Send fire-and-forget sync/threadsafe async progress update to gateway
+                asyncio.run_coroutine_threadsafe(
+                    self._report_progress("page_discovered", {"run_id": run_id, "page": page_data}),
+                    loop
+                )
+
+            # Determine max_pages logic (allow explicit override, otherwise base on depth)
+            if config.max_pages is not None:
+                max_pages = config.max_pages
+            else:
+                max_pages = 5 if config.crawl_depth == "shallow" else (100 if config.crawl_depth == "deep" else 20)
+
             discovered = await crawler.crawl(
                 request.url,
                 depth=config.crawl_depth,
+                max_pages=max_pages,
+                on_page=on_page_discovered
             )
 
             if not discovered:

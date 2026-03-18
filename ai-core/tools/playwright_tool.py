@@ -1,17 +1,20 @@
 """Playwright browser automation tool for crawling and testing."""
 
 import asyncio
+import contextvars
 from concurrent.futures import ThreadPoolExecutor
 from urllib.parse import urlparse
 from playwright.sync_api import sync_playwright
 
 _executor = ThreadPoolExecutor(max_workers=1)
 
-
 def _run_sync(fn, *args):
-    """Run a sync function in a thread pool to avoid blocking the event loop."""
+    """Run a sync function in a thread pool to avoid blocking the event loop.
+    Uses an empty context to prevent asyncio context propagation that panics Playwright.
+    """
     loop = asyncio.get_running_loop()
-    return loop.run_in_executor(_executor, fn, *args)
+    ctx = contextvars.Context()
+    return loop.run_in_executor(_executor, ctx.run, fn, *args)
 
 
 class PlaywrightTool:
@@ -73,7 +76,7 @@ class PlaywrightTool:
     async def stop(self):
         await _run_sync(self._stop_sync)
 
-    def _crawl_sync(self, url: str, max_pages: int, max_depth: int = 999) -> list[dict]:
+    def _crawl_sync(self, url: str, max_pages: int, max_depth: int = 999, on_page=None) -> list[dict]:
         """Crawl using the persistent browser — tracks real URL depth levels.
         
         Queue items are (url, depth) tuples. max_depth enforces the level cap:
@@ -110,13 +113,20 @@ class PlaywrightTool:
                     visited.add(current_url)
                     page_type = self._classify_page_sync(page)
 
-                    discovered.append({
+                    page_data = {
                         "url": current_url,
                         "page_type": page_type,
                         "status_code": response.status,
                         "title": page.title(),
                         "depth": depth,
-                    })
+                    }
+                    discovered.append(page_data)
+
+                    if on_page:
+                        try:
+                            on_page(page_data)
+                        except Exception:
+                            pass
 
                     # Only follow links if we haven't hit the depth cap
                     if depth < max_depth:
@@ -149,8 +159,8 @@ class PlaywrightTool:
             except Exception:
                 pass
 
-    async def crawl(self, url: str, max_pages: int = 50, max_depth: int = 999) -> list[dict]:
-        return await _run_sync(self._crawl_sync, url, max_pages, max_depth)
+    async def crawl(self, url: str, max_pages: int = 50, max_depth: int = 999, on_page=None) -> list[dict]:
+        return await _run_sync(self._crawl_sync, url, max_pages, max_depth, on_page)
 
     def _test_page_sync(self, url: str) -> dict:
         """Test a single page using the persistent browser — fresh context per page."""

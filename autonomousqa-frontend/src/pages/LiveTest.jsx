@@ -84,6 +84,25 @@ export default function LiveTest() {
     const { connected, cancel } = useWebSocket(id, {
         onStarted: () => fetchData(),
         onCrawlComplete: () => fetchData(), // immediately show page count when crawl finishes
+        onPageDiscovered: (page) => {
+            setData((prev) => {
+                if (!prev) return prev;
+                const safeUrl = safePath(page.url);
+                if (prev.pagesDiscovered.some(p => p.url === safeUrl)) return prev;
+                return {
+                    ...prev,
+                    totalPages: prev.totalPages < prev.pagesDiscovered.length + 1 ? prev.pagesDiscovered.length + 1 : prev.totalPages,
+                    pagesDiscovered: [...prev.pagesDiscovered, {
+                        id: `live-${Date.now()}-${Math.random()}`,
+                        url: safeUrl,
+                        fullUrl: page.url,
+                        type: page.page_type || 'Unknown',
+                        status: 'queued',
+                        score: null,
+                    }]
+                };
+            });
+        },
         onPageComplete: () => fetchData(),
         onDefectFound: () => fetchData(),
         onComplete: () => fetchData(),
