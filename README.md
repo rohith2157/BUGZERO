@@ -182,6 +182,173 @@ AutonomousQA operates like a highly advanced human QA engineer. Here's how the c
 - **What it is:** A Breadth-First Search (BFS) spider that maps the application.
 - **How it works:** Starting from a seed URL, the crawler scans the DOM for valid `<a>` href links belonging to the same domain. It places these in a queue and visits them sequentially up to the configured `max_depth` and `max_pages`. This requires zero configuration from the user.
 
+#### 🧭 Crawl Strategy Comparison
+
+There are several approaches to crawl a website. Here's how they differ and why we chose BFS:
+
+```
+  EXAMPLE SITE MAP                          
+                                             
+            🏠 Homepage                      
+           /     |     \                     
+        📄About 📄Blog  📄Dash              
+                 |        |    \             
+              📄Post1  📄Settings 📄Analytics
+                          |                  
+                       📄Profile             
+```
+
+---
+
+**① BFS — Breadth-First Search  ✅ WHAT WE USE**
+
+```
+  Visit order:  Level by level (wide first, then deep)
+
+  Step 1 →  🏠 Homepage
+  Step 2 →  📄 About        (Level 1)
+  Step 3 →  📄 Blog         (Level 1)
+  Step 4 →  📄 Dashboard    (Level 1)
+  Step 5 →  📄 Post1        (Level 2)
+  Step 6 →  📄 Settings     (Level 2)
+  Step 7 →  📄 Analytics    (Level 2)
+  Step 8 →  📄 Profile      (Level 3)
+
+  ┌─────────────────────────────────────────────────┐
+  │  Uses: FIFO Queue (First In, First Out)         │
+  │                                                 │
+  │  Queue: [Homepage]                              │
+  │         → visit Homepage → enqueue children     │
+  │  Queue: [About, Blog, Dashboard]                │
+  │         → visit About → visit Blog → ...        │
+  │  Queue: [Post1, Settings, Analytics]             │
+  │         → visit all Level 2 ...                 │
+  │                                                 │
+  │  ✅ Finds important top-level pages FIRST       │
+  │  ✅ Natural depth control (shallow/standard)    │
+  │  ✅ Guaranteed shortest path to every page      │
+  │  ⚠️ Sequential — one page at a time            │
+  └─────────────────────────────────────────────────┘
+```
+
+---
+
+**② DFS — Depth-First Search**
+
+```
+  Visit order:  Dive deep into one branch, then backtrack
+
+  Step 1 →  🏠 Homepage
+  Step 2 →  📄 About        ← dead end, backtrack
+  Step 3 →  📄 Blog
+  Step 4 →  📄 Post1        ← dead end, backtrack
+  Step 5 →  📄 Dashboard
+  Step 6 →  📄 Settings
+  Step 7 →  📄 Profile      ← deep! finally backtrack
+  Step 8 →  📄 Analytics
+
+  ┌─────────────────────────────────────────────────┐
+  │  Uses: LIFO Stack (Last In, First Out)          │
+  │                                                 │
+  │  Stack: [Homepage]                              │
+  │         → visit Homepage → push children        │
+  │  Stack: [About, Blog, Dashboard]                │
+  │         → pop Dashboard → push its children     │
+  │  Stack: [About, Blog, Settings, Analytics]      │
+  │                                                 │
+  │  ✅ Low memory usage                            │
+  │  ✅ Good for finding deep-nested pages          │
+  │  ❌ Can get lost in deep rabbit holes           │
+  │  ❌ Misses breadth of site if max_pages hit     │
+  └─────────────────────────────────────────────────┘
+```
+
+---
+
+**③ Priority Queue — Best-First Search**
+
+```
+  Visit order:  Highest-priority (most "interesting") pages first
+
+  Step 1 →  🏠 Homepage        (score: 100)
+  Step 2 →  📄 Dashboard       (score: 90  — has forms!)
+  Step 3 →  📄 Settings        (score: 85  — user inputs)
+  Step 4 →  📄 Profile         (score: 80  — auth page)
+  Step 5 →  📄 Blog            (score: 40  — static content)
+  Step 6 →  📄 About           (score: 30  — low risk)
+  Step 7 →  📄 Post1           (score: 20)
+  Step 8 →  📄 Analytics       (score: 15)
+
+  ┌─────────────────────────────────────────────────┐
+  │  Uses: Priority Queue (highest score first)     │
+  │                                                 │
+  │  Each URL gets a score based on:                │
+  │  • Has forms/inputs        → +40 points        │
+  │  • Login/auth page         → +30 points        │
+  │  • Dynamic route (/dashboard) → +20 points     │
+  │  • Static content (/blog)  → +5 points         │
+  │                                                 │
+  │  ✅ Tests bug-prone pages first                 │
+  │  ✅ Best use of limited max_pages budget        │
+  │  ⚠️ Needs heuristic scoring logic              │
+  │  ⚠️ More complex implementation                │
+  └─────────────────────────────────────────────────┘
+```
+
+---
+
+**④ Concurrent BFS — Parallel Breadth-First**
+
+```
+  Visit order:  Same as BFS, but multiple pages at once
+
+  Step 1   →  🏠 Homepage
+  Step 2-4 →  📄 About + 📄 Blog + 📄 Dashboard   ← parallel!
+  Step 5-7 →  📄 Post1 + 📄 Settings + 📄 Analytics ← parallel!
+  Step 8   →  📄 Profile
+
+  ┌─────────────────────────────────────────────────┐
+  │  Uses: FIFO Queue + Semaphore (N workers)       │
+  │                                                 │
+  │  Worker 1: About ──→ Post1 ──→ Profile          │
+  │  Worker 2: Blog ───→ Settings                   │
+  │  Worker 3: Dashboard → Analytics                │
+  │                                                 │
+  │  ✅ 3-5x faster than sequential BFS             │
+  │  ✅ Same level-by-level coverage as BFS         │
+  │  ✅ Semaphore prevents server overload          │
+  │  ⚠️ Needs careful concurrency management       │
+  │  ⚠️ Higher memory (multiple browser pages)     │
+  └─────────────────────────────────────────────────┘
+```
+
+---
+
+#### 📊 Strategy Comparison Matrix
+
+```
+                    BFS ✅        DFS          PRIORITY      CONCURRENT
+                    (Current)                  QUEUE         BFS
+  ─────────────────────────────────────────────────────────────────────
+  Data Structure    FIFO Queue    LIFO Stack   Heap/PQ       Queue+Sema
+  Visit Order       Level-by-     Branch-by-   Score-based   Level-by-
+                    level         branch                     level
+  Speed             ██░░░░        ██░░░░       ██░░░░        █████░
+                    Moderate      Moderate     Moderate      Fast
+  Coverage          █████░        ███░░░       ████░░        █████░
+                    Excellent     Poor breadth Smart focus   Excellent
+  Memory            ███░░░        █░░░░░       ███░░░        ████░░
+                    Moderate      Very Low     Moderate      Higher
+  Complexity        █░░░░░        █░░░░░       ████░░        ███░░░
+                    Simple        Simple       Complex       Moderate
+  Depth Control     ✅ Natural    ❌ Hard       ⚠️ Manual     ✅ Natural
+  Best For          General       Deep-page    Limited       Large
+                    crawling      hunting      page budgets  site audits
+  ─────────────────────────────────────────────────────────────────────
+```
+
+> 🟢 **Current Implementation:** BugZero uses **BFS (Breadth-First Search)** with an `asyncio.Queue`. This ensures top-level pages (homepage, navigation links, dashboards) are tested first, matching our Shallow → Standard → Deep crawl depth model perfectly.
+
 ### 3. The DOM (Document Object Model) Analysis
 The DOM is the tree-like structure the browser builds from HTML. Our AI uses the DOM as its primary source of truth to detect defects:
 - **Accessibility:** Scans the DOM tree for `<img>` tags missing `alt` attributes, or `<input>` fields detached from `<label>` elements.
@@ -300,6 +467,18 @@ BUGZERO/
 │   ├── orchestrator.py            # Multi-agent pipeline coordinator
 │   ├── main.py                    # FastAPI entrypoint
 │   └── requirements.txt
+│
+├── documentation/                 # 📚 All project documentation
+│   ├── AUTONOMOUSQA_DOCUMENTATION.docx      # Full product documentation
+│   ├── AUTONOMOUSQA_DOCUMENTATION.md.resolved
+│   ├── AutonomousQA_Full_Roadmap.docx       # Complete feature roadmap
+│   ├── AutonomousQA_Roadmap.docx            # Roadmap overview
+│   ├── AutonomousQA_Premium_Roadmap.md      # Premium tier roadmap
+│   ├── AutonomousQA_Modularity.md           # Modularity architecture doc
+│   ├── BROWSERS_AND_CRAWL_DEPTHS.md         # Browser & crawl depth guide
+│   ├── SYSTEM_WORKFLOW.md                   # System workflow deep-dive
+│   ├── convert_md2docx.py                   # MD → DOCX converter script
+│   └── extract_docx.py                      # DOCX text extractor script
 │
 ├── docker-compose.yml             # PostgreSQL + Redis + Neo4j
 ├── package.json                   # Root workspace scripts
