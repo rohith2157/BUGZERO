@@ -93,7 +93,12 @@ graph TD;
 | **API Gateway** | Express.js, Prisma ORM, Socket.io, JWT | REST API, authentication, WebSocket relay |
 | **AI Core** | Python FastAPI, Playwright, axe-core | Autonomous crawling, testing, and defect detection |
 | **PostgreSQL** | v16 | Persistent storage (users, tests, defects) |
-| **Redis** | v7 | Caching, se## ⚙️ System Workflow
+| **Redis** | v7 | Caching, session management, job queues |
+| **Neo4j** | v5 | Graph-based page relationship mapping |
+
+---
+
+## ⚙️ System Workflow
 
 Here's exactly what happens under the hood when you click **"Launch Test"**.
 
@@ -182,9 +187,6 @@ flowchart LR
     Report --> Grade["Score + Grade (A+ to F)"]
     Grade --> FinDB[("Save report to Postgres")]
     FinDB --> WS3{{"WS: report:complete & test:finished"}}
-```--> EndSession[Final Aggregate JSON]
-    EndSession --> FinDB[(Save scores to Postgres)]
-    FinDB --> PushWS3{{WS: test:finished}}
 ```
 
 ---
@@ -481,10 +483,19 @@ BUGZERO/
 │   └── .env.example
 │
 ├── ai-core/                       # Python FastAPI AI Engine
-│   ├── agents/                    # Crawler, Tester, Classifier agents
-│   ├── tools/                     # Playwright & axe-core wrappers
-│   ├── models/                    # Pydantic request/response schemas
-│   ├── orchestrator.py            # Multi-agent pipeline coordinator
+│   ├── agents/
+│   │   ├── crawler.py             # BFS crawler agent
+│   │   ├── tester.py              # Page testing agent
+│   │   ├── scheduler.py           # Stage 3: PageRank + Greedy sort
+│   │   ├── vision_agent.py        # Stage 4: Gemini Vision AI (optional)
+│   │   └── report_agent.py        # Stage 6: Site report generator
+│   ├── tools/
+│   │   ├── playwright_tool.py     # Browser automation + screenshots
+│   │   └── axe_tool.py            # Stage 5: axe-core WCAG 2.1 scanner
+│   ├── models/
+│   │   └── schemas.py             # Pydantic models (PageResult, SiteReport)
+│   ├── orchestrator.py            # Multi-stage pipeline coordinator
+│   ├── config.py                  # Settings (Gemini API key, etc.)
 │   ├── main.py                    # FastAPI entrypoint
 │   └── requirements.txt
 │
