@@ -459,3 +459,66 @@ class PlaywrightTool:
         }""")
         return classification
 
+    # ── Stage 5: axe-core accessibility scanning ──────────────────────────────
+
+    def _run_axe_sync(self, url: str) -> list[dict]:
+        """Run axe-core accessibility scan on a page."""
+        from tools.axe_tool import run_axe_sync as _axe_scan
+
+        browser = self._ensure_browser()
+        context = browser.new_context(
+            viewport={"width": 1280, "height": 720},
+            user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+        )
+        context.set_default_timeout(15000)
+        page = context.new_page()
+
+        try:
+            page.goto(url, wait_until="domcontentloaded", timeout=12000)
+            violations = _axe_scan(page)
+            return violations
+        except Exception as e:
+            print(f"axe-core error on {url}: {e}")
+            return []
+        finally:
+            try:
+                context.close()
+            except Exception:
+                pass
+
+    async def run_axe(self, url: str) -> list[dict]:
+        """Run axe-core accessibility scan (async wrapper)."""
+        return await _run_sync(self._run_axe_sync, url)
+
+    # ── Stage 4: Screenshot capture for Gemini Vision ─────────────────────────
+
+    def _take_screenshot_sync(self, url: str) -> bytes:
+        """Take a full-page screenshot and return PNG bytes."""
+        browser = self._ensure_browser()
+        context = browser.new_context(
+            viewport={"width": 1280, "height": 720},
+            user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+        )
+        context.set_default_timeout(12000)
+        page = context.new_page()
+
+        try:
+            page.goto(url, wait_until="domcontentloaded", timeout=12000)
+            # Wait a moment for dynamic content to render
+            page.wait_for_timeout(1000)
+            screenshot = page.screenshot(full_page=False, type="png")
+            return screenshot
+        except Exception as e:
+            print(f"Screenshot error on {url}: {e}")
+            return b""
+        finally:
+            try:
+                context.close()
+            except Exception:
+                pass
+
+    async def take_screenshot(self, url: str) -> bytes:
+        """Take a screenshot (async wrapper)."""
+        return await _run_sync(self._take_screenshot_sync, url)
+
+

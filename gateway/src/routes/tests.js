@@ -41,6 +41,8 @@ router.post('/progress', async (req, res) => {
                     url: page.url,
                     pageType: page.page_type,
                     hygieneScore: Math.min(100, Math.max(0, page.hygiene_score || 0)),
+                    pagerankScore: page.pagerank_score || null,
+                    visionQualityScore: page.vision_quality_score || null,
                     status: 'tested',
                     runId: run_id,
                 },
@@ -57,6 +59,8 @@ router.post('/progress', async (req, res) => {
                         pageId: dbPage.id,
                         runId: run_id,
                         confidence: defect.confidence || null,
+                        source: defect.source || null,
+                        location: defect.location || null,
                     },
                 });
             }
@@ -111,6 +115,24 @@ router.post('/progress', async (req, res) => {
                     severity: defect.severity,
                     message: defect.message,
                 });
+            }
+        } else if (event === 'pagerank_complete') {
+            // Stage 3: PageRank scores calculated
+            emitTestEvent(io, run_id, 'pagerank:complete', { scores: data.scores });
+
+        } else if (event === 'report_complete') {
+            // Stage 6: Full site report generated
+            const report = data.report;
+            if (report) {
+                await prisma.testRun.updateMany({
+                    where: { id: run_id, status: { in: ['running', 'queued'] } },
+                    data: {
+                        grade: report.grade || null,
+                        wcagCompliancePct: report.wcag_compliance_pct || null,
+                        reportJson: report,
+                    },
+                });
+                emitTestEvent(io, run_id, 'report:complete', { report });
             }
         }
 

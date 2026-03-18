@@ -94,6 +94,8 @@ export async function triggerAITest(testRun, io) {
                             url: page.url,
                             pageType: page.page_type,
                             hygieneScore: Math.min(100, Math.max(0, page.hygiene_score || 0)),
+                            pagerankScore: page.pagerank_score || null,
+                            visionQualityScore: page.vision_quality_score || null,
                             status: 'tested',
                             runId: testRun.id,
                         },
@@ -117,6 +119,8 @@ export async function triggerAITest(testRun, io) {
                                     pageId: dbPage.id,
                                     runId: testRun.id,
                                     confidence: defect.confidence || null,
+                                    source: defect.source || null,
+                                    location: defect.location || null,
                                 },
                             });
 
@@ -175,6 +179,9 @@ export async function triggerAITest(testRun, io) {
         const duration = Math.round((completedAt - startedAt) / 1000);
         const durationStr = `${Math.floor(duration / 60)}m ${duration % 60}s`;
 
+        // Store site report if available
+        const report = result.report || null;
+
         await prisma.testRun.update({
             where: { id: testRun.id },
             data: {
@@ -185,6 +192,9 @@ export async function triggerAITest(testRun, io) {
                 testedPages: pages.length,
                 defectCount,
                 overallScore: Math.round(avgScore * 10) / 10,
+                grade: report?.grade || null,
+                wcagCompliancePct: report?.wcag_compliance_pct || null,
+                reportJson: report || null,
             },
         });
 

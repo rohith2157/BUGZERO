@@ -93,14 +93,9 @@ graph TD;
 | **API Gateway** | Express.js, Prisma ORM, Socket.io, JWT | REST API, authentication, WebSocket relay |
 | **AI Core** | Python FastAPI, Playwright, axe-core | Autonomous crawling, testing, and defect detection |
 | **PostgreSQL** | v16 | Persistent storage (users, tests, defects) |
-| **Redis** | v7 | Caching, session management, job queues |
-| **Neo4j** | v5 | Graph-based page relationship mapping |
+| **Redis** | v7 | Caching, se## ⚙️ System Workflow
 
----
-
-## ⚙️ System Workflow
-
-Here’s exactly what happens under the hood when you click **"Launch Test"**.
+Here's exactly what happens under the hood when you click **"Launch Test"**.
 
 ```mermaid
 sequenceDiagram
@@ -110,6 +105,7 @@ sequenceDiagram
     participant DB as 🐘 Database (Postgres)
     participant W as ⚡ WebSocket Server
     participant A as 🤖 AI Core (Python)
+    participant Gem as 🔮 Gemini Vision (optional)
 
     U->>F: Clicks "Launch Test" (URL, Config)
     F->>G: POST /api/tests { url, config }
@@ -118,23 +114,36 @@ sequenceDiagram
     F->>W: Join room {testRun.id} (Live UI)
     G->>A: Trigger pipeline (POST /api/test/run) via proxy
     
-    note over A: STAGE 1: CRAWL 🕷️
-    A->>A: Playwright runs BFS Crawl
+    note over A: STAGE 1: BFS CRAWL 🕷️
+    A->>A: Playwright BFS — discover all pages + links
     A->>G: POST /api/tests/progress (crawl_complete)
     G->>W: emit 'crawl:complete' (Updates UI Pages Total)
     
-    note over A: STAGE 2: TEST LOOP 🔬
-    loop For each discovered page
-        A->>A: Run A11y, SEO, Security checks
+    note over A: STAGE 2: PAGERANK + GREEDY SORT 📊
+    A->>A: Build link graph → networkx PageRank
+    A->>A: Greedy sort — most critical pages first
+    A->>G: POST /api/tests/progress (pagerank_complete)
+    G->>W: emit 'pagerank:complete' (Shows priority order)
+    
+    note over A: STAGE 3: TEST LOOP 🔬
+    loop For each page (priority order)
+        A->>A: Run basic tests (SEO, forms, perf, links)
+        A->>A: Inject axe-core → full WCAG 2.1 audit
+        opt Gemini API key configured
+            A->>Gem: Send screenshot for visual analysis
+            Gem-->>A: Return visual bugs + UX issues
+        end
         A->>G: POST /api/tests/progress (page_complete)
-        G->>DB: Save metrics & defects
+        G->>DB: Save metrics, defects, compliance, PageRank
         G->>W: emit 'page:complete' & 'defect:found'
     end
     
-    note over A: STAGE 3: RESULT REPORT 📊
-    A-->>G: Return Final TestReport Details JSON
-    G->>DB: Mark status="completed", Save Score
-    G->>W: emit 'test:finished'
+    note over A: STAGE 4: REPORT GENERATION 📋
+    A->>A: Aggregate scores → calculate grade (A+ to F)
+    A->>A: WCAG compliance % + top issues
+    A-->>G: Return Final TestResult + SiteReport
+    G->>DB: Save report, grade, WCAG compliance %
+    G->>W: emit 'report:complete' & 'test:finished'
     W-->>F: Display "Test Completed" & enable reports
 ```
 
@@ -142,27 +151,38 @@ sequenceDiagram
 
 ```mermaid
 flowchart LR
-    Start([User Request]) --> Gateway[API Gateway]
-    Gateway --> Auth{JWT Valid?}
-    Auth -- No --> Deny([401 Unauthorized])
-    Auth -- Yes --> Route[tests route]
+    Start(["User Request"]) --> Gateway["API Gateway"]
+    Gateway --> Auth{"JWT Valid?"}
+    Auth -- No --> Deny(["401 Unauthorized"])
+    Auth -- Yes --> Route["tests route"]
     
-    Route --> InitDB[(SQLite test run created)]
-    Route --> EventQueue((Trigger Pipeline))
+    Route --> InitDB[("DB: test run created")]
+    Route --> EventQueue(("Trigger Pipeline"))
     
-    EventQueue --> AICore[AI Core Orchestrator]
-    AICore --> Spawn1[Playwright Tool]
-    Spawn1 --> Spawn2[Crawler Agent]
-    Spawn1 --> Spawn3[Tester Agent]
+    EventQueue --> AICore["AI Core Orchestrator"]
+    AICore --> PW["Playwright Tool"]
     
-    Spawn2 --> CrawledPages{Discover Links}
-    CrawledPages --> ReportCrawl--> PushWS1{{WS: crawl:complete}}
+    PW --> Crawler["Crawler Agent (BFS)"]
+    Crawler --> Pages{"Discovered Pages + Links"}
+    Pages --> PR["Scheduler (PageRank)"]
+    PR --> Sort["Greedy Sort (Priority)"]
+    Sort --> WS1{{"WS: crawl:complete + pagerank:complete"}}
     
-    CrawledPages --> Loop1[Test each Page]
-    Loop1 --> Metric[SEO / A11y / Security metrics]
-    Metric --> PushWS2{{WS: page:complete & defect:found}}
+    Sort --> Loop["Test Loop (each page)"]
+    Loop --> Basic["Tester Agent (SEO/Perf/Forms)"]
+    Loop --> Axe["axe-core Tool (WCAG 2.1)"]
+    Loop --> Vision["Vision Agent (Gemini — optional)"]
     
-    PushWS2 --> EndSession[Final Aggregate JSON]
+    Basic --> Results["Page Results"]
+    Axe --> Results
+    Vision --> Results
+    Results --> WS2{{"WS: page:complete & defect:found"}}
+    
+    WS2 --> Report["Report Agent"]
+    Report --> Grade["Score + Grade (A+ to F)"]
+    Grade --> FinDB[("Save report to Postgres")]
+    FinDB --> WS3{{"WS: report:complete & test:finished"}}
+```--> EndSession[Final Aggregate JSON]
     EndSession --> FinDB[(Save scores to Postgres)]
     FinDB --> PushWS3{{WS: test:finished}}
 ```
