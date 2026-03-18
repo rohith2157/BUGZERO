@@ -68,6 +68,9 @@ export default function Report() {
                 runId: testRun.id,
                 url: testRun.url,
                 overallScore: Math.min(100, Math.round(testRun.overallScore || 0)),
+                grade: testRun.grade || 'N/A',
+                wcagCompliancePct: testRun.wcagCompliancePct ?? null,
+                siteReport: testRun.reportJson || null,
                 totalDefects,
                 totalPages: testRun.totalPages || testRun.pages?.length || 0,
                 duration: testRun.duration || '—',
@@ -80,6 +83,9 @@ export default function Report() {
                     severity: d.severity,
                     message: d.message,
                     fix: d.fix || 'Review and fix the identified issue',
+                    source: d.source || 'scanner',
+                    location: d.location || 'N/A',
+                    confidence: d.confidence || 1.0,
                 })),
                 heatmapData,
             });
@@ -132,23 +138,43 @@ export default function Report() {
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
                             onClick={() => {
-                                if (label === 'JSON') {
-                                    const blob = new Blob([JSON.stringify(reportData, null, 2)], { type: 'application/json' });
-                                    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `report-${id}.json`; a.click();
+                                if (label === 'PDF') {
+                                    // Trigger browser print to save as beautiful PDF
+                                    window.print();
+                                } else if (label === 'JSON') {
+                                    const exportPayload = {
+                                        metadata: {
+                                            runId: reportData.runId,
+                                            url: reportData.url,
+                                            date: reportData.date,
+                                            duration: reportData.duration,
+                                        },
+                                        scores: {
+                                            overallScore: reportData.overallScore,
+                                            grade: reportData.grade,
+                                            wcagCompliancePct: reportData.wcagCompliancePct,
+                                            breakdown: reportData.scoreBreakdown,
+                                        },
+                                        aiSiteReport: reportData.siteReport, // Full PageRank/axe-core/Gemini data!
+                                        heatmap: reportData.heatmapData,
+                                        allDefects: reportData.defects,
+                                    };
+                                    const blob = new Blob([JSON.stringify(exportPayload, null, 2)], { type: 'application/json' });
+                                    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `autonomousqa-report-${id}.json`; a.click();
                                 } else if (label === 'CSV') {
-                                    const rows = [['Type', 'Severity', 'Page', 'Message', 'Fix']];
+                                    const rows = [['Type', 'Severity', 'Page', 'Message', 'Fix', 'Source', 'Location', 'Confidence']];
                                     
                                     // Prevent CSV Formula Injection
                                     const sanitizeCsv = (val) => {
-                                        let str = String(val).replace(/"/g, '""');
+                                        let str = String(val || 'N/A').replace(/"/g, '""');
                                         if (/^[=+\-@\t\r]/.test(str)) str = "'" + str;
                                         return `"${str}"`;
                                     };
 
-                                    reportData.defects.forEach(d => rows.push([d.type, d.severity, d.page, d.message, d.fix]));
+                                    reportData.defects.forEach(d => rows.push([d.type, d.severity, d.page, d.message, d.fix, d.source, d.location, d.confidence]));
                                     const csv = rows.map(r => r.map(sanitizeCsv).join(',')).join('\n');
                                     const blob = new Blob([csv], { type: 'text/csv' });
-                                    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `report-${id}.csv`; a.click();
+                                    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `autonomousqa-defects-${id}.csv`; a.click();
                                 }
                             }}
                             style={{

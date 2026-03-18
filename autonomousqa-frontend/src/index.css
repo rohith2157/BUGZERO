@@ -812,3 +812,57 @@ a:hover {
     opacity: 0.25;
   }
 }
+
+/* === PRINT STYLES FOR PDF EXPORT === */
+@media print {
+  /* Hide navigation and UI controls */
+  aside, nav, header, button.lucide, .btn-primary, [role="navigation"] {
+    display: none !important;
+  }
+
+  /* Reset main layout to take full width */
+  main, #root, body {
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #fff !important;
+    color: #000 !important;
+  }
+
+  /* Clean up glass cards */
+  .glass-card {
+    border: 1px solid #ccc !important;
+    background: #fff !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    page-break-inside: avoid;
+    margin-bottom: 24px !important;
+    color: #000 !important;
+  }
+
+  /* Force important charts/graphics to avoid page breaks */
+  canvas, svg, img {
+    page-break-inside: avoid;
+  }
+
+  /* Ensure text is readable */
+  h1, h2, h3, h4, h5, h6 {
+    color: #000 !important;
+    page-break-after: avoid;
+  }
+  
+  p, span, div {
+    color: #333 !important;
+  }
+
+  /* Override dark mode text */
+  .text-primary, .text-secondary, .text-tertiary {
+    color: #222 !important;
+  }
+
+  /* Print specific margins */
+  @page {
+    margin: 1.5cm;
+    size: A4;
+  }
+}
