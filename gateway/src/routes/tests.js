@@ -289,14 +289,22 @@ router.get('/:id/compliance', authenticate, uuidParam, validate, async (req, res
             orderBy: { severity: 'asc' },
         });
 
-        // Compute scores
+        // Compute mathematical gauge scores using a damped curve
+        // Linear subtraction clamps to 0 too quickly for big sites.
+        const calculateScore = (count, penaltyMultiplier) => {
+            if (count === 0) return 100;
+            const penalty = Math.sqrt(count) * penaltyMultiplier;
+            return Math.max(0, Math.round(100 - penalty));
+        };
+
         const totalViolations = results.length;
         const wcagViolations = results.filter(r => r.standard === 'WCAG').length;
         const gdprViolations = results.filter(r => r.standard === 'GDPR').length;
 
-        const overallScore = Math.max(0, Math.min(100, 100 - totalViolations * 3));
-        const wcagScore = Math.max(0, Math.min(100, 100 - wcagViolations * 4));
-        const gdprScore = Math.max(0, Math.min(100, 100 - gdprViolations * 5));
+        // E.g. 100 violations -> sqrt(100) = 10 * 6.5 = 65 penalty -> 35/100 score.
+        const overallScore = calculateScore(totalViolations, 6.5);
+        const wcagScore = calculateScore(wcagViolations, 7);
+        const gdprScore = calculateScore(gdprViolations, 15);
 
         res.json({
             scores: { overall: overallScore, wcag: wcagScore, gdpr: gdprScore },
