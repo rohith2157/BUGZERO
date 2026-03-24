@@ -53,7 +53,7 @@ class AuthAgent:
             return None
         
         try:
-            screenshot_bytes = await self.tool._pw_get_screenshot(url)
+            screenshot_bytes = await self.tool.take_screenshot(url)
             if not screenshot_bytes:
                 return None
             

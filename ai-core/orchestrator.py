@@ -19,6 +19,8 @@ from agents.tester import TesterAgent
 from agents.scheduler import calculate_pagerank, greedy_sort
 from agents.vision_agent import VisionAgent
 from agents.report_agent import ReportAgent
+from agents.auth_agent import AuthAgent
+from agents.chaos_agent import ChaosAgent
 from tools.playwright_tool import PlaywrightTool
 from tools.axe_tool import run_axe_sync
 from config import settings
@@ -65,11 +67,28 @@ class Orchestrator:
         tester = TesterAgent(playwright)
         vision = VisionAgent(api_key=settings.gemini_api_key)
         report_agent = ReportAgent()
+        auth_agent = AuthAgent(playwright, api_key=settings.gemini_api_key)
+        chaos_agent = ChaosAgent(playwright)
 
         try:
             await playwright.start()
 
+            
             # ────────────────────────────────────────────────
+            #  PRE-STAGE: CHAOS & AUTH
+            # ────────────────────────────────────────────────
+            if getattr(config, "chaos_mode", False):
+                logger.info(f"[{run_id}] Stage 0: Injecting Chaos (Slow 3G, 4x CPU Throttling)")
+                await chaos_agent.inject_network_chaos('Slow 3G')
+                await chaos_agent.inject_cpu_throttling(4)
+
+            if getattr(config, "auth_enabled", False) and getattr(config, "auth_username", None) and getattr(config, "auth_password", None):
+                logger.info(f"[{run_id}] Stage 0: Autonomous Authentication on {request.url}")
+                success = await auth_agent.authenticate(request.url, config.auth_username, config.auth_password)
+                if not success:
+                    logger.warning(f"[{run_id}] Auth failed, but continuing crawl.")
+
+# ────────────────────────────────────────────────
             #  STAGE 1: CRAWL — Discover all pages via BFS
             # ────────────────────────────────────────────────
             logger.info(f"[{run_id}] Stage 1: BFS Crawl starting on {request.url}")
