@@ -16,6 +16,10 @@ class TestConfig(BaseModel):
     ]
     playbook_id: Optional[str] = None
     max_pages: Optional[int] = None
+    auth_enabled: bool = False
+    auth_username: Optional[str] = None
+    auth_password: Optional[str] = None
+    chaos_mode: bool = False
 
 
 class TestRequest(BaseModel):
