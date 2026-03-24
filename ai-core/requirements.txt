@@ -14,3 +14,6 @@ networkx>=3.2
 # Stage 4: Gemini Vision (optional — only needed if using GEMINI_API_KEY)
 google-generativeai>=0.8.0
 Pillow>=10.0
+
+pyotp==2.9.0
+neo4j==5.18.0
