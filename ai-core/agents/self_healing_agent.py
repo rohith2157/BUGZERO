@@ -8,7 +8,7 @@ import os
 import json
 import logging
 import asyncio
-from typing import Dict, Optional
+from typing import Optional
 import google.generativeai as genai
 
 logger = logging.getLogger(__name__)
@@ -67,7 +67,7 @@ class SelfHealingAgent:
             with open(path, 'w', encoding='utf-8') as f:
                 json.dump(fingerprint, f, indent=2)
             
-            logger.info(f"SelfHealingAgent: Fingerprint created for {element_id} at {locator}")
+            logger.info(f"SelfHealingAgent: Fingerprint created for {element_id} at {selector}")
             return True
 
         except Exception as e:

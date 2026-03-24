@@ -7,7 +7,6 @@ Supports 4 main injection strategies:
 - Raw JWT / Bearer Token headers (token)
 """
 
-import os
 import json
 import logging
 import asyncio
@@ -17,17 +16,20 @@ logger = logging.getLogger(__name__)
 
 # Fallback PyOTP for TOTP strategy
 try:
-    import pyotp
+    import pyotp  # type: ignore
 except ImportError:
     pyotp = None
 
 # Fallback Gemini setup
 try:
-    import google.generativeai as genai
-    from PIL import Image
-    import io
+    import google.generativeai as genai  # type: ignore
+    from PIL import Image  # type: ignore
+    import io  # type: ignore
     HAS_GEMINI = True
 except ImportError:
+    genai = None
+    Image = None
+    io = None
     HAS_GEMINI = False
     logger.info("google-generativeai or Pillow not installed. Gemini auth detection disabled.")
 
@@ -77,8 +79,8 @@ class AuthAgent:
 
         if api_key and HAS_GEMINI:
             try:
-                genai.configure(api_key=api_key)
-                self._model = genai.GenerativeModel("gemini-2.0-flash")
+                getattr(genai, "configure")(api_key=api_key)
+                self._model = getattr(genai, "GenerativeModel")("gemini-2.0-flash")
                 self._available = True
                 logger.info("AuthAgent (Visual mode): Gemini Vision 2.0 initialized.")
             except Exception as e:
@@ -94,9 +96,11 @@ class AuthAgent:
             if not screenshot_bytes:
                 return None
 
-            image = Image.open(io.BytesIO(screenshot_bytes))
+            image_open = getattr(Image, "open")
+            bytes_io = getattr(io, "BytesIO")
+            image = image_open(bytes_io(screenshot_bytes))
             prompt = f"URL being tested: {url}\n\n{AUTH_PROMPT}"
-            response = self._model.generate_content([prompt, image])
+            response = getattr(self._model, 'generate_content')([prompt, image])
 
             text = response.text.strip()
             if text.startswith("```"):

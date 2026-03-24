@@ -11,7 +11,7 @@ from datetime import datetime
 logger = logging.getLogger(__name__)
 
 try:
-    from neo4j import AsyncGraphDatabase
+    from neo4j import AsyncGraphDatabase  # type: ignore
     HAS_NEO4J = True
 except ImportError:
     HAS_NEO4J = False
@@ -28,7 +28,8 @@ class KnowledgeGraph:
         
         if HAS_NEO4J:
             try:
-                self.driver = AsyncGraphDatabase.driver(self.uri, auth=(self.user, self.password))
+                self.driver = AsyncGraphDatabase.driver(  # type: ignore
+                    self.uri, auth=(self.user, self.password))
                 logger.info(f"KnowledgeGraph: Initialized connection to {self.uri}")
             except Exception as e:
                 logger.error(f"KnowledgeGraph: Connection failed - {e}")
@@ -40,7 +41,8 @@ class KnowledgeGraph:
 
     async def save_test_run(self, run_data: Dict):
         """Create a TestRun node."""
-        if not self.driver: return
+        if not self.driver:
+            return
 
         query = """
         MERGE (r:TestRun {run_id: $run_id})
@@ -53,7 +55,8 @@ class KnowledgeGraph:
 
     async def save_page_node(self, page_data: Dict):
         """Create or update a Page node."""
-        if not self.driver: return
+        if not self.driver:
+            return
 
         query = """
         MERGE (p:Page {url: $url})
@@ -77,7 +80,8 @@ class KnowledgeGraph:
 
     async def save_element_node(self, element_data: Dict, page_url: str):
         """Create an Element node and link it to its Page."""
-        if not self.driver: return
+        if not self.driver:
+            return
 
         query = """
         MATCH (p:Page {url: $page_url})
@@ -101,7 +105,8 @@ class KnowledgeGraph:
 
     async def save_bug_node(self, bug_data: Dict, page_url: str, element_selector: Optional[str] = None):
         """Create a Bug node, link it to the page, and optionally link to an Element."""
-        if not self.driver: return
+        if not self.driver:
+            return
 
         # Match Page, merge Bug, link Page -> Bug
         query_page = """
@@ -140,7 +145,8 @@ class KnowledgeGraph:
 
     async def link_pages(self, source_url: str, target_url: str):
         """Create a LINKS_TO relationship between pages."""
-        if not self.driver: return
+        if not self.driver:
+            return
 
         query = """
         MATCH (s:Page {url: $source_url})
@@ -152,7 +158,8 @@ class KnowledgeGraph:
 
     async def mark_critical_path(self):
         """Marks the highest PageRank path through graph. (Placeholder for algorithm)"""
-        if not self.driver: return
+        if not self.driver:
+            return
         # A more sophisticated Cypher algorithm is required to truly find critical paths; 
         # Here we demonstrate setting marking nodes based on pagerank dynamically.
         query = """
@@ -169,7 +176,8 @@ class KnowledgeGraph:
 
     async def get_site_health_map(self) -> List[Dict]:
         """Full site topology with health scores."""
-        if not self.driver: return []
+        if not self.driver:
+            return []
         
         query = """
         MATCH (p:Page)

@@ -21,7 +21,7 @@ class ChaosAgent:
         if not page:
             raise ValueError("ChaosAgent requires a Playwright Page instance to initialize CDP.")
         self.page = page
-        self.cdp = await self.page.context.new_cdp_session(page)
+        self.cdp: Any = await self.page.context.new_cdp_session(page)
         logger.info(f"ChaosAgent attached CDP session to page: {page.url}")
 
     async def cpu_throttle(self, rate=4):
