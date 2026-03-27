@@ -407,10 +407,12 @@ export default function Landing() {
                         <p style={{ fontSize: 14, color: 'var(--text-secondary)', marginBottom: 28, maxWidth: 400, margin: '0 auto 28px' }}>
                             Join teams using AI-powered QA to find bugs before users do.
                         </p>
-                        <MotionButton
-                            label="Get Started Free"
-                            onClick={() => navigate('/login')}
-                        />
+                        <div style={{ display: 'flex', justifyContent: 'center' }}>
+                            <MotionButton
+                                label="Get Started Free"
+                                onClick={() => navigate('/login')}
+                            />
+                        </div>
                     </motion.div>
                 </WarpBackground>
             </section>

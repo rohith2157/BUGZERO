@@ -575,47 +575,46 @@ class PlaywrightTool:
 
     async def disable_chaos_conditions(self):
         return await _run_sync(self._disable_chaos_conditions_sync)
-        d e f   _ e x e c u t e _ l o g i n _ s y n c ( s e l f ,   u r l :   s t r ,   u s e r n a m e _ s e l e c t o r :   s t r ,   p a s s w o r d _ s e l e c t o r :   s t r ,   s u b m i t _ s e l e c t o r :   s t r ,   u s e r n a m e :   s t r ,   p a s s w o r d :   s t r )   - >   b o o l :  
-                 b r o w s e r   =   s e l f . _ e n s u r e _ b r o w s e r ( )  
-                 i f   n o t   h a s a t t r ( s e l f ,   ' _ s h a r e d _ c o n t e x t ' )   o r   s e l f . _ s h a r e d _ c o n t e x t   i s   N o n e :  
-                         s e l f . _ s h a r e d _ c o n t e x t   =   b r o w s e r . n e w _ c o n t e x t (  
-                                 v i e w p o r t = { " w i d t h " :   1 2 8 0 ,   " h e i g h t " :   7 2 0 } ,  
-                                 u s e r _ a g e n t = " M o z i l l a / 5 . 0   ( W i n d o w s   N T   1 0 . 0 ;   W i n 6 4 ;   x 6 4 )   A p p l e W e b K i t / 5 3 7 . 3 6 " ,  
-                         )  
-                 p a g e   =   s e l f . _ s h a r e d _ c o n t e x t . n e w _ p a g e ( )  
-                 t r y :  
-                         p a g e . g o t o ( u r l ,   w a i t _ u n t i l = " d o m c o n t e n t l o a d e d " ,   t i m e o u t = 1 5 0 0 0 )  
-                         p a g e . w a i t _ f o r _ s e l e c t o r ( u s e r n a m e _ s e l e c t o r ,   t i m e o u t = 1 0 0 0 0 )  
-                         p a g e . f i l l ( u s e r n a m e _ s e l e c t o r ,   u s e r n a m e )  
-                         p a g e . f i l l ( p a s s w o r d _ s e l e c t o r ,   p a s s w o r d )  
-                         p a g e . c l i c k ( s u b m i t _ s e l e c t o r )  
-                         p a g e . w a i t _ f o r _ l o a d _ s t a t e ( " n e t w o r k i d l e " ,   t i m e o u t = 1 5 0 0 0 )  
-                         r e t u r n   T r u e  
-                 e x c e p t   E x c e p t i o n   a s   e :  
-                         p r i n t ( f " L o g i n   e r r o r   o n   { u r l } :   { e } " )  
-                         r e t u r n   F a l s e  
-                 f i n a l l y :  
-                         p a g e . c l o s e ( )  
-  
-         a s y n c   d e f   e x e c u t e _ l o g i n ( s e l f ,   u r l :   s t r ,   u s e r n a m e _ s e l e c t o r :   s t r ,   p a s s w o r d _ s e l e c t o r :   s t r ,   s u b m i t _ s e l e c t o r :   s t r ,   u s e r n a m e :   s t r ,   p a s s w o r d :   s t r )   - >   b o o l :  
-                 r e t u r n   a w a i t   _ r u n _ s y n c ( s e l f . _ e x e c u t e _ l o g i n _ s y n c ,   u r l ,   u s e r n a m e _ s e l e c t o r ,   p a s s w o r d _ s e l e c t o r ,   s u b m i t _ s e l e c t o r ,   u s e r n a m e ,   p a s s w o r d )  
-  
-         d e f   _ s e t _ n e t w o r k _ c o n d i t i o n s _ s y n c ( s e l f ,   p r o f i l e :   s t r ) :  
-                 s e l f . _ n e t w o r k _ p r o f i l e   =   p r o f i l e  
-  
-         a s y n c   d e f   s e t _ n e t w o r k _ c o n d i t i o n s ( s e l f ,   p r o f i l e :   s t r ) :  
-                 r e t u r n   a w a i t   _ r u n _ s y n c ( s e l f . _ s e t _ n e t w o r k _ c o n d i t i o n s _ s y n c ,   p r o f i l e )  
-  
-         d e f   _ s e t _ c p u _ t h r o t t l i n g _ s y n c ( s e l f ,   r a t e :   i n t ) :  
-                 s e l f . _ c p u _ t h r o t t l i n g   =   r a t e  
-  
-         a s y n c   d e f   s e t _ c p u _ t h r o t t l i n g ( s e l f ,   r a t e :   i n t ) :  
-                 r e t u r n   a w a i t   _ r u n _ s y n c ( s e l f . _ s e t _ c p u _ t h r o t t l i n g _ s y n c ,   r a t e )  
-  
-         d e f   _ d i s a b l e _ c h a o s _ c o n d i t i o n s _ s y n c ( s e l f ) :  
-                 s e l f . _ n e t w o r k _ p r o f i l e   =   N o n e  
-                 s e l f . _ c p u _ t h r o t t l i n g   =   N o n e  
-  
-         a s y n c   d e f   d i s a b l e _ c h a o s _ c o n d i t i o n s ( s e l f ) :  
-                 r e t u r n   a w a i t   _ r u n _ s y n c ( s e l f . _ d i s a b l e _ c h a o s _ c o n d i t i o n s _ s y n c )  
- 
+    def _execute_login_sync(self, url: str, username_selector: str, password_selector: str, submit_selector: str, username: str, password: str) -> bool:
+        browser = self._ensure_browser()
+        if not hasattr(self, '_shared_context') or self._shared_context is None:
+            self._shared_context = browser.new_context(
+                viewport={"width": 1280, "height": 720},
+                user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+            )
+        page = self._shared_context.new_page()
+        try:
+            page.goto(url, wait_until="domcontentloaded", timeout=15000)
+            page.wait_for_selector(username_selector, timeout=10000)
+            page.fill(username_selector, username)
+            page.fill(password_selector, password)
+            page.click(submit_selector)
+            page.wait_for_load_state("networkidle", timeout=15000)
+            return True
+        except Exception as e:
+            print(f"Login error on {url}: {e}")
+            return False
+        finally:
+            page.close()
+
+    async def execute_login(self, url: str, username_selector: str, password_selector: str, submit_selector: str, username: str, password: str) -> bool:
+        return await _run_sync(self._execute_login_sync, url, username_selector, password_selector, submit_selector, username, password)
+
+    def _set_network_conditions_sync(self, profile: str):
+        self._network_profile = profile
+
+    async def set_network_conditions(self, profile: str):
+        return await _run_sync(self._set_network_conditions_sync, profile)
+
+    def _set_cpu_throttling_sync(self, rate: int):
+        self._cpu_throttling = rate
+
+    async def set_cpu_throttling(self, rate: int):
+        return await _run_sync(self._set_cpu_throttling_sync, rate)
+
+    def _disable_chaos_conditions_sync(self):
+        self._network_profile = None
+        self._cpu_throttling = None
+
+    async def disable_chaos_conditions(self):
+        return await _run_sync(self._disable_chaos_conditions_sync)

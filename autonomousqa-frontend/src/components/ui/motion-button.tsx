@@ -19,21 +19,21 @@ const MotionButton: FC<Props> = ({ label, classes, onClick, ...props }) => {
     <button
       onClick={onClick}
       className={cn(
-        'bg-background group relative h-14 min-w-[220px] cursor-pointer rounded-full border-[none] p-1 flex items-center pr-8 outline-none',
+        'bg-background group relative h-14 min-w-[220px] cursor-pointer rounded-full border-[none] outline-none',
         classes
       )}
       {...props}
     >
-      <span
-        className='circle bg-primary absolute left-1 m-0 block h-12 w-12 overflow-hidden rounded-full duration-500 group-hover:w-[calc(100%-8px)]'
-        aria-hidden='true'
-      ></span>
-      <div className='icon absolute left-4 duration-500 group-hover:translate-x-1'>
-        <ArrowRight className='text-background size-6' />
+      <div className="absolute inset-y-0 left-[-8%] w-full flex items-center justify-start pointer-events-none z-0">
+        <span className='circle bg-primary absolute left-1 h-12 w-12 overflow-hidden rounded-full duration-500 group-hover:w-[calc(108%-8px)]' aria-hidden='true'></span>
+        <ArrowRight className='text-background size-6 absolute left-4 z-10 duration-500 group-hover:translate-x-1' />
       </div>
-      <span className='button-text text-foreground group-hover:text-background font-manrope relative z-10 w-full text-center pl-10 text-lg font-medium tracking-tight whitespace-nowrap duration-500'>
-        {label}
-      </span>
+
+      <div className="relative z-10 flex h-full items-center justify-center w-full px-6 pointer-events-none">
+        <span className='button-text text-foreground group-hover:text-background font-manrope text-lg font-bold tracking-tight whitespace-nowrap duration-500'>
+          {label}
+        </span>
+      </div>
     </button>
   )
 }
