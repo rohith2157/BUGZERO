@@ -9,6 +9,7 @@ import { tests as testsApi } from '../lib/api';
 
 import { BarChart, Bar, BarYAxis, Grid, ChartTooltip } from '../components/ui/bar-chart';
 import DatabaseWithRestApi from '../components/ui/database-with-rest-api';
+import { FunnelChart } from '../components/ui/funnel-chart';
 
 function safePath(url) { try { return new URL(url).pathname || url; } catch { return url; } }
 
@@ -196,28 +197,20 @@ export default function Report() {
             <motion.div variants={item} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
                 <h3 style={{ fontSize: 16, fontWeight: 700, margin: 0 }}>Score Overview</h3>
                 <div style={{ display: 'flex', background: 'rgba(255,255,255,0.05)', borderRadius: 8, padding: 4 }}>
-                    <button
-                        onClick={() => setViewMode('visual')}
-                        style={{
-                            padding: '6px 12px', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer',
-                            border: 'none', transition: 'all 0.2s',
-                            background: viewMode === 'visual' ? 'var(--color-accent-gold)' : 'transparent',
-                            color: viewMode === 'visual' ? '#000' : 'var(--text-secondary)',
-                        }}
-                    >
-                        Visual
-                    </button>
-                    <button
-                        onClick={() => setViewMode('chart')}
-                        style={{
-                            padding: '6px 12px', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer',
-                            border: 'none', transition: 'all 0.2s',
-                            background: viewMode === 'chart' ? 'var(--color-accent-gold)' : 'transparent',
-                            color: viewMode === 'chart' ? '#000' : 'var(--text-secondary)',
-                        }}
-                    >
-                        Chart
-                    </button>
+                    {['visual', 'funnel', 'chart'].map((mode) => (
+                        <button
+                            key={mode}
+                            onClick={() => setViewMode(mode)}
+                            style={{
+                                padding: '6px 12px', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer',
+                                border: 'none', transition: 'all 0.2s',
+                                background: viewMode === mode ? 'var(--color-accent-gold)' : 'transparent',
+                                color: viewMode === mode ? '#000' : 'var(--text-secondary)',
+                            }}
+                        >
+                            {mode.charAt(0).toUpperCase() + mode.slice(1)}
+                        </button>
+                    ))}
                 </div>
             </motion.div>
 
@@ -230,6 +223,72 @@ export default function Report() {
                             title="Aggregated Hygiene Score Connection"
                             lightColor="var(--color-accent-gold)"
                         />
+                    </motion.div>
+                </div>
+            ) : viewMode === 'funnel' ? (
+                <div style={{ marginBottom: 24 }}>
+                    <motion.div variants={item} className="glass-card" style={{ padding: '32px 24px' }}>
+                        <h3 style={{ fontSize: 15, fontWeight: 700, marginBottom: 18 }}>Page Quality Funnel</h3>
+                        <div style={{ width: '80%', maxWidth: 700, margin: '0 auto' }}>
+                            {(() => {
+                                const pages = reportData.heatmapData || [];
+                                const totalPages = pages.length || reportData.totalPages || 1;
+                                const passing = pages.filter(p => p.score >= 50).length;
+                                const good = pages.filter(p => p.score >= 70).length;
+                                const excellent = pages.filter(p => p.score >= 85).length;
+                                const perfect = pages.filter(p => p.score >= 95).length;
+
+                                const funnelData = [
+                                    {
+                                        label: 'All Pages',
+                                        value: totalPages,
+                                        displayValue: `${totalPages} pages`,
+                                        gradient: [
+                                            { offset: '0%', color: 'var(--chart-1)' },
+                                            { offset: '100%', color: 'var(--chart-2)' },
+                                        ],
+                                    },
+                                    {
+                                        label: 'Passing (≥50)',
+                                        value: Math.max(passing, 1),
+                                        displayValue: `${passing} pages`,
+                                        gradient: [
+                                            { offset: '0%', color: 'var(--chart-2)' },
+                                            { offset: '100%', color: 'var(--chart-3)' },
+                                        ],
+                                    },
+                                    {
+                                        label: 'Good (≥70)',
+                                        value: Math.max(good, 1),
+                                        displayValue: `${good} pages`,
+                                        gradient: [
+                                            { offset: '0%', color: 'var(--chart-3)' },
+                                            { offset: '100%', color: 'var(--chart-4)' },
+                                        ],
+                                    },
+                                    {
+                                        label: 'Excellent (≥85)',
+                                        value: Math.max(excellent, 1),
+                                        displayValue: `${excellent} pages`,
+                                        gradient: [
+                                            { offset: '0%', color: 'var(--chart-4)' },
+                                            { offset: '100%', color: 'var(--chart-5)' },
+                                        ],
+                                    },
+                                    {
+                                        label: 'Top Tier (≥95)',
+                                        value: Math.max(perfect, 1),
+                                        displayValue: `${perfect} pages`,
+                                        gradient: [
+                                            { offset: '0%', color: 'var(--chart-5)' },
+                                            { offset: '100%', color: 'var(--chart-1)' },
+                                        ],
+                                    },
+                                ];
+
+                                return <FunnelChart data={funnelData} layers={3} />;
+                            })()}
+                        </div>
                     </motion.div>
                 </div>
             ) : (

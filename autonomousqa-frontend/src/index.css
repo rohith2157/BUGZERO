@@ -20,6 +20,14 @@
   --color-chart-foreground: var(--chart-foreground);
   --color-chart-background: var(--chart-background);
 
+  /* Funnel chart Tailwind color tokens */
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-muted-foreground: #A1A1AA;
+
   /* shadcn/ui compatible tokens */
   --color-background: var(--shadcn-background);
   --color-foreground: var(--shadcn-foreground);
@@ -175,6 +183,15 @@
   --chart-marker-badge-foreground: #D4A853;
   --chart-segment-background: rgba(212, 168, 83, 0.08);
   --chart-segment-line: #D4A853;
+
+  /* Funnel chart color palette */
+  --chart-1: #D4A853;
+  --chart-2: #A78BFA;
+  --chart-3: #34D399;
+  --chart-4: #6C8EEF;
+  --chart-5: #5EEAD4;
+  --color-muted: rgba(255, 255, 255, 0.06);
+  --color-muted-foreground: #A1A1AA;
 }
 
 /* ===== LIGHT THEME ===== */
@@ -278,6 +295,15 @@
   --chart-marker-badge-foreground: #B8860B;
   --chart-segment-background: rgba(184, 134, 11, 0.06);
   --chart-segment-line: #B8860B;
+
+  /* Funnel chart color palette — light mode */
+  --chart-1: #B8860B;
+  --chart-2: #7C3AED;
+  --chart-3: #059669;
+  --chart-4: #4F6ADB;
+  --chart-5: #0D9488;
+  --color-muted: rgba(0, 0, 0, 0.06);
+  --color-muted-foreground: #71717A;
 }
 
 /* === GLOBAL RESET & BASE === */

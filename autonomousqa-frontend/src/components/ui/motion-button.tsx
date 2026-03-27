@@ -24,7 +24,7 @@ const MotionButton: FC<Props> = ({ label, classes, onClick, ...props }) => {
       )}
       {...props}
     >
-      <div className="absolute inset-y-0 left-[-8%] w-full flex items-center justify-start pointer-events-none z-0">
+      <div className="absolute inset-y-0 left-[-8%] w-full flex items-center justify-start z-0">
         <span className='circle bg-primary absolute left-1 h-12 w-12 overflow-hidden rounded-full duration-500 group-hover:w-[calc(108%-8px)]' aria-hidden='true'></span>
         <ArrowRight className='text-background size-6 absolute left-4 z-10 duration-500 group-hover:translate-x-1' />
       </div>
