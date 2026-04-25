@@ -14,6 +14,8 @@ import { TiltCard } from '../components/ui/tilt-card';
 import { AnimatedThemeToggle } from '../components/ui/animated-theme-toggle';
 import useThemeStore from '../store/themeStore';
 import DotPattern from '../components/ui/dot-pattern-1';
+import { useRef } from 'react';
+import { DynamicArrow } from '../components/ui/dynamic-arrow';
 
 const features = [
     { icon: Zap, title: 'Self-Healing Tests', desc: 'Tests that auto-repair when UI changes. Zero maintenance.', accent: 'var(--color-accent-gold)' },
@@ -41,6 +43,8 @@ export default function Landing() {
     const navigate = useNavigate();
     const { theme } = useThemeStore();
     const isDark = theme === 'dark';
+    const getStartedRef = useRef(null);
+    const quoteContainerRef = useRef(null);
 
     return (
         <div style={{
@@ -50,6 +54,7 @@ export default function Landing() {
             overflow: 'hidden',
             transition: 'background 0.3s ease',
         }}>
+            <DynamicArrow targetRef={getStartedRef} containerRef={quoteContainerRef} />
             {/* Subtle grid */}
             <div className="grid-pattern" style={{ position: 'fixed', inset: 0, zIndex: 0 }} />
 
@@ -369,45 +374,40 @@ export default function Landing() {
                 </motion.div>
             </section>
 
-            {/* Quote Section */}
-            <section className="mx-auto mb-16 mt-4 max-w-5xl px-6 md:mb-24 xl:px-0 relative z-10">
-                <motion.div 
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.6 }}
-                    className="relative flex flex-col items-center border" 
-                    style={{ borderColor: 'var(--border-subtle)', background: 'var(--glass-subtle)', backdropFilter: 'blur(12px)' }}
+            <section ref={quoteContainerRef} className="relative z-10 mb-16 mt-4" style={{ maxWidth: 1000, margin: '0 auto', padding: '0 24px' }}>
+                <div 
+                    className="relative flex flex-col items-center border border-red-500" 
+                    style={{ background: 'var(--color-bg-primary)' }}
                 >
-                    <DotPattern width={24} height={24} />
+                    <DotPattern width={5} height={5} />
 
-                    <div className="absolute -left-1.5 -top-1.5 h-3 w-3" style={{ background: 'var(--color-accent-gold)' }} />
-                    <div className="absolute -bottom-1.5 -left-1.5 h-3 w-3" style={{ background: 'var(--color-accent-gold)' }} />
-                    <div className="absolute -right-1.5 -top-1.5 h-3 w-3" style={{ background: 'var(--color-accent-gold)' }} />
-                    <div className="absolute -bottom-1.5 -right-1.5 h-3 w-3" style={{ background: 'var(--color-accent-gold)' }} />
+                    <div className="absolute -left-1.5 -top-1.5 h-3 w-3 bg-red-500 text-white" />
+                    <div className="absolute -bottom-1.5 -left-1.5 h-3 w-3 bg-red-500 text-white" />
+                    <div className="absolute -right-1.5 -top-1.5 h-3 w-3 bg-red-500 text-white" />
+                    <div className="absolute -bottom-1.5 -right-1.5 h-3 w-3 bg-red-500 text-white" />
 
-                    <div className="relative z-20 mx-auto max-w-5xl rounded-[40px] py-12 px-6 md:p-16 xl:py-24 xl:px-20 w-full">
-                        <p className="md:text-md text-sm lg:text-lg xl:text-xl font-semibold tracking-widest uppercase mb-6" style={{ color: 'var(--color-accent-gold)' }}>
+                    <div className="relative z-20 mx-auto max-w-7xl rounded-[40px] w-full" style={{ padding: '80px 40px' }}>
+                        <p className="text-red-500 text-xl font-medium tracking-wide mb-6">
                             We believe
                         </p>
-                        <div className="text-3xl tracking-tighter md:text-5xl lg:text-6xl xl:text-7xl" style={{ color: 'var(--text-primary)', lineHeight: 1.1 }}>
-                            <div className="flex gap-2 md:gap-3 lg:gap-4 xl:gap-5 flex-wrap mb-1 md:mb-2 lg:mb-3">
-                                <h1 className="font-bold">"Testing should be</h1>
-                                <p className="font-light" style={{ color: 'var(--text-tertiary)' }}>zero</p>
+                        <div className="text-2xl tracking-tighter md:text-5xl lg:text-7xl xl:text-8xl" style={{ color: 'var(--text-primary)' }}>
+                            <div className="flex gap-1 md:gap-2 lg:gap-3 xl:gap-4">
+                                <h1 className="font-semibold">"Testing must be</h1>
+                                <p className="font-thin">zero</p>
                             </div>
-                            <div className="flex gap-2 md:gap-3 lg:gap-4 xl:gap-5 flex-wrap mb-1 md:mb-2 lg:mb-3">
-                                <p className="font-light" style={{ color: 'var(--text-tertiary)' }}>touch</p>
-                                <h1 className="font-bold">because</h1>
-                                <p className="font-light" style={{ color: 'var(--text-tertiary)' }}>human</p>
+                            <div className="flex gap-1 md:gap-2 lg:gap-3 xl:gap-4">
+                                <p className="font-thin">touch</p>
+                                <h1 className="font-semibold">because</h1>
+                                <p className="font-thin">human</p>
                             </div>
-                            <div className="flex gap-2 md:gap-3 lg:gap-4 xl:gap-5 flex-wrap mb-1 md:mb-2 lg:mb-3">
-                                <p className="font-light" style={{ color: 'var(--text-tertiary)' }}>time</p>
-                                <h1 className="font-bold">is better spent</h1>
+                            <div className="flex gap-1 md:gap-2 lg:gap-3 xl:gap-4">
+                                <p className="font-thin">time</p>
+                                <h1 className="font-semibold">is better spent</h1>
                             </div>
-                            <h1 className="font-bold">building..."</h1>
+                            <h1 className="font-semibold">building..."</h1>
                         </div>
                     </div>
-                </motion.div>
+                </div>
             </section>
 
             {/* Bottom CTA */}
@@ -454,10 +454,12 @@ export default function Landing() {
                             Join teams using AI-powered QA to find bugs before users do.
                         </p>
                         <div style={{ display: 'flex', justifyContent: 'center' }}>
-                            <MotionButton
-                                label="Get Started Free"
-                                onClick={() => navigate('/login')}
-                            />
+                            <div ref={getStartedRef} style={{ display: 'inline-flex', position: 'relative' }}>
+                                <MotionButton
+                                    label="Get Started Free"
+                                    onClick={() => navigate('/login')}
+                                />
+                            </div>
                         </div>
                     </motion.div>
                 </WarpBackground>
