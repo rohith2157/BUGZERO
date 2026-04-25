@@ -133,6 +133,8 @@ export const DynamicArrow = ({ targetRef, containerRef }) => {
         };
         const handleMouseLeave = () => {
             mousePosRef.current.hovering = false;
+            mousePosRef.current.x = null;
+            mousePosRef.current.y = null;
         };
 
         window.addEventListener("resize", updateCanvasSize);

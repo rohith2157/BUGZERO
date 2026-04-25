@@ -374,8 +374,9 @@ export default function Landing() {
                 </motion.div>
             </section>
 
-            <section ref={quoteContainerRef} className="relative z-10 mb-16 mt-4" style={{ maxWidth: 1000, margin: '0 auto', padding: '0 24px' }}>
+            <section className="relative z-10 mb-16 mt-4" style={{ maxWidth: 1000, margin: '0 auto', padding: '0 24px' }}>
                 <div 
+                    ref={quoteContainerRef}
                     className="relative flex flex-col items-center border border-red-500" 
                     style={{ background: 'var(--color-bg-primary)' }}
                 >
