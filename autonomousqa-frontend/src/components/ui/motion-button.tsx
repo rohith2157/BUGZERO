@@ -1,6 +1,7 @@
 'use client'
 
 import { FC } from 'react'
+import { motion } from 'framer-motion'
 import { ArrowRight } from 'lucide-react'
 import { clsx } from 'clsx'
 import { twMerge } from 'tailwind-merge'
@@ -16,10 +17,10 @@ interface Props extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 
 const MotionButton: FC<Props> = ({ label, classes, onClick, ...props }) => {
   return (
-    <button
+    <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
       onClick={onClick}
       className={cn(
-        'bg-background group relative h-14 min-w-[220px] cursor-pointer rounded-full border-[none] outline-none',
+        'bg-background group relative h-14 w-[240px] cursor-pointer rounded-full border-[none] outline-none',
         classes
       )}
       {...props}
@@ -34,7 +35,7 @@ const MotionButton: FC<Props> = ({ label, classes, onClick, ...props }) => {
           {label}
         </span>
       </div>
-    </button>
+    </motion.button>
   )
 }
 

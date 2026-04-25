@@ -10,8 +10,10 @@ import { WarpBackground } from '../components/ui/WarpBackground';
 import HeroText from '../components/ui/hero-shutter-text';
 import FlipTextReveal from '../components/ui/next-reveal';
 import { Spotlight } from '../components/ui/Spotlight';
+import { TiltCard } from '../components/ui/tilt-card';
 import { AnimatedThemeToggle } from '../components/ui/animated-theme-toggle';
 import useThemeStore from '../store/themeStore';
+import DotPattern from '../components/ui/dot-pattern-1';
 
 const features = [
     { icon: Zap, title: 'Self-Healing Tests', desc: 'Tests that auto-repair when UI changes. Zero maintenance.', accent: 'var(--color-accent-gold)' },
@@ -313,54 +315,98 @@ export default function Landing() {
                     }}
                 >
                     {features.map(({ icon: Icon, title, desc, accent }) => (
-                        <motion.div key={title} variants={item}>
-                            <WarpBackground
-                                beamsPerSide={3}
-                                beamSize={5}
-                                beamDuration={3}
-                                beamDelayMax={3}
-                                perspective={100}
-                                gridColor="var(--border-default)"
-                                className="!p-8 group"
-                                style={{ borderColor: 'var(--border-subtle)', minHeight: 280, overflow: 'hidden' }}
-                            >
-                                <Spotlight
-                                    className="-top-40 left-0 md:left-32 md:-top-20 opacity-0 transition-opacity duration-500 group-hover:opacity-100"
-                                    fill={accent}
-                                />
-                                <div style={{
-                                    position: 'relative', zIndex: 2,
-                                    background: 'var(--color-bg-card)',
-                                    border: '1px solid var(--border-subtle)',
-                                    borderRadius: 'var(--radius-lg)',
-                                    padding: '24px 20px',
-                                    backdropFilter: 'blur(12px)',
-                                    display: 'flex', flexDirection: 'column', gap: 12,
-                                    cursor: 'pointer',
-                                    boxShadow: 'var(--shadow-md)',
-                                    transition: 'border-color 0.3s ease, box-shadow 0.3s ease',
-                                }}>
+                        <motion.div key={title} variants={item} style={{ display: 'flex' }}>
+                            <TiltCard className="w-full h-full rounded-[var(--radius-lg)] border border-[var(--border-subtle)] overflow-hidden" effect="evade" scale={1.02} tiltLimit={6}>
+                                <WarpBackground
+                                    beamsPerSide={3}
+                                    beamSize={5}
+                                    beamDuration={3}
+                                    beamDelayMax={3}
+                                    perspective={100}
+                                    gridColor="var(--border-default)"
+                                    className="!p-8 group h-full"
+                                    style={{ minHeight: 280, width: '100%' }}
+                                >
+                                    <Spotlight
+                                        className="-top-40 left-0 md:left-32 md:-top-20 opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+                                        fill={accent}
+                                    />
                                     <div style={{
-                                        width: 40, height: 40, borderRadius: 10,
-                                        background: 'var(--glass-subtle)',
+                                        position: 'relative', zIndex: 2,
+                                        background: 'var(--color-bg-card)',
                                         border: '1px solid var(--border-subtle)',
-                                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                        borderRadius: 'var(--radius-lg)',
+                                        padding: '24px 20px',
+                                        backdropFilter: 'blur(12px)',
+                                        display: 'flex', flexDirection: 'column', gap: 12,
+                                        cursor: 'pointer',
+                                        boxShadow: 'var(--shadow-md)',
+                                        transition: 'border-color 0.3s ease, box-shadow 0.3s ease',
+                                        flex: 1,
                                     }}>
-                                        <Icon size={20} style={{ color: accent }} />
+                                        <div style={{
+                                            width: 40, height: 40, borderRadius: 10,
+                                            background: 'var(--glass-subtle)',
+                                            border: '1px solid var(--border-subtle)',
+                                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                        }}>
+                                            <Icon size={20} style={{ color: accent }} />
+                                        </div>
+                                        <h3 style={{ fontSize: 16, fontWeight: 700, letterSpacing: '-0.01em', color: 'var(--text-primary)' }}>
+                                            {title}
+                                        </h3>
+                                        <p style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.6, margin: 0, flexGrow: 1 }}>
+                                            {desc}
+                                        </p>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: accent, fontWeight: 600, marginTop: 4 }}>
+                                            Learn more <ChevronRight size={13} />
+                                        </div>
                                     </div>
-                                    <h3 style={{ fontSize: 16, fontWeight: 700, letterSpacing: '-0.01em', color: 'var(--text-primary)' }}>
-                                        {title}
-                                    </h3>
-                                    <p style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.6, margin: 0 }}>
-                                        {desc}
-                                    </p>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: accent, fontWeight: 600, marginTop: 4 }}>
-                                        Learn more <ChevronRight size={13} />
-                                    </div>
-                                </div>
-                            </WarpBackground>
+                                </WarpBackground>
+                            </TiltCard>
                         </motion.div>
                     ))}
+                </motion.div>
+            </section>
+
+            {/* Quote Section */}
+            <section className="mx-auto mb-16 mt-4 max-w-5xl px-6 md:mb-24 xl:px-0 relative z-10">
+                <motion.div 
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.6 }}
+                    className="relative flex flex-col items-center border" 
+                    style={{ borderColor: 'var(--border-subtle)', background: 'var(--glass-subtle)', backdropFilter: 'blur(12px)' }}
+                >
+                    <DotPattern width={24} height={24} />
+
+                    <div className="absolute -left-1.5 -top-1.5 h-3 w-3" style={{ background: 'var(--color-accent-gold)' }} />
+                    <div className="absolute -bottom-1.5 -left-1.5 h-3 w-3" style={{ background: 'var(--color-accent-gold)' }} />
+                    <div className="absolute -right-1.5 -top-1.5 h-3 w-3" style={{ background: 'var(--color-accent-gold)' }} />
+                    <div className="absolute -bottom-1.5 -right-1.5 h-3 w-3" style={{ background: 'var(--color-accent-gold)' }} />
+
+                    <div className="relative z-20 mx-auto max-w-5xl rounded-[40px] py-12 px-6 md:p-16 xl:py-24 xl:px-20 w-full">
+                        <p className="md:text-md text-sm lg:text-lg xl:text-xl font-semibold tracking-widest uppercase mb-6" style={{ color: 'var(--color-accent-gold)' }}>
+                            We believe
+                        </p>
+                        <div className="text-3xl tracking-tighter md:text-5xl lg:text-6xl xl:text-7xl" style={{ color: 'var(--text-primary)', lineHeight: 1.1 }}>
+                            <div className="flex gap-2 md:gap-3 lg:gap-4 xl:gap-5 flex-wrap mb-1 md:mb-2 lg:mb-3">
+                                <h1 className="font-bold">"Testing should be</h1>
+                                <p className="font-light" style={{ color: 'var(--text-tertiary)' }}>zero</p>
+                            </div>
+                            <div className="flex gap-2 md:gap-3 lg:gap-4 xl:gap-5 flex-wrap mb-1 md:mb-2 lg:mb-3">
+                                <p className="font-light" style={{ color: 'var(--text-tertiary)' }}>touch</p>
+                                <h1 className="font-bold">because</h1>
+                                <p className="font-light" style={{ color: 'var(--text-tertiary)' }}>human</p>
+                            </div>
+                            <div className="flex gap-2 md:gap-3 lg:gap-4 xl:gap-5 flex-wrap mb-1 md:mb-2 lg:mb-3">
+                                <p className="font-light" style={{ color: 'var(--text-tertiary)' }}>time</p>
+                                <h1 className="font-bold">is better spent</h1>
+                            </div>
+                            <h1 className="font-bold">building..."</h1>
+                        </div>
+                    </div>
                 </motion.div>
             </section>
 
