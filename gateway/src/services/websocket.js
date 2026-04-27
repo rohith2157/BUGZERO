@@ -4,6 +4,15 @@ export function setupWebSocket(io) {
     io.on('connection', (socket) => {
         console.log(`🔌 Client connected: ${socket.id}`);
 
+        socket.on('join:activity', () => {
+            console.log(`📡 ${socket.id} joined activity:feed`);
+            socket.join('activity:feed');
+        });
+
+        socket.on('leave:activity', () => {
+            socket.leave('activity:feed');
+        });
+
         // Client subscribes to a specific test run
         socket.on('test:subscribe', (data) => {
             const { runId } = data;
@@ -38,4 +47,8 @@ export function setupWebSocket(io) {
 // Helper to emit test events from the service layer
 export function emitTestEvent(io, runId, event, data) {
     io.to(`test:${runId}`).emit(event, { runId, ...data });
+}
+
+export function emitActivityEvent(io, event, data) {
+    io.to('activity:feed').emit(event, data);
 }

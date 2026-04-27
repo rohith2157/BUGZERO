@@ -106,6 +106,7 @@ export const settings = {
     notifications: () => request('/settings/notifications'),
     updateNotifications: (preferences) => request('/settings/notifications', { method: 'PUT', body: JSON.stringify({ preferences }) }),
     billing: () => request('/settings/billing'),
+    activity: () => request('/settings/activity'),
 };
 
 export default { auth, tests, playbooks, settings };

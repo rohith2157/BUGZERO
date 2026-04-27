@@ -4,6 +4,7 @@ import jwt from 'jsonwebtoken';
 import prisma from '../db.js';
 import { authenticate } from '../middleware/auth.js';
 import { validate, registerRules, loginRules } from '../middleware/validate.js';
+import { emitActivityEvent } from '../services/websocket.js';
 
 const router = Router();
 
@@ -67,6 +68,17 @@ router.post('/login', loginRules, validate, async (req, res) => {
     const validPassword = await bcrypt.compare(password, user.password);
     if (!validPassword) {
       return res.status(401).json({ error: 'Invalid credentials' });
+    }
+
+    await prisma.userActivity.create({
+      data: {
+        userId: user.id,
+        action: 'login'
+      }
+    });
+
+    if (req.app.get('io')) {
+      emitActivityEvent(req.app.get('io'), 'activity:login', { userId: user.id, timestamp: new Date() });
     }
 
     const token = generateToken(user);

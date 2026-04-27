@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { User, Users, Key, Bell, CreditCard, Pencil, Trash2, Plus, Copy, Eye, EyeOff, Loader2 } from 'lucide-react';
+import { User, Users, Key, Bell, CreditCard, Pencil, Trash2, Plus, Copy, Eye, EyeOff, Loader2, Activity } from 'lucide-react';
 import StatusBadge from '../components/ui/StatusBadge';
+import { LoginActivity } from '../components/ui/login-activity';
 import { settings as settingsApi } from '../lib/api';
 
 const tabs = [
@@ -10,6 +11,7 @@ const tabs = [
     { id: 'apikeys', icon: Key, label: 'API Keys' },
     { id: 'notifications', icon: Bell, label: 'Notifications' },
     { id: 'billing', icon: CreditCard, label: 'Billing' },
+    { id: 'activity', icon: Activity, label: 'User Activity' },
 ];
 
 export default function Settings() {
@@ -35,6 +37,8 @@ export default function Settings() {
     const [loadingNotifs, setLoadingNotifs] = useState(false);
     const [billing, setBilling] = useState(null);
     const [loadingBilling, setLoadingBilling] = useState(false);
+    const [activityData, setActivityData] = useState([0,0,0,0,0,0,0,0,0,0]);
+    const [loadingActivity, setLoadingActivity] = useState(false);
 
     useEffect(() => {
         if (activeTab === 'team' && teamMembers.length === 0) {
@@ -67,6 +71,42 @@ export default function Settings() {
                 .catch(() => { })
                 .finally(() => setLoadingBilling(false));
         }
+        
+        let socketConnection = null;
+
+        if (activeTab === 'activity') {
+            if (activityData.every(x => x === 0)) setLoadingActivity(true);
+            
+            settingsApi.activity()
+                .then(res => {
+                    if (res?.activity) {
+                        setActivityData(res.activity);
+                    }
+                })
+                .catch(() => {})
+                .finally(() => setLoadingActivity(false));
+
+            import('socket.io-client').then(({ default: io }) => {
+                socketConnection = io('http://localhost:3000');
+                socketConnection.on('connect', () => {
+                    socketConnection.emit('join:activity');
+                });
+                socketConnection.on('activity:login', () => {
+                    setActivityData(prev => {
+                        const next = [...prev];
+                        next[next.length - 1] += 1;
+                        return next;
+                    });
+                });
+            });
+        }
+
+        return () => {
+            if (socketConnection) {
+                socketConnection.emit('leave:activity');
+                socketConnection.disconnect();
+            }
+        };
     }, [activeTab]);
 
     return (

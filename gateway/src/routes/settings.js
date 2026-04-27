@@ -221,4 +221,33 @@ router.get('/billing', authenticate, async (req, res) => {
     }
 });
 
+// GET /api/settings/activity
+router.get('/activity', authenticate, async (req, res) => {
+    try {
+        const userId = req.user.id;
+        
+        // Let's create an array of the last 10 intervals manually, maybe minutes or something to simulate "real-time" history
+        // Real logic could group by hour/minute
+        
+        const recentActivities = await prisma.userActivity.findMany({
+            where: { userId },
+            orderBy: { createdAt: 'desc' },
+            take: 10
+        });
+
+        // Simulating the 10 data points for frontend login-activity
+        // By just filling a basic frequency array for demonstration based on the DB count:
+        let data = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+        
+        if (recentActivities && recentActivities.length > 0) {
+           data[9] = recentActivities.length; // Just putting count in the latest for simple demo
+        }
+
+        res.json({ activity: data });
+    } catch (err) {
+        console.error('Get activity error:', err);
+        res.status(500).json({ error: 'Failed to get activity' });
+    }
+});
+
 export default router;

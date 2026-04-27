@@ -22,6 +22,7 @@ model User {
   apiKeys       ApiKey[]
   notifications Notification[]
   notificationPrefs NotificationPreference?
+  activities    UserActivity[]
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
 
@@ -198,4 +199,15 @@ model Notification {
   createdAt DateTime  @default(now())
 
   @@map("notifications")
+}
+
+model UserActivity {
+  id         String   @id @default(uuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  action     String
+  metadata   Json?
+  createdAt  DateTime @default(now())
+
+  @@map("user_activities")
 }
