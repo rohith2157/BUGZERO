@@ -126,7 +126,7 @@ export default function NewTest() {
                             onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleLaunch(e); } }}
                             style={{
                                 flex: 1, padding: '14px 18px', fontSize: 15,
-                                background: 'rgba(255, 255, 255, 0.03)',
+                                background: '#000000',
                                 border: '1px solid rgba(255,255,255,0.06)',
                                 borderRadius: 10,
                                 color: 'var(--text-primary)',
@@ -161,7 +161,7 @@ export default function NewTest() {
                                 onClick={() => setBrowser(b)}
                                 style={{
                                     padding: '10px 14px', borderRadius: 'var(--radius-md)',
-                                    background: browser === b ? 'rgba(212, 168, 83, 0.08)' : 'rgba(255, 255, 255, 0.02)',
+                                    background: browser === b ? 'rgba(212, 168, 83, 0.08)' : '#000000',
                                     border: `1px solid ${browser === b ? 'rgba(212, 168, 83, 0.2)' : 'rgba(255,255,255,0.05)'}`,
                                     cursor: 'pointer', fontSize: 14, fontWeight: browser === b ? 600 : 400,
                                     color: browser === b ? 'var(--color-accent-gold)' : 'var(--text-secondary)',
@@ -192,7 +192,7 @@ export default function NewTest() {
                                 onClick={() => setDepth(d)}
                                 style={{
                                     padding: '10px 14px', borderRadius: 'var(--radius-md)',
-                                    background: depth === d ? 'rgba(212, 168, 83, 0.08)' : 'rgba(255, 255, 255, 0.02)',
+                                    background: depth === d ? 'rgba(212, 168, 83, 0.08)' : '#000000',
                                     border: `1px solid ${depth === d ? 'rgba(212, 168, 83, 0.2)' : 'rgba(255,255,255,0.05)'}`,
                                     cursor: 'pointer', fontSize: 14, fontWeight: depth === d ? 600 : 400,
                                     color: depth === d ? 'var(--color-accent-gold)' : 'var(--text-secondary)',
@@ -252,7 +252,7 @@ export default function NewTest() {
                     onChange={(e) => setPlaybook(e.target.value)}
                     style={{
                         width: '100%', padding: '12px 16px', fontSize: 14,
-                        background: 'rgba(255, 255, 255, 0.03)',
+                        background: '#000000',
                         border: '1px solid rgba(255,255,255,0.06)',
                         borderRadius: 'var(--radius-md)',
                         color: 'var(--text-primary)',
@@ -288,7 +288,7 @@ export default function NewTest() {
                                 display: 'flex', alignItems: 'center', gap: 12,
                                 padding: '14px',
                                 borderRadius: 'var(--radius-md)',
-                                background: 'rgba(255, 255, 255, 0.02)',
+                                background: '#000000',
                                 border: '1px solid rgba(255,255,255,0.05)',
                                 cursor: 'pointer',
                                 transition: 'all var(--transition-fast)',

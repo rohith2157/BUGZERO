@@ -68,10 +68,10 @@
   --color-bg-primary: #09090B;
   --color-bg-secondary: #0F0F12;
   --color-bg-tertiary: #18181B;
-  --color-bg-card: rgba(24, 24, 27, 0.65);
-  --color-bg-card-hover: rgba(32, 32, 36, 0.85);
-  --color-bg-glass: rgba(24, 24, 27, 0.45);
-  --color-bg-elevated: #1C1C20;
+  --color-bg-card: #000000;
+  --color-bg-card-hover: #000000;
+  --color-bg-glass: #000000;
+  --color-bg-elevated: #000000;
 
   /* Accent Colors — Gold Luxury + Electric accents */
   --color-accent-gold: #D4A853;
@@ -152,10 +152,10 @@
 
   /* Glass & Surface — Dark defaults */
   --glass-navbar: rgba(9, 9, 11, 0.75);
-  --glass-card-surface: rgba(9, 9, 11, 0.6);
-  --glass-subtle: rgba(255, 255, 255, 0.04);
-  --glass-subtle-hover: rgba(255, 255, 255, 0.06);
-  --glass-muted: rgba(255, 255, 255, 0.03);
+  --glass-card-surface: #000000;
+  --glass-subtle: rgba(0, 0, 0, 1);
+  --glass-subtle-hover: rgba(0, 0, 0, 1);
+  --glass-muted: rgba(0, 0, 0, 1);
   --sidebar-bg: #0C0C0E;
   --grid-line-color: rgba(255, 255, 255, 0.02);
   --on-accent: #09090B;
@@ -454,18 +454,18 @@ a:hover {
 /* === GLASS CARD === */
 .glass-card {
   background: var(--color-bg-card);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-lg);
   transition: all var(--transition-normal);
-  box-shadow: var(--shadow-inset);
+  box-shadow: none;
 }
 
 .glass-card:hover {
   background: var(--color-bg-card-hover);
   border-color: var(--border-default);
-  box-shadow: var(--shadow-inset), var(--shadow-md);
+  box-shadow: none;
 }
 
 /* === GLOW LINE === */

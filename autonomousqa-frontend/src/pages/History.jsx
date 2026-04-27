@@ -64,7 +64,7 @@ export default function History() {
                 <div style={{
                     display: 'flex', alignItems: 'center', gap: 8,
                     padding: '8px 14px', flex: 1, minWidth: 200, maxWidth: 400,
-                    background: 'rgba(255, 255, 255, 0.03)',
+                    background: '#000000',
                     border: '1px solid rgba(255,255,255,0.06)',
                     borderRadius: 10,
                 }}>
@@ -87,7 +87,7 @@ export default function History() {
                             onClick={() => setStatusFilter(s)}
                             style={{
                                 padding: '7px 14px', fontSize: 12, fontWeight: 600,
-                                background: statusFilter === s ? 'rgba(212, 168, 83, 0.1)' : 'rgba(255, 255, 255, 0.03)',
+                                background: statusFilter === s ? 'rgba(212, 168, 83, 0.1)' : '#000000',
                                 border: `1px solid ${statusFilter === s ? 'rgba(212, 168, 83, 0.2)' : 'rgba(255,255,255,0.05)'}`,
                                 borderRadius: 'var(--radius-full)',
                                 color: statusFilter === s ? 'var(--color-accent-gold)' : 'var(--text-secondary)',
@@ -111,7 +111,7 @@ export default function History() {
                             onClick={() => setSortBy(key)}
                             style={{
                                 padding: '7px 12px', fontSize: 12, fontWeight: 500,
-                                background: sortBy === key ? 'rgba(167, 139, 250, 0.1)' : 'rgba(255, 255, 255, 0.03)',
+                                background: sortBy === key ? 'rgba(167, 139, 250, 0.1)' : '#000000',
                                 border: `1px solid ${sortBy === key ? 'rgba(167, 139, 250, 0.2)' : 'rgba(255,255,255,0.05)'}`,
                                 borderRadius: 'var(--radius-full)',
                                 color: sortBy === key ? 'var(--color-accent-purple)' : 'var(--text-tertiary)',
