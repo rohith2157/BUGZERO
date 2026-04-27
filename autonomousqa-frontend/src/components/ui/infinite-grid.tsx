@@ -82,7 +82,7 @@ export const InfiniteGridBackground = ({
         "relative w-full min-h-screen flex flex-col overflow-hidden",
         className
       )}
-      style={{ background: '#000000' }}
+      style={{ background: 'var(--color-bg-primary)' }}
     >
       {/* Background layer */}
       <div className="absolute inset-0 z-0 opacity-[0.05] pointer-events-none">

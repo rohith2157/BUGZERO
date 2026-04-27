@@ -180,7 +180,7 @@ export default function Report() {
                             }}
                             style={{
                                 padding: '8px 14px', fontSize: 12, fontWeight: 600,
-                                background: '#000000',
+                                background: 'var(--color-bg-elevated)',
                                 border: '1px solid rgba(255,255,255,0.06)',
                                 borderRadius: 8,
                                 color: 'var(--text-secondary)', cursor: 'pointer',
@@ -196,7 +196,7 @@ export default function Report() {
             {/* Score Section Overview */}
             <motion.div variants={item} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
                 <h3 style={{ fontSize: 16, fontWeight: 700, margin: 0 }}>Score Overview</h3>
-                <div style={{ display: 'flex', background: '#000000', borderRadius: 8, padding: 4 }}>
+                <div style={{ display: 'flex', background: 'var(--color-bg-elevated)', borderRadius: 8, padding: 4 }}>
                     {['visual', 'funnel', 'chart'].map((mode) => (
                         <button
                             key={mode}
@@ -374,7 +374,7 @@ export default function Report() {
                 </h3>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                     {reportData.defects.length === 0 ? (
-                        <div style={{ padding: '32px', textAlign: 'center', color: 'var(--text-tertiary)', background: '#000000', borderRadius: 10 }}>
+                        <div style={{ padding: '32px', textAlign: 'center', color: 'var(--text-tertiary)', background: 'var(--color-bg-elevated)', borderRadius: 10 }}>
                             No defects found. Excellent job!
                         </div>
                     ) : (

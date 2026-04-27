@@ -145,7 +145,7 @@ export default function Dashboard() {
                             onKeyDown={(e) => { if (e.key === 'Enter' && quickUrl) navigate('/tests/new', { state: { url: quickUrl } }); }}
                             style={{
                                 flex: 1, padding: '12px 16px', fontSize: 14,
-                                background: '#000000',
+                                background: 'var(--color-bg-elevated)',
                                 border: '1px solid rgba(255,255,255,0.06)',
                                 borderRadius: 'var(--radius-md)',
                                 color: 'var(--text-primary)',
@@ -185,7 +185,7 @@ export default function Dashboard() {
                                 style={{
                                     display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                                     padding: '10px 12px',
-                                    background: '#000000',
+                                    background: 'var(--color-bg-elevated)',
                                     borderRadius: 'var(--radius-md)',
                                     cursor: 'pointer',
                                     transition: 'all var(--transition-fast)',
@@ -196,7 +196,7 @@ export default function Dashboard() {
                                     e.currentTarget.style.borderColor = 'rgba(212,168,83,0.15)';
                                 }}
                                 onMouseLeave={(e) => {
-                                    e.currentTarget.style.background = '#000000';
+                                    e.currentTarget.style.background = 'var(--color-bg-elevated)';
                                     e.currentTarget.style.borderColor = 'transparent';
                                 }}
                             >

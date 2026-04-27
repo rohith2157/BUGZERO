@@ -230,7 +230,7 @@ export default function LiveTest() {
                     </div>
                     <div style={{
                         height: 5, borderRadius: 3,
-                        background: '#000000',
+                        background: 'var(--color-bg-elevated)',
                         overflow: 'hidden',
                     }}>
                         <motion.div
@@ -314,7 +314,7 @@ export default function LiveTest() {
                                             display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                                             padding: '10px 12px',
                                             borderRadius: expandedPageUrl === page.url ? '8px 8px 0 0' : 'var(--radius-md)',
-                                            background: expandedPageUrl === page.url ? 'rgba(212, 168, 83, 0.06)' : page.status === 'testing' ? 'rgba(212, 168, 83, 0.05)' : '#000000',
+                                            background: expandedPageUrl === page.url ? 'rgba(212, 168, 83, 0.06)' : page.status === 'testing' ? 'rgba(212, 168, 83, 0.05)' : 'var(--color-bg-elevated)',
                                             border: expandedPageUrl === page.url ? '1px solid rgba(212, 168, 83, 0.18)' : page.status === 'testing' ? '1px solid rgba(212, 168, 83, 0.15)' : '1px solid transparent',
                                             borderBottom: expandedPageUrl === page.url ? '1px solid rgba(255,255,255,0.04)' : undefined,
                                             cursor: 'pointer',
@@ -353,7 +353,7 @@ export default function LiveTest() {
                                                 animate={{ height: 'auto', opacity: 1 }}
                                                 exit={{ height: 0, opacity: 0 }}
                                                 transition={{ duration: 0.2 }}
-                                                style={{ overflow: 'hidden', borderRadius: '0 0 8px 8px', border: '1px solid rgba(255,255,255,0.04)', borderTop: 'none', background: '#000000' }}
+                                                style={{ overflow: 'hidden', borderRadius: '0 0 8px 8px', border: '1px solid rgba(255,255,255,0.04)', borderTop: 'none', background: 'var(--color-bg-elevated)' }}
                                             >
                                                 <div style={{ padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: 12 }}>
                                                     <div>
@@ -456,7 +456,7 @@ export default function LiveTest() {
                                             style={{
                                                 padding: '14px',
                                                 borderRadius: expandedDefectId === defect.id ? '10px 10px 0 0' : 10,
-                                                background: expandedDefectId === defect.id ? 'rgba(255, 255, 255, 0.035)' : '#000000',
+                                                background: expandedDefectId === defect.id ? 'rgba(255, 255, 255, 0.035)' : 'var(--color-bg-elevated)',
                                                 borderLeft: `3px solid ${getSeverityColor(defect.severity)}`,
                                                 cursor: 'pointer',
                                                 transition: 'all 0.15s ease',
@@ -492,7 +492,7 @@ export default function LiveTest() {
                                                     animate={{ height: 'auto', opacity: 1 }}
                                                     exit={{ height: 0, opacity: 0 }}
                                                     transition={{ duration: 0.2 }}
-                                                    style={{ overflow: 'hidden', borderRadius: '0 0 10px 10px', borderLeft: `3px solid ${getSeverityColor(defect.severity)}`, background: '#000000' }}
+                                                    style={{ overflow: 'hidden', borderRadius: '0 0 10px 10px', borderLeft: `3px solid ${getSeverityColor(defect.severity)}`, background: 'var(--color-bg-elevated)' }}
                                                 >
                                                     <div style={{ padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: 12 }}>
                                                         <div>
@@ -517,7 +517,7 @@ export default function LiveTest() {
                                                             <div>
                                                                 <div style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-tertiary)', marginBottom: 4 }}>AI Confidence</div>
                                                                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                                                                    <div style={{ flex: 1, height: 6, borderRadius: 3, background: '#000000', overflow: 'hidden' }}>
+                                                                    <div style={{ flex: 1, height: 6, borderRadius: 3, background: 'var(--color-bg-elevated)', overflow: 'hidden' }}>
                                                                         <div style={{ width: `${defect.confidence}%`, height: '100%', borderRadius: 3, background: defect.confidence >= 80 ? '#10B981' : defect.confidence >= 50 ? '#F59E0B' : '#EF4444', transition: 'width 0.3s ease' }} />
                                                                     </div>
                                                                     <span style={{ fontSize: 12, fontWeight: 700, color: defect.confidence >= 80 ? '#10B981' : defect.confidence >= 50 ? '#F59E0B' : '#EF4444', minWidth: 36 }}>{defect.confidence}%</span>
