@@ -230,7 +230,7 @@ export default function LiveTest() {
                     </div>
                     <div style={{
                         height: 5, borderRadius: 3,
-                        background: 'rgba(255, 255, 255, 0.06)',
+                        background: '#000000',
                         overflow: 'hidden',
                     }}>
                         <motion.div
@@ -314,7 +314,7 @@ export default function LiveTest() {
                                             display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                                             padding: '10px 12px',
                                             borderRadius: expandedPageUrl === page.url ? '8px 8px 0 0' : 'var(--radius-md)',
-                                            background: expandedPageUrl === page.url ? 'rgba(212, 168, 83, 0.06)' : page.status === 'testing' ? 'rgba(212, 168, 83, 0.05)' : 'rgba(255, 255, 255, 0.02)',
+                                            background: expandedPageUrl === page.url ? 'rgba(212, 168, 83, 0.06)' : page.status === 'testing' ? 'rgba(212, 168, 83, 0.05)' : '#000000',
                                             border: expandedPageUrl === page.url ? '1px solid rgba(212, 168, 83, 0.18)' : page.status === 'testing' ? '1px solid rgba(212, 168, 83, 0.15)' : '1px solid transparent',
                                             borderBottom: expandedPageUrl === page.url ? '1px solid rgba(255,255,255,0.04)' : undefined,
                                             cursor: 'pointer',
@@ -353,7 +353,7 @@ export default function LiveTest() {
                                                 animate={{ height: 'auto', opacity: 1 }}
                                                 exit={{ height: 0, opacity: 0 }}
                                                 transition={{ duration: 0.2 }}
-                                                style={{ overflow: 'hidden', borderRadius: '0 0 8px 8px', border: '1px solid rgba(255,255,255,0.04)', borderTop: 'none', background: 'rgba(255,255,255,0.015)' }}
+                                                style={{ overflow: 'hidden', borderRadius: '0 0 8px 8px', border: '1px solid rgba(255,255,255,0.04)', borderTop: 'none', background: '#000000' }}
                                             >
                                                 <div style={{ padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: 12 }}>
                                                     <div>
@@ -456,7 +456,7 @@ export default function LiveTest() {
                                             style={{
                                                 padding: '14px',
                                                 borderRadius: expandedDefectId === defect.id ? '10px 10px 0 0' : 10,
-                                                background: expandedDefectId === defect.id ? 'rgba(255, 255, 255, 0.035)' : 'rgba(255, 255, 255, 0.02)',
+                                                background: expandedDefectId === defect.id ? 'rgba(255, 255, 255, 0.035)' : '#000000',
                                                 borderLeft: `3px solid ${getSeverityColor(defect.severity)}`,
                                                 cursor: 'pointer',
                                                 transition: 'all 0.15s ease',
@@ -492,7 +492,7 @@ export default function LiveTest() {
                                                     animate={{ height: 'auto', opacity: 1 }}
                                                     exit={{ height: 0, opacity: 0 }}
                                                     transition={{ duration: 0.2 }}
-                                                    style={{ overflow: 'hidden', borderRadius: '0 0 10px 10px', borderLeft: `3px solid ${getSeverityColor(defect.severity)}`, background: 'rgba(255,255,255,0.015)' }}
+                                                    style={{ overflow: 'hidden', borderRadius: '0 0 10px 10px', borderLeft: `3px solid ${getSeverityColor(defect.severity)}`, background: '#000000' }}
                                                 >
                                                     <div style={{ padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: 12 }}>
                                                         <div>

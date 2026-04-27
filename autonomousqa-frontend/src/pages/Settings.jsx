@@ -114,7 +114,7 @@ export default function Settings() {
             {/* Tab Nav */}
             <div style={{
                 display: 'flex', gap: 4, marginBottom: 28,
-                padding: '4px', background: 'rgba(255,255,255,0.02)',
+                padding: '4px', background: '#000000',
                 borderRadius: 'var(--radius-lg)', border: '1px solid var(--border-subtle)',
                 width: 'fit-content',
             }}>
@@ -153,7 +153,7 @@ export default function Settings() {
                                 onChange={(e) => setProfileForm(f => ({ ...f, [field]: e.target.value }))}
                                 style={{
                                     width: '100%', padding: '10px 14px', fontSize: 14,
-                                    background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border-default)',
+                                    background: '#000000', border: '1px solid var(--border-default)',
                                     borderRadius: 'var(--radius-md)', color: 'var(--text-primary)', outline: 'none',
                                     opacity: disabled ? 0.6 : 1,
                                 }} />
@@ -201,7 +201,7 @@ export default function Settings() {
                                 <div key={m.id} style={{
                                     display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                                     padding: '14px 16px', borderRadius: 'var(--radius-md)',
-                                    background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border-subtle)',
+                                    background: '#000000', border: '1px solid var(--border-subtle)',
                                 }}>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                                         <div style={{
@@ -222,7 +222,7 @@ export default function Settings() {
                                         <span style={{
                                             fontSize: 11, fontWeight: 600, padding: '3px 10px',
                                             borderRadius: 'var(--radius-full)',
-                                            background: m.role === 'Owner' ? 'rgba(139,92,246,0.1)' : m.role === 'Admin' ? 'rgba(212,168,83,0.08)' : 'rgba(255,255,255,0.04)',
+                                            background: m.role === 'Owner' ? 'rgba(139,92,246,0.1)' : m.role === 'Admin' ? 'rgba(212,168,83,0.08)' : '#000000',
                                             color: m.role === 'Owner' ? '#8B5CF6' : m.role === 'Admin' ? '#D4A853' : 'var(--text-secondary)',
                                         }}>{m.role}</span>
                                     </div>
@@ -258,7 +258,7 @@ export default function Settings() {
                                 <div key={key.id} style={{
                                     display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                                     padding: '14px 16px', borderRadius: 'var(--radius-md)',
-                                    background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border-subtle)',
+                                    background: '#000000', border: '1px solid var(--border-subtle)',
                                 }}>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                                         <Key size={16} style={{ color: 'var(--text-tertiary)' }} />
@@ -285,7 +285,7 @@ export default function Settings() {
                                             }}
                                             style={{
                                                 width: 28, height: 28, borderRadius: 'var(--radius-sm)',
-                                                background: copiedKeyId === key.id ? 'rgba(16,185,129,0.1)' : 'rgba(255,255,255,0.03)', border: 'none',
+                                                background: copiedKeyId === key.id ? 'rgba(16,185,129,0.1)' : '#000000', border: 'none',
                                                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                                                 color: copiedKeyId === key.id ? '#10B981' : 'var(--text-tertiary)', cursor: 'pointer',
                                                 transition: 'all 0.2s',
@@ -370,11 +370,11 @@ export default function Settings() {
                                 </div>
                             </div>
                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 20 }}>
-                                <div style={{ padding: '12px', borderRadius: 'var(--radius-md)', background: 'rgba(255,255,255,0.02)' }}>
+                                <div style={{ padding: '12px', borderRadius: 'var(--radius-md)', background: '#000000' }}>
                                     <div style={{ fontSize: 11, color: 'var(--text-tertiary)', fontWeight: 600 }}>RUNS USED</div>
                                     <div style={{ fontSize: 18, fontWeight: 700, marginTop: 4 }}>{billing?.runsUsed ?? 0} <span style={{ fontSize: 13, color: 'var(--text-tertiary)' }}>/ {billing?.runsLimit === -1 ? '∞' : (billing?.runsLimit ?? 10)}</span></div>
                                 </div>
-                                <div style={{ padding: '12px', borderRadius: 'var(--radius-md)', background: 'rgba(255,255,255,0.02)' }}>
+                                <div style={{ padding: '12px', borderRadius: 'var(--radius-md)', background: '#000000' }}>
                                     <div style={{ fontSize: 11, color: 'var(--text-tertiary)', fontWeight: 600 }}>PLAN TYPE</div>
                                     <div style={{ fontSize: 18, fontWeight: 700, marginTop: 4 }}>{billing?.plan || 'Free'}</div>
                                 </div>

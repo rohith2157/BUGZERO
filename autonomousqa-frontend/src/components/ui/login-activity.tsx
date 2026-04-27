@@ -37,7 +37,7 @@ export const LoginActivity = ({
         "glass-card"
       )}
       style={{
-         background: hovered ? 'rgba(255, 255, 255, 0.05)' : 'rgba(255, 255, 255, 0.03)',
+         background: hovered ? 'rgba(255, 255, 255, 0.05)' : '#000000',
          border: '1px solid rgba(255, 255, 255, 0.05)',
          transition: 'background 0.3s ease'
       }}
