@@ -74,12 +74,12 @@ export default function NewTest() {
     };
 
     const featureList = [
-        { key: 'functional', icon: Layers, label: 'Functional Testing', desc: 'Button clicks, form submissions, navigation' },
-        { key: 'accessibility', icon: Shield, label: 'Accessibility (WCAG)', desc: 'Full WCAG 2.1 AA compliance scan' },
-        { key: 'performance', icon: Gauge, label: 'Performance Audit', desc: 'Core Web Vitals, loading analysis' },
-        { key: 'seo', icon: Globe, label: 'SEO Analysis', desc: 'Meta tags, heading structure, alt text' },
-        { key: 'visual', icon: MonitorSmartphone, label: 'Visual Regression', desc: 'Screenshot comparison with AI diff' },
-        { key: 'compliance', icon: Shield, label: 'GDPR Compliance', desc: 'Cookie consent, data exposure checks' },
+        { key: 'functional', icon: Layers, label: 'Functional Testing', desc: 'Button clicks, form submissions, navigation', hex: '#60a5fa' },
+        { key: 'accessibility', icon: Shield, label: 'Accessibility (WCAG)', desc: 'Full WCAG 2.1 AA compliance scan', hex: '#e879f9' },
+        { key: 'performance', icon: Gauge, label: 'Performance Audit', desc: 'Core Web Vitals, loading analysis', hex: '#34d399' },
+        { key: 'seo', icon: Globe, label: 'SEO Analysis', desc: 'Meta tags, heading structure, alt text', hex: '#fbbf24' },
+        { key: 'visual', icon: MonitorSmartphone, label: 'Visual Regression', desc: 'Screenshot comparison with AI diff', hex: '#a78bfa' },
+        { key: 'compliance', icon: Shield, label: 'GDPR Compliance', desc: 'Cookie consent, data exposure checks', hex: '#fb7185' },
     ];
 
     return (
@@ -280,7 +280,7 @@ export default function NewTest() {
                     Test Modules
                 </label>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-                    {featureList.map(({ key, icon: Icon, label, desc }) => (
+                    {featureList.map(({ key, icon: Icon, label, desc, hex }) => (
                         <div
                             key={key}
                             onClick={() => toggleFeature(key)}
@@ -288,25 +288,29 @@ export default function NewTest() {
                                 display: 'flex', alignItems: 'center', gap: 12,
                                 padding: '14px',
                                 borderRadius: 'var(--radius-md)',
-                                background: features[key] ? 'rgba(212, 168, 83, 0.06)' : 'rgba(255, 255, 255, 0.02)',
-                                border: `1px solid ${features[key] ? 'rgba(212, 168, 83, 0.18)' : 'rgba(255,255,255,0.05)'}`,
+                                background: 'rgba(255, 255, 255, 0.02)',
+                                border: '1px solid rgba(255,255,255,0.05)',
                                 cursor: 'pointer',
                                 transition: 'all var(--transition-fast)',
                             }}
+                            className="group"
                         >
-                            <div style={{
-                                width: 20, height: 20, borderRadius: 5,
-                                border: `2px solid ${features[key] ? 'var(--color-accent-gold)' : 'var(--text-tertiary)'}`,
-                                background: features[key] ? 'var(--color-accent-gold)' : 'transparent',
-                                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                flexShrink: 0,
-                                transition: 'all var(--transition-fast)',
-                            }}>
-                                {features[key] && (
-                                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                                        <path d="M2 6L5 9L10 3" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                                    </svg>
-                                )}
+                            <div className="relative flex items-center justify-center flex-shrink-0 mr-1">
+                                <div 
+                                    className={`w-6 h-6 rounded-full border-2 transition-all duration-500 ease-out flex items-center justify-center ${features[key] ? 'scale-90' : 'border-gray-500 scale-100 group-hover:border-gray-400 group-hover:scale-110'}`}
+                                    style={features[key] ? { borderColor: hex } : {}}
+                                >
+                                    <div 
+                                        className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${features[key] ? 'scale-100' : 'scale-0 bg-gray-500'}`} 
+                                        style={features[key] ? { backgroundColor: hex } : {}}
+                                    />
+                                    {features[key] && (
+                                        <div 
+                                            className="absolute w-9 h-9 rounded-full border-2 border-transparent animate-spin shadow-lg" 
+                                            style={{ borderTopColor: hex, boxShadow: `0 0 15px ${hex}80`, animationDuration: '2s' }} 
+                                        />
+                                    )}
+                                </div>
                             </div>
                             <div>
                                 <div style={{ fontSize: 14, fontWeight: 600, color: features[key] ? 'var(--text-primary)' : 'var(--text-secondary)' }}>{label}</div>
