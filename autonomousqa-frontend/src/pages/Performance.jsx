@@ -130,7 +130,7 @@ export default function Performance() {
                                     justifyContent: 'center'
                                 }}
                             >
-                                <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 2, background: color, zIndex: 20 }} />
+                                <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, background: color, boxShadow: `0 2px 15px ${color}66`, zIndex: 20 }} />
 
                                 <div className="relative z-20" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
                                     <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-tertiary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>

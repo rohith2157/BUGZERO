@@ -228,7 +228,7 @@ export default function NewTest() {
                     max="100"
                     value={maxPages}
                     onChange={(e) => setMaxPages(parseInt(e.target.value))}
-                    style={{ width: '100%', cursor: 'pointer', accentColor: 'var(--color-accent-gold)' }}
+                    style={{ width: '100%', cursor: 'pointer' }}
                 />
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: 'var(--text-tertiary)', marginTop: 8 }}>
                     <span>1 page (Fast)</span>

@@ -123,8 +123,9 @@ export default function Playbooks() {
                             style={{ padding: '22px', cursor: 'pointer', position: 'relative', overflow: 'hidden' }}
                         >
                             <div style={{
-                                position: 'absolute', top: 0, left: 0, right: 0, height: 2,
+                                position: 'absolute', top: 0, left: 0, right: 0, height: 3,
                                 background: pb.status === 'active' ? 'var(--gradient-success)' : 'rgba(255,255,255,0.06)',
+                                boxShadow: pb.status === 'active' ? '0 2px 15px rgba(16, 185, 129, 0.4)' : 'none',
                             }} />
                             <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 14 }}>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>

@@ -79,9 +79,10 @@ export const InfiniteGridBackground = ({
       ref={containerRef}
       onMouseMove={handleMouseMove}
       className={cn(
-        "relative w-full min-h-screen flex flex-col overflow-hidden bg-background",
+        "relative w-full min-h-screen flex flex-col overflow-hidden",
         className
       )}
+      style={{ background: '#000000' }}
     >
       {/* Background layer */}
       <div className="absolute inset-0 z-0 opacity-[0.05] pointer-events-none">
@@ -89,18 +90,13 @@ export const InfiniteGridBackground = ({
       </div>
 
       <motion.div 
-        className="absolute inset-0 z-0 opacity-40 pointer-events-none"
+        className="absolute inset-0 z-0 opacity-80 pointer-events-none"
         style={{ maskImage, WebkitMaskImage: maskImage }}
       >
         <GridPattern offsetX={gridOffsetX} offsetY={gridOffsetY} size={gridSize} />
       </motion.div>
 
-      {/* Decorative Blur Spheres */}
-      <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden">
-        <div className="absolute right-[0%] top-[0%] w-[30%] h-[30%] rounded-full bg-orange-500/30 dark:bg-orange-600/10 blur-[120px]" />
-        <div className="absolute right-[20%] top-[20%] w-[15%] h-[15%] rounded-full bg-primary/20 blur-[100px]" />
-        <div className="absolute left-[-10%] bottom-[-10%] w-[30%] h-[30%] rounded-full bg-blue-500/30 dark:bg-blue-600/10 blur-[120px]" />
-      </div>
+      {/* Decorative Blur Spheres — disabled for pure black */}
 
        <div className="relative z-10 w-full flex-grow flex flex-col"> 
            {children}
