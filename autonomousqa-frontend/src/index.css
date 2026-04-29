@@ -102,6 +102,10 @@
   --text-muted: #52525B;
   --text-accent: #D4A853;
 
+  /* Additional Tailwind Tokens */
+  --foreground: var(--text-primary);
+  --background: var(--color-bg-primary);
+
   /* Borders */
   --border-subtle: rgba(255, 255, 255, 0.06);
   --border-default: rgba(255, 255, 255, 0.09);
@@ -196,6 +200,9 @@
 
 /* ===== LIGHT THEME ===== */
 [data-theme="light"] {
+  --foreground: var(--text-primary);
+  --background: var(--color-bg-primary);
+
   /* TextShimmer — light mode: dark sweep on zinc base */
   --shimmer-text-base: #a1a1aa;
   --shimmer-text-highlight: #09090b;

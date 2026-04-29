@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Globe, Settings2, Play, ChevronDown, Shield, Layers, MonitorSmartphone, Gauge } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { Slider } from '../components/ui/slider';
 import { tests as testsApi, playbooks as playbooksApi } from '../lib/api';
 
 const browsers = ['Chromium', 'Firefox', 'WebKit'];
@@ -222,15 +223,18 @@ export default function NewTest() {
                         {maxPages}
                     </span>
                 </div>
-                <input
-                    type="range"
-                    min="1"
-                    max="100"
-                    value={maxPages}
-                    onChange={(e) => setMaxPages(parseInt(e.target.value))}
-                    style={{ width: '100%', cursor: 'pointer' }}
-                />
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: 'var(--text-tertiary)', marginTop: 8 }}>
+                <div style={{ padding: '0 8px' }}>
+                    <Slider
+                        value={maxPages}
+                        onChange={(v) => setMaxPages(v)}
+                        min={1}
+                        max={100}
+                        step={1}
+                        valuePosition="tooltip"
+                        formatValue={(v) => `${v}`}
+                    />
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: 'var(--text-tertiary)', marginTop: 16 }}>
                     <span>1 page (Fast)</span>
                     <span>100 pages (Comprehensive)</span>
                 </div>

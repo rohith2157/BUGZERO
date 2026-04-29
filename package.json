@@ -15,5 +15,8 @@
     "db:studio": "cd gateway && npx prisma studio",
     "install:all": "cd gateway && npm install && cd ../autonomousqa-frontend && npm install",
     "setup": "npm run db:up && timeout /t 5 && npm run db:migrate && npm run db:seed"
+  },
+  "dependencies": {
+    "@radix-ui/react-slider": "^1.3.6"
   }
 }
