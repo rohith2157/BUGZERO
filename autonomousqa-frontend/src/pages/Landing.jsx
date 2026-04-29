@@ -12,6 +12,7 @@ import FlipTextReveal from '../components/ui/next-reveal';
 import { Spotlight } from '../components/ui/Spotlight';
 import { TiltCard } from '../components/ui/tilt-card';
 import { AnimatedThemeToggle } from '../components/ui/animated-theme-toggle';
+import { StarButton } from '../components/ui/star-button';
 import useThemeStore from '../store/themeStore';
 import DotPattern from '../components/ui/dot-pattern-1';
 import { useRef } from 'react';
@@ -114,20 +115,12 @@ export default function Landing() {
                     <span style={{ fontSize: 13, color: 'var(--text-tertiary)', cursor: 'pointer', fontWeight: 500 }}>Docs</span>
                     <span style={{ fontSize: 13, color: 'var(--text-tertiary)', cursor: 'pointer', fontWeight: 500 }}>Pricing</span>
                     <AnimatedThemeToggle />
-                    <button
-                        onClick={() => navigate('/login')}
-                        style={{
-                            padding: '7px 18px', fontSize: 13, fontWeight: 600,
-                            background: 'var(--color-accent-gold)',
-                            color: 'var(--on-accent)',
-                            border: 'none', borderRadius: 'var(--radius-full)',
-                            cursor: 'pointer',
-                            boxShadow: 'var(--shadow-glow-gold)',
-                            transition: 'all var(--transition-fast)',
-                        }}
-                    >
-                        Launch App →
-                    </button>
+                    <StarButton 
+                        title="Launch App" 
+                        onClick={() => {
+                            setTimeout(() => navigate('/login'), 400); 
+                        }} 
+                    />
                 </div>
             </motion.nav>
 
@@ -226,7 +219,8 @@ export default function Landing() {
                         ].map(({ icon: Icon, label }) => (
                             <motion.button
                                 key={label}
-                                whileHover={{ scale: 1.03, borderColor: 'var(--border-default)' }}
+                                className="group relative flex shrink-0 whitespace-nowrap cursor-pointer items-center justify-center gap-3 overflow-hidden"
+                                whileHover={{ scale: 1.03, borderColor: 'var(--border-default)', color: 'white' }}
                                 whileTap={{ scale: 0.97 }}
                                 onClick={() => navigate('/login')}
                                 style={{
@@ -234,12 +228,15 @@ export default function Landing() {
                                     background: 'var(--glass-muted)',
                                     border: '1px solid var(--border-subtle)',
                                     borderRadius: 'var(--radius-md)', color: 'var(--text-tertiary)',
-                                    cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8,
                                     transition: 'all var(--transition-fast)',
                                     backdropFilter: 'blur(8px)',
+                                    transform: 'translateZ(0)', // <--- This fixes the icon breaking out of the rounded border!
                                 }}
                             >
-                                <Icon size={15} /> Continue with {label}
+                                <Icon strokeWidth={2} className="relative z-0 size-[16px] transition-all duration-500 group-hover:scale-[1500%] group-hover:translate-x-12" />
+                                <div className="relative z-10 transition-all duration-300 group-hover:-translate-x-3">
+                                    Continue with {label}
+                                </div>
                             </motion.button>
                         ))}
                     </motion.div>

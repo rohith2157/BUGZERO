@@ -25,16 +25,19 @@ export const DynamicArrow = ({ targetRef, containerRef }) => {
     });
 
     useEffect(() => {
-        const tempElement = document.createElement('div');
-        tempElement.style.display = 'none';
-        document.body.appendChild(tempElement);
         const updateResolvedColors = () => {
-            resolvedCanvasColorsRef.current.strokeStyle = { r: 255, g: 255, b: 255 }; 
+            const theme = document.documentElement.getAttribute('data-theme');
+            const isDark = theme === 'dark';
+            const color = isDark ? { r: 255, g: 255, b: 255 } : { r: 255, g: 0, b: 0 };
+            resolvedCanvasColorsRef.current.strokeStyle = color; 
         };
+        
         updateResolvedColors();
-        return () => {
-            if (tempElement.parentNode) tempElement.parentNode.removeChild(tempElement);
-        };
+        
+        const observer = new MutationObserver(updateResolvedColors);
+        observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+        
+        return () => observer.disconnect();
     }, []);
 
     const drawArrow = useCallback(() => {
@@ -73,11 +76,11 @@ export const DynamicArrow = ({ targetRef, containerRef }) => {
         const controlX = midX;
         const controlY = midY + offset * t;
         
-        const opacity = 0.6;
+        const opacity = 0.95; // Increased from 0.6 for much brighter, vibrant colors
 
         const arrowColor = resolvedCanvasColorsRef.current.strokeStyle;
         ctx.strokeStyle = `rgba(${arrowColor.r}, ${arrowColor.g}, ${arrowColor.b}, ${opacity})`;
-        ctx.lineWidth = 2;
+        ctx.lineWidth = 2.5; // Make the line slightly thicker for better visibility
 
         // Draw curve
         ctx.save();
@@ -90,10 +93,10 @@ export const DynamicArrow = ({ targetRef, containerRef }) => {
 
         // Draw arrowhead
         const angle = Math.atan2(y1 - controlY, x1 - controlX);
-        const headLength = 10 * (ctx.lineWidth / 1.5); 
+        const headLength = 12 * (ctx.lineWidth / 1.5); // Slightly larger arrowhead
         
         ctx.save();
-        ctx.strokeStyle = `rgba(${arrowColor.r}, ${arrowColor.g}, ${arrowColor.b}, ${opacity + 0.2})`;
+        ctx.strokeStyle = `rgba(${arrowColor.r}, ${arrowColor.g}, ${arrowColor.b}, 1)`; // Solid head opacity
         ctx.lineWidth = 2;
         ctx.beginPath();
         ctx.moveTo(x1, y1);
