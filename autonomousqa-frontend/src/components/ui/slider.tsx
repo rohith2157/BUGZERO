@@ -203,15 +203,23 @@ function TooltipValue({ value, formatValue, motionX }: TooltipValueProps) {
   return (
     <motion.div
       className="absolute -translate-x-1/2 pointer-events-none z-20"
-      style={{ x: tooltipX, top: -16 }}
+      style={{ x: tooltipX, top: -24 }}
       initial={{ opacity: 0, y: 4 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: 4, transition: { duration: 0.1 } }}
       transition={springs.fast}
     >
       <span
-        className={cn("text-[12px] text-background tabular-nums whitespace-nowrap px-2 py-1", shape.bg)}
-        style={{ fontVariationSettings: fontWeights.medium, backgroundColor: "var(--foreground)", color: "var(--background)" }}
+        className="text-[12px] tabular-nums whitespace-nowrap inline-flex items-center justify-center shadow-md"
+        style={{
+          fontVariationSettings: fontWeights.medium, 
+          backgroundColor: "var(--foreground)", 
+          color: "var(--background)",
+          borderRadius: "20px",
+          padding: "4px 10px",
+          minWidth: "32px",
+          lineHeight: "1"
+        }}
       >
         {formatValue(value)}
       </span>
@@ -492,10 +500,18 @@ const Slider = forwardRef<HTMLDivElement, SliderProps>(
                   animate={{ opacity: 1, y: 0, left: hoverPreview.cursorX }}
                   exit={{ opacity: 0, y: 4, transition: { duration: 0.1 } }}
                   transition={springs.fast}
-                  style={{ top: -20 }}
+                  style={{ top: -28 }}
                 >
-                  <span className={cn("text-[12px] tabular-nums whitespace-nowrap px-2 py-1", shape.bg)}
-                    style={{ fontVariationSettings: fontWeights.medium, backgroundColor: "var(--foreground)", color: "var(--background)" }}>
+                  <span className="text-[12px] tabular-nums whitespace-nowrap inline-flex items-center justify-center shadow-md"
+                    style={{ 
+                      fontVariationSettings: fontWeights.medium, 
+                      backgroundColor: "var(--foreground)", 
+                      color: "var(--background)",
+                      borderRadius: "20px",
+                      padding: "4px 10px",
+                      minWidth: "32px",
+                      lineHeight: "1"
+                    }}>
                     {formatValue(hoverPreview.snappedValue)}
                   </span>
                 </motion.div>
