@@ -220,7 +220,7 @@ export default function Landing() {
                             <motion.button
                                 key={label}
                                 className="group relative flex shrink-0 whitespace-nowrap cursor-pointer items-center justify-center gap-3 overflow-hidden"
-                                whileHover={{ scale: 1.03, borderColor: 'var(--border-default)', color: 'white' }}
+                                whileHover={{ scale: 1.03, borderColor: 'var(--border-default)' }}
                                 whileTap={{ scale: 0.97 }}
                                 onClick={() => navigate('/login')}
                                 style={{
@@ -230,13 +230,14 @@ export default function Landing() {
                                     borderRadius: 'var(--radius-md)', color: 'var(--text-tertiary)',
                                     transition: 'all var(--transition-fast)',
                                     backdropFilter: 'blur(8px)',
-                                    transform: 'translateZ(0)', // <--- This fixes the icon breaking out of the rounded border!
+                                    transform: 'translateZ(0)',
                                 }}
                             >
-                                <Icon strokeWidth={2} className="relative z-0 size-[16px] transition-all duration-500 group-hover:scale-[1500%] group-hover:translate-x-12" />
-                                <div className="relative z-10 transition-all duration-300 group-hover:-translate-x-3">
+                                <Icon strokeWidth={2} className="relative z-10 size-[16px] transition-all duration-500 group-hover:text-amber-500" />
+                                <div className="relative z-10 transition-all duration-300 group-hover:text-black">
                                     Continue with {label}
                                 </div>
+                                <div className="absolute inset-0 z-0 bg-white transition-transform duration-500 scale-x-0 group-hover:scale-x-100 rounded-md" style={{ transformOrigin: 'left center' }} />
                             </motion.button>
                         ))}
                     </motion.div>
@@ -333,19 +334,29 @@ export default function Landing() {
                                         className="-top-40 left-0 md:left-32 md:-top-20 opacity-0 transition-opacity duration-500 group-hover:opacity-100"
                                         fill={accent}
                                     />
-                                    <div style={{
-                                        position: 'relative', zIndex: 2,
-                                        background: 'var(--color-bg-card)',
-                                        border: '1px solid var(--border-subtle)',
-                                        borderRadius: 'var(--radius-lg)',
-                                        padding: '24px 20px',
-                                        backdropFilter: 'blur(12px)',
-                                        display: 'flex', flexDirection: 'column', gap: 12,
-                                        cursor: 'pointer',
-                                        boxShadow: 'var(--shadow-md)',
-                                        transition: 'border-color 0.3s ease, box-shadow 0.3s ease',
-                                        flex: 1,
-                                    }}>
+                                    <div style={{ position: 'relative', flex: 1, display: 'flex' }} className="mt-2">
+                                        {/* Colored 3D backing / shadow layer */}
+                                        <div 
+                                            className="absolute inset-0 transition-transform duration-300 group-hover:translate-x-1 group-hover:translate-y-1 group-hover:opacity-80"
+                                            style={{
+                                                zIndex: 1,
+                                                background: accent,
+                                                borderRadius: 'var(--radius-lg)',
+                                                opacity: 0.5,
+                                            }}
+                                        />
+                                        <div className="transition-transform duration-300 group-hover:-translate-x-0.5 group-hover:-translate-y-0.5" style={{
+                                            position: 'relative', zIndex: 2,
+                                            background: 'var(--color-bg-card)',
+                                            border: '1px solid var(--border-subtle)',
+                                            borderRadius: 'var(--radius-lg)',
+                                            padding: '24px 20px',
+                                            backdropFilter: 'blur(12px)',
+                                            display: 'flex', flexDirection: 'column', gap: 12,
+                                            cursor: 'pointer',
+                                            boxShadow: 'var(--shadow-md)',
+                                            flex: 1,
+                                        }}>
                                         <div style={{
                                             width: 40, height: 40, borderRadius: 10,
                                             background: 'var(--glass-subtle)',
@@ -362,6 +373,7 @@ export default function Landing() {
                                         </p>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: accent, fontWeight: 600, marginTop: 4 }}>
                                             Learn more <ChevronRight size={13} />
+                                        </div>
                                         </div>
                                     </div>
                                 </WarpBackground>

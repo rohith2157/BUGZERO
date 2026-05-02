@@ -16,9 +16,9 @@ export const StarButton = ({ title = "Launch App", icon: Icon, onClick, classNam
         }} 
       />
       <div
-        className="group inline-flex shrink-0 whitespace-nowrap cursor-pointer items-center justify-center gap-4 overflow-hidden rounded-full border-[3px] border-amber-500 fill-none py-3 px-12 text-[15px] font-bold text-amber-500 transition-all peer-checked:fill-amber-500 peer-checked:hover:text-white active:scale-95"
+        className="group inline-flex whitespace-nowrap cursor-pointer items-center justify-center gap-2 overflow-hidden rounded-full border-[3px] border-amber-500 fill-none py-3 px-8 text-[15px] font-bold text-amber-500 transition-all peer-checked:fill-amber-500 peer-checked:hover:text-white active:scale-95 min-w-[200px]"
       >
-        <div className="z-10 transition group-hover:translate-x-4">{title}</div>
+        <div className="z-10 transition group-hover:translate-x-4 text-center">{title}</div>
         {Icon ? (
           <Icon className="size-6 transition duration-500 group-hover:scale-[1500%] group-hover:-translate-x-10" strokeWidth={2.5} />
         ) : (
