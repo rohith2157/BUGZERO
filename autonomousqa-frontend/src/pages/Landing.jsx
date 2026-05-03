@@ -337,12 +337,11 @@ export default function Landing() {
                                     <div style={{ position: 'relative', flex: 1, display: 'flex' }} className="mt-2">
                                         {/* Colored 3D backing / shadow layer */}
                                         <div 
-                                            className="absolute inset-0 transition-transform duration-300 group-hover:translate-x-1 group-hover:translate-y-1 group-hover:opacity-80"
+                                            className="absolute inset-0 transition-all duration-300 group-hover:translate-x-1 group-hover:translate-y-1 opacity-70 group-hover:opacity-100"
                                             style={{
                                                 zIndex: 1,
                                                 background: accent,
                                                 borderRadius: 'var(--radius-lg)',
-                                                opacity: 0.5,
                                             }}
                                         />
                                         <div className="transition-transform duration-300 group-hover:-translate-x-0.5 group-hover:-translate-y-0.5" style={{
