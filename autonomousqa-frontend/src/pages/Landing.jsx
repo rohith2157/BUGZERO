@@ -15,8 +15,9 @@ import { AnimatedThemeToggle } from '../components/ui/animated-theme-toggle';
 import { StarButton } from '../components/ui/star-button';
 import useThemeStore from '../store/themeStore';
 import DotPattern from '../components/ui/dot-pattern-1';
-import { useRef } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { DynamicArrow } from '../components/ui/dynamic-arrow';
+import { ParticleTextLayer } from '../components/ui/particle-hero-background';
 
 const features = [
     { icon: Zap, title: 'Self-Healing Tests', desc: 'Tests that auto-repair when UI changes. Zero maintenance.', accent: 'var(--color-accent-gold)' },
@@ -46,6 +47,16 @@ export default function Landing() {
     const isDark = theme === 'dark';
     const getStartedRef = useRef(null);
     const quoteContainerRef = useRef(null);
+
+    const [isScrolled, setIsScrolled] = useState(false);
+
+    useEffect(() => {
+        const handleScroll = () => {
+            setIsScrolled(window.scrollY > 50);
+        };
+        window.addEventListener('scroll', handleScroll);
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
 
     return (
         <div style={{
@@ -83,21 +94,25 @@ export default function Landing() {
             }} />
 
             {/* Navbar */}
-            <motion.nav
-                initial={{ y: -20, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ duration: 0.5, delay: 0.1 }}
-                style={{
-                    position: 'fixed', top: 12, left: 20, right: 20, zIndex: 50,
-                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                    padding: '12px 24px',
-                    background: 'var(--glass-navbar)',
-                    backdropFilter: 'blur(24px) saturate(1.2)',
-                    border: '1px solid var(--border-subtle)',
-                    borderRadius: 16,
-                    transition: 'background 0.3s ease, border-color 0.3s ease',
-                }}
-            >
+            <div style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 50, padding: '12px 20px', pointerEvents: 'none' }}>
+                <motion.nav
+                    initial={{ y: -20, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    transition={{ duration: 0.5, delay: 0.1 }}
+                    style={{
+                        margin: '0 auto',
+                        pointerEvents: 'auto',
+                        width: '100%',
+                        maxWidth: isScrolled ? 896 : 1200,
+                        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                        padding: isScrolled ? '12px 24px' : '16px 12px',
+                        background: isScrolled ? 'var(--glass-navbar)' : 'transparent',
+                        backdropFilter: isScrolled ? 'blur(24px) saturate(1.2)' : 'none',
+                        border: isScrolled ? '1px solid var(--border-subtle)' : '1px solid transparent',
+                        borderRadius: isScrolled ? 24 : 12,
+                        transition: 'all 0.4s cubic-bezier(0.22, 1, 0.36, 1)',
+                    }}
+                >
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                     <div style={{
                         width: 30, height: 30, borderRadius: 8,
@@ -122,7 +137,8 @@ export default function Landing() {
                         }} 
                     />
                 </div>
-            </motion.nav>
+                </motion.nav>
+            </div>
 
             {/* Hero */}
             <section style={{
@@ -135,6 +151,7 @@ export default function Landing() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+                    style={{ position: 'relative', zIndex: 2 }}
                 >
                     {/* Badge */}
                     <motion.div
@@ -244,18 +261,29 @@ export default function Landing() {
                 </motion.div>
             </section>
 
-            {/* Stats bar */}
-            <motion.section
-                variants={container}
-                initial="hidden"
-                whileInView="show"
-                viewport={{ once: true, margin: '-100px' }}
-                style={{
-                    display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)',
-                    gap: 1, maxWidth: 800, margin: '0 auto', padding: '0 24px 80px',
-                    position: 'relative', zIndex: 1,
-                }}
-            >
+            {/* Stats bar with flanking Particle Texts */}
+            <div style={{ position: 'relative', width: '100%', padding: '60px 0 20px 0', zIndex: 0 }}>
+                {/* Top Particle Text (Above Stats) */}
+                <ParticleTextLayer 
+                    isDark={isDark} 
+                    text="Zero-Touch QA" 
+                    fontSize={160} 
+                    top="-180px"
+                    height="350px" 
+                    opacity={isDark ? 0.35 : 0.35} 
+                />
+
+                <motion.section
+                    variants={container}
+                    initial="hidden"
+                    whileInView="show"
+                    viewport={{ once: true, margin: '-100px' }}
+                    style={{
+                        display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)',
+                        gap: 1, maxWidth: 800, margin: '0 auto', padding: '0 24px 80px',
+                        position: 'relative', zIndex: 1,
+                    }}
+                >
                 {stats.map(({ value, label, suffix }, i) => (
                     <motion.div key={label} variants={item} style={{
                         textAlign: 'center', padding: '24px 16px',
@@ -273,11 +301,17 @@ export default function Landing() {
                         </div>
                     </motion.div>
                 ))}
-            </motion.section>
+                </motion.section>
 
-            {/* Divider */}
-            <div style={{ maxWidth: 800, margin: '0 auto', padding: '0 24px' }}>
-                <div className="glow-line" />
+                {/* Bottom Particle Text (Below Stats) */}
+                <ParticleTextLayer 
+                    isDark={isDark} 
+                    text="AI · Autonomous" 
+                    fontSize={130} 
+                    bottom="-120px"
+                    height="350px" 
+                    opacity={isDark ? 0.25 : 0.30} 
+                />
             </div>
 
             {/* Features grid */}
