@@ -155,7 +155,7 @@
   --transition-spring: 500ms cubic-bezier(0.34, 1.56, 0.64, 1);
 
   /* Glass & Surface — Dark defaults */
-  --glass-navbar: #000000;
+  --glass-navbar: rgba(0, 0, 0, 0.4);
   --glass-card-surface: #000000;
   --glass-subtle: rgba(0, 0, 0, 1);
   --glass-subtle-hover: rgba(0, 0, 0, 1);

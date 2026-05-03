@@ -21,23 +21,23 @@ export const LogoCloud = ({ isDark }) => {
                     </div>
                     <div className="relative py-6 md:w-[calc(100%-11rem)] overflow-hidden">
                         <InfiniteSlider
-                            speedOnHover={20}
-                            speed={40}
+                            durationOnHover={40}
+                            duration={25}
                             gap={112}>
                             <div className="flex">
                                 <img
-                                    className="mx-auto h-5 w-fit opacity-50 hover:opacity-100 transition-opacity"
+                                    className="mx-auto h-5 w-fit"
                                     src="https://html.tailus.io/blocks/customers/nvidia.svg"
                                     alt="Nvidia Logo"
                                     height="20"
                                     width="auto"
-                                    style={{ filter: 'brightness(0) invert(1)' }}
+                                    style={logoStyle}
                                 />
                             </div>
 
                             <div className="flex">
                                 <img
-                                    className="mx-auto h-4 w-fit opacity-50 hover:opacity-100 transition-opacity"
+                                    className="mx-auto w-fit"
                                     src="https://html.tailus.io/blocks/customers/column.svg"
                                     alt="Column Logo"
                                     height="16"
@@ -47,7 +47,7 @@ export const LogoCloud = ({ isDark }) => {
                             </div>
                             <div className="flex">
                                 <img
-                                    className="mx-auto h-4 w-fit opacity-50 hover:opacity-100 transition-opacity"
+                                    className="mx-auto w-fit"
                                     src="https://html.tailus.io/blocks/customers/github.svg"
                                     alt="GitHub Logo"
                                     height="16"
@@ -57,7 +57,7 @@ export const LogoCloud = ({ isDark }) => {
                             </div>
                             <div className="flex">
                                 <img
-                                    className="mx-auto h-5 w-fit opacity-50 hover:opacity-100 transition-opacity"
+                                    className="mx-auto w-fit"
                                     src="https://html.tailus.io/blocks/customers/nike.svg"
                                     alt="Nike Logo"
                                     height="20"
@@ -67,7 +67,7 @@ export const LogoCloud = ({ isDark }) => {
                             </div>
                             <div className="flex">
                                 <img
-                                    className="mx-auto h-5 w-fit opacity-50 hover:opacity-100 transition-opacity"
+                                    className="mx-auto w-fit"
                                     src="https://html.tailus.io/blocks/customers/lemonsqueezy.svg"
                                     alt="Lemon Squeezy Logo"
                                     height="20"
@@ -77,7 +77,7 @@ export const LogoCloud = ({ isDark }) => {
                             </div>
                             <div className="flex">
                                 <img
-                                    className="mx-auto h-4 w-fit opacity-50 hover:opacity-100 transition-opacity"
+                                    className="mx-auto w-fit"
                                     src="https://html.tailus.io/blocks/customers/laravel.svg"
                                     alt="Laravel Logo"
                                     height="16"
@@ -87,7 +87,7 @@ export const LogoCloud = ({ isDark }) => {
                             </div>
                             <div className="flex">
                                 <img
-                                    className="mx-auto h-7 w-fit opacity-50 hover:opacity-100 transition-opacity"
+                                    className="mx-auto w-fit"
                                     src="https://html.tailus.io/blocks/customers/lilly.svg"
                                     alt="Lilly Logo"
                                     height="28"
@@ -98,7 +98,7 @@ export const LogoCloud = ({ isDark }) => {
 
                             <div className="flex">
                                 <img
-                                    className="mx-auto h-6 w-fit opacity-50 hover:opacity-100 transition-opacity"
+                                    className="mx-auto w-fit"
                                     src="https://html.tailus.io/blocks/customers/openai.svg"
                                     alt="OpenAI Logo"
                                     height="24"
