@@ -18,6 +18,7 @@ import DotPattern from '../components/ui/dot-pattern-1';
 import { useRef, useState, useEffect } from 'react';
 import { DynamicArrow } from '../components/ui/dynamic-arrow';
 import { ParticleTextLayer } from '../components/ui/particle-hero-background';
+import Prism from '../components/ui/Prism';
 
 const features = [
     { icon: Zap, title: 'Self-Healing Tests', desc: 'Tests that auto-repair when UI changes. Zero maintenance.', accent: 'var(--color-accent-gold)' },
@@ -67,6 +68,7 @@ export default function Landing() {
             transition: 'background 0.3s ease',
         }}>
             <DynamicArrow targetRef={getStartedRef} containerRef={quoteContainerRef} />
+            
             {/* Subtle grid */}
             <div className="grid-pattern" style={{ position: 'fixed', inset: 0, zIndex: 0 }} />
 
@@ -147,6 +149,20 @@ export default function Landing() {
                 textAlign: 'center', padding: '140px 24px 80px',
                 position: 'relative', zIndex: 1,
             }}>
+                <div style={{ position: 'absolute', inset: 0, zIndex: 0, opacity: isDark ? 0.9 : 0.6 }}>
+                    <Prism
+                        animationType="rotate"
+                        timeScale={0.5}
+                        height={3.5}
+                        baseWidth={5.5}
+                        scale={3.6}
+                        hueShift={0}
+                        colorFrequency={1.6}
+                        noise={0.5}
+                        glow={1}
+                    />
+                </div>
+                
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -261,14 +277,25 @@ export default function Landing() {
                 </motion.div>
             </section>
 
-            {/* Stats bar with flanking Particle Texts */}
-            <div style={{ position: 'relative', width: '100%', padding: '60px 0 20px 0', zIndex: 0 }}>
+            {/* Curved container wrapper for content below Hero */}
+            <div style={{
+                background: 'var(--color-bg-primary)',
+                borderTopLeftRadius: '60px',
+                borderTopRightRadius: '60px',
+                position: 'relative',
+                zIndex: 10,
+                marginTop: '-60px',
+                paddingTop: '60px',
+                boxShadow: isDark ? '0 -20px 40px rgba(0,0,0,0.5)' : '0 -10px 30px rgba(0,0,0,0.05)',
+            }}>
+                {/* Stats bar with flanking Particle Texts */}
+                <div style={{ position: 'relative', width: '100%', padding: '140px 0 160px 0', zIndex: 0 }}>
                 {/* Top Particle Text (Above Stats) */}
                 <ParticleTextLayer 
                     isDark={isDark} 
                     text="Zero-Touch QA" 
                     fontSize={160} 
-                    top="-180px"
+                    top={0}
                     height="350px" 
                     opacity={isDark ? 0.35 : 0.35} 
                 />
@@ -308,7 +335,7 @@ export default function Landing() {
                     isDark={isDark} 
                     text="AI · Autonomous" 
                     fontSize={130} 
-                    bottom="-120px"
+                    bottom={0}
                     height="350px" 
                     opacity={isDark ? 0.25 : 0.30} 
                 />
@@ -518,6 +545,7 @@ export default function Landing() {
             }}>
                 <p>© 2026 AutonomousQA — Zero-Touch Quality Assurance</p>
             </footer>
+            </div>
         </div>
     );
 }

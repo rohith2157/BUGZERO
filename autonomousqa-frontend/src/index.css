@@ -270,7 +270,7 @@
   --shadow-inset: inset 0 1px 0 rgba(255, 255, 255, 0.8);
 
   /* Glass & Surface — Light */
-  --glass-navbar: rgba(255, 255, 255, 0.82);
+  --glass-navbar: rgba(255, 255, 255, 0.4);
   --glass-card-surface: rgba(255, 255, 255, 0.75);
   --glass-subtle: rgba(0, 0, 0, 0.03);
   --glass-subtle-hover: rgba(0, 0, 0, 0.05);

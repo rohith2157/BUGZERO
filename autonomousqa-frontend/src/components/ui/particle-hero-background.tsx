@@ -9,12 +9,13 @@ interface ParticleTextProps {
   top?: string | number;
   bottom?: string | number;
   height?: string | number;
+  position?: "absolute" | "relative";
 }
 
 /**
  * Reusable particle text layer that can be positioned absolutely within any relative section.
  */
-export function ParticleTextLayer({ isDark, text, fontSize = 160, opacity = 0.35, top, bottom, height = "100%" }: ParticleTextProps) {
+export function ParticleTextLayer({ isDark, text, fontSize = 160, opacity = 0.35, top, bottom, height = "100%", position = "absolute" }: ParticleTextProps) {
   const [key, setKey] = useState(0);
   useEffect(() => {
     setKey((k) => k + 1);
@@ -33,7 +34,7 @@ export function ParticleTextLayer({ isDark, text, fontSize = 160, opacity = 0.35
     <div
       key={`particle-${key}`}
       style={{
-        position: "absolute",
+        position: position,
         top,
         bottom,
         left: 0,
