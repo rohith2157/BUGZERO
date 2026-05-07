@@ -20,13 +20,13 @@ const MotionButton: FC<Props> = ({ label, classes, onClick, ...props }) => {
     <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
       onClick={onClick}
       className={cn(
-        'bg-background group relative h-14 w-[240px] cursor-pointer rounded-full border-[none] outline-none',
+        'bg-background group relative h-14 w-[240px] cursor-pointer rounded-full border-[none] outline-none overflow-hidden',
         classes
       )}
       {...props}
     >
-      <div className="absolute inset-y-0 left-[-8%] w-full flex items-center justify-start z-0">
-        <span className='circle bg-primary absolute left-1 h-12 w-12 overflow-hidden rounded-full duration-500 group-hover:w-[calc(108%-8px)]' aria-hidden='true'></span>
+      <div className="absolute inset-y-0 left-0 w-full flex items-center justify-start z-0">
+        <span className='circle bg-primary absolute left-1 h-12 w-12 overflow-hidden rounded-full duration-500 group-hover:w-[calc(100%-8px)]' aria-hidden='true'></span>
         <ArrowRight className='text-background size-6 absolute left-4 z-10 duration-500 group-hover:translate-x-1' />
       </div>
 
