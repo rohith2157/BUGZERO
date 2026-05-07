@@ -110,7 +110,7 @@ export default function Landing() {
                         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                         padding: isScrolled ? '12px 24px' : '16px 12px',
                         background: isScrolled ? 'var(--glass-navbar)' : 'transparent',
-                        backdropFilter: isScrolled ? 'blur(24px) saturate(1.2)' : 'none',
+                        backdropFilter: isScrolled ? 'blur(32px) saturate(1.5)' : 'none',
                         border: isScrolled ? '1px solid var(--border-subtle)' : '1px solid transparent',
                         borderRadius: isScrolled ? 24 : 12,
                         transition: 'all 0.4s cubic-bezier(0.22, 1, 0.36, 1)',
@@ -279,7 +279,15 @@ export default function Landing() {
             </section>
 
             {/* Curved container wrapper for content below Hero */}
-            <StripeGradientShader className="relative z-10 -mt-[60px] pt-[60px] shadow-[0_-20px_40px_rgba(0,0,0,0.5)] rounded-t-[60px] dark:shadow-[0_-20px_40px_rgba(0,0,0,0.5)]">
+            <StripeGradientShader 
+                className="relative z-10 shadow-[0_-20px_40px_rgba(0,0,0,0.5)] dark:shadow-[0_-20px_40px_rgba(0,0,0,0.5)]"
+                style={{
+                    marginTop: '-60px',
+                    paddingTop: '60px',
+                    borderTopLeftRadius: '60px',
+                    borderTopRightRadius: '60px',
+                }}
+            >
                 {/* Stats bar with flanking Particle Texts */}
                 <div style={{ position: 'relative', width: '100%', padding: '140px 0 160px 0', zIndex: 0 }}>
                 {/* Top Particle Text (Above Stats) */}
