@@ -19,6 +19,7 @@ import { useRef, useState, useEffect } from 'react';
 import { DynamicArrow } from '../components/ui/dynamic-arrow';
 import { ParticleTextLayer } from '../components/ui/particle-hero-background';
 import Prism from '../components/ui/Prism';
+import { StripeGradientShader } from '../components/ui/stripe-like-gradient-shader';
 
 const features = [
     { icon: Zap, title: 'Self-Healing Tests', desc: 'Tests that auto-repair when UI changes. Zero maintenance.', accent: 'var(--color-accent-gold)' },
@@ -149,7 +150,7 @@ export default function Landing() {
                 textAlign: 'center', padding: '140px 24px 80px',
                 position: 'relative', zIndex: 1,
             }}>
-                <div style={{ position: 'absolute', inset: 0, zIndex: 0, opacity: isDark ? 0.9 : 0.6 }}>
+                <div style={{ position: 'absolute', inset: 0, zIndex: 0, opacity: isDark ? 0.9 : 1 }}>
                     <Prism
                         animationType="rotate"
                         timeScale={0.5}
@@ -159,7 +160,7 @@ export default function Landing() {
                         hueShift={0}
                         colorFrequency={1.6}
                         noise={0.5}
-                        glow={1}
+                        glow={isDark ? 1 : 2}
                     />
                 </div>
                 
@@ -278,16 +279,7 @@ export default function Landing() {
             </section>
 
             {/* Curved container wrapper for content below Hero */}
-            <div style={{
-                background: 'var(--color-bg-primary)',
-                borderTopLeftRadius: '60px',
-                borderTopRightRadius: '60px',
-                position: 'relative',
-                zIndex: 10,
-                marginTop: '-60px',
-                paddingTop: '60px',
-                boxShadow: isDark ? '0 -20px 40px rgba(0,0,0,0.5)' : '0 -10px 30px rgba(0,0,0,0.05)',
-            }}>
+            <StripeGradientShader className="relative z-10 -mt-[60px] pt-[60px] shadow-[0_-20px_40px_rgba(0,0,0,0.5)] rounded-t-[60px] dark:shadow-[0_-20px_40px_rgba(0,0,0,0.5)]">
                 {/* Stats bar with flanking Particle Texts */}
                 <div style={{ position: 'relative', width: '100%', padding: '140px 0 160px 0', zIndex: 0 }}>
                 {/* Top Particle Text (Above Stats) */}
@@ -297,7 +289,7 @@ export default function Landing() {
                     fontSize={160} 
                     top={0}
                     height="350px" 
-                    opacity={isDark ? 0.35 : 0.35} 
+                    opacity={1} 
                 />
 
                 <motion.section
@@ -318,12 +310,16 @@ export default function Landing() {
                     }}>
                         <div style={{
                             fontSize: 40, fontWeight: 800, letterSpacing: '-0.04em',
-                            background: 'linear-gradient(135deg, var(--color-accent-gold), var(--color-accent-gold-bright))',
-                            WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
+                            color: '#FFFFFF',
+                            textShadow: '0px 8px 16px rgba(0, 0, 0, 0.6), 0px 2px 4px rgba(0, 0, 0, 0.8)',
                         }}>
                             {value}<span style={{ fontSize: 20 }}>{suffix}</span>
                         </div>
-                        <div style={{ fontSize: 12, color: 'var(--text-tertiary)', fontWeight: 500, marginTop: 6, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+                        <div style={{ 
+                            fontSize: 13, color: '#FFFFFF', fontWeight: 700, marginTop: 6, 
+                            textTransform: 'uppercase', letterSpacing: '0.08em',
+                            textShadow: '0px 2px 8px rgba(0, 0, 0, 0.7)'
+                        }}>
                             {label}
                         </div>
                     </motion.div>
@@ -337,9 +333,22 @@ export default function Landing() {
                     fontSize={130} 
                     bottom={0}
                     height="350px" 
-                    opacity={isDark ? 0.25 : 0.30} 
+                    opacity={1} 
                 />
-            </div>
+                </div>
+            </StripeGradientShader>
+            
+            {/* Container for the rest of the content */}
+            <div style={{
+                background: 'var(--color-bg-primary)',
+                borderTopLeftRadius: '60px',
+                borderTopRightRadius: '60px',
+                position: 'relative',
+                zIndex: 10,
+                marginTop: '-60px',
+                paddingTop: '60px',
+                boxShadow: isDark ? '0 -20px 40px rgba(0,0,0,0.5)' : '0 -10px 30px rgba(0,0,0,0.05)',
+            }}>
 
             {/* Features grid */}
             <section style={{

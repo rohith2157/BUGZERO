@@ -21,7 +21,7 @@ export function ParticleTextLayer({ isDark, text, fontSize = 160, opacity = 0.35
     setKey((k) => k + 1);
   }, [isDark]);
 
-  const particleColor = isDark ? "#D4A853" : "#4A3600";
+  const particleColor = isDark ? "#FFD700" : "#000000";
   
   // Custom particle settings based on text for variety
   const isMain = text === "Zero-Touch QA";
