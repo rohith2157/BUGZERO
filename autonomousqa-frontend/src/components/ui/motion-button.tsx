@@ -20,7 +20,7 @@ const MotionButton: FC<Props> = ({ label, classes, onClick, ...props }) => {
     <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
       onClick={onClick}
       className={cn(
-        'bg-background group relative h-14 w-[240px] cursor-pointer rounded-full border-[none] outline-none overflow-hidden',
+        'bg-background group relative h-14 w-[260px] cursor-pointer rounded-full border-[none] outline-none overflow-hidden',
         classes
       )}
       {...props}
@@ -30,7 +30,7 @@ const MotionButton: FC<Props> = ({ label, classes, onClick, ...props }) => {
         <ArrowRight className='text-background size-6 absolute left-4 z-10 duration-500 group-hover:translate-x-1' />
       </div>
 
-      <div className="relative z-10 flex h-full items-center justify-center w-full px-6 pointer-events-none">
+      <div className="relative z-10 flex h-full items-center justify-center w-full pl-[52px] pr-2 pointer-events-none">
         <span className='button-text text-foreground group-hover:text-background font-manrope text-lg font-bold tracking-tight whitespace-nowrap duration-500'>
           {label}
         </span>
