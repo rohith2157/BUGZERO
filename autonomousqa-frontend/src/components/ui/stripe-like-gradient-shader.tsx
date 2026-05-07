@@ -4,9 +4,9 @@ import { GradFlow } from 'gradflow'
 
 // Want to create stunning backgrounds and play with the colors and valies check: Check out https://gradflow.meera.dev/
 
-export const StripeGradientShader = ({ className, children }) => {
+export const StripeGradientShader = ({ className, style, children }) => {
   return (
-    <div className={cn("relative w-full overflow-hidden", className)}>
+    <div className={cn("relative w-full overflow-hidden", className)} style={style}>
       <div className="absolute inset-0 z-0">
         <GradFlow config={{
           color1: { r: 255, g: 255, b: 255 },
