@@ -355,7 +355,8 @@ export default function Landing() {
                 position: 'relative',
                 zIndex: 10,
                 marginTop: '-60px',
-                paddingTop: '60px',
+                paddingTop: '0px',
+                overflow: 'hidden',
                 boxShadow: isDark ? '0 -20px 40px rgba(0,0,0,0.5)' : '0 -10px 30px rgba(0,0,0,0.05)',
             }}>
 

@@ -32,14 +32,14 @@ export function AuroraHero({
   return (
     <section
       className={cn(
-        "relative w-full min-h-screen flex items-center justify-center bg-background",
+        "relative w-full min-h-screen flex items-center justify-center",
         className
       )}
       role="banner"
       aria-label="Hero section"
     >
       {/* Aurora Gradient Background */}
-      <div className="absolute inset-0 opacity-40 overflow-hidden" aria-hidden="true" style={{ clipPath: 'inset(0 0 0 0)' }}>
+      <div className={cn("absolute inset-0 overflow-hidden", isDark ? "opacity-30" : "opacity-70")} aria-hidden="true" style={{ clipPath: 'inset(0 0 0 0)' }}>
         <motion.div
           className="absolute inset-[-100%]"
           style={{
