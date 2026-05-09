@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import { AuroraHero } from '../components/ui/aurora-hero-bg';
 import {
     Zap, Shield, Eye, BarChart3, Gauge, Scale,
     ArrowRight, Github, Chrome, Mail, FlaskConical,
@@ -358,144 +359,146 @@ export default function Landing() {
                 boxShadow: isDark ? '0 -20px 40px rgba(0,0,0,0.5)' : '0 -10px 30px rgba(0,0,0,0.05)',
             }}>
 
-            {/* Features grid */}
-            <section style={{
-                maxWidth: 1200, margin: '0 auto', padding: '80px 24px 100px',
-                position: 'relative', zIndex: 1,
-            }}>
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.5 }}
-                    style={{ textAlign: 'center', marginBottom: 56 }}
-                >
-                    <h2 style={{
-                        fontSize: 34, fontWeight: 800, letterSpacing: '-0.035em',
-                        marginBottom: 12, color: 'var(--text-primary)',
-                    }}>
-                        6 AI Agents. <span style={{
-                            background: 'linear-gradient(135deg, var(--color-accent-gold), var(--color-accent-gold-bright))',
-                            WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
-                        }}>One Platform.</span>
-                    </h2>
-                    <p style={{ fontSize: 15, color: 'var(--text-secondary)', maxWidth: 460, margin: '0 auto' }}>
-                        Each feature is an autonomous AI agent working without human intervention.
-                    </p>
-                </motion.div>
-
-                <motion.div
-                    variants={container}
-                    initial="hidden"
-                    whileInView="show"
-                    viewport={{ once: true }}
-                    style={{
-                        display: 'grid',
-                        gridTemplateColumns: 'repeat(3, 1fr)',
-                        gap: 24,
-                    }}
-                >
-                    {features.map(({ icon: Icon, title, desc, accent }) => (
-                        <motion.div key={title} variants={item} style={{ display: 'flex' }}>
-                            <TiltCard className="w-full h-full rounded-[var(--radius-lg)] border border-[var(--border-subtle)] overflow-hidden" effect="evade" scale={1.02} tiltLimit={6}>
-                                <WarpBackground
-                                    beamsPerSide={3}
-                                    beamSize={5}
-                                    beamDuration={3}
-                                    beamDelayMax={3}
-                                    perspective={100}
-                                    gridColor="var(--border-default)"
-                                    className="!p-8 group h-full"
-                                    style={{ minHeight: 280, width: '100%' }}
-                                >
-                                    <Spotlight
-                                        className="-top-40 left-0 md:left-32 md:-top-20 opacity-0 transition-opacity duration-500 group-hover:opacity-100"
-                                        fill={accent}
-                                    />
-                                    <div style={{ position: 'relative', flex: 1, display: 'flex' }} className="mt-2">
-                                        {/* Colored 3D backing / shadow layer */}
-                                        <div 
-                                            className="absolute inset-0 transition-all duration-300 group-hover:translate-x-1 group-hover:translate-y-1 opacity-70 group-hover:opacity-100"
-                                            style={{
-                                                zIndex: 1,
-                                                background: accent,
-                                                borderRadius: 'var(--radius-lg)',
-                                            }}
-                                        />
-                                        <div className="transition-transform duration-300 group-hover:-translate-x-0.5 group-hover:-translate-y-0.5" style={{
-                                            position: 'relative', zIndex: 2,
-                                            background: 'var(--color-bg-card)',
-                                            border: '1px solid var(--border-subtle)',
-                                            borderRadius: 'var(--radius-lg)',
-                                            padding: '24px 20px',
-                                            backdropFilter: 'blur(12px)',
-                                            display: 'flex', flexDirection: 'column', gap: 12,
-                                            cursor: 'pointer',
-                                            boxShadow: 'var(--shadow-md)',
-                                            flex: 1,
-                                        }}>
-                                        <div style={{
-                                            width: 40, height: 40, borderRadius: 10,
-                                            background: 'var(--glass-subtle)',
-                                            border: '1px solid var(--border-subtle)',
-                                            display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                        }}>
-                                            <Icon size={20} style={{ color: accent }} />
-                                        </div>
-                                        <h3 style={{ fontSize: 16, fontWeight: 700, letterSpacing: '-0.01em', color: 'var(--text-primary)' }}>
-                                            {title}
-                                        </h3>
-                                        <p style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.6, margin: 0, flexGrow: 1 }}>
-                                            {desc}
-                                        </p>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: accent, fontWeight: 600, marginTop: 4 }}>
-                                            Learn more <ChevronRight size={13} />
-                                        </div>
-                                        </div>
-                                    </div>
-                                </WarpBackground>
-                            </TiltCard>
-                        </motion.div>
-                    ))}
-                </motion.div>
-            </section>
-
-            <section className="relative z-10 mb-16 mt-4" style={{ maxWidth: 1000, margin: '0 auto', padding: '0 24px' }}>
-                <div 
-                    ref={quoteContainerRef}
-                    className="relative flex flex-col items-center border border-red-500" 
-                    style={{ background: 'var(--color-bg-primary)' }}
-                >
-                    <DotPattern width={5} height={5} />
-
-                    <div className="absolute -left-1.5 -top-1.5 h-3 w-3 bg-red-500 text-white" />
-                    <div className="absolute -bottom-1.5 -left-1.5 h-3 w-3 bg-red-500 text-white" />
-                    <div className="absolute -right-1.5 -top-1.5 h-3 w-3 bg-red-500 text-white" />
-                    <div className="absolute -bottom-1.5 -right-1.5 h-3 w-3 bg-red-500 text-white" />
-
-                    <div className="relative z-20 mx-auto max-w-7xl rounded-[40px] w-full" style={{ padding: '80px 40px' }}>
-                        <p className="text-red-500 text-xl font-medium tracking-wide mb-6">
-                            We believe
+            {/* Features & Quote Section wrapped in AuroraHero */}
+            <AuroraHero isDark={isDark} className="py-24 h-auto min-h-0 block items-start justify-start">
+                <section style={{
+                    maxWidth: 1200, margin: '0 auto', padding: '40px 24px',
+                    position: 'relative', zIndex: 1,
+                }}>
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.5 }}
+                        style={{ textAlign: 'center', marginBottom: 56 }}
+                    >
+                        <h2 style={{
+                            fontSize: 34, fontWeight: 800, letterSpacing: '-0.035em',
+                            marginBottom: 12, color: 'var(--text-primary)',
+                        }}>
+                            6 AI Agents. <span style={{
+                                background: 'linear-gradient(135deg, var(--color-accent-gold), var(--color-accent-gold-bright))',
+                                WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
+                            }}>One Platform.</span>
+                        </h2>
+                        <p style={{ fontSize: 15, color: 'var(--text-secondary)', maxWidth: 460, margin: '0 auto' }}>
+                            Each feature is an autonomous AI agent working without human intervention.
                         </p>
-                        <div className="text-2xl tracking-tighter md:text-5xl lg:text-7xl xl:text-8xl" style={{ color: 'var(--text-primary)' }}>
-                            <div className="flex gap-1 md:gap-2 lg:gap-3 xl:gap-4">
-                                <h1 className="font-semibold">"Testing must be</h1>
-                                <p className="font-thin">zero</p>
+                    </motion.div>
+
+                    <motion.div
+                        variants={container}
+                        initial="hidden"
+                        whileInView="show"
+                        viewport={{ once: true }}
+                        style={{
+                            display: 'grid',
+                            gridTemplateColumns: 'repeat(3, 1fr)',
+                            gap: 24,
+                        }}
+                    >
+                        {features.map(({ icon: Icon, title, desc, accent }) => (
+                            <motion.div key={title} variants={item} style={{ display: 'flex' }}>
+                                <TiltCard className="w-full h-full rounded-[var(--radius-lg)] border border-[var(--border-subtle)] overflow-hidden bg-[var(--color-bg-card)]/50 backdrop-blur-md" effect="evade" scale={1.02} tiltLimit={6}>
+                                    <WarpBackground
+                                        beamsPerSide={3}
+                                        beamSize={5}
+                                        beamDuration={3}
+                                        beamDelayMax={3}
+                                        perspective={100}
+                                        gridColor="var(--border-default)"
+                                        className="!p-8 group h-full"
+                                        style={{ minHeight: 280, width: '100%' }}
+                                    >
+                                        <Spotlight
+                                            className="-top-40 left-0 md:left-32 md:-top-20 opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+                                            fill={accent}
+                                        />
+                                        <div style={{ position: 'relative', flex: 1, display: 'flex' }} className="mt-2">
+                                            {/* Colored 3D backing / shadow layer */}
+                                            <div 
+                                                className="absolute inset-0 transition-all duration-300 group-hover:translate-x-1 group-hover:translate-y-1 opacity-70 group-hover:opacity-100"
+                                                style={{
+                                                    zIndex: 1,
+                                                    background: accent,
+                                                    borderRadius: 'var(--radius-lg)',
+                                                }}
+                                            />
+                                            <div className="transition-transform duration-300 group-hover:-translate-x-0.5 group-hover:-translate-y-0.5" style={{
+                                                position: 'relative', zIndex: 2,
+                                                background: 'var(--color-bg-card)',
+                                                border: '1px solid var(--border-subtle)',
+                                                borderRadius: 'var(--radius-lg)',
+                                                padding: '24px 20px',
+                                                backdropFilter: 'blur(12px)',
+                                                display: 'flex', flexDirection: 'column', gap: 12,
+                                                cursor: 'pointer',
+                                                boxShadow: 'var(--shadow-md)',
+                                                flex: 1,
+                                            }}>
+                                            <div style={{
+                                                width: 40, height: 40, borderRadius: 10,
+                                                background: 'var(--glass-subtle)',
+                                                border: '1px solid var(--border-subtle)',
+                                                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                            }}>
+                                                <Icon size={20} style={{ color: accent }} />
+                                            </div>
+                                            <h3 style={{ fontSize: 16, fontWeight: 700, letterSpacing: '-0.01em', color: 'var(--text-primary)' }}>
+                                                {title}
+                                            </h3>
+                                            <p style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.6, margin: 0, flexGrow: 1 }}>
+                                                {desc}
+                                            </p>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: accent, fontWeight: 600, marginTop: 4 }}>
+                                                Learn more <ChevronRight size={13} />
+                                            </div>
+                                            </div>
+                                        </div>
+                                    </WarpBackground>
+                                </TiltCard>
+                            </motion.div>
+                        ))}
+                    </motion.div>
+                </section>
+
+                <section className="relative z-10 mb-16 mt-16" style={{ maxWidth: 1000, margin: '0 auto', padding: '0 24px' }}>
+                    <div 
+                        ref={quoteContainerRef}
+                        className="relative flex flex-col items-center border border-red-500/30" 
+                        style={{ background: 'var(--color-bg-primary)' }}
+                    >
+                        <DotPattern width={5} height={5} className="opacity-50" />
+
+                        <div className="absolute -left-1.5 -top-1.5 h-3 w-3 bg-red-500/50 text-white" />
+                        <div className="absolute -bottom-1.5 -left-1.5 h-3 w-3 bg-red-500/50 text-white" />
+                        <div className="absolute -right-1.5 -top-1.5 h-3 w-3 bg-red-500/50 text-white" />
+                        <div className="absolute -bottom-1.5 -right-1.5 h-3 w-3 bg-red-500/50 text-white" />
+
+                        <div className="relative z-20 mx-auto max-w-7xl rounded-[40px] w-full" style={{ padding: '80px 40px' }}>
+                            <p className="text-red-500 text-xl font-medium tracking-wide mb-6">
+                                We believe
+                            </p>
+                            <div className="text-2xl tracking-tighter md:text-5xl lg:text-7xl xl:text-8xl" style={{ color: 'var(--text-primary)' }}>
+                                <div className="flex gap-1 md:gap-2 lg:gap-3 xl:gap-4">
+                                    <h1 className="font-semibold">"Testing must be</h1>
+                                    <p className="font-thin">zero</p>
+                                </div>
+                                <div className="flex gap-1 md:gap-2 lg:gap-3 xl:gap-4">
+                                    <p className="font-thin">touch</p>
+                                    <h1 className="font-semibold">because</h1>
+                                    <p className="font-thin">human</p>
+                                </div>
+                                <div className="flex gap-1 md:gap-2 lg:gap-3 xl:gap-4">
+                                    <p className="font-thin">time</p>
+                                    <h1 className="font-semibold">is better spent</h1>
+                                </div>
+                                <h1 className="font-semibold">building..."</h1>
                             </div>
-                            <div className="flex gap-1 md:gap-2 lg:gap-3 xl:gap-4">
-                                <p className="font-thin">touch</p>
-                                <h1 className="font-semibold">because</h1>
-                                <p className="font-thin">human</p>
-                            </div>
-                            <div className="flex gap-1 md:gap-2 lg:gap-3 xl:gap-4">
-                                <p className="font-thin">time</p>
-                                <h1 className="font-semibold">is better spent</h1>
-                            </div>
-                            <h1 className="font-semibold">building..."</h1>
                         </div>
                     </div>
-                </div>
-            </section>
+                </section>
+            </AuroraHero>
 
             {/* Bottom CTA */}
             <section style={{
