@@ -963,3 +963,21 @@ input[type="range"]::-moz-range-progress {
     size: A4;
   }
 }
+@keyframes highlight {
+  0% { background-color: transparent; }
+  100% { background-color: var(--highlight); }
+}
+
+@keyframes flash {
+  0% { background-color: transparent; }
+  50% { background-color: var(--highlight); }
+  100% { background-color: transparent; }
+}
+
+.animate-highlight {
+  animation: highlight 0.6s ease forwards;
+}
+
+.animate-flash {
+  animation: flash 0.6s ease forwards;
+}
