@@ -21,6 +21,7 @@ import { ParticleTextLayer } from '../components/ui/particle-hero-background';
 import Prism from '../components/ui/Prism';
 import { StripeGradientShader } from '../components/ui/stripe-like-gradient-shader';
 import { TheInfiniteGrid } from '../components/ui/the-infinite-grid';
+import { CinematicFooter } from '../components/ui/motion-footer';
 
 const features = [
     { icon: Zap, title: 'Self-Healing Tests', desc: 'Tests that auto-repair when UI changes. Zero maintenance.', accent: 'var(--color-accent-gold)' },
@@ -66,7 +67,7 @@ export default function Landing() {
             minHeight: '100vh',
             background: 'var(--color-bg-primary)',
             position: 'relative',
-            overflow: 'hidden',
+            overflowX: 'hidden',
             transition: 'background 0.3s ease',
         }}>
             <DynamicArrow targetRef={getStartedRef} containerRef={quoteContainerRef} />
@@ -504,71 +505,9 @@ export default function Landing() {
             
             </TheInfiniteGrid>
 
-            {/* Bottom CTA */}
-            <section style={{
-                maxWidth: 700, margin: '0 auto', padding: '60px 24px 80px',
-                textAlign: 'center', position: 'relative', zIndex: 1,
-            }}>
-                <WarpBackground
-                    beamsPerSide={3}
-                    beamSize={5}
-                    beamDuration={4}
-                    beamDelayMax={4}
-                    perspective={120}
-                    gridColor="var(--border-default)"
-                    className="!p-0"
-                    style={{
-                        borderColor: 'var(--border-accent)',
-                        overflow: 'hidden',
-                        boxShadow: 'var(--shadow-glow-gold)',
-                    }}
-                >
-                    <Spotlight
-                        className="-top-40 left-0 md:left-48 md:-top-20"
-                        fill="var(--color-accent-gold)"
-                    />
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        style={{
-                            padding: '52px 44px',
-                            position: 'relative',
-                            zIndex: 2,
-                            background: isDark
-                                ? 'linear-gradient(135deg, rgba(212,168,83,0.04) 0%, rgba(9,9,11,0.7) 100%)'
-                                : 'linear-gradient(135deg, rgba(184,134,11,0.04) 0%, rgba(255,255,255,0.7) 100%)',
-                            backdropFilter: 'blur(12px)',
-                        }}
-                    >
-                        <h3 style={{ fontSize: 26, fontWeight: 800, letterSpacing: '-0.03em', marginBottom: 12, color: 'var(--text-primary)' }}>
-                            Ready to ship with confidence?
-                        </h3>
-                        <p style={{ fontSize: 14, color: 'var(--text-secondary)', marginBottom: 28, maxWidth: 400, margin: '0 auto 28px' }}>
-                            Join teams using AI-powered QA to find bugs before users do.
-                        </p>
-                        <div style={{ display: 'flex', justifyContent: 'center' }}>
-                            <div ref={getStartedRef} style={{ display: 'inline-flex', position: 'relative' }}>
-                                <MotionButton
-                                    label="Get Started Free"
-                                    onClick={() => navigate('/login')}
-                                />
-                            </div>
-                        </div>
-                    </motion.div>
-                </WarpBackground>
-            </section>
+            {/* Cinematic Scroll-Reveal Footer */}
+            <CinematicFooter onNavigate={(path) => navigate(path)} />
 
-            {/* Footer */}
-            <footer style={{
-                textAlign: 'center', padding: '32px 24px',
-                borderTop: '1px solid var(--border-subtle)',
-                color: 'var(--text-tertiary)', fontSize: 12,
-                position: 'relative', zIndex: 1,
-                letterSpacing: '0.02em',
-            }}>
-                <p>© 2026 AutonomousQA — Zero-Touch Quality Assurance</p>
-            </footer>
             </div>
         </div>
     );
