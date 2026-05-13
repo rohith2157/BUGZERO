@@ -22,7 +22,7 @@ export default function Playbooks() {
     const [newPlaybook, setNewPlaybook] = useState({ name: '', domain: '', authType: 'Form-based Login' });
     const [saving, setSaving] = useState(false);
 
-    useEffect(() => { document.title = 'Auth Playbooks — AutonomousQA'; }, []);
+    useEffect(() => { document.title = 'Auth Playbooks — BugZero'; }, []);
 
     // Escape key closes modal
     useEffect(() => {

@@ -13,7 +13,7 @@ export default function History() {
     const [allRuns, setAllRuns] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => { document.title = 'Test History — AutonomousQA'; }, []);
+    useEffect(() => { document.title = 'Test History — BugZero'; }, []);
 
     useEffect(() => {
         testsApi.list({ limit: 50 }).then(data => {

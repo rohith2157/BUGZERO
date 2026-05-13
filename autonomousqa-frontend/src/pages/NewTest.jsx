@@ -19,7 +19,7 @@ export default function NewTest() {
     const [playbooks, setPlaybooks] = useState([]);
     const [error, setError] = useState('');
 
-    useEffect(() => { document.title = 'New Test — AutonomousQA'; }, []);
+    useEffect(() => { document.title = 'New Test — BugZero'; }, []);
 
     useEffect(() => {
         playbooksApi.list()

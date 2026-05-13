@@ -22,7 +22,7 @@ export default function Report() {
     const [loading, setLoading] = useState(true);
     const [viewMode, setViewMode] = useState('visual');
 
-    useEffect(() => { document.title = 'Test Report — AutonomousQA'; }, []);
+    useEffect(() => { document.title = 'Test Report — BugZero'; }, []);
 
     useEffect(() => {
         testsApi.get(id).then(({ testRun }) => {

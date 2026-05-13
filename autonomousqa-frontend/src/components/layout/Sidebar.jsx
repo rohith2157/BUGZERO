@@ -101,7 +101,7 @@ export default function Sidebar({ collapsed, setCollapsed }) {
                             transition={{ duration: 0.15 }}
                         >
                             <div style={{ fontWeight: 700, fontSize: 15, letterSpacing: '-0.02em', color: 'var(--text-primary)' }}>
-                                Autonomous<span style={{ color: 'var(--color-accent-gold)' }}>QA</span>
+                                Bug<span style={{ color: 'var(--color-accent-gold)' }}>Zero</span>
                             </div>
                         </motion.div>
                     )}

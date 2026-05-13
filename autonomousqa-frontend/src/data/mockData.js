@@ -1,4 +1,4 @@
-// AutonomousQA — Realistic Mock Data
+// BugZero — Realistic Mock Data
 
 export const kpiData = {
   totalRuns: 247,

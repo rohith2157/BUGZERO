@@ -26,7 +26,7 @@ export default function Settings() {
     const [showKeyId, setShowKeyId] = useState(null);
     const [profileError, setProfileError] = useState('');
 
-    useEffect(() => { document.title = 'Settings — AutonomousQA'; }, []);
+    useEffect(() => { document.title = 'Settings — BugZero'; }, []);
     const [notifications, setNotifications] = useState({
         'Test Completed': true,
         'Critical Defects': true,
@@ -144,7 +144,7 @@ export default function Settings() {
                     {[
                         { label: 'Full Name', field: 'name', value: 'Rohith Kumar', type: 'text' },
                         { label: 'Email', field: 'email', value: 'rohith@autonomousqa.io', type: 'email', disabled: true },
-                        { label: 'Organization', field: 'organization', value: 'AutonomousQA Inc.', type: 'text', disabled: true },
+                        { label: 'Organization', field: 'organization', value: 'BugZero Inc.', type: 'text', disabled: true },
                         { label: 'Role', field: 'role', value: 'Owner', type: 'text', disabled: true },
                     ].map(({ label, field, value, type, disabled }) => (
                         <div key={label} style={{ marginBottom: 18 }}>

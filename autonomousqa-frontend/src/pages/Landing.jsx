@@ -128,7 +128,7 @@ export default function Landing() {
                         <FlaskConical size={15} color="var(--on-accent)" />
                     </div>
                     <span style={{ fontWeight: 700, fontSize: 15, letterSpacing: '-0.02em', color: 'var(--text-primary)' }}>
-                        Autonomous<span style={{ color: 'var(--color-accent-gold)' }}>QA</span>
+                        Bug<span style={{ color: 'var(--color-accent-gold)' }}>Zero</span>
                     </span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>

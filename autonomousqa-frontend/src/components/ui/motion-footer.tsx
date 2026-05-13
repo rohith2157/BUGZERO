@@ -238,7 +238,7 @@ const MagneticButton = React.forwardRef<HTMLElement, MagneticButtonProps>(
 MagneticButton.displayName = "MagneticButton";
 
 // -------------------------------------------------------------------------
-// 3. MARQUEE ITEMS — AutonomousQA BRANDED
+// 3. MARQUEE ITEMS — BugZero BRANDED
 // -------------------------------------------------------------------------
 const MarqueeItem = () => (
   <div className="flex items-center space-x-12 px-6">
@@ -253,7 +253,7 @@ const MarqueeItem = () => (
 );
 
 // -------------------------------------------------------------------------
-// 4. MAIN COMPONENT — Adapted for AutonomousQA
+// 4. MAIN COMPONENT — Adapted for BugZero
 // -------------------------------------------------------------------------
 interface CinematicFooterProps {
   onNavigate?: (path: string) => void;
@@ -618,7 +618,7 @@ export function CinematicFooter({ onNavigate }: CinematicFooterProps) {
                     textTransform: 'uppercase',
                   }}
                 >
-                  © 2026 AutonomousQA. All rights reserved.
+                  © 2026 BugZero. All rights reserved.
                 </div>
 
                 {/* "Crafted with" Badge */}
@@ -659,7 +659,7 @@ export function CinematicFooter({ onNavigate }: CinematicFooterProps) {
                     fontSize: '12px',
                     marginLeft: 4,
                   }}>
-                    Autonomous<span style={{ color: 'var(--color-accent-gold)' }}>QA</span>
+                    Bug<span style={{ color: 'var(--color-accent-gold)' }}>Zero</span>
                   </span>
                 </div>
 

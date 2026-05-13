@@ -17,7 +17,7 @@ export default function Compliance() {
     const [complianceData, setComplianceData] = useState(null);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => { document.title = 'Compliance — AutonomousQA'; }, []);
+    useEffect(() => { document.title = 'Compliance — BugZero'; }, []);
 
     useEffect(() => {
         testsApi.compliance(id).then(data => {

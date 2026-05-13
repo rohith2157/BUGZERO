@@ -14,7 +14,7 @@ export default function Login() {
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
-  useEffect(() => { document.title = mode === 'login' ? 'Sign In — AutonomousQA' : 'Create Account — AutonomousQA'; }, [mode]);
+  useEffect(() => { document.title = mode === 'login' ? 'Sign In — BugZero' : 'Create Account — BugZero'; }, [mode]);
 
   const [form, setForm] = useState({
     email: '',
@@ -135,7 +135,7 @@ export default function Login() {
           </div>
           <TextBlockAnimation animateOnScroll={false} delay={0.3} blockColor="var(--color-accent-gold)" duration={0.5}>
             <span style={{ fontWeight: 700, fontSize: 17, letterSpacing: '-0.02em' }}>
-              Autonomous<span style={{ color: 'var(--color-accent-gold)' }}>QA</span>
+              Bug<span style={{ color: 'var(--color-accent-gold)' }}>Zero</span>
             </span>
           </TextBlockAnimation>
         </div>

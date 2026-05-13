@@ -36,7 +36,7 @@ export default function Performance() {
     const [performanceData, setPerformanceData] = useState(null);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => { document.title = 'Performance — AutonomousQA'; }, []);
+    useEffect(() => { document.title = 'Performance — BugZero'; }, []);
 
     useEffect(() => {
         testsApi.performance(id).then(data => {

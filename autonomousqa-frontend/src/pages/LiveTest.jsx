@@ -111,7 +111,7 @@ export default function LiveTest() {
     });
 
     useEffect(() => {
-        document.title = 'Live Test — AutonomousQA';
+        document.title = 'Live Test — BugZero';
         fetchData();
         // Poll every 3 seconds for live updates
         pollRef.current = setInterval(fetchData, 3000);

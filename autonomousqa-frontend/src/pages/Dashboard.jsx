@@ -21,7 +21,7 @@ export default function Dashboard() {
     const [recentRuns, setRecentRuns] = useState([]);
     const [quickUrl, setQuickUrl] = useState('');
 
-    useEffect(() => { document.title = 'Dashboard — AutonomousQA'; }, []);
+    useEffect(() => { document.title = 'Dashboard — BugZero'; }, []);
 
     useEffect(() => {
         // Fetch real test runs from API, fall back to mock

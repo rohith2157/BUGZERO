@@ -21,7 +21,7 @@ function getTitle(pathname) {
     if (/^\/tests\/[^/]+\/compliance$/.test(pathname)) return 'Compliance Report';
     if (/^\/tests\/[^/]+\/performance$/.test(pathname)) return 'Performance Report';
     if (/^\/tests\/[^/]+$/.test(pathname)) return 'Live Test View';
-    return 'AutonomousQA';
+    return 'BugZero';
 }
 
 export default function TopBar() {

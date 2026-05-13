@@ -1,4 +1,4 @@
-// API client for AutonomousQA Gateway
+// API client for BugZero Gateway
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
 
