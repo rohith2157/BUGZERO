@@ -132,8 +132,6 @@ export default function Landing() {
                     </span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-                    <span style={{ fontSize: 13, color: 'var(--text-tertiary)', cursor: 'pointer', fontWeight: 500 }}>Docs</span>
-                    <span style={{ fontSize: 13, color: 'var(--text-tertiary)', cursor: 'pointer', fontWeight: 500 }}>Pricing</span>
                     <AnimatedThemeToggle />
                     <StarButton 
                         title="Launch App" 

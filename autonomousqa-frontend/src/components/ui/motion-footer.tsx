@@ -639,10 +639,10 @@ export function CinematicFooter({ onNavigate }: CinematicFooterProps) {
                     textTransform: 'uppercase',
                     letterSpacing: '0.15em',
                   }}>
-                    Crafted with
+                    Crafted with love
                   </span>
-                  <span className="animate-footer-heartbeat" style={{ fontSize: '14px', color: 'var(--color-accent-gold)' }}>
-                    ✦
+                  <span className="animate-footer-heartbeat" style={{ fontSize: '14px' }}>
+                    ❤️
                   </span>
                   <span style={{
                     color: 'var(--text-muted)',
@@ -659,7 +659,7 @@ export function CinematicFooter({ onNavigate }: CinematicFooterProps) {
                     fontSize: '12px',
                     marginLeft: 4,
                   }}>
-                    Bug<span style={{ color: 'var(--color-accent-gold)' }}>Zero</span>
+                    Rohith
                   </span>
                 </div>
 
