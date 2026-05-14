@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import {
     Lightbulb, Rocket, Brain, Target, Sparkles, Eye,
     TrendingUp, ArrowLeft, Zap, Shield, Globe, FlaskConical,
-    ChevronRight, Quote
+    ChevronRight, Quote, Gauge, Accessibility, Search,
+    CheckCircle2, Activity, Smartphone, Lock, Timer, BarChart3, Cpu
 } from 'lucide-react';
 import { AnimatedThemeToggle } from '../components/ui/animated-theme-toggle';
 import { StarButton } from '../components/ui/star-button';
@@ -39,6 +40,53 @@ const roadmap = [
     { version: 'v2.0 — Intelligence', timeline: 'Months 7-9', desc: 'AI-generated test recommendations, auto-fix suggestions with code diffs', status: 'Vision', color: 'var(--color-accent-cyan)' },
     { version: 'v2.5 — Mobile', timeline: 'Months 10-12', desc: 'iOS and Android app testing via Appium integration', status: 'Vision', color: 'var(--color-accent-emerald)' },
     { version: 'v3.0 — Platform', timeline: 'Year 2', desc: 'Marketplace for custom test plugins, API for third-party integrations', status: 'Future', color: 'var(--color-accent-gold-bright)' },
+];
+
+// Google Lighthouse authentic brand colors
+const LH = {
+    perf: '#FF6D00',     // Lighthouse Performance orange
+    a11y: '#4285F4',     // Google blue
+    bp: '#0CCE6B',       // Lighthouse green
+    seo: '#FF4E42',      // Lighthouse red
+    pwa: '#681FF8',      // Lighthouse purple
+    scoreGreen: '#0cce6b',
+    scoreOrange: '#ffa400',
+    scoreRed: '#ff4e42',
+};
+
+// Circular gauge SVG for Lighthouse scores
+const LighthouseGauge = ({ score, color, size = 54 }) => {
+    const numScore = parseInt(score) || 0;
+    const r = (size - 6) / 2;
+    const circ = 2 * Math.PI * r;
+    const offset = circ - (numScore / 100) * circ;
+    const scoreColor = numScore >= 90 ? LH.scoreGreen : numScore >= 50 ? LH.scoreOrange : LH.scoreRed;
+    return (
+        <svg width={size} height={size} style={{ transform: 'rotate(-90deg)' }}>
+            <circle cx={size/2} cy={size/2} r={r} fill="none" stroke={`${color}20`} strokeWidth={4} />
+            <circle cx={size/2} cy={size/2} r={r} fill="none" stroke={scoreColor} strokeWidth={4}
+                strokeDasharray={circ} strokeDashoffset={offset} strokeLinecap="round"
+                style={{ transition: 'stroke-dashoffset 1.5s ease' }} />
+            <text x={size/2} y={size/2} textAnchor="middle" dominantBaseline="central"
+                style={{ transform: 'rotate(90deg)', transformOrigin: 'center', fontSize: 16, fontWeight: 900, fill: scoreColor }}
+            >{score}</text>
+        </svg>
+    );
+};
+
+const lighthouseCategories = [
+    { icon: Gauge, title: 'Performance', score: '96', desc: 'Measures loading speed, interactivity & visual stability using Core Web Vitals — LCP, TBT, CLS, FCP, Speed Index, and TTFB.', accent: LH.perf, metrics: ['LCP < 2.5s', 'TBT < 200ms', 'CLS < 0.1'] },
+    { icon: Accessibility, title: 'Accessibility', score: '100', desc: 'Audits WCAG 2.1 AA compliance — color contrast, ARIA labels, keyboard navigation, focus management, alt text, and semantic HTML.', accent: LH.a11y, metrics: ['Contrast Ratios', 'ARIA Attributes', 'Keyboard Nav'] },
+    { icon: CheckCircle2, title: 'Best Practices', score: '92', desc: 'Checks HTTPS usage, console errors, deprecated APIs, image aspect ratios, and secure JavaScript practices.', accent: LH.bp, metrics: ['HTTPS Enforced', 'No Console Errors', 'Safe APIs'] },
+    { icon: Search, title: 'SEO', score: '100', desc: 'Validates meta tags, crawlable links, structured data, mobile-friendliness, canonical URLs, and robots.txt configuration.', accent: LH.seo, metrics: ['Meta Tags', 'Crawlable Links', 'Mobile Ready'] },
+    { icon: Smartphone, title: 'PWA', score: '90', desc: 'Evaluates installability, offline capability, service workers, manifest configuration, and responsive design for Progressive Web Apps.', accent: LH.pwa, metrics: ['Installable', 'Offline Mode', 'Service Worker'] },
+];
+
+const lighthouseFlow = [
+    { step: '01', title: 'URL Submitted', desc: 'User enters any URL into BugZero', icon: Globe },
+    { step: '02', title: 'Headless Lighthouse', desc: 'Automated Lighthouse audit runs on every discovered page', icon: Cpu },
+    { step: '03', title: 'AI Classification', desc: 'GPT-4o analyzes audit failures, classifies severity & business impact', icon: Brain },
+    { step: '04', title: 'Actionable Report', desc: 'Hygiene scores, fix guidance, and trend tracking — all in one dashboard', icon: BarChart3 },
 ];
 
 export default function Inspiration() {
@@ -106,9 +154,25 @@ export default function Inspiration() {
                     </motion.button>
 
                     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
-                        style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '6px 16px 6px 10px', borderRadius: 'var(--radius-full)', background: 'rgba(212, 168, 83, 0.08)', border: '1px solid rgba(212, 168, 83, 0.18)', fontSize: 12, fontWeight: 600, color: 'var(--color-accent-gold)', marginBottom: 32, letterSpacing: '0.02em' }}
+                        style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '6px 16px 6px 10px', borderRadius: 'var(--radius-full)', background: 'rgba(212, 168, 83, 0.08)', border: '1px solid rgba(212, 168, 83, 0.18)', fontSize: 12, fontWeight: 600, color: 'var(--color-accent-gold)', marginBottom: 20, letterSpacing: '0.02em' }}
                     >
                         <Lightbulb size={14} /> The Vision Behind BugZero
+                    </motion.div>
+
+                    {/* Inspired by Google Lighthouse — in Google brand colors */}
+                    <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }}
+                        style={{ marginBottom: 28, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12 }}
+                    >
+                        <span style={{ fontSize: 'clamp(18px, 2.5vw, 24px)', fontWeight: 700, letterSpacing: '0.02em', color: 'var(--text-tertiary)' }}>Inspired by</span>
+                        <span style={{ fontSize: 'clamp(18px, 2.5vw, 24px)', fontWeight: 800, letterSpacing: '0.02em' }}>
+                            <span style={{ color: '#4285F4' }}>G</span>
+                            <span style={{ color: '#EA4335' }}>o</span>
+                            <span style={{ color: '#FBBC04' }}>o</span>
+                            <span style={{ color: '#4285F4' }}>g</span>
+                            <span style={{ color: '#34A853' }}>l</span>
+                            <span style={{ color: '#EA4335' }}>e</span>
+                        </span>
+                        <span style={{ fontSize: 'clamp(18px, 2.5vw, 24px)', fontWeight: 900, background: 'linear-gradient(90deg, #FF6D00, #4285F4, #0CCE6B, #FF4E42, #681FF8)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Lighthouse</span>
                     </motion.div>
 
                     <h1 style={{ fontSize: 'clamp(36px, 5vw, 68px)', fontWeight: 800, lineHeight: 1.08, letterSpacing: '-0.045em', maxWidth: 800, margin: '0 auto 24px' }}>
@@ -207,6 +271,84 @@ export default function Inspiration() {
                                 <span style={{ fontSize: 12, color: 'var(--text-tertiary)', fontWeight: 600 }}>{timeline}</span>
                                 <p style={{ fontSize: 14, color: 'var(--text-secondary)', lineHeight: 1.6, marginTop: 8, marginBottom: 0 }}>{desc}</p>
                             </div>
+                        </motion.div>
+                    ))}
+                </motion.div>
+            </section>
+
+            {/* ===== LIGHTHOUSE INTEGRATION SECTION ===== */}
+            <section style={{ maxWidth: 1000, margin: '0 auto', padding: '0 24px 100px', position: 'relative', zIndex: 1 }}>
+                <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} style={{ textAlign: 'center', marginBottom: 56 }}>
+                    <motion.div initial={{ opacity: 0, scale: 0.8 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '6px 16px 6px 10px', borderRadius: 'var(--radius-full)', background: 'rgba(66, 133, 244, 0.1)', border: '1px solid rgba(66, 133, 244, 0.25)', fontSize: 12, fontWeight: 600, color: '#4285F4', marginBottom: 24, letterSpacing: '0.02em' }}>
+                        <Activity size={14} /> Inspired by Google Lighthouse
+                    </motion.div>
+                    <h2 style={{ fontSize: 34, fontWeight: 800, letterSpacing: '-0.035em', marginBottom: 12, color: 'var(--text-primary)' }}>
+                        Lighthouse Audits, <span style={{ background: 'linear-gradient(135deg, #FF6D00, #4285F4, #0CCE6B, #FF4E42)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Automated.</span>
+                    </h2>
+                    <p style={{ fontSize: 15, color: 'var(--text-secondary)', maxWidth: 560, margin: '0 auto' }}>Inspired by Google Lighthouse — BugZero runs headless audits on every page it discovers. Performance, Accessibility, Best Practices, SEO, and PWA — all scored automatically with AI-powered fix guidance.</p>
+                </motion.div>
+
+                {/* 5 Lighthouse Category Cards */}
+                <motion.div variants={container} initial="hidden" whileInView="show" viewport={{ once: true }} style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 14, marginBottom: 48 }}>
+                    {lighthouseCategories.map(({ icon: Icon, title, score, desc, accent, metrics }) => (
+                        <motion.div key={title} variants={item} whileHover={{ y: -6, borderColor: `${accent}50` }} style={{ background: 'var(--color-bg-card)', border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-lg)', padding: '24px 18px', display: 'flex', flexDirection: 'column', gap: 12, transition: 'all 0.3s', position: 'relative', overflow: 'hidden' }}>
+                            <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, background: accent }} />
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                <div style={{ width: 36, height: 36, borderRadius: 10, background: `${accent}15`, border: `1px solid ${accent}30`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    <Icon size={18} style={{ color: accent }} />
+                                </div>
+                                <LighthouseGauge score={score} color={accent} size={48} />
+                            </div>
+                            <h3 style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)' }}>{title}</h3>
+                            <p style={{ fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.55, margin: 0, flexGrow: 1 }}>{desc}</p>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 4, marginTop: 4 }}>
+                                {metrics.map(m => (
+                                    <span key={m} style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 10, fontWeight: 600, color: accent, letterSpacing: '0.02em' }}>
+                                        <CheckCircle2 size={10} /> {m}
+                                    </span>
+                                ))}
+                            </div>
+                        </motion.div>
+                    ))}
+                </motion.div>
+
+                {/* How BugZero Uses Lighthouse — Pipeline */}
+                <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} style={{ background: 'var(--color-bg-card)', border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-xl)', padding: '40px 36px', marginBottom: 48 }}>
+                    <h3 style={{ fontSize: 20, fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.02em', marginBottom: 8 }}>How BugZero Integrates Lighthouse</h3>
+                    <p style={{ fontSize: 14, color: 'var(--text-secondary)', marginBottom: 32, lineHeight: 1.6 }}>Every test run automatically executes headless Lighthouse audits on every discovered page, then feeds results through our AI classification pipeline.</p>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, position: 'relative' }}>
+                        {/* Connecting line */}
+                        <div style={{ position: 'absolute', top: 28, left: '12%', right: '12%', height: 2, background: `linear-gradient(90deg, ${LH.perf}, ${LH.a11y}, ${LH.bp}, ${LH.seo})`, opacity: 0.4, zIndex: 0 }} />
+                        {lighthouseFlow.map(({ step, title, desc, icon: Icon }) => (
+                            <motion.div key={step} whileHover={{ y: -4 }} style={{ textAlign: 'center', position: 'relative', zIndex: 1 }}>
+                                <div style={{ width: 56, height: 56, borderRadius: 16, background: 'var(--color-bg-primary)', border: '1px solid var(--border-subtle)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 14px', boxShadow: 'var(--shadow-md)' }}>
+                                    <Icon size={24} style={{ color: '#4285F4' }} />
+                                </div>
+                                <span style={{ fontSize: 10, fontWeight: 800, color: '#4285F4', letterSpacing: '0.15em' }}>STEP {step}</span>
+                                <h4 style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)', margin: '6px 0 4px' }}>{title}</h4>
+                                <p style={{ fontSize: 12, color: 'var(--text-tertiary)', lineHeight: 1.5, margin: 0 }}>{desc}</p>
+                            </motion.div>
+                        ))}
+                    </div>
+                </motion.div>
+
+                {/* Key Metrics BugZero Tracks */}
+                <motion.div variants={container} initial="hidden" whileInView="show" viewport={{ once: true }} style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
+                    {[
+                        { label: 'Largest Contentful Paint', value: 'LCP', target: '< 2.5s', desc: 'Measures when the largest visible element finishes rendering — the core perception of load speed.', accent: LH.perf },
+                        { label: 'Total Blocking Time', value: 'TBT', target: '< 200ms', desc: 'Sum of all long tasks blocking the main thread — directly impacts interactivity and user frustration.', accent: LH.a11y },
+                        { label: 'Cumulative Layout Shift', value: 'CLS', target: '< 0.1', desc: 'Measures unexpected layout movement — prevents buttons jumping as ads or images load.', accent: LH.bp },
+                        { label: 'First Contentful Paint', value: 'FCP', target: '< 1.8s', desc: 'When the first text or image is painted — the moment users know something is happening.', accent: LH.seo },
+                        { label: 'Speed Index', value: 'SI', target: '< 3.4s', desc: 'How quickly content is visually populated — captures the overall perceived loading experience.', accent: LH.pwa },
+                        { label: 'Time to First Byte', value: 'TTFB', target: '< 800ms', desc: 'Server response time — the foundation that every other metric depends on.', accent: LH.perf },
+                    ].map(({ label, value, target, desc, accent }) => (
+                        <motion.div key={value} variants={item} whileHover={{ borderColor: `${accent}40`, y: -3 }} style={{ background: 'var(--color-bg-card)', border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-lg)', padding: '24px 22px', transition: 'all 0.3s' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+                                <span style={{ fontSize: 28, fontWeight: 900, color: accent, letterSpacing: '-0.04em' }}>{value}</span>
+                                <span style={{ fontSize: 11, fontWeight: 700, color: accent, padding: '3px 10px', borderRadius: 'var(--radius-full)', background: `${accent}12`, border: `1px solid ${accent}25` }}>{target}</span>
+                            </div>
+                            <h4 style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 6 }}>{label}</h4>
+                            <p style={{ fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.55, margin: 0 }}>{desc}</p>
                         </motion.div>
                     ))}
                 </motion.div>
