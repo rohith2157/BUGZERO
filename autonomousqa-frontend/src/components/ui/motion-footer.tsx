@@ -444,7 +444,7 @@ export function CinematicFooter({ onNavigate }: CinematicFooterProps) {
               <div className="flex flex-wrap justify-center w-full" style={{ gap: 16 }}>
                 <MagneticButton
                   as="a"
-                  href="#"
+                  href="/inspiration"
                   className="footer-glass-pill flex items-center group"
                   style={{
                     padding: '18px 36px',
@@ -465,7 +465,7 @@ export function CinematicFooter({ onNavigate }: CinematicFooterProps) {
 
                 <MagneticButton
                   as="a"
-                  href="#"
+                  href="/use-cases"
                   className="footer-glass-pill flex items-center group"
                   style={{
                     padding: '18px 36px',

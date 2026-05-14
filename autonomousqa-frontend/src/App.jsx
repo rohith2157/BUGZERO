@@ -4,6 +4,8 @@ import { ErrorBoundary } from './ErrorBoundary';
 import DashboardLayout from './components/layout/DashboardLayout';
 import ProtectedRoute from './components/ProtectedRoute';
 import Landing from './pages/Landing';
+import Inspiration from './pages/Inspiration';
+import UseCases from './pages/UseCases';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import NewTest from './pages/NewTest';
@@ -23,6 +25,8 @@ function App() {
                     <Routes>
                         {/* Landing (no sidebar) */}
                         <Route path="/" element={<Landing />} />
+                        <Route path="/inspiration" element={<Inspiration />} />
+                        <Route path="/use-cases" element={<UseCases />} />
                         <Route path="/login" element={<Login />} />
 
                         {/* Dashboard routes (with sidebar) - Protected */}
