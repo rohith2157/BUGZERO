@@ -7,7 +7,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { cn } from "@/lib/utils";
 import {
   Sparkles, Lightbulb, Layers, Instagram, Linkedin, Github,
-  ArrowUp, FlaskConical, Mail
+  ArrowUp, FlaskConical, Mail, Brain
 } from "lucide-react";
 
 // Register ScrollTrigger safely for React
@@ -482,6 +482,27 @@ export function CinematicFooter({ onNavigate }: CinematicFooterProps) {
                     style={{ color: 'var(--color-accent-purple)', transition: 'color 0.3s' }}
                   />
                   Use Cases
+                </MagneticButton>
+
+                <MagneticButton
+                  as="a"
+                  href="/algorithms"
+                  className="footer-glass-pill flex items-center group"
+                  style={{
+                    padding: '18px 36px',
+                    borderRadius: 'var(--radius-full)',
+                    color: 'var(--text-primary)',
+                    fontWeight: 700,
+                    fontSize: '15px',
+                    gap: 12,
+                    textDecoration: 'none',
+                  }}
+                >
+                  <Brain
+                    size={20}
+                    style={{ color: 'var(--color-accent-cyan)', transition: 'color 0.3s' }}
+                  />
+                  Algorithms
                 </MagneticButton>
 
                 <MagneticButton
