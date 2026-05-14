@@ -6,6 +6,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import Landing from './pages/Landing';
 import Inspiration from './pages/Inspiration';
 import UseCases from './pages/UseCases';
+import Algorithms from './pages/Algorithms';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import NewTest from './pages/NewTest';
@@ -27,6 +28,7 @@ function App() {
                         <Route path="/" element={<Landing />} />
                         <Route path="/inspiration" element={<Inspiration />} />
                         <Route path="/use-cases" element={<UseCases />} />
+                        <Route path="/algorithms" element={<Algorithms />} />
                         <Route path="/login" element={<Login />} />
 
                         {/* Dashboard routes (with sidebar) - Protected */}
