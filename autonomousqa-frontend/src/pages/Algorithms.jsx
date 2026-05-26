@@ -11,16 +11,16 @@ const stagger = { hidden: {}, show: { transition: { staggerChildren: 0.08 } } };
 const fadeUp = { hidden: { opacity: 0, y: 28 }, show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] } } };
 
 const implAlgos = [
-  { icon: Network, title: 'Breadth-First Search (BFS)', file: 'playwright_tool.py', lines: '94-155', accent: '#4285F4',
+  { icon: Network, title: 'Breadth-First Search (BFS)', accent: '#4285F4',
     desc: 'Our crawler uses a classic BFS with a FIFO queue and visited set. It explores every link at depth 0 before depth 1, mapping the shallow surface first.',
     details: ['FIFO Queue: queue = [(url, 0)]', 'Visited Set: O(1) duplicate detection', 'Depth-limited traversal (shallow=1, standard=3, deep=∞)', 'Same-domain filtering via urlparse'] },
-  { icon: BarChart3, title: 'PageRank Algorithm', file: 'scheduler.py', lines: '21-58', accent: '#34A853',
+  { icon: BarChart3, title: 'PageRank Algorithm', accent: '#34A853',
     desc: 'After crawling, the scheduler builds a Directed Graph (nx.DiGraph) and runs nx.pagerank(G, alpha=0.85) — the exact math Google uses.',
     details: ['Damping factor α = 0.85 (Google standard)', 'NetworkX DiGraph with no self-loops', 'Iterative power method convergence', 'Returns importance scores 0.0 → 1.0'] },
-  { icon: GitBranch, title: 'Degree Centrality (Fallback)', file: 'scheduler.py', lines: '53-57', accent: '#FBBC04',
+  { icon: GitBranch, title: 'Degree Centrality (Fallback)', accent: '#FBBC04',
     desc: 'If PageRank fails to converge (PowerIterationFailedConvergence), Degree Centrality counts raw connections to rank pages.',
     details: ['Graceful degradation pattern', 'Counts inbound + outbound edges', 'No iterative computation needed', 'Always converges — zero failure risk'] },
-  { icon: Layers, title: 'Greedy Sort + Semantic Heuristics', file: 'scheduler.py', lines: '61-99', accent: '#EA4335',
+  { icon: Layers, title: 'Greedy Sort + Semantic Heuristics', accent: '#EA4335',
     desc: 'Raw PageRank is boosted with semantic heuristics. Auth pages get +0.15, Forms +0.12, Settings +0.10, ensuring critical paths test first.',
     details: ['Auth pages: +0.15 boost (security critical)', 'Form pages: +0.12 boost (input validation)', 'Settings: +0.10, Dashboard: +0.08', 'Greedy descending sort by boosted score'] },
 ];
@@ -149,7 +149,7 @@ export default function Algorithms() {
         </motion.div>
 
         <motion.div variants={stagger} initial="hidden" whileInView="show" viewport={{ once: true }} style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 20 }}>
-          {implAlgos.map(({ icon: Icon, title, file, lines, accent, desc, details }) => (
+          {implAlgos.map(({ icon: Icon, title, accent, desc, details }) => (
             <motion.div key={title} variants={fadeUp} whileHover={{ y: -6, borderColor: `${accent}50` }}
               style={{ background: 'var(--color-bg-card)', border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-lg)', padding: '28px 24px', transition: 'all 0.3s', position: 'relative', overflow: 'hidden' }}>
               <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, background: accent }} />
@@ -159,7 +159,6 @@ export default function Algorithms() {
                 </div>
                 <div>
                   <h3 style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>{title}</h3>
-                  <span style={{ fontSize: 11, color: accent, fontWeight: 600, fontFamily: 'monospace' }}>{file} : {lines}</span>
                 </div>
               </div>
               <p style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.6, margin: '0 0 16px' }}>{desc}</p>
