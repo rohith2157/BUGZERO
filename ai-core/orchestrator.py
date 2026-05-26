@@ -1,19 +1,25 @@
 """Orchestrator — coordinates the full autonomous test pipeline.
 
 Pipeline stages:
+  0. PRE-STAGE  — Chaos injection & Authentication (optional)
   1. CRAWL      — BFS discovers all pages (CrawlerAgent)
-  2. PAGERANK   — Score pages by importance (Scheduler)
+  2. PAGERANK   — Score pages by importance + defect history + change detection (Scheduler)
   3. TEST LOOP  — For each page (priority order):
-       a. Basic tests          (TesterAgent — SEO, links, forms, perf)
-       b. axe-core             (Accessibility WCAG audit)
-       c. Gemini Vision        (AI visual bug detection — optional)
+       a. Self-healing  (Fingerprint + detect broken selectors)
+       b. Basic tests   (TesterAgent — SEO, links, forms, perf)
+       c. axe-core      (Accessibility WCAG audit)
+       d. Gemini Vision (AI visual bug detection + regression diff)
   4. REPORT     — Aggregate everything into compliance report (ReportAgent)
 """
 
 import asyncio
+import base64
 import logging
 import httpx
-from models.schemas import TestRequest, TestResult, TestConfig, SiteReport, DefectResult, ComplianceViolation
+from models.schemas import (
+    TestRequest, TestResult, TestConfig, SiteReport, DefectResult,
+    ComplianceViolation, HealingEventResult, VisualRegressionChange,
+)
 from agents.crawler import CrawlerAgent
 from agents.tester import TesterAgent
 from agents.scheduler import calculate_pagerank, greedy_sort
@@ -21,6 +27,7 @@ from agents.vision_agent import VisionAgent
 from agents.report_agent import ReportAgent
 from agents.auth_agent import AuthAgent
 from agents.chaos_agent import ChaosAgent
+from agents.self_healing_agent import SelfHealingAgent
 from tools.playwright_tool import PlaywrightTool
 from tools.axe_tool import run_axe_sync
 from config import settings
@@ -52,6 +59,57 @@ class Orchestrator:
         except Exception as e:
             logger.warning(f"[progress] {event} report failed (non-fatal): {e}")
 
+    async def _fetch_defect_history(self, url: str) -> tuple[dict, dict]:
+        """Fetch defect history and previous scores from gateway for risk prioritization.
+
+        Returns (defect_history, previous_scores) dicts.
+        """
+        defect_history = {}
+        previous_scores = {}
+        try:
+            async with httpx.AsyncClient(timeout=5.0) as client:
+                resp = await client.get(
+                    f"{settings.gateway_url}/api/tests/history/lookup",
+                    params={"url": url},
+                )
+                if resp.status_code == 200:
+                    data = resp.json()
+                    defect_history = data.get("defect_history", {})
+                    previous_scores = data.get("previous_scores", {})
+                    logger.info(f"Fetched defect history: {len(defect_history)} pages with history")
+        except Exception as e:
+            logger.warning(f"Could not fetch defect history (non-fatal): {e}")
+        return defect_history, previous_scores
+
+    async def _fetch_baseline(self, url: str, org_id: str) -> bytes | None:
+        """Fetch baseline screenshot from gateway."""
+        try:
+            async with httpx.AsyncClient(timeout=5.0) as client:
+                resp = await client.get(
+                    f"{settings.gateway_url}/api/baselines",
+                    params={"url": url, "orgId": org_id},
+                )
+                if resp.status_code == 200:
+                    data = resp.json()
+                    b64 = data.get("screenshotB64")
+                    if b64:
+                        return base64.b64decode(b64)
+        except Exception as e:
+            logger.debug(f"No baseline for {url}: {e}")
+        return None
+
+    async def _save_baseline(self, url: str, org_id: str, screenshot_bytes: bytes) -> None:
+        """Save/update baseline screenshot in gateway."""
+        try:
+            b64 = base64.b64encode(screenshot_bytes).decode("utf-8")
+            async with httpx.AsyncClient(timeout=10.0) as client:
+                await client.post(
+                    f"{settings.gateway_url}/api/baselines",
+                    json={"url": url, "orgId": org_id, "screenshotB64": b64},
+                )
+        except Exception as e:
+            logger.warning(f"Failed to save baseline for {url}: {e}")
+
     async def run_test(self, request: TestRequest) -> TestResult:
         """Execute a full autonomous test run through all pipeline stages."""
         config = request.config or TestConfig()
@@ -69,6 +127,10 @@ class Orchestrator:
         report_agent = ReportAgent()
         auth_agent = AuthAgent(playwright, api_key=settings.gemini_api_key)
         chaos_agent = ChaosAgent(playwright)
+        healing_agent = SelfHealingAgent(
+            playwright_tool=playwright,
+            api_key=settings.gemini_api_key,
+        )
 
         try:
             await playwright.start()
@@ -134,12 +196,21 @@ class Orchestrator:
             logger.info(f"[{run_id}] Stage 1 complete: {len(discovered)} pages discovered")
 
             # ────────────────────────────────────────────────
-            #  STAGE 2: PAGERANK — Score and sort pages
+            #  STAGE 2: PAGERANK + RISK SCORING
             # ────────────────────────────────────────────────
-            logger.info(f"[{run_id}] Stage 2: PageRank scoring")
+            logger.info(f"[{run_id}] Stage 2: PageRank + defect history + change detection scoring")
 
             scores = calculate_pagerank(discovered)
-            discovered = greedy_sort(discovered, scores)
+
+            # Fetch defect history from previous runs for risk-based prioritization
+            defect_history, previous_scores = await self._fetch_defect_history(request.url)
+
+            discovered = greedy_sort(
+                discovered,
+                scores,
+                defect_history=defect_history,
+                previous_scores=previous_scores,
+            )
 
             # Report pagerank complete
             await self._report_progress("pagerank_complete", {
@@ -147,18 +218,22 @@ class Orchestrator:
                 "scores": {url: round(score, 4) for url, score in scores.items()},
             })
 
-            logger.info(f"[{run_id}] Stage 2 complete: pages sorted by importance")
+            logger.info(f"[{run_id}] Stage 2 complete: pages sorted by risk priority")
 
             # ────────────────────────────────────────────────
             #  STAGE 3: TEST LOOP — Test each page
-            #    a) Basic tests (TesterAgent)
-            #    b) axe-core accessibility (Stage 5)
-            #    c) Gemini Vision (Stage 4 — optional)
+            #    a) Self-healing (fingerprint + detect broken selectors)
+            #    b) Basic tests (TesterAgent)
+            #    c) axe-core accessibility (WCAG audit)
+            #    d) Gemini Vision (AI visual bug detection + regression)
             # ────────────────────────────────────────────────
-            logger.info(f"[{run_id}] Stage 3: Testing pages (basic + axe-core + vision)")
+            logger.info(f"[{run_id}] Stage 3: Testing pages (self-heal + basic + axe-core + vision)")
 
             pages = []
             total_defects = 0
+
+            # Determine org_id for baseline lookups (default to run_id if not available)
+            org_id = getattr(config, "org_id", None) or run_id
 
             for i, page_info in enumerate(discovered):
                 # Check for cancellation
@@ -176,15 +251,34 @@ class Orchestrator:
                 logger.info(f"[{run_id}] Testing page {i+1}/{len(discovered)}: {url}")
 
                 try:
-                    # ── 3a: Basic tests (SEO, links, forms, performance) ──
+                    # ── 3a: Self-Healing — detect broken selectors ──
+                    page_healing_events = []
+                    if healing_agent.is_available():
+                        try:
+                            browser_page = await playwright.get_page(url)
+                            if browser_page:
+                                healing_results = await healing_agent.detect_and_heal(browser_page, url)
+                                for h in healing_results:
+                                    page_healing_events.append(HealingEventResult(
+                                        original_selector=h["original_selector"],
+                                        healed_selector=h["healed_selector"],
+                                        element_id=h["element_id"],
+                                        confidence=h["confidence"],
+                                    ))
+                                logger.info(f"  Self-healing: {len(healing_results)} selector(s) healed")
+                        except Exception as e:
+                            logger.warning(f"  Self-healing failed on {url}: {e}")
+
+                    # ── 3b: Basic tests (SEO, links, forms, performance) ──
                     page_result = await tester.test_page(
                         url,
                         modules=config.modules,
                     )
                     page_result.page_type = page_info.get("page_type", "Content")
                     page_result.pagerank_score = page_info.get("pagerank_score", 0)
+                    page_result.healing_events = page_healing_events
 
-                    # ── 3b: axe-core accessibility scan ──
+                    # ── 3c: axe-core accessibility scan ──
                     try:
                         axe_violations = await playwright.run_axe(url)
                         for v in axe_violations:
@@ -203,11 +297,12 @@ class Orchestrator:
                     except Exception as e:
                         logger.warning(f"  axe-core failed on {url}: {e}")
 
-                    # ── 3c: Gemini Vision analysis (optional) ──
+                    # ── 3d: Gemini Vision analysis + Regression ──
                     if vision.is_available():
                         try:
                             screenshot_bytes = await playwright.take_screenshot(url)
                             if screenshot_bytes:
+                                # Single-run visual bug detection
                                 vision_result = await vision.analyze_screenshot(screenshot_bytes, url)
                                 page_result.vision_quality_score = vision_result.get("page_quality_score")
 
@@ -222,8 +317,46 @@ class Orchestrator:
                                         confidence=vd.get("confidence", 0.85),
                                     ))
                                 logger.info(f"  Vision: {len(vision_result.get('defects', []))} issue(s), score: {vision_result.get('page_quality_score')}")
+
+                                # Visual Regression — compare against baseline
+                                try:
+                                    baseline_bytes = await self._fetch_baseline(url, org_id)
+                                    if baseline_bytes:
+                                        regression_result = await vision.compare_screenshots(
+                                            baseline_bytes, screenshot_bytes, url
+                                        )
+                                        for change in regression_result.get("changes", []):
+                                            page_result.visual_regression.append(VisualRegressionChange(
+                                                change_type=change.get("change_type", "cosmetic"),
+                                                severity=change.get("severity", "minor"),
+                                                description=change.get("description", ""),
+                                                location=change.get("location"),
+                                                confidence=change.get("confidence", 0.8),
+                                            ))
+                                        if regression_result.get("changes"):
+                                            logger.info(f"  Regression: {len(regression_result['changes'])} change(s) vs baseline")
+                                    else:
+                                        logger.info(f"  Regression: No baseline for {url} — first run, saving baseline")
+                                except Exception as e:
+                                    logger.warning(f"  Regression comparison failed on {url}: {e}")
+
+                                # Save current screenshot as new baseline
+                                try:
+                                    await self._save_baseline(url, org_id, screenshot_bytes)
+                                except Exception as e:
+                                    logger.warning(f"  Failed to save baseline for {url}: {e}")
+
                         except Exception as e:
                             logger.warning(f"  Vision failed on {url}: {e}")
+
+                    # ── 3e: Post-test fingerprinting for self-healing ──
+                    if healing_agent.is_available():
+                        try:
+                            browser_page = await playwright.get_page(url)
+                            if browser_page:
+                                await healing_agent.fingerprint_page(browser_page, url)
+                        except Exception as e:
+                            logger.debug(f"  Post-test fingerprinting failed on {url}: {e}")
 
                     # Recalculate hygiene score with new defects
                     severity_weights = {"critical": 15, "major": 8, "minor": 3, "warning": 1}

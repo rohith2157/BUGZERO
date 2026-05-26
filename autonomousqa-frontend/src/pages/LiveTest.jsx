@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Activity, Bug, Clock, Globe, Loader2, CheckCircle2, AlertTriangle, XCircle, StopCircle, ChevronDown } from 'lucide-react';
+import { Activity, Bug, Clock, Globe, Loader2, CheckCircle2, AlertTriangle, XCircle, StopCircle, ChevronDown, Wrench } from 'lucide-react';
 import StatusBadge from '../components/ui/StatusBadge';
 import { GridBackground } from '../components/ui/GridBackground';
 import { TextShimmer } from '../components/ui/TextShimmer';
@@ -21,6 +21,7 @@ export default function LiveTest() {
     const [elapsed, setElapsed] = useState('—');
     const [expandedPageUrl, setExpandedPageUrl] = useState(null);
     const [expandedDefectId, setExpandedDefectId] = useState(null);
+    const [healingEvents, setHealingEvents] = useState([]);
 
     const fetchData = useCallback(() => {
         testsApi.get(id).then(({ testRun }) => {
@@ -108,11 +109,34 @@ export default function LiveTest() {
         onComplete: () => fetchData(),
         onFailed: () => fetchData(),
         onCancelled: () => fetchData(),
+        onHealSuccess: (heal) => {
+            setHealingEvents(prev => [...prev, {
+                id: `heal-${Date.now()}-${Math.random()}`,
+                page: heal.page ? safePath(heal.page) : '/',
+                originalSelector: heal.originalSelector,
+                healedSelector: heal.healedSelector,
+                elementId: heal.elementId,
+                confidence: heal.confidence != null ? Math.round(heal.confidence * 100) : 100,
+                time: new Date().toLocaleTimeString(),
+            }]);
+        },
     });
 
     useEffect(() => {
         document.title = 'Live Test — BugZero';
         fetchData();
+        // Fetch healing events
+        testsApi.healing(id).then(({ events }) => {
+            setHealingEvents((events || []).map(e => ({
+                id: e.id,
+                page: e.pageUrl ? safePath(e.pageUrl) : '/',
+                originalSelector: e.originalSelector,
+                healedSelector: e.healedSelector,
+                elementId: e.elementId,
+                confidence: e.confidence != null ? Math.round(e.confidence * 100) : 100,
+                time: e.createdAt ? new Date(e.createdAt).toLocaleTimeString() : '',
+            })));
+        }).catch(() => {});
         // Poll every 3 seconds for live updates
         pollRef.current = setInterval(fetchData, 3000);
         return () => {
@@ -555,6 +579,87 @@ export default function LiveTest() {
                             </AnimatePresence>
                         </div>
                     </motion.div>
+
+                    {/* ── Self-Healing Intelligence Log ── */}
+                    {healingEvents.length > 0 && (
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.5 }}
+                            className="glass-card"
+                            style={{ padding: '24px' }}
+                        >
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
+                                <div style={{
+                                    width: 32, height: 32, borderRadius: 8,
+                                    background: 'rgba(16, 185, 129, 0.1)',
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                }}>
+                                    <Wrench size={16} style={{ color: '#10B981' }} />
+                                </div>
+                                <div>
+                                    <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)' }}>Self-Healing Intelligence</div>
+                                    <div style={{ fontSize: 11, color: 'var(--text-tertiary)' }}>{healingEvents.length} selector{healingEvents.length !== 1 ? 's' : ''} auto-repaired</div>
+                                </div>
+                                <div style={{
+                                    marginLeft: 'auto', padding: '4px 10px', borderRadius: 6,
+                                    background: 'rgba(16, 185, 129, 0.08)',
+                                    border: '1px solid rgba(16, 185, 129, 0.15)',
+                                    fontSize: 11, fontWeight: 600, color: '#10B981',
+                                }}>ZERO MAINTENANCE</div>
+                            </div>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                                {healingEvents.map(heal => (
+                                    <motion.div
+                                        key={heal.id}
+                                        initial={{ opacity: 0, x: -10 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        style={{
+                                            padding: '12px 14px', borderRadius: 8,
+                                            background: 'rgba(16, 185, 129, 0.04)',
+                                            border: '1px solid rgba(16, 185, 129, 0.08)',
+                                        }}
+                                    >
+                                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                                                <CheckCircle2 size={13} style={{ color: '#10B981' }} />
+                                                <span style={{ fontSize: 12, fontWeight: 600, color: '#10B981' }}>Healed</span>
+                                                <span style={{ fontSize: 11, color: 'var(--text-tertiary)', fontFamily: "'Geist Mono', monospace" }}>{heal.elementId}</span>
+                                            </div>
+                                            <span style={{ fontSize: 10, color: 'var(--text-tertiary)' }}>{heal.page} • {heal.time}</span>
+                                        </div>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                                            <div style={{
+                                                flex: 1, padding: '6px 10px', borderRadius: 6, fontSize: 11,
+                                                fontFamily: "'Geist Mono', 'JetBrains Mono', monospace",
+                                                background: 'rgba(239, 68, 68, 0.06)',
+                                                border: '1px solid rgba(239, 68, 68, 0.1)',
+                                                color: '#EF4444',
+                                                textDecoration: 'line-through',
+                                                overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                                            }}>{heal.originalSelector}</div>
+                                            <span style={{ fontSize: 14, color: 'var(--text-tertiary)' }}>→</span>
+                                            <div style={{
+                                                flex: 1, padding: '6px 10px', borderRadius: 6, fontSize: 11,
+                                                fontFamily: "'Geist Mono', 'JetBrains Mono', monospace",
+                                                background: 'rgba(16, 185, 129, 0.06)',
+                                                border: '1px solid rgba(16, 185, 129, 0.1)',
+                                                color: '#10B981',
+                                                overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                                            }}>{heal.healedSelector}</div>
+                                        </div>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                            <span style={{ fontSize: 10, fontWeight: 600, color: 'var(--text-tertiary)', textTransform: 'uppercase' }}>Confidence</span>
+                                            <div style={{ flex: 1, height: 4, borderRadius: 2, background: 'rgba(255,255,255,0.06)', overflow: 'hidden' }}>
+                                                <div style={{ width: `${heal.confidence}%`, height: '100%', borderRadius: 2, background: heal.confidence >= 80 ? '#10B981' : heal.confidence >= 50 ? '#F59E0B' : '#EF4444', transition: 'width 0.5s ease' }} />
+                                            </div>
+                                            <span style={{ fontSize: 11, fontWeight: 700, color: heal.confidence >= 80 ? '#10B981' : heal.confidence >= 50 ? '#F59E0B' : '#EF4444', minWidth: 30 }}>{heal.confidence}%</span>
+                                        </div>
+                                    </motion.div>
+                                ))}
+                            </div>
+                        </motion.div>
+                    )}
                 </div>
             </GridBackground>
         </motion.div>

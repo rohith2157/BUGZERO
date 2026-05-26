@@ -55,6 +55,21 @@ class PerformanceMetric(BaseModel):
     rating: Optional[str] = None
 
 
+class HealingEventResult(BaseModel):
+    original_selector: str
+    healed_selector: str
+    element_id: str
+    confidence: float = 1.0
+
+
+class VisualRegressionChange(BaseModel):
+    change_type: str             # "cosmetic" or "functional"
+    severity: str                # "critical", "major", "minor", "info"
+    description: str
+    location: Optional[str] = None
+    confidence: float = 0.85
+
+
 class PageResult(BaseModel):
     url: str
     page_type: Optional[str] = None
@@ -64,6 +79,8 @@ class PageResult(BaseModel):
     defects: list[DefectResult] = []
     compliance: list[ComplianceViolation] = []
     performance: dict[str, PerformanceMetric] = {}
+    healing_events: list[HealingEventResult] = []  # Self-healing audit trail
+    visual_regression: list[VisualRegressionChange] = []  # Visual regression diffs
 
 
 # Stage 6: Site-wide report models

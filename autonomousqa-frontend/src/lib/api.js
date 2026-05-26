@@ -86,6 +86,7 @@ export const tests = {
     pages: (id) => request(`/tests/${encodeURIComponent(id)}/pages`),
     compliance: (id) => request(`/tests/${encodeURIComponent(id)}/compliance`),
     performance: (id) => request(`/tests/${encodeURIComponent(id)}/performance`),
+    healing: (id) => request(`/tests/${encodeURIComponent(id)}/healing`),
 };
 
 // Playbooks

@@ -41,6 +41,7 @@ export function useWebSocket(runId, handlers = {}) {
                 socket.on('test:complete', (data) => handlersRef.current.onComplete?.(data));
                 socket.on('test:failed', (data) => handlersRef.current.onFailed?.(data));
                 socket.on('test:cancelled', (data) => handlersRef.current.onCancelled?.(data));
+                socket.on('heal:success', (data) => handlersRef.current.onHealSuccess?.(data));
             }).catch(() => {
                 // socket.io-client not installed — ignore
                 console.log('WebSocket not available (socket.io-client not installed)');

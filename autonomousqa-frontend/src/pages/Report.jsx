@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Download, FileJson, FileText, FileSpreadsheet, ChevronDown, ExternalLink, Loader2 } from 'lucide-react';
+import { Download, FileJson, FileText, FileSpreadsheet, ChevronDown, ExternalLink, Loader2, Eye, RefreshCw } from 'lucide-react';
 import HygieneScoreGauge from '../components/ui/HygieneScoreGauge';
 import StatusBadge from '../components/ui/StatusBadge';
 import { severityConfig, defectTypeColors } from '../data/mockData';
@@ -89,6 +89,22 @@ export default function Report() {
                     confidence: d.confidence || 1.0,
                 })),
                 heatmapData,
+                // Extract vision defects (from gemini_vision source)
+                visionDefects: (testRun.defects || []).filter(d => d.source === 'gemini_vision').map(d => ({
+                    id: d.id,
+                    page: d.pageUrl ? safePath(d.pageUrl) : '/',
+                    type: d.type || 'Visual',
+                    severity: d.severity,
+                    message: d.message,
+                    location: d.location || 'Unknown area',
+                    confidence: d.confidence || 0.85,
+                    fix: d.fix || 'Review visual change',
+                })),
+                // Pages with vision quality scores (for regression context)
+                visualPages: (testRun.pages || []).filter(p => p.visionQualityScore != null).map(p => ({
+                    page: safePath(p.url),
+                    score: Math.round(p.visionQualityScore),
+                })),
             });
         }).catch(() => {
             setReportData(null);
@@ -366,6 +382,105 @@ export default function Report() {
                     })}
                 </div>
             </motion.div>
+
+            {/* Visual Regression AI Section */}
+            {(reportData.visionDefects.length > 0 || reportData.visualPages.length > 0) && (
+                <motion.div variants={item} className="glass-card" style={{ padding: '24px', marginBottom: 24 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 18 }}>
+                        <div style={{
+                            width: 32, height: 32, borderRadius: 8,
+                            background: 'rgba(167, 139, 250, 0.1)',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        }}>
+                            <Eye size={16} style={{ color: '#A78BFA' }} />
+                        </div>
+                        <div>
+                            <h3 style={{ fontSize: 15, fontWeight: 700, margin: 0 }}>Visual Regression AI</h3>
+                            <div style={{ fontSize: 11, color: 'var(--text-tertiary)' }}>
+                                Semantic visual analysis &bull; {reportData.visionDefects.length} issue{reportData.visionDefects.length !== 1 ? 's' : ''} detected
+                            </div>
+                        </div>
+                        {reportData.visualPages.length > 0 && (
+                            <div style={{
+                                marginLeft: 'auto', padding: '4px 12px', borderRadius: 6,
+                                background: 'rgba(167, 139, 250, 0.08)',
+                                border: '1px solid rgba(167, 139, 250, 0.15)',
+                                fontSize: 11, fontWeight: 600, color: '#A78BFA',
+                            }}>
+                                {reportData.visualPages.length} page{reportData.visualPages.length !== 1 ? 's' : ''} analyzed
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Visual Quality Scores per page */}
+                    {reportData.visualPages.length > 0 && (
+                        <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginBottom: 16 }}>
+                            {reportData.visualPages.map(vp => {
+                                const color = vp.score >= 85 ? '#10B981' : vp.score >= 70 ? '#F59E0B' : '#EF4444';
+                                return (
+                                    <div key={vp.page} style={{
+                                        padding: '8px 14px', borderRadius: 8,
+                                        background: `${color}0a`,
+                                        border: `1px solid ${color}20`,
+                                        display: 'flex', alignItems: 'center', gap: 8,
+                                    }}>
+                                        <span style={{ fontSize: 18, fontWeight: 800, color }}>{vp.score}</span>
+                                        <span style={{ fontSize: 11, color: 'var(--text-tertiary)', fontFamily: "'Geist Mono', monospace", maxWidth: 120, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{vp.page}</span>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    )}
+
+                    {/* Vision defects list */}
+                    {reportData.visionDefects.length > 0 ? (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                            {reportData.visionDefects.map((vd, i) => {
+                                const typeColor = vd.type === 'Visual' ? '#A78BFA' : vd.type === 'UX' ? '#F59E0B' : '#60A5FA';
+                                return (
+                                    <motion.div
+                                        key={vd.id}
+                                        initial={{ opacity: 0, x: -8 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        transition={{ delay: i * 0.03 }}
+                                        style={{
+                                            padding: '14px 16px', borderRadius: 10,
+                                            background: 'var(--color-bg-card)',
+                                            border: '1px solid var(--border-subtle)',
+                                            borderLeft: `3px solid ${typeColor}`,
+                                        }}
+                                    >
+                                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                                <StatusBadge status={vd.severity} size="sm" />
+                                                <span style={{
+                                                    fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 4,
+                                                    background: `${typeColor}14`, color: typeColor,
+                                                }}>{vd.type}</span>
+                                                <span style={{ fontSize: 10, color: 'var(--text-tertiary)' }}>{'\ud83d\udccd'} {vd.location}</span>
+                                            </div>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                                                <span style={{ fontSize: 10, color: 'var(--text-tertiary)' }}>AI Confidence:</span>
+                                                <span style={{
+                                                    fontSize: 11, fontWeight: 700,
+                                                    color: vd.confidence >= 0.8 ? '#10B981' : vd.confidence >= 0.5 ? '#F59E0B' : '#EF4444',
+                                                }}>{Math.round(vd.confidence * 100)}%</span>
+                                            </div>
+                                        </div>
+                                        <div style={{ fontSize: 13, color: 'var(--text-primary)', fontWeight: 500, marginBottom: 6 }}>{vd.message}</div>
+                                        <div style={{ fontSize: 11, color: 'var(--text-tertiary)', fontFamily: "'Geist Mono', monospace" }}>{vd.page}</div>
+                                    </motion.div>
+                                );
+                            })}
+                        </div>
+                    ) : (
+                        <div style={{ padding: '24px', textAlign: 'center', color: 'var(--text-tertiary)', background: 'var(--color-bg-elevated)', borderRadius: 10, fontSize: 13 }}>
+                            <RefreshCw size={16} style={{ marginBottom: 6, opacity: 0.5 }} />
+                            <br />No visual regressions detected — page visuals match baseline
+                        </div>
+                    )}
+                </motion.div>
+            )}
 
             {/* Defects List */}
             <motion.div variants={item} className="glass-card" style={{ padding: '24px' }}>

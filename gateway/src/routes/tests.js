@@ -99,6 +99,21 @@ router.post('/progress', async (req, res) => {
                 });
             }
 
+            // Persist healing events
+            for (const heal of (page.healing_events || [])) {
+                await prisma.healingEvent.create({
+                    data: {
+                        originalSelector: heal.original_selector,
+                        healedSelector: heal.healed_selector,
+                        elementId: heal.element_id,
+                        pageUrl: page.url,
+                        confidence: heal.confidence || 1.0,
+                        pageId: dbPage.id,
+                        runId: run_id,
+                    },
+                });
+            }
+
             // Update counters on the run
             await prisma.testRun.update({
                 where: { id: run_id },
@@ -120,6 +135,15 @@ router.post('/progress', async (req, res) => {
                     type: defect.type,
                     severity: defect.severity,
                     message: defect.message,
+                });
+            }
+            for (const heal of (page.healing_events || [])) {
+                emitTestEvent(io, run_id, 'heal:success', {
+                    page: page.url,
+                    originalSelector: heal.original_selector,
+                    healedSelector: heal.healed_selector,
+                    elementId: heal.element_id,
+                    confidence: heal.confidence,
                 });
             }
         } else if (event === 'pagerank_complete') {
@@ -348,6 +372,85 @@ router.get('/:id/performance', authenticate, uuidParam, validate, async (req, re
     } catch (err) {
         console.error('Get performance error:', err);
         res.status(500).json({ error: 'Failed to get performance report' });
+    }
+});
+
+// GET /api/tests/:id/healing — Healing events for a run
+router.get('/:id/healing', authenticate, uuidParam, validate, async (req, res) => {
+    try {
+        const events = await prisma.healingEvent.findMany({
+            where: { runId: req.params.id, run: { userId: req.user.id } },
+            orderBy: { createdAt: 'asc' },
+        });
+
+        res.json({ events, total: events.length });
+    } catch (err) {
+        console.error('Get healing events error:', err);
+        res.status(500).json({ error: 'Failed to get healing events' });
+    }
+});
+
+// GET /api/tests/history — Defect history for risk prioritization (internal, no auth)
+router.get('/history/lookup', async (req, res) => {
+    try {
+        const { url } = req.query;
+        if (!url) return res.status(400).json({ error: 'url parameter required' });
+
+        // Extract base domain for matching
+        let baseDomain;
+        try {
+            baseDomain = new URL(url).origin;
+        } catch {
+            return res.status(400).json({ error: 'Invalid URL' });
+        }
+
+        // Find all completed runs for this domain
+        const previousRuns = await prisma.testRun.findMany({
+            where: {
+                url: { startsWith: baseDomain },
+                status: 'completed',
+            },
+            select: { id: true },
+            orderBy: { createdAt: 'desc' },
+            take: 10,
+        });
+
+        const runIds = previousRuns.map(r => r.id);
+
+        if (runIds.length === 0) {
+            return res.json({ defect_history: {}, previous_scores: {} });
+        }
+
+        // Aggregate defect counts per page URL
+        const defects = await prisma.defect.groupBy({
+            by: ['pageUrl'],
+            where: { runId: { in: runIds } },
+            _count: { id: true },
+        });
+
+        const defect_history = {};
+        for (const d of defects) {
+            defect_history[d.pageUrl] = d._count.id;
+        }
+
+        // Get most recent hygiene scores per page
+        const pages = await prisma.page.findMany({
+            where: { runId: { in: runIds } },
+            select: { url: true, hygieneScore: true, createdAt: true },
+            orderBy: { createdAt: 'desc' },
+        });
+
+        const previous_scores = {};
+        for (const p of pages) {
+            if (!(p.url in previous_scores) && p.hygieneScore !== null) {
+                previous_scores[p.url] = p.hygieneScore;
+            }
+        }
+
+        res.json({ defect_history, previous_scores });
+    } catch (err) {
+        console.error('Get history error:', err);
+        res.status(500).json({ error: 'Failed to get defect history' });
     }
 });
 

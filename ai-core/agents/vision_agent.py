@@ -140,3 +140,87 @@ class VisionAgent:
         except Exception as e:
             logger.error(f"VisionAgent: Analysis failed for {url}: {e}")
             return {"defects": [], "page_quality_score": None, "summary": f"Error: {e}"}
+
+    async def compare_screenshots(self, baseline_bytes: bytes, current_bytes: bytes, url: str) -> dict:
+        """Compare a baseline screenshot against a current screenshot for visual regression.
+
+        Sends both images to Gemini Vision to identify and classify visual changes.
+
+        Args:
+            baseline_bytes: PNG bytes of the baseline (previous run)
+            current_bytes: PNG bytes of the current run
+            url: The URL for context
+
+        Returns:
+            Dict with 'changes' list and 'regression_score'
+        """
+        if not self._available:
+            return {"changes": [], "regression_score": 100, "summary": "Regression skipped"}
+
+        try:
+            baseline_img = Image.open(io.BytesIO(baseline_bytes))
+            current_img = Image.open(io.BytesIO(current_bytes))
+
+            prompt = f"""You are a Visual Regression Testing AI comparing two screenshots of the same web page.
+URL: {url}
+
+Image 1 = BASELINE (previous known-good state)
+Image 2 = CURRENT (latest version to test)
+
+Compare these two screenshots carefully and identify ALL visual changes:
+
+1. **Cosmetic Changes**: font, color, spacing, border, shadow, gradient differences
+2. **Functional Changes**: layout broken, element missing, text changed, new elements appeared, element repositioned significantly
+3. **Regression Bugs**: elements that appear broken only in the CURRENT version
+
+Return your findings as JSON:
+{{
+  "changes": [
+    {{
+      "change_type": "cosmetic" | "functional",
+      "severity": "critical" | "major" | "minor" | "info",
+      "description": "Clear description of the change",
+      "location": "Where on the page",
+      "confidence": 0.0-1.0
+    }}
+  ],
+  "regression_score": 0-100,
+  "summary": "One-line summary"
+}}
+
+If pages are identical: {{"changes": [], "regression_score": 100, "summary": "No visual changes detected"}}
+
+IMPORTANT: Return ONLY valid JSON, no markdown."""
+
+            response = self._model.generate_content([prompt, baseline_img, current_img])
+
+            text = response.text.strip()
+            if text.startswith("```"):
+                text = text.split("```")[1]
+                if text.startswith("json"):
+                    text = text[4:]
+                text = text.strip()
+
+            result = json.loads(text)
+
+            changes = result.get("changes", [])
+            for change in changes:
+                change.setdefault("change_type", "cosmetic")
+                change.setdefault("severity", "minor")
+                change.setdefault("description", "Unknown change")
+                change.setdefault("confidence", 0.8)
+
+            logger.info(f"VisionAgent: Regression found {len(changes)} change(s) on {url}")
+
+            return {
+                "changes": changes,
+                "regression_score": result.get("regression_score", 100),
+                "summary": result.get("summary", ""),
+            }
+
+        except json.JSONDecodeError as e:
+            logger.error(f"VisionAgent: Failed to parse regression response for {url}: {e}")
+            return {"changes": [], "regression_score": None, "summary": f"Parse error: {e}"}
+        except Exception as e:
+            logger.error(f"VisionAgent: Regression analysis failed for {url}: {e}")
+            return {"changes": [], "regression_score": None, "summary": f"Error: {e}"}

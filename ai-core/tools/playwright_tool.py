@@ -500,6 +500,71 @@ class PlaywrightTool:
         """Run axe-core accessibility scan (async wrapper)."""
         return await _run_sync(self._run_axe_sync, url)
 
+    # ── Self-Healing: access Playwright page for DOM inspection ───────────────
+
+    def _get_page_sync(self, url: str):
+        """Navigate to a URL and return the Playwright page object for inspection.
+        
+        Used by SelfHealingAgent to access DOM elements for fingerprinting
+        and healing. Returns (page, context) tuple — caller should close context.
+        """
+        browser = self._ensure_browser()
+        context = browser.new_context(
+            viewport={"width": 1280, "height": 720},
+            user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+        )
+        context.set_default_timeout(10000)
+        page = context.new_page()
+        try:
+            page.goto(url, wait_until="domcontentloaded", timeout=10000)
+            page.wait_for_timeout(500)
+            return page, context
+        except Exception as e:
+            print(f"get_page error on {url}: {e}")
+            try:
+                context.close()
+            except Exception:
+                pass
+            return None, None
+
+    async def get_page(self, url: str):
+        """Get a Playwright page navigated to URL (async wrapper).
+        
+        Returns a page-like wrapper that can be used with page.evaluate()
+        and page.locator(). The page is automatically cleaned up.
+        """
+        page, context = await _run_sync(self._get_page_sync, url)
+        if page is None:
+            return None
+        # Wrap in a helper that cleans up on del
+        return _ManagedPage(page, context)
+
+
+class _ManagedPage:
+    """Thin wrapper that forwards calls to a Playwright page and manages cleanup."""
+    
+    def __init__(self, page, context):
+        self._page = page
+        self._context = context
+    
+    async def evaluate(self, expression):
+        return await _run_sync(self._page.evaluate, expression)
+    
+    def locator(self, selector):
+        return self._page.locator(selector)
+    
+    async def count(self, selector):
+        return await _run_sync(lambda: self._page.locator(selector).count())
+    
+    def close(self):
+        try:
+            self._context.close()
+        except Exception:
+            pass
+    
+    def __del__(self):
+        self.close()
+
     # ── Stage 4: Screenshot capture for Gemini Vision ─────────────────────────
 
     def _take_screenshot_sync(self, url: str) -> bytes:

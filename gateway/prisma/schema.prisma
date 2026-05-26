@@ -80,6 +80,7 @@ model TestRun {
   defects     Defect[]
   complianceResults ComplianceResult[]
   performanceMetrics PerformanceMetric[]
+  healingEvents HealingEvent[]
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 
@@ -99,6 +100,7 @@ model Page {
   defects            Defect[]
   complianceResults  ComplianceResult[]
   performanceMetrics PerformanceMetric[]
+  healingEvents      HealingEvent[]
   createdAt          DateTime  @default(now())
 
   @@map("pages")
@@ -210,4 +212,32 @@ model UserActivity {
   createdAt  DateTime @default(now())
 
   @@map("user_activities")
+}
+
+model HealingEvent {
+  id                String   @id @default(uuid())
+  originalSelector  String
+  healedSelector    String
+  elementId         String
+  pageUrl           String
+  confidence        Float    @default(1.0)
+  pageId            String?
+  page              Page?    @relation(fields: [pageId], references: [id], onDelete: SetNull)
+  runId             String
+  run               TestRun  @relation(fields: [runId], references: [id], onDelete: Cascade)
+  createdAt         DateTime @default(now())
+
+  @@map("healing_events")
+}
+
+model ScreenshotBaseline {
+  id              String   @id @default(uuid())
+  url             String
+  screenshotB64   String   @db.Text
+  orgId           String
+  updatedAt       DateTime @updatedAt
+  createdAt       DateTime @default(now())
+
+  @@unique([url, orgId])
+  @@map("screenshot_baselines")
 }
