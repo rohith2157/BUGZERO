@@ -24,12 +24,12 @@ import { TheInfiniteGrid } from '../components/ui/the-infinite-grid';
 import { CinematicFooter } from '../components/ui/motion-footer';
 
 const features = [
-    { icon: Zap, title: 'Self-Healing Tests', desc: 'Tests that auto-repair when UI changes. Zero maintenance.', accent: 'var(--color-accent-gold)' },
-    { icon: Shield, title: 'Auth Navigator', desc: 'Logs into SSO, OAuth, MFA — automatically.', accent: 'var(--color-accent-purple)' },
-    { icon: Eye, title: 'Visual Regression AI', desc: 'Semantic visual diff, not pixel noise.', accent: 'var(--color-accent-cyan)' },
-    { icon: BarChart3, title: 'Risk Prioritization', desc: 'AI decides what to test first based on risk.', accent: 'var(--color-accent-gold-bright)' },
-    { icon: Gauge, title: 'Performance Chaos', desc: 'Core Web Vitals on every page, every run.', accent: 'var(--color-accent-emerald)' },
-    { icon: Scale, title: 'Compliance Engine', desc: 'WCAG + GDPR audit on every test run.', accent: 'var(--color-error)' },
+    { icon: Zap, title: 'Self-Healing Tests', desc: 'DOM fingerprinting + LLM healing. Tests auto-repair when UI changes.', accent: 'var(--color-accent-gold)' },
+    { icon: Shield, title: 'Auth Navigator', desc: 'Logs into SSO, OAuth, MFA — autonomously via vision AI.', accent: 'var(--color-accent-purple)' },
+    { icon: Eye, title: 'Visual Regression AI', desc: 'Gemini compares baselines vs current. Cosmetic vs functional diff.', accent: 'var(--color-accent-cyan)' },
+    { icon: BarChart3, title: 'Risk Prioritization', desc: 'PageRank + defect history + change detection. 4-factor risk model.', accent: 'var(--color-accent-gold-bright)' },
+    { icon: Gauge, title: 'Performance Chaos', desc: 'Core Web Vitals + Slow 3G + CPU throttling on every run.', accent: 'var(--color-accent-emerald)' },
+    { icon: Scale, title: 'Compliance Engine', desc: 'axe-core WCAG 2.1 AA + GDPR audit on every test run.', accent: 'var(--color-error)' },
 ];
 
 const stats = [

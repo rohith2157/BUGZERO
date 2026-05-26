@@ -22,7 +22,7 @@
 
   <h4>
     <a href="#-what-is-autonomousqa">About</a> •
-    <a href="#-features">Features</a> •
+    <a href="#-the-6-ai-agents">Features</a> •
     <a href="#%EF%B8%8F-architecture">Architecture</a> •
     <a href="#%E2%9A%99%EF%B8%8F-system-workflow">Workflow</a> •
     <a href="#-quick-start">Quick Start</a> •
@@ -35,31 +35,66 @@
 
 ## 🧠 What is AutonomousQA?
 
-**AutonomousQA** is an AI-driven testing platform that autonomously crawls, analyzes, and tests any web application. Point it at a URL — it discovers every page, runs accessibility audits, performance checks, and functional tests — then reports defects with full evidence. **No scripts. No config. No babysitting.**
+**AutonomousQA** is an AI-driven testing platform that autonomously crawls, analyzes, and tests any web application. Point it at a URL — it discovers every page, runs accessibility audits, performance checks, visual regression analysis, and functional tests — then reports defects with full evidence. **No scripts. No config. No babysitting.**
 
 > 💡 **The Problem:** Writing and maintaining test scripts is slow, expensive, and fragile. Traditional QA can't keep pace with rapid development cycles, and critical bugs slip through because manual testing doesn't scale.
 
-> ✨ **The Solution:** AutonomousQA deploys AI agents that behave like expert QA engineers — they explore your app intelligently, find issues humans miss, and deliver actionable reports in real time.
+> ✨ **The Solution:** AutonomousQA deploys 6 specialized AI agents that behave like expert QA engineers — they explore your app intelligently, heal their own broken selectors, find issues humans miss, and deliver actionable reports in real time.
 
 ---
 
-## ✨ Features
+## 🤖 The 6 AI Agents
 
 <div align="center">
 
-| Feature | Description |
-|:---|:---|
-| 🕷️ **Autonomous Crawling** | AI-powered spider discovers all pages, forms, and user flows automatically |
-| ♿ **Accessibility Audits** | WCAG 2.1 compliance checks via axe-core — catches a11y issues instantly |
-| ⚡ **Performance Analysis** | Core Web Vitals, load times, and resource analysis for every page |
-| 🛡️ **Security Scanning** | Detects common vulnerabilities (XSS vectors, open redirects, insecure headers) |
-| 📊 **Real-Time Dashboard** | Live WebSocket updates — watch tests run and defects appear in real time |
-| 📋 **Compliance Reports** | Export-ready reports with WCAG, OWASP, and performance compliance scoring |
-| 🎯 **Smart Defect Classification** | AI categorizes bugs by severity, type, and affected component |
-| 📸 **Visual Evidence** | Screenshots and DOM snapshots attached to every defect |
-| 🔄 **Playbook System** | Save and replay test configurations across releases |
+| # | Agent | What It Does | How It Works |
+|:-:|:---|:---|:---|
+| ⚡ | **Self-Healing Tests** | Tests that auto-repair when UI changes. Zero maintenance. | Semantic fingerprinting of DOM elements → LLM-powered selector healing with confidence scoring → Full healing audit trail |
+| 🛡️ | **Auth Navigator** | Logs into SSO, OAuth, MFA — automatically. | Computer vision + DOM analysis + Gemini reasoning to navigate any login flow → Stores strategies as reusable playbooks |
+| 👁️ | **Visual Regression AI** | Semantic visual diff, not pixel noise. | Captures screenshots per page → Stores baselines → Gemini Vision compares current vs baseline → Classifies changes as cosmetic vs functional |
+| 📊 | **Risk Prioritization** | AI decides what to test first based on risk. | PageRank graph analysis + page type boosting + defect history recidivism scoring + change detection → 4-factor risk model |
+| ⚡ | **Performance Chaos** | Core Web Vitals on every page, every run. | Measures LCP, CLS, FID, TTFB via Playwright → Network throttling & CPU throttling (chaos mode) → Performance budget enforcement |
+| ⚖️ | **Compliance Engine** | WCAG + GDPR audit on every test run. | axe-core WCAG 2.1 AA full scan → GDPR risk detection → Audit-ready compliance reports with remediation guidance |
 
 </div>
+
+### Self-Healing Tests — How It Works
+
+```
+Page Load → fingerprint_page() saves all interactive elements (buttons, links, inputs, forms)
+  ↓
+Next Run → detect_and_heal() compares current DOM vs saved fingerprints
+  ↓
+Broken selector found → Gemini LLM analyzes DOM + fingerprint → proposes new selector
+  ↓
+Validates selector exists → Records HealingEvent in DB with confidence score
+  ↓
+WebSocket → LiveTest shows "✅ Healed button_3: #old-btn → .new-btn (95%)"
+```
+
+### Visual Regression AI — How It Works
+
+```
+Run 1: Screenshot → Gemini analyzes for visual bugs → Save as baseline in DB
+  ↓
+Run 2: Screenshot → Fetch baseline → Gemini compares BOTH images side-by-side
+  ↓
+Changes classified: "Cosmetic: font-size changed" vs "Functional: button missing"
+  ↓
+Report page shows Visual Regression section with severity + confidence per change
+```
+
+### Risk Prioritization — 4-Factor Model
+
+```
+Stage 2: Fetch defect history from last 10 completed runs
+  ↓
+Risk Score = PageRank (link graph) + Type Boost (auth=+0.15, form=+0.12)
+           + Defect History (up to +0.20 for recidivist pages)
+           + Change Detection (up to +0.15 for score regressions)
+  ↓
+Pages sorted by combined risk → highest-risk tested first
+```
 
 ---
 
@@ -76,6 +111,7 @@ graph TD;
     
     AI --> PW["🌐 Playwright\n(Browser Engine)"]
     AI --> Axe["♿ axe-core\n(A11y Tests)"]
+    AI --> Gemini["🔮 Gemini Vision\n(Visual AI)"]
 
     style Frontend fill:#1E293B,stroke:#3B82F6,stroke-width:2px,color:#fff
     style API fill:#1E293B,stroke:#10B981,stroke-width:2px,color:#fff
@@ -85,14 +121,15 @@ graph TD;
     style Neo fill:#0F172A,stroke:#64748B,color:#fff
     style PW fill:#0F172A,stroke:#64748B,color:#fff
     style Axe fill:#0F172A,stroke:#64748B,color:#fff
+    style Gemini fill:#0F172A,stroke:#F59E0B,color:#fff
 ```
 
 | Service | Technology | Purpose |
 |:---|:---|:---|
 | **Frontend** | React 19, Vite 7, Framer Motion, Recharts | Interactive dashboard & real-time monitoring |
 | **API Gateway** | Express.js, Prisma ORM, Socket.io, JWT | REST API, authentication, WebSocket relay |
-| **AI Core** | Python FastAPI, Playwright, axe-core | Autonomous crawling, testing, and defect detection |
-| **PostgreSQL** | v16 | Persistent storage (users, tests, defects) |
+| **AI Core** | Python FastAPI, Playwright, axe-core, Gemini | Autonomous crawling, testing, healing, and visual regression |
+| **PostgreSQL** | v16 | Persistent storage (users, tests, defects, healing events, baselines) |
 | **Redis** | v7 | Caching, session management, job queues |
 | **Neo4j** | v5 | Graph-based page relationship mapping |
 
@@ -110,7 +147,7 @@ sequenceDiagram
     participant DB as 🐘 Database (Postgres)
     participant W as ⚡ WebSocket Server
     participant A as 🤖 AI Core (Python)
-    participant Gem as 🔮 Gemini Vision (optional)
+    participant Gem as 🔮 Gemini Vision
 
     U->>F: Clicks "Launch Test" (URL, Config)
     F->>G: POST /api/tests { url, config }
@@ -119,28 +156,40 @@ sequenceDiagram
     F->>W: Join room {testRun.id} (Live UI)
     G->>A: Trigger pipeline (POST /api/test/run) via proxy
     
+    note over A: STAGE 0: AUTH & CHAOS (Optional)
+    opt Auth enabled
+        A->>A: AuthAgent navigates SSO/OAuth/MFA flow
+    end
+    opt Chaos mode
+        A->>A: ChaosAgent injects Slow 3G + CPU throttling
+    end
+    
     note over A: STAGE 1: BFS CRAWL 🕷️
     A->>A: Playwright BFS — discover all pages + links
     A->>G: POST /api/tests/progress (crawl_complete)
     G->>W: emit 'crawl:complete' (Updates UI Pages Total)
     
-    note over A: STAGE 2: PAGERANK + GREEDY SORT 📊
-    A->>A: Build link graph → networkx PageRank
+    note over A: STAGE 2: RISK SCORING 📊
+    A->>G: GET /api/tests/history/lookup (defect history)
+    G-->>A: Return defect counts + previous scores
+    A->>A: PageRank + type boost + defect history + change detection
     A->>A: Greedy sort — most critical pages first
     A->>G: POST /api/tests/progress (pagerank_complete)
     G->>W: emit 'pagerank:complete' (Shows priority order)
     
     note over A: STAGE 3: TEST LOOP 🔬
-    loop For each page (priority order)
-        A->>A: Run basic tests (SEO, forms, perf, links)
-        A->>A: Inject axe-core → full WCAG 2.1 audit
-        opt Gemini API key configured
-            A->>Gem: Send screenshot for visual analysis
-            Gem-->>A: Return visual bugs + UX issues
-        end
+    loop For each page (risk priority order)
+        A->>A: 3a: Self-Healing — detect broken selectors, heal via LLM
+        A->>A: 3b: Basic tests (SEO, forms, perf, links)
+        A->>A: 3c: Inject axe-core → full WCAG 2.1 audit
+        A->>G: GET /api/baselines (fetch baseline screenshot)
+        A->>Gem: Send current + baseline screenshot for regression diff
+        Gem-->>A: Return visual bugs + regression changes
+        A->>G: POST /api/baselines (save new baseline)
+        A->>A: 3e: Fingerprint page for future self-healing
         A->>G: POST /api/tests/progress (page_complete)
-        G->>DB: Save metrics, defects, compliance, PageRank
-        G->>W: emit 'page:complete' & 'defect:found'
+        G->>DB: Save metrics, defects, compliance, healing events
+        G->>W: emit 'page:complete' & 'defect:found' & 'heal:success'
     end
     
     note over A: STAGE 4: REPORT GENERATION 📋
@@ -169,23 +218,27 @@ flowchart LR
     
     PW --> Crawler["Crawler Agent (BFS)"]
     Crawler --> Pages{"Discovered Pages + Links"}
-    Pages --> PR["Scheduler (PageRank)"]
+    
+    Pages --> History["Fetch Defect History"]
+    History --> PR["Scheduler (PageRank + 4-Factor Risk)"]
     PR --> Sort["Greedy Sort (Priority)"]
     Sort --> WS1{{"WS: crawl:complete + pagerank:complete"}}
     
     Sort --> Loop["Test Loop (each page)"]
+    Loop --> Heal["Self-Healing Agent"]
     Loop --> Basic["Tester Agent (SEO/Perf/Forms)"]
     Loop --> Axe["axe-core Tool (WCAG 2.1)"]
-    Loop --> Vision["Vision Agent (Gemini — optional)"]
+    Loop --> Vision["Vision Agent (Gemini + Regression)"]
     
-    Basic --> Results["Page Results"]
+    Heal --> Results["Page Results"]
+    Basic --> Results
     Axe --> Results
     Vision --> Results
-    Results --> WS2{{"WS: page:complete & defect:found"}}
+    Results --> WS2{{"WS: page:complete & defect:found & heal:success"}}
     
     WS2 --> Report["Report Agent"]
     Report --> Grade["Score + Grade (A+ to F)"]
-    Grade --> FinDB[("Save report to Postgres")]
+    Grade --> FinDB[("Save report + baselines to Postgres")]
     FinDB --> WS3{{"WS: report:complete & test:finished"}}
 ```
 
@@ -204,180 +257,32 @@ AutonomousQA operates like a highly advanced human QA engineer. Here's how the c
 - **What it is:** A Breadth-First Search (BFS) spider that maps the application.
 - **How it works:** Starting from a seed URL, the crawler scans the DOM for valid `<a>` href links belonging to the same domain. It places these in a queue and visits them sequentially up to the configured `max_depth` and `max_pages`. This requires zero configuration from the user.
 
-#### 🧭 Crawl Strategy Comparison
+### 3. Self-Healing Agent (The "Mechanic") 🆕
+- **What it is:** An AI-powered selector repair system that keeps tests running when UI changes.
+- **How it works:**
+  1. **Before testing:** `fingerprint_page()` captures structural fingerprints of all interactive elements (buttons, links, inputs, forms) — tag, text, ARIA labels, position, CSS classes.
+  2. **On next run:** `detect_and_heal()` compares the current DOM against saved fingerprints. If a selector is broken, it sends the old fingerprint + current DOM to Gemini LLM.
+  3. **Healing:** Gemini proposes a new CSS selector with confidence score. The agent validates it works on the live page before accepting.
+  4. **Audit trail:** Every healing event is persisted in the `healing_events` database table with original selector, healed selector, and confidence.
 
-There are several approaches to crawl a website. Here's how they differ and why we chose BFS:
+### 4. Visual Regression Engine (The "Designer's Eye") 🆕
+- **What it is:** A Gemini Vision-powered visual comparison system that detects meaningful UI changes.
+- **How it works:**
+  1. **Run 1:** Takes a screenshot of each page, sends to Gemini for single-image visual bug detection, then saves the screenshot as a baseline in `screenshot_baselines` table.
+  2. **Run 2+:** Fetches the baseline, sends BOTH images to Gemini with a regression-focused prompt. Gemini classifies each change as:
+     - **Cosmetic:** font, color, spacing, border changes (informational)
+     - **Functional:** layout broken, element missing, text changed (actionable)
+  3. **Baselines auto-update** after each run — always comparing against the latest known-good state.
 
-```
-  EXAMPLE SITE MAP                          
-                                             
-            🏠 Homepage                      
-           /     |     \                     
-        📄About 📄Blog  📄Dash              
-                 |        |    \             
-              📄Post1  📄Settings 📄Analytics
-                          |                  
-                       📄Profile             
-```
+### 5. Risk Prioritization (The "Strategist") 🆕
+- **What it is:** A multi-factor scoring system that determines which pages to test first.
+- **4 risk factors:**
+  1. **PageRank** (networkx) — structural importance from the link graph
+  2. **Page Type Boost** — auth pages (+0.15), forms (+0.12), dashboards (+0.08)
+  3. **Defect History** — pages with previous defects get up to +0.20 boost (recidivism)
+  4. **Change Detection** — pages whose scores dropped below 70 get up to +0.15 boost
 
----
-
-**① BFS — Breadth-First Search  ✅ WHAT WE USE**
-
-```
-  Visit order:  Level by level (wide first, then deep)
-
-  Step 1 →  🏠 Homepage
-  Step 2 →  📄 About        (Level 1)
-  Step 3 →  📄 Blog         (Level 1)
-  Step 4 →  📄 Dashboard    (Level 1)
-  Step 5 →  📄 Post1        (Level 2)
-  Step 6 →  📄 Settings     (Level 2)
-  Step 7 →  📄 Analytics    (Level 2)
-  Step 8 →  📄 Profile      (Level 3)
-
-  ┌─────────────────────────────────────────────────┐
-  │  Uses: FIFO Queue (First In, First Out)         │
-  │                                                 │
-  │  Queue: [Homepage]                              │
-  │         → visit Homepage → enqueue children     │
-  │  Queue: [About, Blog, Dashboard]                │
-  │         → visit About → visit Blog → ...        │
-  │  Queue: [Post1, Settings, Analytics]             │
-  │         → visit all Level 2 ...                 │
-  │                                                 │
-  │  ✅ Finds important top-level pages FIRST       │
-  │  ✅ Natural depth control (shallow/standard)    │
-  │  ✅ Guaranteed shortest path to every page      │
-  │  ⚠️ Sequential — one page at a time            │
-  └─────────────────────────────────────────────────┘
-```
-
----
-
-**② DFS — Depth-First Search**
-
-```
-  Visit order:  Dive deep into one branch, then backtrack
-
-  Step 1 →  🏠 Homepage
-  Step 2 →  📄 About        ← dead end, backtrack
-  Step 3 →  📄 Blog
-  Step 4 →  📄 Post1        ← dead end, backtrack
-  Step 5 →  📄 Dashboard
-  Step 6 →  📄 Settings
-  Step 7 →  📄 Profile      ← deep! finally backtrack
-  Step 8 →  📄 Analytics
-
-  ┌─────────────────────────────────────────────────┐
-  │  Uses: LIFO Stack (Last In, First Out)          │
-  │                                                 │
-  │  Stack: [Homepage]                              │
-  │         → visit Homepage → push children        │
-  │  Stack: [About, Blog, Dashboard]                │
-  │         → pop Dashboard → push its children     │
-  │  Stack: [About, Blog, Settings, Analytics]      │
-  │                                                 │
-  │  ✅ Low memory usage                            │
-  │  ✅ Good for finding deep-nested pages          │
-  │  ❌ Can get lost in deep rabbit holes           │
-  │  ❌ Misses breadth of site if max_pages hit     │
-  └─────────────────────────────────────────────────┘
-```
-
----
-
-**③ Priority Queue — Best-First Search**
-
-```
-  Visit order:  Highest-priority (most "interesting") pages first
-
-  Step 1 →  🏠 Homepage        (score: 100)
-  Step 2 →  📄 Dashboard       (score: 90  — has forms!)
-  Step 3 →  📄 Settings        (score: 85  — user inputs)
-  Step 4 →  📄 Profile         (score: 80  — auth page)
-  Step 5 →  📄 Blog            (score: 40  — static content)
-  Step 6 →  📄 About           (score: 30  — low risk)
-  Step 7 →  📄 Post1           (score: 20)
-  Step 8 →  📄 Analytics       (score: 15)
-
-  ┌─────────────────────────────────────────────────┐
-  │  Uses: Priority Queue (highest score first)     │
-  │                                                 │
-  │  Each URL gets a score based on:                │
-  │  • Has forms/inputs        → +40 points        │
-  │  • Login/auth page         → +30 points        │
-  │  • Dynamic route (/dashboard) → +20 points     │
-  │  • Static content (/blog)  → +5 points         │
-  │                                                 │
-  │  ✅ Tests bug-prone pages first                 │
-  │  ✅ Best use of limited max_pages budget        │
-  │  ⚠️ Needs heuristic scoring logic              │
-  │  ⚠️ More complex implementation                │
-  └─────────────────────────────────────────────────┘
-```
-
----
-
-**④ Concurrent BFS — Parallel Breadth-First**
-
-```
-  Visit order:  Same as BFS, but multiple pages at once
-
-  Step 1   →  🏠 Homepage
-  Step 2-4 →  📄 About + 📄 Blog + 📄 Dashboard   ← parallel!
-  Step 5-7 →  📄 Post1 + 📄 Settings + 📄 Analytics ← parallel!
-  Step 8   →  📄 Profile
-
-  ┌─────────────────────────────────────────────────┐
-  │  Uses: FIFO Queue + Semaphore (N workers)       │
-  │                                                 │
-  │  Worker 1: About ──→ Post1 ──→ Profile          │
-  │  Worker 2: Blog ───→ Settings                   │
-  │  Worker 3: Dashboard → Analytics                │
-  │                                                 │
-  │  ✅ 3-5x faster than sequential BFS             │
-  │  ✅ Same level-by-level coverage as BFS         │
-  │  ✅ Semaphore prevents server overload          │
-  │  ⚠️ Needs careful concurrency management       │
-  │  ⚠️ Higher memory (multiple browser pages)     │
-  └─────────────────────────────────────────────────┘
-```
-
----
-
-#### 📊 Strategy Comparison Matrix
-
-```
-                    BFS ✅        DFS          PRIORITY      CONCURRENT
-                    (Current)                  QUEUE         BFS
-  ─────────────────────────────────────────────────────────────────────
-  Data Structure    FIFO Queue    LIFO Stack   Heap/PQ       Queue+Sema
-  Visit Order       Level-by-     Branch-by-   Score-based   Level-by-
-                    level         branch                     level
-  Speed             ██░░░░        ██░░░░       ██░░░░        █████░
-                    Moderate      Moderate     Moderate      Fast
-  Coverage          █████░        ███░░░       ████░░        █████░
-                    Excellent     Poor breadth Smart focus   Excellent
-  Memory            ███░░░        █░░░░░       ███░░░        ████░░
-                    Moderate      Very Low     Moderate      Higher
-  Complexity        █░░░░░        █░░░░░       ████░░        ███░░░
-                    Simple        Simple       Complex       Moderate
-  Depth Control     ✅ Natural    ❌ Hard       ⚠️ Manual     ✅ Natural
-  Best For          General       Deep-page    Limited       Large
-                    crawling      hunting      page budgets  site audits
-  ─────────────────────────────────────────────────────────────────────
-```
-
-> 🟢 **Current Implementation:** BugZero uses **BFS (Breadth-First Search)** with an `asyncio.Queue`. This ensures top-level pages (homepage, navigation links, dashboards) are tested first, matching our Shallow → Standard → Deep crawl depth model perfectly.
-
-### 3. The DOM (Document Object Model) Analysis
-The DOM is the tree-like structure the browser builds from HTML. Our AI uses the DOM as its primary source of truth to detect defects:
-- **Accessibility:** Scans the DOM tree for `<img>` tags missing `alt` attributes, or `<input>` fields detached from `<label>` elements.
-- **SEO & Structure:** Evaluates the heading hierarchy (e.g., checking for exactly one `<h1>` node).
-- **UI Integrity:** Uses `getComputedStyle(element)` to ask the browser engine the exact painted color of text vs background to calculate real mathematical contrast ratios.
-
-### 4. WebSockets / Socket.io (The "Live Broadcaster")
+### 6. WebSockets / Socket.io (The "Live Broadcaster")
 - **Why we use it:** Full autonomous testing can take 5-20 minutes. Polling is inefficient. WebSockets keep a permanent two-way "phone line" open between the browser and the server.
 - **How it works:**
   1. The React frontend subscribes to a specific `testRunId` room.
@@ -465,7 +370,15 @@ BUGZERO/
 │   │   ├── components/            # Reusable UI components
 │   │   │   └── ui/                # Design system primitives
 │   │   ├── pages/                 # Route-level page components
-│   │   ├── hooks/                 # Custom React hooks
+│   │   │   ├── Landing.jsx        # Marketing landing page
+│   │   │   ├── UseCases.jsx       # 6 AI Agents deep-dive
+│   │   │   ├── Dashboard.jsx      # Test history & analytics
+│   │   │   ├── NewTest.jsx        # Test configuration launcher
+│   │   │   ├── LiveTest.jsx       # Real-time test monitoring + self-healing log
+│   │   │   ├── Report.jsx         # Full test report + visual regression section
+│   │   │   ├── Compliance.jsx     # WCAG compliance details
+│   │   │   └── Performance.jsx    # Core Web Vitals dashboard
+│   │   ├── hooks/                 # Custom React hooks (WebSocket, etc.)
 │   │   ├── lib/                   # API client & utilities
 │   │   ├── store/                 # Zustand state management
 │   │   └── data/                  # Mock data (development fallback)
@@ -474,11 +387,16 @@ BUGZERO/
 │
 ├── gateway/                       # Express.js API Gateway
 │   ├── src/
-│   │   ├── routes/                # REST API route handlers
+│   │   ├── routes/
+│   │   │   ├── tests.js           # Test CRUD + progress + healing events + history
+│   │   │   ├── baselines.js       # 🆕 Visual regression baseline CRUD
+│   │   │   ├── auth.js            # JWT authentication
+│   │   │   ├── playbooks.js       # Test playbook management
+│   │   │   └── settings.js        # User/team/API key settings
 │   │   ├── middleware/            # Auth, validation, rate limiting
 │   │   └── services/              # Business logic & WebSocket
 │   ├── prisma/
-│   │   ├── schema.prisma          # Database schema
+│   │   ├── schema.prisma          # Database schema (13 models)
 │   │   └── seed.js                # Seed data script
 │   └── .env.example
 │
@@ -486,30 +404,27 @@ BUGZERO/
 │   ├── agents/
 │   │   ├── crawler.py             # BFS crawler agent
 │   │   ├── tester.py              # Page testing agent
-│   │   ├── scheduler.py           # Stage 3: PageRank + Greedy sort
-│   │   ├── vision_agent.py        # Stage 4: Gemini Vision AI (optional)
-│   │   └── report_agent.py        # Stage 6: Site report generator
+│   │   ├── self_healing_agent.py  # 🆕 Fingerprinting + LLM-powered healing
+│   │   ├── vision_agent.py        # Gemini Vision + visual regression
+│   │   ├── scheduler.py           # PageRank + 4-factor risk scoring
+│   │   ├── auth_agent.py          # SSO/OAuth/MFA navigator
+│   │   ├── chaos_agent.py         # Network/CPU throttling
+│   │   └── report_agent.py        # Site report generator
 │   ├── tools/
-│   │   ├── playwright_tool.py     # Browser automation + screenshots
-│   │   └── axe_tool.py            # Stage 5: axe-core WCAG 2.1 scanner
+│   │   ├── playwright_tool.py     # Browser automation + screenshots + DOM access
+│   │   └── axe_tool.py            # axe-core WCAG 2.1 scanner
 │   ├── models/
-│   │   └── schemas.py             # Pydantic models (PageResult, SiteReport)
+│   │   └── schemas.py             # Pydantic models (HealingEvent, VisualRegression, etc.)
 │   ├── orchestrator.py            # Multi-stage pipeline coordinator
 │   ├── config.py                  # Settings (Gemini API key, etc.)
 │   ├── main.py                    # FastAPI entrypoint
 │   └── requirements.txt
 │
 ├── documentation/                 # 📚 All project documentation
-│   ├── AUTONOMOUSQA_DOCUMENTATION.docx      # Full product documentation
-│   ├── AUTONOMOUSQA_DOCUMENTATION.md.resolved
-│   ├── AutonomousQA_Full_Roadmap.docx       # Complete feature roadmap
-│   ├── AutonomousQA_Roadmap.docx            # Roadmap overview
-│   ├── AutonomousQA_Premium_Roadmap.md      # Premium tier roadmap
-│   ├── AutonomousQA_Modularity.md           # Modularity architecture doc
-│   ├── BROWSERS_AND_CRAWL_DEPTHS.md         # Browser & crawl depth guide
-│   ├── SYSTEM_WORKFLOW.md                   # System workflow deep-dive
-│   ├── convert_md2docx.py                   # MD → DOCX converter script
-│   └── extract_docx.py                      # DOCX text extractor script
+│   ├── AUTONOMOUSQA_DOCUMENTATION.docx
+│   ├── AutonomousQA_Full_Roadmap.docx
+│   ├── BROWSERS_AND_CRAWL_DEPTHS.md
+│   └── SYSTEM_WORKFLOW.md
 │
 ├── docker-compose.yml             # PostgreSQL + Redis + Neo4j
 ├── package.json                   # Root workspace scripts
@@ -547,6 +462,18 @@ BUGZERO/
 | `GET` | `/api/tests/:id/pages` | Get page-level results |
 | `GET` | `/api/tests/:id/compliance` | Compliance report |
 | `GET` | `/api/tests/:id/performance` | Performance report |
+| `GET` | `/api/tests/:id/healing` | 🆕 Self-healing events for a run |
+| `GET` | `/api/tests/history/lookup` | 🆕 Defect history for risk prioritization |
+
+</details>
+
+<details>
+<summary><strong>📸 Visual Regression Baselines</strong></summary>
+
+| Method | Endpoint | Description |
+|:---|:---|:---|
+| `GET` | `/api/baselines?url=&orgId=` | 🆕 Fetch baseline screenshot for a URL |
+| `POST` | `/api/baselines` | 🆕 Save/update baseline screenshot |
 
 </details>
 
@@ -583,19 +510,47 @@ BUGZERO/
 | `page:discovered` | Server → Client | New page found during crawl |
 | `page:complete` | Server → Client | Page testing finished |
 | `defect:found` | Server → Client | Defect detected in real time |
+| `heal:success` | Server → Client | 🆕 Self-healing selector repair |
 | `test:complete` | Server → Client | Full test run finished |
 | `test:cancel` | Client → Server | Request to cancel a test |
+
+---
+
+## 🗄️ Database Schema
+
+The platform uses **13 Prisma models** across PostgreSQL:
+
+| Model | Purpose |
+|:---|:---|
+| `User` | Authentication & profile |
+| `Organization` | Team management |
+| `TestRun` | Test execution records |
+| `Page` | Discovered pages with scores |
+| `Defect` | Detected bugs with severity |
+| `ComplianceResult` | WCAG/GDPR violations |
+| `PerformanceMetric` | Core Web Vitals per page |
+| `HealingEvent` | 🆕 Self-healing audit trail (original → healed selector + confidence) |
+| `ScreenshotBaseline` | 🆕 Visual regression baseline screenshots per URL |
+| `AuthPlaybook` | Saved authentication strategies |
+| `ApiKey` | API key management |
+| `NotificationPreference` | Notification settings |
+| `UserActivity` | Activity tracking |
 
 ---
 
 ## 🗺️ Roadmap
 
 - [x] Autonomous web crawler with Playwright
-- [x] Accessibility auditing (axe-core)
+- [x] Accessibility auditing (axe-core WCAG 2.1 AA)
 - [x] Real-time dashboard with WebSocket
 - [x] JWT authentication & team management
 - [x] Playbook save/replay system
-- [ ] AI-powered visual regression testing
+- [x] Core Web Vitals performance monitoring
+- [x] Gemini Vision AI visual bug detection
+- [x] 🆕 Self-healing tests with semantic fingerprinting
+- [x] 🆕 Visual regression AI with baseline comparison
+- [x] 🆕 Risk prioritization with defect history + change detection
+- [x] 🆕 Self-healing audit trail (DB + frontend UI)
 - [ ] Natural language test generation (LangChain + OpenAI)
 - [ ] CI/CD pipeline integration (GitHub Actions, Jenkins)
 - [ ] PDF/HTML report export
@@ -635,9 +590,10 @@ This project is licensed under the **MIT License** — see the [LICENSE](./LICEN
 
 - **[Playwright](https://playwright.dev/)** — Browser automation
 - **[axe-core](https://github.com/dequelabs/axe-core)** — Accessibility testing engine
+- **[Google Gemini](https://ai.google.dev/)** — Vision AI & LLM reasoning
 - **[Prisma](https://www.prisma.io/)** — Next-generation ORM
 - **[Framer Motion](https://www.framer.com/motion/)** — Animation library
-- **[Recharts](https://recharts.org/)** — Charting library
+- **[networkx](https://networkx.org/)** — PageRank graph analysis
 
 ---
 
