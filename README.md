@@ -257,38 +257,422 @@ AutonomousQA operates like a highly advanced human QA engineer. Here's how the c
 - **What it is:** A Breadth-First Search (BFS) spider that maps the application.
 - **How it works:** Starting from a seed URL, the crawler scans the DOM for valid `<a>` href links belonging to the same domain. It places these in a queue and visits them sequentially up to the configured `max_depth` and `max_pages`. This requires zero configuration from the user.
 
-### 3. Self-Healing Agent (The "Mechanic") 🆕
-- **What it is:** An AI-powered selector repair system that keeps tests running when UI changes.
-- **How it works:**
-  1. **Before testing:** `fingerprint_page()` captures structural fingerprints of all interactive elements (buttons, links, inputs, forms) — tag, text, ARIA labels, position, CSS classes.
-  2. **On next run:** `detect_and_heal()` compares the current DOM against saved fingerprints. If a selector is broken, it sends the old fingerprint + current DOM to Gemini LLM.
-  3. **Healing:** Gemini proposes a new CSS selector with confidence score. The agent validates it works on the live page before accepting.
-  4. **Audit trail:** Every healing event is persisted in the `healing_events` database table with original selector, healed selector, and confidence.
+#### 🧭 Crawl Strategy Comparison
 
-### 4. Visual Regression Engine (The "Designer's Eye") 🆕
-- **What it is:** A Gemini Vision-powered visual comparison system that detects meaningful UI changes.
-- **How it works:**
-  1. **Run 1:** Takes a screenshot of each page, sends to Gemini for single-image visual bug detection, then saves the screenshot as a baseline in `screenshot_baselines` table.
-  2. **Run 2+:** Fetches the baseline, sends BOTH images to Gemini with a regression-focused prompt. Gemini classifies each change as:
-     - **Cosmetic:** font, color, spacing, border changes (informational)
-     - **Functional:** layout broken, element missing, text changed (actionable)
-  3. **Baselines auto-update** after each run — always comparing against the latest known-good state.
+There are several approaches to crawl a website. Here's how they differ and why we chose BFS:
 
-### 5. Risk Prioritization (The "Strategist") 🆕
-- **What it is:** A multi-factor scoring system that determines which pages to test first.
-- **4 risk factors:**
-  1. **PageRank** (networkx) — structural importance from the link graph
-  2. **Page Type Boost** — auth pages (+0.15), forms (+0.12), dashboards (+0.08)
-  3. **Defect History** — pages with previous defects get up to +0.20 boost (recidivism)
-  4. **Change Detection** — pages whose scores dropped below 70 get up to +0.15 boost
+```
+  EXAMPLE SITE MAP                          
+                                             
+            🏠 Homepage                      
+           /     |     \                     
+        📄About 📄Blog  📄Dash              
+                 |        |    \             
+              📄Post1  📄Settings 📄Analytics
+                          |                  
+                       📄Profile             
+```
 
-### 6. WebSockets / Socket.io (The "Live Broadcaster")
+---
+
+**① BFS — Breadth-First Search  ✅ WHAT WE USE**
+
+```
+  Visit order:  Level by level (wide first, then deep)
+
+  Step 1 →  🏠 Homepage
+  Step 2 →  📄 About        (Level 1)
+  Step 3 →  📄 Blog         (Level 1)
+  Step 4 →  📄 Dashboard    (Level 1)
+  Step 5 →  📄 Post1        (Level 2)
+  Step 6 →  📄 Settings     (Level 2)
+  Step 7 →  📄 Analytics    (Level 2)
+  Step 8 →  📄 Profile      (Level 3)
+
+  ┌─────────────────────────────────────────────────┐
+  │  Uses: FIFO Queue (First In, First Out)         │
+  │                                                 │
+  │  Queue: [Homepage]                              │
+  │         → visit Homepage → enqueue children     │
+  │  Queue: [About, Blog, Dashboard]                │
+  │         → visit About → visit Blog → ...        │
+  │  Queue: [Post1, Settings, Analytics]            │
+  │         → visit all Level 2 ...                 │
+  │                                                 │
+  │  ✅ Finds important top-level pages FIRST       │
+  │  ✅ Natural depth control (shallow/standard)    │
+  │  ✅ Guaranteed shortest path to every page      │
+  │  ⚠️ Sequential — one page at a time            │
+  └─────────────────────────────────────────────────┘
+```
+
+---
+
+**② DFS — Depth-First Search**
+
+```
+  Visit order:  Dive deep into one branch, then backtrack
+
+  Step 1 →  🏠 Homepage
+  Step 2 →  📄 About        ← dead end, backtrack
+  Step 3 →  📄 Blog
+  Step 4 →  📄 Post1        ← dead end, backtrack
+  Step 5 →  📄 Dashboard
+  Step 6 →  📄 Settings
+  Step 7 →  📄 Profile      ← deep! finally backtrack
+  Step 8 →  📄 Analytics
+
+  ┌─────────────────────────────────────────────────┐
+  │  Uses: LIFO Stack (Last In, First Out)          │
+  │                                                 │
+  │  Stack: [Homepage]                              │
+  │         → visit Homepage → push children        │
+  │  Stack: [About, Blog, Dashboard]                │
+  │         → pop Dashboard → push its children     │
+  │  Stack: [About, Blog, Settings, Analytics]      │
+  │                                                 │
+  │  ✅ Low memory usage                            │
+  │  ✅ Good for finding deep-nested pages          │
+  │  ❌ Can get lost in deep rabbit holes           │
+  │  ❌ Misses breadth of site if max_pages hit     │
+  └─────────────────────────────────────────────────┘
+```
+
+---
+
+**③ Priority Queue — Best-First Search**
+
+```
+  Visit order:  Highest-priority (most "interesting") pages first
+
+  Step 1 →  🏠 Homepage        (score: 100)
+  Step 2 →  📄 Dashboard       (score: 90  — has forms!)
+  Step 3 →  📄 Settings        (score: 85  — user inputs)
+  Step 4 →  📄 Profile         (score: 80  — auth page)
+  Step 5 →  📄 Blog            (score: 40  — static content)
+  Step 6 →  📄 About           (score: 30  — low risk)
+  Step 7 →  📄 Post1           (score: 20)
+  Step 8 →  📄 Analytics       (score: 15)
+
+  ┌─────────────────────────────────────────────────┐
+  │  Uses: Priority Queue (highest score first)     │
+  │                                                 │
+  │  Each URL gets a score based on:                │
+  │  • Has forms/inputs        → +40 points        │
+  │  • Login/auth page         → +30 points        │
+  │  • Dynamic route (/dashboard) → +20 points     │
+  │  • Static content (/blog)  → +5 points         │
+  │                                                 │
+  │  ✅ Tests bug-prone pages first                 │
+  │  ✅ Best use of limited max_pages budget        │
+  │  ⚠️ Needs heuristic scoring logic              │
+  │  ⚠️ More complex implementation                │
+  └─────────────────────────────────────────────────┘
+```
+
+---
+
+**④ Concurrent BFS — Parallel Breadth-First**
+
+```
+  Visit order:  Same as BFS, but multiple pages at once
+
+  Step 1   →  🏠 Homepage
+  Step 2-4 →  📄 About + 📄 Blog + 📄 Dashboard   ← parallel!
+  Step 5-7 →  📄 Post1 + 📄 Settings + 📄 Analytics ← parallel!
+  Step 8   →  📄 Profile
+
+  ┌─────────────────────────────────────────────────┐
+  │  Uses: FIFO Queue + Semaphore (N workers)       │
+  │                                                 │
+  │  Worker 1: About ──→ Post1 ──→ Profile          │
+  │  Worker 2: Blog ───→ Settings                   │
+  │  Worker 3: Dashboard → Analytics                │
+  │                                                 │
+  │  ✅ 3-5x faster than sequential BFS             │
+  │  ✅ Same level-by-level coverage as BFS         │
+  │  ✅ Semaphore prevents server overload          │
+  │  ⚠️ Needs careful concurrency management       │
+  │  ⚠️ Higher memory (multiple browser pages)     │
+  └─────────────────────────────────────────────────┘
+```
+
+---
+
+#### 📊 Strategy Comparison Matrix
+
+```
+                    BFS ✅        DFS          PRIORITY      CONCURRENT
+                    (Current)                  QUEUE         BFS
+  ─────────────────────────────────────────────────────────────────────
+  Data Structure    FIFO Queue    LIFO Stack   Heap/PQ       Queue+Sema
+  Visit Order       Level-by-     Branch-by-   Score-based   Level-by-
+                    level         branch                     level
+  Speed             ██░░░░        ██░░░░       ██░░░░        █████░
+                    Moderate      Moderate     Moderate      Fast
+  Coverage          █████░        ███░░░       ████░░        █████░
+                    Excellent     Poor breadth Smart focus   Excellent
+  Memory            ███░░░        █░░░░░       ███░░░        ████░░
+                    Moderate      Very Low     Moderate      Higher
+  Complexity        █░░░░░        █░░░░░       ████░░        ███░░░
+                    Simple        Simple       Complex       Moderate
+  Depth Control     ✅ Natural    ❌ Hard       ⚠️ Manual     ✅ Natural
+  Best For          General       Deep-page    Limited       Large
+                    crawling      hunting      page budgets  site audits
+  ─────────────────────────────────────────────────────────────────────
+```
+
+> 🟢 **Current Implementation:** BugZero uses **BFS (Breadth-First Search)** with an `asyncio.Queue`. This ensures top-level pages (homepage, navigation links, dashboards) are tested first, matching our Shallow → Standard → Deep crawl depth model perfectly.
+
+### 3. The DOM (Document Object Model) Analysis
+The DOM is the tree-like structure the browser builds from HTML. Our AI uses the DOM as its primary source of truth to detect defects:
+- **Accessibility:** Scans the DOM tree for `<img>` tags missing `alt` attributes, or `<input>` fields detached from `<label>` elements.
+- **SEO & Structure:** Evaluates the heading hierarchy (e.g., checking for exactly one `<h1>` node).
+- **UI Integrity:** Uses `getComputedStyle(element)` to ask the browser engine the exact painted color of text vs background to calculate real mathematical contrast ratios.
+
+### 4. Self-Healing Agent (The "Mechanic") 🆕
+
+An AI-powered selector repair system that keeps tests running when UI changes.
+
+```mermaid
+flowchart TD
+    subgraph "Stage 3a — Before Each Page Test"
+        A["🌐 Navigate to page"] --> B["📋 Load saved fingerprints\nfrom previous run"]
+        B --> C{"Any interactive\nelements changed?"}
+        C -- No --> D["✅ All selectors healthy"]
+        C -- Yes --> E["🔍 identify broken\nselectors in DOM"]
+        E --> F["🤖 Send to Gemini LLM:\nold fingerprint + current DOM"]
+        F --> G["💡 Gemini proposes\nnew CSS selector"]
+        G --> H{"Validate selector\non live page?"}
+        H -- Fails --> I["⚠️ Log as unhealed"]
+        H -- Works --> J["✅ Accept healed selector\nconfidence: 0.95"]
+        J --> K["💾 Save HealingEvent to DB\noriginal → healed + confidence"]
+        K --> L["📡 WebSocket: heal:success"]
+    end
+    
+    subgraph "Stage 3e — After Each Page Test"
+        M["🔍 fingerprint_page()"] --> N["📸 Capture all buttons,\nlinks, inputs, forms"]
+        N --> O["💾 Store fingerprints\nfor next run"]
+    end
+
+    style A fill:#1E293B,stroke:#3B82F6,color:#fff
+    style F fill:#1E293B,stroke:#F59E0B,color:#fff
+    style J fill:#0F172A,stroke:#10B981,color:#fff
+    style K fill:#0F172A,stroke:#A78BFA,color:#fff
+```
+
+**How it works internally:**
+
+```
+  ┌─────────────────────────────────────────────────────────────────┐
+  │  FINGERPRINT STRUCTURE (per interactive element)                │
+  │─────────────────────────────────────────────────────────────────│
+  │                                                                 │
+  │  {                                                              │
+  │    "element_id": "btn_submit_3",                                │
+  │    "tagName": "button",                                         │
+  │    "textContent": "Submit Order",                               │
+  │    "ariaLabel": "Submit your order",                            │
+  │    "className": "btn-primary cta-main",                         │
+  │    "position": { "x": 450, "y": 720 },                         │
+  │    "nearbyText": ["Order Summary", "$49.99", "Free Shipping"],  │
+  │    "selector": "#checkout-form > button.btn-primary"            │
+  │  }                                                              │
+  │                                                                 │
+  │  When UI changes:                                               │
+  │  ─────────────────                                              │
+  │  OLD: #checkout-form > button.btn-primary     ← BROKEN ❌      │
+  │  NEW: .checkout-container > .cta-button        ← HEALED ✅      │
+  │  CONFIDENCE: 0.92 (high — text + position matched)              │
+  │                                                                 │
+  └─────────────────────────────────────────────────────────────────┘
+```
+
+### 5. Visual Regression Engine (The "Designer's Eye") 🆕
+
+A Gemini Vision-powered visual comparison system that detects meaningful UI changes.
+
+```mermaid
+flowchart TD
+    subgraph "Run 1 — Establish Baseline"
+        A1["📸 Take screenshot"] --> A2["🤖 Gemini: single-image\nbug detection"]
+        A2 --> A3["💾 Save screenshot as\nbaseline in DB"]
+    end
+
+    subgraph "Run 2+ — Compare Against Baseline"
+        B1["📸 Take new screenshot"] --> B2["📦 Fetch baseline\nfrom DB"]
+        B2 --> B3["🤖 Gemini: compare\nBOTH images"]
+        B3 --> B4{"Classify each\nchange"}
+        B4 -- "Font/color/spacing" --> B5["🟡 Cosmetic\n(informational)"]
+        B4 -- "Layout/element missing" --> B6["🔴 Functional\n(actionable)"]
+        B5 --> B7["📊 Report with\nconfidence scores"]
+        B6 --> B7
+        B3 --> B8["💾 Update baseline\nfor next run"]
+    end
+
+    style A2 fill:#1E293B,stroke:#F59E0B,color:#fff
+    style B3 fill:#1E293B,stroke:#22D3EE,color:#fff
+    style B5 fill:#0F172A,stroke:#FBBF24,color:#fff
+    style B6 fill:#0F172A,stroke:#EF4444,color:#fff
+```
+
+**Visual diff classification examples:**
+
+```
+  ┌────────────────────────────────────────────────────────────────┐
+  │  GEMINI VISION — REGRESSION CLASSIFICATION                    │
+  │────────────────────────────────────────────────────────────────│
+  │                                                                │
+  │  🟡 COSMETIC (informational — no action needed)               │
+  │  ──────────────────────────────────────────────                │
+  │  • Font size changed from 14px to 15px in paragraph           │
+  │  • Button border-radius increased from 4px to 8px             │
+  │  • Background color shifted from #f8f9fa to #f1f3f5           │
+  │  • Icon spacing adjusted in navigation bar                    │
+  │                                                                │
+  │  🔴 FUNCTIONAL (actionable — must fix)                        │
+  │  ──────────────────────────────────────────────                │
+  │  • Submit button missing from checkout form                   │
+  │  • Navigation menu items overlapping on mobile                │
+  │  • Login form fields not visible (zero height)                │
+  │  • Price display shows "$NaN" instead of "$49.99"             │
+  │                                                                │
+  │  Confidence: 0.72 – 0.98 (Gemini's certainty score)           │
+  │                                                                │
+  └────────────────────────────────────────────────────────────────┘
+```
+
+### 6. Risk Prioritization (The "Strategist") 🆕
+
+A multi-factor scoring system that determines which pages to test first.
+
+```mermaid
+flowchart LR
+    subgraph "Factor 1: PageRank"
+        PR["🕸️ Link Graph\n(networkx)"] --> PRS["Score: 0.00 – 0.30"]
+    end
+    subgraph "Factor 2: Type Boost"
+        TB["📋 Page Classification"] --> TBS["auth: +0.15\nform: +0.12\ndash: +0.08\nother: +0.03"]
+    end
+    subgraph "Factor 3: Defect History"
+        DH["📜 Last 10 runs\ndefect counts"] --> DHS["0 defects: +0.00\n5 defects: +0.06\n10+ defects: +0.20"]
+    end
+    subgraph "Factor 4: Change Detection"
+        CD["📉 Score dropped\nvs previous run"] --> CDS["No change: +0.00\nDropped <70: +0.09\nDropped <50: +0.15"]
+    end
+
+    PRS --> SUM["⚡ Combined\nRisk Score"]
+    TBS --> SUM
+    DHS --> SUM
+    CDS --> SUM
+    SUM --> SORT["📊 Greedy Sort\nHighest risk first"]
+
+    style SUM fill:#1E293B,stroke:#F59E0B,stroke-width:3px,color:#fff
+    style SORT fill:#0F172A,stroke:#10B981,color:#fff
+```
+
+**Example risk scoring output:**
+
+```
+  ┌──────────────────────────────────────────────────────────────────────┐
+  │  RISK PRIORITY ORDER (top 5 pages)                                  │
+  │──────────────────────────────────────────────────────────────────────│
+  │                                                                      │
+  │  #  PAGE           SCORE   BREAKDOWN                                │
+  │  ── ──────────────  ─────   ────────────────────────────────────     │
+  │  1. /login          0.412   PR:0.062 + type:0.15 + hist:0.200 + chg:0.000  │
+  │  2. /checkout       0.355   PR:0.085 + type:0.12 + hist:0.100 + chg:0.050  │
+  │  3. /settings       0.285   PR:0.045 + type:0.12 + hist:0.060 + chg:0.060  │
+  │  4. /dashboard      0.238   PR:0.100 + type:0.08 + hist:0.028 + chg:0.030  │
+  │  5. /about          0.067   PR:0.034 + type:0.03 + hist:0.003 + chg:0.000  │
+  │                                                                      │
+  │  ✅ /login tested first (highest combined risk)                     │
+  │  ✅ /about tested last (lowest risk — static content)               │
+  │                                                                      │
+  └──────────────────────────────────────────────────────────────────────┘
+```
+
+### 7. WebSockets / Socket.io (The "Live Broadcaster")
 - **Why we use it:** Full autonomous testing can take 5-20 minutes. Polling is inefficient. WebSockets keep a permanent two-way "phone line" open between the browser and the server.
 - **How it works:**
   1. The React frontend subscribes to a specific `testRunId` room.
   2. The Python AI finishes testing a single page and POSTs the result to the Express Gateway.
   3. The Gateway saves the page to PostgreSQL and instantly broadcasts that data packet over the active WebSocket.
   4. The React UI instantly receives the data and animates it onto the screen without a page refresh.
+
+---
+
+## 🗄️ Database Schema
+
+```mermaid
+erDiagram
+    User ||--o{ TestRun : "launches"
+    User ||--o| NotificationPreference : "has"
+    User ||--o{ ApiKey : "owns"
+    User ||--o{ UserActivity : "generates"
+    Organization ||--o{ User : "has members"
+    Organization ||--o{ AuthPlaybook : "stores"
+    TestRun ||--o{ Page : "discovers"
+    TestRun ||--o{ Defect : "finds"
+    TestRun ||--o{ HealingEvent : "heals"
+    Page ||--o{ Defect : "contains"
+    Page ||--o{ ComplianceResult : "audits"
+    Page ||--o{ PerformanceMetric : "measures"
+    Page ||--o{ HealingEvent : "healed on"
+
+    User {
+        string id PK
+        string email UK
+        string name
+        string role
+    }
+    TestRun {
+        string id PK
+        string url
+        string status
+        float overallScore
+        string grade
+    }
+    Page {
+        string id PK
+        string url
+        float hygieneScore
+        float visionQualityScore
+        string pageType
+    }
+    Defect {
+        string id PK
+        string type
+        string severity
+        string message
+        float confidence
+        string source
+    }
+    HealingEvent {
+        string id PK
+        string elementId
+        string originalSelector
+        string healedSelector
+        float confidence
+    }
+    ScreenshotBaseline {
+        string id PK
+        string url UK
+        text screenshotB64
+    }
+    ComplianceResult {
+        string id PK
+        string standard
+        string level
+        int violations
+    }
+    PerformanceMetric {
+        string id PK
+        string name
+        float value
+        string rating
+    }
+```
 
 ---
 
