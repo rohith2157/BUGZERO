@@ -52,7 +52,10 @@ class PlaywrightTool:
             args=[
                 "--no-sandbox", 
                 "--disable-dev-shm-usage",
-                "--disable-blink-features=AutomationControlled"
+                "--disable-blink-features=AutomationControlled",
+                "--disable-gpu",
+                "--enable-unsafe-swiftshader",
+                "--disable-audio-output"
             ],
         )
         return self._browser
@@ -62,13 +65,11 @@ class PlaywrightTool:
         context_args = {
             "viewport": {"width": 1280, "height": 720},
             "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36",
+            "locale": "en-US",
             "extra_http_headers": {
-                "Accept-Language": "en-US,en;q=0.9",
-                "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
                 "sec-ch-ua": '"Not/A)Brand";v="8", "Chromium";v="126", "Google Chrome";v="126"',
                 "sec-ch-ua-mobile": "?0",
                 "sec-ch-ua-platform": '"Windows"',
-                "Upgrade-Insecure-Requests": "1",
             }
         }
         context_args.update(kwargs)
@@ -164,7 +165,23 @@ class PlaywrightTool:
 
                 page = None
                 try:
-                    page = context.new_page()
+                    try:
+                        page = context.new_page()
+                    except Exception as e:
+                        err_str = str(e).lower()
+                        if "closed" in err_str or "connection" in err_str or "target" in err_str:
+                            print(f"[Crawler] Browser or context was closed/disconnected ({e}). Relaunching...")
+                            try:
+                                context.close()
+                            except Exception:
+                                pass
+                            browser = self._ensure_browser()
+                            context = self._new_context(browser)
+                            context.set_default_timeout(20000)
+                            page = context.new_page()
+                        else:
+                            raise
+
                     # Use domcontentloaded for JS-heavy sites; commit is too early
                     response = page.goto(current_url, wait_until="domcontentloaded", timeout=20000)
                     if not response:
