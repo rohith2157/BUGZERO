@@ -19,6 +19,7 @@
     "noEmit": true,
     "jsx": "react-jsx",
     "allowJs": true,
+    "ignoreDeprecations": "6.0",
     /* Path aliases */
     "baseUrl": ".",
     "paths": {
