@@ -15,14 +15,14 @@ export default function HygieneScoreGauge({ score: rawScore = 0, size = 180, lab
 
     const color = getColor(score);
     const motionScore = useMotionValue(0);
-    const displayScore = useTransform(motionScore, (v) => Math.round(v));
+    const displayScore = useTransform(motionScore, (v) => Math.min(score, Math.round(v)));
 
     const scoreRef = useRef(null);
 
     useEffect(() => {
         const animation = animate(motionScore, score, {
             duration: 1.5,
-            ease: [0.34, 1.56, 0.64, 1],
+            ease: [0.25, 1, 0.5, 1],
         });
 
         const unsubscribe = displayScore.on('change', (v) => {
@@ -56,7 +56,7 @@ export default function HygieneScoreGauge({ score: rawScore = 0, size = 180, lab
                         strokeDasharray={circumference}
                         initial={{ strokeDashoffset: circumference }}
                         animate={{ strokeDashoffset: circumference * (1 - progress) }}
-                        transition={{ duration: 1.5, ease: [0.34, 1.56, 0.64, 1] }}
+                        transition={{ duration: 1.5, ease: [0.25, 1, 0.5, 1] }}
                         style={{
                             filter: `drop-shadow(0 0 8px ${color}40) drop-shadow(0 0 20px ${color}20)`,
                         }}

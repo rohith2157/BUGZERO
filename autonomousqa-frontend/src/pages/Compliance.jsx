@@ -82,8 +82,8 @@ export default function Compliance() {
                                 onClick={() => setFilter(f)}
                                 style={{
                                     padding: '6px 14px', fontSize: 12, fontWeight: 600,
-                                    background: filter === f ? 'rgba(212, 168, 83, 0.1)' : '#000000',
-                                    border: `1px solid ${filter === f ? 'rgba(212, 168, 83, 0.2)' : 'rgba(255,255,255,0.05)'}`,
+                                    background: filter === f ? 'rgba(212, 168, 83, 0.1)' : 'var(--color-bg-elevated)',
+                                    border: `1px solid ${filter === f ? 'rgba(212, 168, 83, 0.2)' : 'var(--border-subtle)'}`,
                                     borderRadius: 'var(--radius-full)',
                                     color: filter === f ? 'var(--color-accent-gold)' : 'var(--text-secondary)',
                                     cursor: 'pointer', transition: 'all var(--transition-fast)',

@@ -182,7 +182,7 @@ export default function Performance() {
                         {overallScore}%
                     </span>
                 </div>
-                <div style={{ height: 8, borderRadius: 4, background: '#000000', overflow: 'hidden' }}>
+                <div style={{ height: 8, borderRadius: 4, background: 'var(--color-muted)', overflow: 'hidden' }}>
                     <motion.div
                         initial={{ width: 0 }}
                         animate={{ width: `${overallScore}%` }}
@@ -260,7 +260,7 @@ export default function Performance() {
                                     }} title={ps.page}>
                                         {ps.page.length > 18 ? '…' + ps.page.slice(-16) : ps.page}
                                     </div>
-                                    <div style={{ flex: 1, height: 14, position: 'relative', background: '#000000', borderRadius: 4, overflow: 'hidden' }}>
+                                    <div style={{ flex: 1, height: 14, position: 'relative', background: 'var(--color-muted)', borderRadius: 4, overflow: 'hidden' }}>
                                         <motion.div
                                             initial={{ width: 0 }}
                                             animate={{ width: `${ps.score}%` }}

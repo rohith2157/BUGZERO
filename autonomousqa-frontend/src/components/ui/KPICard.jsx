@@ -13,13 +13,14 @@ export default function KPICard({ icon: Icon, label, value, change, prefix = '',
     useEffect(() => {
         const anim = animate(motionVal, numericValue, {
             duration: 1.8,
-            ease: [0.34, 1.56, 0.64, 1],
+            ease: [0.25, 1, 0.5, 1],
             delay: delay,
         });
 
         const unsub = motionVal.on('change', (v) => {
             if (valRef.current) {
-                valRef.current.textContent = prefix + (Number.isInteger(numericValue) ? Math.round(v) : v.toFixed(1)) + suffix;
+                const displayVal = Math.min(numericValue, v);
+                valRef.current.textContent = prefix + (Number.isInteger(numericValue) ? Math.round(displayVal) : displayVal.toFixed(1)) + suffix;
             }
         });
 

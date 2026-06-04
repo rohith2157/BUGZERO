@@ -25,7 +25,7 @@ export default function Dashboard() {
 
     useEffect(() => {
         // Fetch real test runs from API, fall back to mock
-        testsApi.list({ limit: 20 }).then((data) => {
+        testsApi.list({ limit: 100 }).then((data) => {
             if (data.testRuns && data.testRuns.length > 0) {
                 const runs = data.testRuns.map((r) => ({
                     id: r.id,
@@ -65,10 +65,21 @@ export default function Dashboard() {
                     .filter(r => r.score != null && r.date)
                     .sort((a, b) => a.date.localeCompare(b.date));
                 if (completedWithScores.length > 0) {
-                    setHygieneHistory(completedWithScores.map(r => ({
-                        date: r.date,
-                        score: Math.min(100, Math.round(r.score)),
-                    })));
+                    // Group by date and calculate average score per day
+                    const groupedByDate = {};
+                    completedWithScores.forEach((r) => {
+                        if (!groupedByDate[r.date]) {
+                            groupedByDate[r.date] = { sum: 0, count: 0 };
+                        }
+                        groupedByDate[r.date].sum += r.score;
+                        groupedByDate[r.date].count += 1;
+                    });
+
+                    const history = Object.keys(groupedByDate).sort().map((dateStr) => ({
+                        date: dateStr,
+                        score: Math.min(100, Math.round(groupedByDate[dateStr].sum / groupedByDate[dateStr].count)),
+                    }));
+                    setHygieneHistory(history);
                 }
             }
         }).catch(() => {
@@ -78,10 +89,13 @@ export default function Dashboard() {
     }, []);
 
     // Convert hygieneHistory to Date objects for the visx chart
-    const chartData = hygieneHistory.map(h => ({
-        date: new Date(h.date),
-        score: h.score,
-    }));
+    const chartData = hygieneHistory.map(h => {
+        const [year, month, day] = h.date.split('-').map(Number);
+        return {
+            date: new Date(year, month - 1, day),
+            score: h.score,
+        };
+    });
 
     return (
         <motion.div variants={container} initial="hidden" animate="show">

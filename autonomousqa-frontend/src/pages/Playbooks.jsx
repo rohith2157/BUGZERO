@@ -148,7 +148,7 @@ export default function Playbooks() {
                             <div style={{
                                 display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10,
                                 padding: '12px',
-                                background: '#000000',
+                                background: 'var(--color-bg-secondary)',
                                 borderRadius: 'var(--radius-md)',
                                 marginBottom: 14,
                             }}>
@@ -169,7 +169,7 @@ export default function Playbooks() {
                                         aria-label="Edit playbook"
                                         style={{
                                             width: 30, height: 30, borderRadius: 'var(--radius-sm)',
-                                            background: '#000000', border: '1px solid var(--border-subtle)',
+                                            background: 'var(--color-bg-elevated)', border: '1px solid var(--border-subtle)',
                                             display: 'flex', alignItems: 'center', justifyContent: 'center',
                                             color: 'var(--text-tertiary)', cursor: 'pointer',
                                         }}
@@ -236,7 +236,7 @@ export default function Playbooks() {
                                 <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}
                                     onClick={() => setShowModal(false)}
                                     aria-label="Close modal"
-                                    style={{ width: 32, height: 32, borderRadius: 'var(--radius-md)', background: '#000000', border: '1px solid var(--border-subtle)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-secondary)', cursor: 'pointer' }}
+                                    style={{ width: 32, height: 32, borderRadius: 'var(--radius-md)', background: 'var(--color-bg-elevated)', border: '1px solid var(--border-subtle)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-secondary)', cursor: 'pointer' }}
                                 >
                                     <X size={16} />
                                 </motion.button>
@@ -250,7 +250,7 @@ export default function Playbooks() {
                                     <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 6, display: 'block', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{label}</label>
                                     <input placeholder={placeholder} value={newPlaybook[field]} onChange={(e) => setNewPlaybook(p => ({ ...p, [field]: e.target.value }))} style={{
                                         width: '100%', padding: '10px 14px', fontSize: 14,
-                                        background: '#000000', border: '1px solid var(--border-default)',
+                                        background: 'var(--color-bg-elevated)', border: '1px solid var(--border-default)',
                                         borderRadius: 'var(--radius-md)', color: 'var(--text-primary)', outline: 'none',
                                     }} />
                                 </div>
@@ -260,7 +260,7 @@ export default function Playbooks() {
                                 <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 6, display: 'block', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Auth Type</label>
                                 <select value={newPlaybook.authType} onChange={(e) => setNewPlaybook(p => ({ ...p, authType: e.target.value }))} style={{
                                     width: '100%', padding: '10px 14px', fontSize: 14,
-                                    background: '#000000', border: '1px solid var(--border-default)',
+                                    background: 'var(--color-bg-elevated)', border: '1px solid var(--border-default)',
                                     borderRadius: 'var(--radius-md)', color: 'var(--text-primary)', outline: 'none', appearance: 'none', cursor: 'pointer',
                                 }}>
                                     <option>Form-based Login</option>

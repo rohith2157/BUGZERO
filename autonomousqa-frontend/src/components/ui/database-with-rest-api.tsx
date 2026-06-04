@@ -30,6 +30,13 @@ const DatabaseWithRestApi = ({
     // SVG Centers: 50, 150, 250, 350, 450
     const centers = [50, 150, 250, 350, 450];
 
+    const getScoreColor = (s: number) => {
+        if (s >= 85) return '#10B981';
+        if (s >= 70) return '#F59E0B';
+        return '#EF4444';
+    };
+    const scoreColor = getScoreColor(overallScore);
+
     return (
         <div
             className={cn(
@@ -90,12 +97,12 @@ const DatabaseWithRestApi = ({
                 {/* Top Badges for 5 Scores */}
                 {categories.map((cat, i) => {
                     const cx = centers[i];
-                    // We truncate label to keep it neat if necessary, though 3.2 font fits well
                     const label = cat.label.slice(0, 15);
                     return (
                         <g key={i}>
                             <rect
-                                fill="rgba(24, 24, 27, 0.9)"
+                                fill={cat.color}
+                                fillOpacity="0.08"
                                 x={cx - 48}
                                 y="10"
                                 width="96"
@@ -108,7 +115,7 @@ const DatabaseWithRestApi = ({
                             <text
                                 x={cx - 22}
                                 y="24.5"
-                                fill="white"
+                                fill="var(--text-primary)"
                                 stroke="none"
                                 fontSize="7"
                                 fontWeight="700"
@@ -148,7 +155,7 @@ const DatabaseWithRestApi = ({
                     </mask>
 
                     <radialGradient id="db-blue-grad" fx="1">
-                        <stop offset="0%" stopColor={lightColor || "#D4A853"} />
+                        <stop offset="0%" stopColor={lightColor || scoreColor} />
                         <stop offset="100%" stopColor="transparent" />
                     </radialGradient>
                 </defs>
@@ -159,21 +166,34 @@ const DatabaseWithRestApi = ({
                 <div className="absolute -bottom-4 h-[100px] w-[50%] rounded-lg bg-accent/20 blur-[12px]" />
 
                 {/* box title */}
-                <div className="absolute -top-3 z-20 flex items-center justify-center rounded-lg border border-zinc-700/60 bg-[#101112] px-3 py-1.5 shadow-lg">
-                    <ActivityIcon className="size-3.5 text-[var(--color-accent-gold)]" />
-                    <span className="ml-2 text-xs font-semibold text-white">
+                <div className="absolute -top-3 z-20 flex items-center justify-center rounded-lg border border-[var(--border-subtle)] bg-[var(--color-bg-elevated)] px-3 py-1.5 shadow-lg">
+                    <ActivityIcon className="size-3.5" style={{ color: scoreColor }} />
+                    <span className="ml-2 text-xs font-semibold text-[var(--text-primary)]">
                         {title ? title : "Aggregated Hygiene Score Connection"}
                     </span>
                 </div>
 
                 {/* box outter circle */}
-                <div className="absolute -bottom-8 z-30 flex h-[70px] w-[70px] flex-col items-center justify-center rounded-full border-t border-[var(--color-accent-gold)] bg-[#141516] shadow-[0_0_20px_rgba(212,168,83,0.2)]">
-                    <span className="font-bold text-[24px] text-[var(--color-accent-gold)] leading-none">{overallScore}</span>
-                    <span className="text-[9px] text-zinc-400 mt-1 uppercase tracking-wider">Score</span>
+                <div
+                    className="absolute -bottom-8 z-30 flex h-[70px] w-[70px] flex-col items-center justify-center rounded-full border-t bg-[var(--color-bg-elevated)]"
+                    style={{
+                        borderColor: scoreColor,
+                        boxShadow: `0 0 20px ${scoreColor}25`,
+                    }}
+                >
+                    <span className="font-bold text-[24px] leading-none" style={{ color: scoreColor }}>{overallScore}</span>
+                    <span className="text-[9px] text-[var(--text-tertiary)] mt-1 uppercase tracking-wider">Score</span>
                 </div>
 
                 {/* box content */}
-                <div className="relative z-10 flex h-[160px] w-[80%] items-center justify-center overflow-hidden rounded-xl border border-zinc-700/40 bg-[#101112]/60 backdrop-blur-md shadow-xl">
+                <div
+                    className="relative z-10 flex h-[160px] w-[80%] items-center justify-center overflow-hidden rounded-xl border backdrop-blur-md shadow-xl"
+                    style={{
+                        borderColor: `${scoreColor}30`,
+                        background: `radial-gradient(circle at center, ${scoreColor}0e 0%, var(--color-bg-card) 100%)`,
+                        boxShadow: `0 10px 30px ${scoreColor}0b`,
+                    }}
+                >
                     {/* Arc layer is clipped by this box to prevent layout overflow */}
                     <div className="absolute inset-0 z-[5] pointer-events-none">
                         {[1, 2, 3, 4].map((i) => {
@@ -191,8 +211,8 @@ const DatabaseWithRestApi = ({
                                             marginLeft: 10,
                                             width: arcSize,
                                             height: arcSize,
-                                            borderTop: `1px solid var(--color-accent-gold)`,
-                                            borderRight: `1px solid var(--color-accent-gold)`,
+                                            borderTop: `1px solid ${scoreColor}`,
+                                            borderRight: `1px solid ${scoreColor}`,
                                             borderTopRightRadius: arcSize,
                                             opacity: arcOpacity,
                                         }}
@@ -210,8 +230,8 @@ const DatabaseWithRestApi = ({
                                             marginRight: 10,
                                             width: arcSize,
                                             height: arcSize,
-                                            borderTop: `1px solid var(--color-accent-gold)`,
-                                            borderLeft: `1px solid var(--color-accent-gold)`,
+                                            borderTop: `1px solid ${scoreColor}`,
+                                            borderLeft: `1px solid ${scoreColor}`,
                                             borderTopLeftRadius: arcSize,
                                             opacity: arcOpacity,
                                         }}
@@ -226,13 +246,13 @@ const DatabaseWithRestApi = ({
                     </div>
 
                     {/* Decorative Badges */}
-                    <div className="absolute bottom-8 left-8 z-10 h-8 rounded-full bg-[#101112] border border-white/10 px-4 text-xs flex items-center gap-2 shadow-md">
+                    <div className="absolute bottom-8 left-8 z-10 h-8 rounded-full bg-[var(--color-bg-elevated)] border border-[var(--border-subtle)] px-4 text-xs flex items-center gap-2 shadow-md">
                         <ShieldCheck className="size-4 text-emerald-400" />
-                        <span className="font-medium text-white">All Checks Passed</span>
+                        <span className="font-medium text-[var(--text-secondary)]">All Checks Passed</span>
                     </div>
-                    <div className="absolute right-8 z-10 hidden h-8 rounded-full bg-[#101112] border border-white/10 px-4 text-xs sm:flex items-center gap-2 shadow-md">
-                        <SparklesIcon className="size-4 text-[var(--color-accent-gold)]" />
-                        <span className="font-medium text-white">AI Evaluated</span>
+                    <div className="absolute right-8 z-10 hidden h-8 rounded-full bg-[var(--color-bg-elevated)] border border-[var(--border-subtle)] px-4 text-xs sm:flex items-center gap-2 shadow-md">
+                        <SparklesIcon className="size-4" style={{ color: scoreColor }} />
+                        <span className="font-medium text-[var(--text-secondary)]">AI Evaluated</span>
                     </div>
                 </div>
             </div>
