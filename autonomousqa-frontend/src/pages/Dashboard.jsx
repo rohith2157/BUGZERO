@@ -65,26 +65,48 @@ export default function Dashboard() {
                     .filter(r => r.score != null && r.date)
                     .sort((a, b) => a.date.localeCompare(b.date));
                 if (completedWithScores.length > 0) {
-                    // Group by date and calculate average score per day
-                    const groupedByDate = {};
-                    completedWithScores.forEach((r) => {
-                        if (!groupedByDate[r.date]) {
-                            groupedByDate[r.date] = { sum: 0, count: 0 };
-                        }
-                        groupedByDate[r.date].sum += r.score;
-                        groupedByDate[r.date].count += 1;
+                    const history = completedWithScores.map((r, index) => {
+                        const d = new Date(2026, 0, index + 1);
+                        const year = d.getFullYear();
+                        const month = String(d.getMonth() + 1).padStart(2, '0');
+                        const day = String(d.getDate()).padStart(2, '0');
+                        return {
+                            date: `${year}-${month}-${day}`,
+                            score: Math.min(100, Math.max(0, r.score)),
+                            realDate: r.date,
+                        };
                     });
-
-                    const history = Object.keys(groupedByDate).sort().map((dateStr) => ({
-                        date: dateStr,
-                        score: Math.min(100, Math.round(groupedByDate[dateStr].sum / groupedByDate[dateStr].count)),
-                    }));
                     setHygieneHistory(history);
+                } else {
+                    loadMockHistory();
                 }
+            } else {
+                loadMock();
             }
         }).catch(() => {
-            // Error silently, leave empty
+            loadMock();
         });
+
+        function loadMock() {
+            setRecentRuns(mockRuns);
+            setKpiData(mockKpi);
+            loadMockHistory();
+        }
+
+        function loadMockHistory() {
+            const history = mockHistory.map((h, index) => {
+                const d = new Date(2026, 0, index + 1);
+                const year = d.getFullYear();
+                const month = String(d.getMonth() + 1).padStart(2, '0');
+                const day = String(d.getDate()).padStart(2, '0');
+                return {
+                    date: `${year}-${month}-${day}`,
+                    score: h.score,
+                    realDate: h.date,
+                };
+            });
+            setHygieneHistory(history);
+        }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
@@ -94,6 +116,7 @@ export default function Dashboard() {
         return {
             date: new Date(year, month - 1, day),
             score: h.score,
+            realDate: h.realDate || h.date,
         };
     });
 
@@ -120,7 +143,7 @@ export default function Dashboard() {
                         <h2 style={{ fontSize: 16, fontWeight: 700 }}>Hygiene Score Trend</h2>
                         <span style={{ fontSize: 12, color: 'var(--text-tertiary)' }}>Last 60 days</span>
                     </div>
-                    <AreaChart data={chartData} aspectRatio="2.2 / 1" margin={{ top: 20, right: 20, bottom: 30, left: 40 }}>
+                    <AreaChart data={chartData} aspectRatio="2.2 / 1" margin={{ top: 20, right: 20, bottom: 30, left: 40 }} minY={0} maxY={100}>
                         <Grid horizontal numTicksRows={4} />
                         <Area
                             dataKey="score"
@@ -131,7 +154,13 @@ export default function Dashboard() {
                         />
                         <XAxis numTicks={4} />
                         <ChartTooltip
+                            showDatePill={false}
                             rows={(point) => [
+                                {
+                                    color: 'var(--text-tertiary)',
+                                    label: 'Date',
+                                    value: point.realDate,
+                                },
                                 {
                                     color: 'var(--chart-line-primary)',
                                     label: 'Score',

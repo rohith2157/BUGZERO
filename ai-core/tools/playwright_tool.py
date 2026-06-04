@@ -49,9 +49,30 @@ class PlaywrightTool:
         self._pw = sync_playwright().start()
         self._browser = getattr(self._pw, self._browser_type).launch(
             headless=self._headless,
-            args=["--no-sandbox", "--disable-dev-shm-usage"],
+            args=[
+                "--no-sandbox", 
+                "--disable-dev-shm-usage",
+                "--disable-blink-features=AutomationControlled"
+            ],
         )
         return self._browser
+
+    def _new_context(self, browser, **kwargs):
+        """Create a browser context with realistic headers and user-agent to avoid WAF block."""
+        context_args = {
+            "viewport": {"width": 1280, "height": 720},
+            "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36",
+            "extra_http_headers": {
+                "Accept-Language": "en-US,en;q=0.9",
+                "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+                "sec-ch-ua": '"Not/A)Brand";v="8", "Chromium";v="126", "Google Chrome";v="126"',
+                "sec-ch-ua-mobile": "?0",
+                "sec-ch-ua-platform": '"Windows"',
+                "Upgrade-Insecure-Requests": "1",
+            }
+        }
+        context_args.update(kwargs)
+        return browser.new_context(**context_args)
 
     def _start_sync(self):
         self._ensure_browser()
@@ -96,11 +117,8 @@ class PlaywrightTool:
           deep     → max_depth=999 (unlimited, stops at max_pages)
         """
         browser = self._ensure_browser()
-        context = browser.new_context(
-            viewport={"width": 1280, "height": 720},
-            user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
-        )
-        context.set_default_timeout(15000)
+        context = self._new_context(browser)
+        context.set_default_timeout(20000)
 
         # Normalize the base domain for same-origin checks
         base_parsed = urlparse(url)
@@ -108,19 +126,28 @@ class PlaywrightTool:
         if base_domain.startswith("www."):
             base_domain = base_domain[4:]
 
+        # Also track allowed domains (updated after first page redirect detection)
+        allowed_domains = {base_domain}
+
         # Skip extensions that are not HTML pages
         SKIP_EXTENSIONS = {
             ".pdf", ".jpg", ".jpeg", ".png", ".gif", ".svg", ".webp",
             ".mp3", ".mp4", ".avi", ".mov", ".zip", ".tar", ".gz",
             ".css", ".js", ".woff", ".woff2", ".ttf", ".eot", ".ico",
-            ".xml", ".json", ".rss", ".atom",
+            ".xml", ".json", ".rss", ".atom", ".map",
         }
+
+        print(f"[Crawler] Starting BFS crawl on {url} (max_pages={max_pages}, max_depth={max_depth})")
+        print(f"[Crawler] Base domain: {base_domain}")
 
         try:
             discovered = []
             visited_normalized = set()  # normalized URLs for dedup
+            queued_normalized = set()  # track what's already been queued
             # Queue items: (url, depth) — depth 0 = the root URL
             queue = [(url, 0)]
+            queued_normalized.add(self._normalize_url(url))
+            is_first_page = True
 
             while queue and len(discovered) < max_pages:
                 current_url, depth = queue.pop(0)
@@ -139,8 +166,9 @@ class PlaywrightTool:
                 try:
                     page = context.new_page()
                     # Use domcontentloaded for JS-heavy sites; commit is too early
-                    response = page.goto(current_url, wait_until="domcontentloaded", timeout=15000)
+                    response = page.goto(current_url, wait_until="domcontentloaded", timeout=20000)
                     if not response:
+                        print(f"[Crawler] No response for {current_url}")
                         page.close()
                         page = None
                         visited_normalized.add(norm_url)
@@ -154,23 +182,48 @@ class PlaywrightTool:
                         visited_normalized.add(norm_url)
                         continue
 
-                    # Wait briefly for any JS-injected links to render
+                    # Wait for network idle + extra JS rendering time
                     try:
-                        page.wait_for_load_state("networkidle", timeout=5000)
+                        page.wait_for_load_state("networkidle", timeout=8000)
                     except Exception:
                         pass  # Timeout is fine — we got domcontentloaded already
 
+                    # Extra wait for SPA frameworks (React/Vue/Angular) to render
+                    if is_first_page:
+                        page.wait_for_timeout(2000)
+
+                    # Detect redirect: if the browser ended up on a different domain,
+                    # add that domain to allowed list so we follow its internal links
+                    final_url = page.url
+                    final_parsed = urlparse(final_url)
+                    final_domain = final_parsed.netloc.lower()
+                    if final_domain.startswith("www."):
+                        final_domain = final_domain[4:]
+                    
+                    if final_domain != base_domain and final_domain not in allowed_domains:
+                        print(f"[Crawler] Redirect detected: {base_domain} → {final_domain}")
+                        allowed_domains.add(final_domain)
+                        # If this is the first page, also use the redirected domain as primary
+                        if is_first_page:
+                            base_domain = final_domain
+                            print(f"[Crawler] Updated base domain to: {base_domain}")
+
+                    is_first_page = False
                     visited_normalized.add(norm_url)
+                    # Also mark the final URL as visited (in case of redirect)
+                    visited_normalized.add(self._normalize_url(final_url))
+
                     page_type = self._classify_page_sync(page)
 
                     page_data = {
-                        "url": current_url,
+                        "url": final_url if final_url != current_url else current_url,
                         "page_type": page_type,
                         "status_code": response.status,
                         "title": page.title(),
                         "depth": depth,
                     }
                     discovered.append(page_data)
+                    print(f"[Crawler] Page {len(discovered)}/{max_pages}: {page_data['url'][:80]} (depth={depth}, type={page_type})")
 
                     if on_page:
                         try:
@@ -181,32 +234,70 @@ class PlaywrightTool:
                     # Only follow links if we haven't hit the depth cap
                     if depth < max_depth:
                         links = page.evaluate("""() => {
-                            const anchors = Array.from(document.querySelectorAll('a[href]'));
-                            const hrefs = anchors.map(a => {
-                                try { return new URL(a.href, window.location.origin).href; }
-                                catch(e) { return null; }
-                            }).filter(Boolean);
-                            // Also grab links from area, link tags (sitemap-style)
-                            const areaLinks = Array.from(document.querySelectorAll('area[href]'))
-                                .map(a => { try { return new URL(a.href, window.location.origin).href; } catch { return null; } })
-                                .filter(Boolean);
-                            return [...new Set([...hrefs, ...areaLinks])].filter(h => h.startsWith('http'));
+                            const results = new Set();
+                            
+                            // Standard <a href> links
+                            document.querySelectorAll('a[href]').forEach(a => {
+                                try { results.add(new URL(a.href, window.location.origin).href); }
+                                catch(e) {}
+                            });
+                            
+                            // <area href> links (image maps)
+                            document.querySelectorAll('area[href]').forEach(a => {
+                                try { results.add(new URL(a.href, window.location.origin).href); }
+                                catch(e) {}
+                            });
+                            
+                            // Elements with data-href or data-url attributes
+                            document.querySelectorAll('[data-href], [data-url], [data-link]').forEach(el => {
+                                const val = el.getAttribute('data-href') || el.getAttribute('data-url') || el.getAttribute('data-link');
+                                if (val) {
+                                    try { results.add(new URL(val, window.location.origin).href); }
+                                    catch(e) {}
+                                }
+                            });
+                            
+                            // Links inside onclick handlers (basic extraction)
+                            document.querySelectorAll('[onclick]').forEach(el => {
+                                const onclick = el.getAttribute('onclick') || '';
+                                const matches = onclick.match(/['"](\\/[^'"\\s]+)['"]/g);
+                                if (matches) {
+                                    matches.forEach(m => {
+                                        const path = m.replace(/['"]/g, '');
+                                        try { results.add(new URL(path, window.location.origin).href); }
+                                        catch(e) {}
+                                    });
+                                }
+                            });
+                            
+                            return [...results].filter(h => h.startsWith('http'));
                         }""")
 
+                        new_links = 0
                         for link in links:
                             link_parsed = urlparse(link)
                             link_domain = link_parsed.netloc.lower()
                             if link_domain.startswith("www."):
                                 link_domain = link_domain[4:]
 
-                            # Same-origin check using normalized domain
-                            if link_domain == base_domain:
+                            # Same-origin check: link domain must match base or be an allowed subdomain
+                            is_same_origin = (
+                                link_domain == base_domain
+                                or link_domain in allowed_domains
+                                or link_domain.endswith("." + base_domain)
+                            )
+
+                            if is_same_origin:
                                 clean = self._normalize_url(link)
-                                if clean not in visited_normalized:
+                                if clean not in visited_normalized and clean not in queued_normalized:
                                     queue.append((link, depth + 1))
+                                    queued_normalized.add(clean)
+                                    new_links += 1
+
+                        print(f"[Crawler]   Found {len(links)} links, {new_links} new internal links queued (queue size: {len(queue)})")
 
                 except Exception as e:
-                    print(f"Crawl error on {current_url}: {e}")
+                    print(f"[Crawler] Error on {current_url}: {e}")
                     # Mark as visited even on error to avoid infinite retries
                     visited_normalized.add(norm_url)
                 finally:
@@ -216,6 +307,7 @@ class PlaywrightTool:
                         except Exception:
                             pass
 
+            print(f"[Crawler] BFS complete: {len(discovered)} pages discovered")
             return discovered
         finally:
             try:
@@ -229,10 +321,7 @@ class PlaywrightTool:
     def _test_page_sync(self, url: str) -> dict:
         """Test a single page using the persistent browser — fresh context per page."""
         browser = self._ensure_browser()
-        context = browser.new_context(
-            viewport={"width": 1280, "height": 720},
-            user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
-        )
+        context = self._new_context(browser)
         context.set_default_timeout(10000)
         page = context.new_page()
 
@@ -540,10 +629,7 @@ class PlaywrightTool:
         from tools.axe_tool import run_axe_sync as _axe_scan
 
         browser = self._ensure_browser()
-        context = browser.new_context(
-            viewport={"width": 1280, "height": 720},
-            user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-        )
+        context = self._new_context(browser)
         context.set_default_timeout(15000)
         page = context.new_page()
 
@@ -573,10 +659,7 @@ class PlaywrightTool:
         and healing. Returns (page, context) tuple — caller should close context.
         """
         browser = self._ensure_browser()
-        context = browser.new_context(
-            viewport={"width": 1280, "height": 720},
-            user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-        )
+        context = self._new_context(browser)
         context.set_default_timeout(10000)
         page = context.new_page()
         try:
@@ -609,10 +692,7 @@ class PlaywrightTool:
     def _take_screenshot_sync(self, url: str) -> bytes:
         """Take a full-page screenshot and return PNG bytes."""
         browser = self._ensure_browser()
-        context = browser.new_context(
-            viewport={"width": 1280, "height": 720},
-            user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-        )
+        context = self._new_context(browser)
         context.set_default_timeout(12000)
         page = context.new_page()
 
@@ -638,10 +718,7 @@ class PlaywrightTool:
     def _execute_login_sync(self, url: str, username_selector: str, password_selector: str, submit_selector: str, username: str, password: str) -> bool:
         browser = self._ensure_browser()
         if not hasattr(self, '_shared_context') or self._shared_context is None:
-            self._shared_context = browser.new_context(
-                viewport={"width": 1280, "height": 720},
-                user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-            )
+            self._shared_context = self._new_context(browser)
         page = self._shared_context.new_page()
         try:
             page.goto(url, wait_until="domcontentloaded", timeout=15000)

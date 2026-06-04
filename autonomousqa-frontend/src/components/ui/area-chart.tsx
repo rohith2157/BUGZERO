@@ -428,7 +428,7 @@ function XAxisLabel({ label, x, crosshairX, isHovering, tickerHalfWidth }: { lab
 }
 
 export function XAxis({ numTicks = 5, tickerHalfWidth = 50 }: XAxisProps) {
-    const { xScale, margin, tooltipData, containerRef } = useChart();
+    const { xScale, margin, tooltipData, containerRef, data } = useChart();
     const [mounted, setMounted] = useState(false);
     useEffect(() => { setMounted(true); }, []);
 
@@ -438,8 +438,42 @@ export function XAxis({ numTicks = 5, tickerHalfWidth = 50 }: XAxisProps) {
         const startTime = startDate.getTime(); const endTime = endDate.getTime(); const timeRange = endTime - startTime;
         const tickCount = Math.max(2, numTicks); const dates: Date[] = [];
         for (let i = 0; i < tickCount; i++) { const t = i / (tickCount - 1); dates.push(new Date(startTime + t * timeRange)); }
-        return dates.map((date) => ({ date, x: (xScale(date) ?? 0) + margin.left, label: date.toLocaleDateString("en-US", { month: "short", day: "numeric" }) }));
-    }, [xScale, margin.left, numTicks]);
+        
+        return dates.map((date) => {
+            const x = (xScale(date) ?? 0) + margin.left;
+            let label = date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+            
+            if (data && data.length > 0) {
+                const targetTime = date.getTime();
+                let closestPt = data[0];
+                let minDiff = Infinity;
+                for (const pt of data) {
+                    const ptDate = pt.date instanceof Date ? pt.date : new Date(pt.date as string | number);
+                    const diff = Math.abs(ptDate.getTime() - targetTime);
+                    if (diff < minDiff) {
+                        minDiff = diff;
+                        closestPt = pt;
+                    }
+                }
+                if (closestPt && typeof closestPt.realDate === "string") {
+                    const rDate = closestPt.realDate;
+                    if (rDate.includes("-")) {
+                        const parts = rDate.split("-");
+                        if (parts.length === 3) {
+                            const dObj = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+                            if (!isNaN(dObj.getTime())) {
+                                label = dObj.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+                            }
+                        }
+                    } else {
+                        label = rDate;
+                    }
+                }
+            }
+            
+            return { date, x, label };
+        });
+    }, [xScale, margin.left, numTicks, data]);
 
     const isHovering = tooltipData !== null;
     const crosshairX = tooltipData ? tooltipData.x + margin.left : null;
@@ -567,13 +601,15 @@ function extractAreaConfigs(children: ReactNode): LineConfig[] {
 export interface AreaChartProps {
     data: Record<string, unknown>[]; xDataKey?: string; margin?: Partial<Margin>;
     animationDuration?: number; aspectRatio?: string; className?: string; children: ReactNode;
+    minY?: number; maxY?: number;
 }
 
 const DEFAULT_MARGIN: Margin = { top: 40, right: 40, bottom: 40, left: 40 };
 
-function ChartInner({ width, height, data, xDataKey, margin, animationDuration, children, containerRef }: {
+function ChartInner({ width, height, data, xDataKey, margin, animationDuration, children, containerRef, minY, maxY }: {
     width: number; height: number; data: Record<string, unknown>[]; xDataKey: string; margin: Margin;
     animationDuration: number; children: ReactNode; containerRef: RefObject<HTMLDivElement | null>;
+    minY?: number; maxY?: number;
 }) {
     const [isLoaded, setIsLoaded] = useState(false);
     const lines = useMemo(() => extractAreaConfigs(children), [children]);
@@ -594,8 +630,10 @@ function ChartInner({ width, height, data, xDataKey, margin, animationDuration, 
         let maxValue = 0;
         for (const line of lines) for (const d of data) { const value = d[line.dataKey]; if (typeof value === "number" && value > maxValue) maxValue = value; }
         if (maxValue === 0) maxValue = 100;
-        return scaleLinear({ range: [innerHeight, 0], domain: [0, maxValue * 1.1], nice: true });
-    }, [innerHeight, data, lines]);
+        const domainMin = minY !== undefined ? minY : 0;
+        const domainMax = maxY !== undefined ? maxY : maxValue * 1.1;
+        return scaleLinear({ range: [innerHeight, 0], domain: [domainMin, domainMax], nice: maxY === undefined });
+    }, [innerHeight, data, lines, minY, maxY]);
 
     const dateLabels = useMemo(() => data.map((d) => xAccessor(d).toLocaleDateString("en-US", { month: "short", day: "numeric" })), [data, xAccessor]);
 
@@ -625,13 +663,13 @@ function ChartInner({ width, height, data, xDataKey, margin, animationDuration, 
     );
 }
 
-export function AreaChart({ data, xDataKey = "date", margin: marginProp, animationDuration = 1100, aspectRatio = "2 / 1", className = "", children }: AreaChartProps) {
+export function AreaChart({ data, xDataKey = "date", margin: marginProp, animationDuration = 1100, aspectRatio = "2 / 1", className = "", children, minY, maxY }: AreaChartProps) {
     const containerRef = useRef<HTMLDivElement>(null);
     const margin = { ...DEFAULT_MARGIN, ...marginProp };
     return (
         <div className={cn("relative w-full", className)} ref={containerRef} style={{ aspectRatio, touchAction: "none" }}>
             <ParentSize debounceTime={10}>
-                {({ width, height }) => (<ChartInner animationDuration={animationDuration} containerRef={containerRef} data={data} height={height} margin={margin} width={width} xDataKey={xDataKey}>{children}</ChartInner>)}
+                {({ width, height }) => (<ChartInner animationDuration={animationDuration} containerRef={containerRef} data={data} height={height} margin={margin} width={width} xDataKey={xDataKey} minY={minY} maxY={maxY}>{children}</ChartInner>)}
             </ParentSize>
         </div>
     );

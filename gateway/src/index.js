@@ -11,6 +11,7 @@ import playbookRoutes from './routes/playbooks.js';
 import settingsRoutes from './routes/settings.js';
 import baselineRoutes from './routes/baselines.js';
 import { setupWebSocket } from './services/websocket.js';
+import prisma from './db.js';
 
 const app = express();
 const httpServer = createServer(app);
@@ -67,10 +68,23 @@ app.use((err, req, res, next) => {
 });
 
 const PORT = process.env.PORT || 3000;
-httpServer.listen(PORT, () => {
+httpServer.listen(PORT, async () => {
   console.log(`🚀 AutonomousQA Gateway running on http://localhost:${PORT}`);
   console.log(`📡 WebSocket ready`);
   console.log(`🔗 AI Core: ${process.env.FASTAPI_URL || 'http://localhost:8000'}`);
+  
+  // Clean up any orphaned running/queued tests from a previous crash/restart
+  try {
+    const res = await prisma.testRun.updateMany({
+      where: { status: { in: ['running', 'queued'] } },
+      data: { status: 'failed', completedAt: new Date() },
+    });
+    if (res.count > 0) {
+      console.log(`🧹 Cleaned up ${res.count} orphaned running/queued test runs.`);
+    }
+  } catch (err) {
+    console.error('Failed to clean up orphaned test runs:', err);
+  }
 });
 
 export { app, io };

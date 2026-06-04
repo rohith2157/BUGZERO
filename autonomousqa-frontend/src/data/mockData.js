@@ -12,12 +12,12 @@ export const kpiData = {
 };
 
 export const hygieneHistory = [
-  { date: 'Jan 1', score: 71 }, { date: 'Jan 5', score: 68 },
-  { date: 'Jan 10', score: 72 }, { date: 'Jan 15', score: 75 },
-  { date: 'Jan 20', score: 73 }, { date: 'Jan 25', score: 78 },
-  { date: 'Feb 1', score: 76 }, { date: 'Feb 5', score: 79 },
-  { date: 'Feb 10', score: 82 }, { date: 'Feb 15', score: 80 },
-  { date: 'Feb 20', score: 85 }, { date: 'Feb 25', score: 82 },
+  { date: '2026-01-01', score: 71 }, { date: '2026-01-05', score: 68 },
+  { date: '2026-01-10', score: 72 }, { date: '2026-01-15', score: 75 },
+  { date: '2026-01-20', score: 73 }, { date: '2026-01-25', score: 78 },
+  { date: '2026-02-01', score: 76 }, { date: '2026-02-05', score: 79 },
+  { date: '2026-02-10', score: 82 }, { date: '2026-02-15', score: 80 },
+  { date: '2026-02-20', score: 85 }, { date: '2026-02-25', score: 82 },
 ];
 
 export const recentRuns = [

@@ -7,10 +7,10 @@ function getInitialTheme() {
     } catch {}
     
     // Fallback to system preference
-    if (typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
-        return 'light';
+    if (typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        return 'dark';
     }
-    return 'dark';
+    return 'light';
 }
 
 const useThemeStore = create((set) => ({
