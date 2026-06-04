@@ -241,6 +241,7 @@ router.get('/:id', authenticate, uuidParam, validate, async (req, res) => {
                     },
                 },
                 defects: { orderBy: { createdAt: 'desc' } },
+                complianceResults: { orderBy: { severity: 'asc' } },
             },
         });
 

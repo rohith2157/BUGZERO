@@ -253,7 +253,7 @@ class Orchestrator:
                 try:
                     # ── 3a: Self-Healing — detect broken selectors ──
                     page_healing_events = []
-                    if healing_agent.is_available():
+                    if "functional" in config.modules and healing_agent.is_available():
                         try:
                             browser_page = await playwright.get_page(url)
                             if browser_page:
@@ -279,26 +279,27 @@ class Orchestrator:
                     page_result.healing_events = page_healing_events
 
                     # ── 3c: axe-core accessibility scan ──
-                    try:
-                        axe_violations = await playwright.run_axe(url)
-                        for v in axe_violations:
-                            page_result.compliance.append(ComplianceViolation(
-                                standard=v.get("standard", "WCAG"),
-                                criterion=v.get("criterion", "General"),
-                                severity=v.get("severity", "minor"),
-                                description=v.get("description", ""),
-                                remediation=v.get("remediation", ""),
-                                rule_id=v.get("rule_id", ""),
-                                help_url=v.get("help_url", ""),
-                                affected_elements=v.get("affected_elements", []),
-                                instance_count=v.get("instance_count"),
-                            ))
-                        logger.info(f"  axe-core: {len(axe_violations)} violation(s)")
-                    except Exception as e:
-                        logger.warning(f"  axe-core failed on {url}: {e}")
+                    if "accessibility" in config.modules:
+                        try:
+                            axe_violations = await playwright.run_axe(url)
+                            for v in axe_violations:
+                                page_result.compliance.append(ComplianceViolation(
+                                    standard=v.get("standard", "WCAG"),
+                                    criterion=v.get("criterion", "General"),
+                                    severity=v.get("severity", "minor"),
+                                    description=v.get("description", ""),
+                                    remediation=v.get("remediation", ""),
+                                    rule_id=v.get("rule_id", ""),
+                                    help_url=v.get("help_url", ""),
+                                    affected_elements=v.get("affected_elements", []),
+                                    instance_count=v.get("instance_count"),
+                                ))
+                            logger.info(f"  axe-core: {len(axe_violations)} violation(s)")
+                        except Exception as e:
+                            logger.warning(f"  axe-core failed on {url}: {e}")
 
                     # ── 3d: Gemini Vision analysis + Regression ──
-                    if vision.is_available():
+                    if "visual" in config.modules and vision.is_available():
                         try:
                             screenshot_bytes = await playwright.take_screenshot(url)
                             if screenshot_bytes:
@@ -330,6 +331,16 @@ class Orchestrator:
                                                 change_type=change.get("change_type", "cosmetic"),
                                                 severity=change.get("severity", "minor"),
                                                 description=change.get("description", ""),
+                                                location=change.get("location"),
+                                                confidence=change.get("confidence", 0.8),
+                                            ))
+                                            # Save visual regression changes as visual defects so they are persisted
+                                            page_result.defects.append(DefectResult(
+                                                type="Visual",
+                                                severity=change.get("severity", "minor"),
+                                                message=f"Visual Regression: {change.get('description', '')}",
+                                                fix="Verify if layout change is intentional. If so, update the baseline.",
+                                                source="gemini_vision",
                                                 location=change.get("location"),
                                                 confidence=change.get("confidence", 0.8),
                                             ))

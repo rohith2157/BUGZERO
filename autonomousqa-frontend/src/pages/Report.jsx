@@ -34,22 +34,25 @@ export default function Report() {
                 scoresByType[t].push(p.hygieneScore || 0);
             });
 
-            // Build category scores from defects
+            // Build category scores from defects and compliance results
             const defectsByType = {};
             (testRun.defects || []).forEach(d => {
                 const t = d.type || 'Other';
                 defectsByType[t] = (defectsByType[t] || 0) + 1;
             });
-            const totalDefects = testRun.defects?.length || 0;
+            (testRun.complianceResults || []).forEach(c => {
+                const t = c.standard === 'WCAG' ? 'Accessibility' : c.standard === 'GDPR' ? 'Compliance' : 'Other';
+                defectsByType[t] = (defectsByType[t] || 0) + 1;
+            });
+            const totalIssues = (testRun.defects?.length || 0) + (testRun.complianceResults?.length || 0);
             const categories = ['Accessibility', 'Performance', 'SEO', 'Functional', 'Compliance'];
             const scoreBreakdown = {};
             categories.forEach(cat => {
                 const count = defectsByType[cat] || 0;
-                // Avoid division by zero if totalDefects is 0. If 0 defects, score is 100.
-                if (totalDefects === 0) {
+                if (totalIssues === 0) {
                     scoreBreakdown[cat] = 100;
                 } else {
-                    scoreBreakdown[cat] = Math.min(100, Math.max(0, Math.round(100 - (count / totalDefects) * 100)));
+                    scoreBreakdown[cat] = Math.min(100, Math.max(0, Math.round(100 - (count / totalIssues) * 100)));
                 }
             });
 

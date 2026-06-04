@@ -540,31 +540,6 @@ class PlaywrightTool:
         return _ManagedPage(page, context)
 
 
-class _ManagedPage:
-    """Thin wrapper that forwards calls to a Playwright page and manages cleanup."""
-    
-    def __init__(self, page, context):
-        self._page = page
-        self._context = context
-    
-    async def evaluate(self, expression):
-        return await _run_sync(self._page.evaluate, expression)
-    
-    def locator(self, selector):
-        return self._page.locator(selector)
-    
-    async def count(self, selector):
-        return await _run_sync(lambda: self._page.locator(selector).count())
-    
-    def close(self):
-        try:
-            self._context.close()
-        except Exception:
-            pass
-    
-    def __del__(self):
-        self.close()
-
     # ── Stage 4: Screenshot capture for Gemini Vision ─────────────────────────
 
     def _take_screenshot_sync(self, url: str) -> bytes:
@@ -596,7 +571,6 @@ class _ManagedPage:
         """Take a screenshot (async wrapper)."""
         return await _run_sync(self._take_screenshot_sync, url)
 
-
     def _execute_login_sync(self, url: str, username_selector: str, password_selector: str, submit_selector: str, username: str, password: str) -> bool:
         browser = self._ensure_browser()
         if not hasattr(self, '_shared_context') or self._shared_context is None:
@@ -640,46 +614,29 @@ class _ManagedPage:
 
     async def disable_chaos_conditions(self):
         return await _run_sync(self._disable_chaos_conditions_sync)
-    def _execute_login_sync(self, url: str, username_selector: str, password_selector: str, submit_selector: str, username: str, password: str) -> bool:
-        browser = self._ensure_browser()
-        if not hasattr(self, '_shared_context') or self._shared_context is None:
-            self._shared_context = browser.new_context(
-                viewport={"width": 1280, "height": 720},
-                user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-            )
-        page = self._shared_context.new_page()
+
+
+class _ManagedPage:
+    """Thin wrapper that forwards calls to a Playwright page and manages cleanup."""
+    
+    def __init__(self, page, context):
+        self._page = page
+        self._context = context
+    
+    async def evaluate(self, expression):
+        return await _run_sync(self._page.evaluate, expression)
+    
+    def locator(self, selector):
+        return self._page.locator(selector)
+    
+    async def count(self, selector):
+        return await _run_sync(lambda: self._page.locator(selector).count())
+    
+    def close(self):
         try:
-            page.goto(url, wait_until="domcontentloaded", timeout=15000)
-            page.wait_for_selector(username_selector, timeout=10000)
-            page.fill(username_selector, username)
-            page.fill(password_selector, password)
-            page.click(submit_selector)
-            page.wait_for_load_state("networkidle", timeout=15000)
-            return True
-        except Exception as e:
-            print(f"Login error on {url}: {e}")
-            return False
-        finally:
-            page.close()
-
-    async def execute_login(self, url: str, username_selector: str, password_selector: str, submit_selector: str, username: str, password: str) -> bool:
-        return await _run_sync(self._execute_login_sync, url, username_selector, password_selector, submit_selector, username, password)
-
-    def _set_network_conditions_sync(self, profile: str):
-        self._network_profile = profile
-
-    async def set_network_conditions(self, profile: str):
-        return await _run_sync(self._set_network_conditions_sync, profile)
-
-    def _set_cpu_throttling_sync(self, rate: int):
-        self._cpu_throttling = rate
-
-    async def set_cpu_throttling(self, rate: int):
-        return await _run_sync(self._set_cpu_throttling_sync, rate)
-
-    def _disable_chaos_conditions_sync(self):
-        self._network_profile = None
-        self._cpu_throttling = None
-
-    async def disable_chaos_conditions(self):
-        return await _run_sync(self._disable_chaos_conditions_sync)
+            self._context.close()
+        except Exception:
+            pass
+    
+    def __del__(self):
+        self.close()

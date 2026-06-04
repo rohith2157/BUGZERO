@@ -12,33 +12,50 @@ class TesterAgent:
 
     async def test_page(self, url: str, modules: list[str] | None = None) -> PageResult:
         """Run all enabled test modules on a single page."""
+        if modules is None:
+            modules = ["functional", "accessibility", "performance", "seo", "compliance"]
+
         raw = await self.tool.test_page(url)
 
         defects = []
         for d in raw.get("defects", []):
-            defects.append(DefectResult(
-                type=d["type"],
-                severity=d["severity"],
-                message=d["message"],
-                fix=d.get("fix"),
-            ))
+            dtype = d["type"]
+            m_key = None
+            if dtype in ["Accessibility", "WCAG"]:
+                m_key = "accessibility"
+            elif dtype == "SEO":
+                m_key = "seo"
+            elif dtype == "Functional":
+                m_key = "functional"
+
+            if m_key is None or m_key in modules:
+                defects.append(DefectResult(
+                    type=d["type"],
+                    severity=d["severity"],
+                    message=d["message"],
+                    fix=d.get("fix"),
+                ))
 
         compliance = []
         for v in raw.get("accessibility", []):
-            compliance.append(ComplianceViolation(
-                standard=v["standard"],
-                criterion=v["criterion"],
-                severity=v["severity"],
-                description=v["description"],
-                remediation=v.get("remediation"),
-            ))
+            standard = v.get("standard", "WCAG")
+            m_key = "compliance" if standard == "GDPR" else "accessibility"
+            if m_key in modules:
+                compliance.append(ComplianceViolation(
+                    standard=standard,
+                    criterion=v["criterion"],
+                    severity=v["severity"],
+                    description=v["description"],
+                    remediation=v.get("remediation"),
+                ))
 
         performance = {}
-        for name, data in raw.get("performance", {}).items():
-            performance[name] = PerformanceMetric(
-                value=data["value"],
-                rating=data.get("rating"),
-            )
+        if "performance" in modules:
+            for name, data in raw.get("performance", {}).items():
+                performance[name] = PerformanceMetric(
+                    value=data["value"],
+                    rating=data.get("rating"),
+                )
 
         # Calculate hygiene score
         severity_weights = {"critical": 15, "major": 8, "minor": 3, "warning": 1}
