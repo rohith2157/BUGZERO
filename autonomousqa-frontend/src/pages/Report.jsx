@@ -68,6 +68,8 @@ export default function Report() {
                 };
             });
 
+            const totalDefects = testRun.defectCount || (testRun.defects?.length || 0);
+
             setReportData({
                 runId: testRun.id,
                 url: testRun.url,

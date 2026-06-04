@@ -337,7 +337,7 @@ body {
   line-height: 1.6;
   font-size: 14px;
   overflow-x: hidden;
-  font-feature-settings: 'ss01' on, 'cv11' on;
+  font-feature-settings: 'ss01' on;
   letter-spacing: -0.01em;
 }
 

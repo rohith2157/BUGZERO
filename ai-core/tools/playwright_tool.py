@@ -76,6 +76,17 @@ class PlaywrightTool:
     async def stop(self):
         await _run_sync(self._stop_sync)
 
+    @staticmethod
+    def _normalize_url(raw_url: str) -> str:
+        """Normalize a URL for deduplication: strip www., trailing slashes,
+        fragments, and query parameters so the same page isn't crawled twice."""
+        parsed = urlparse(raw_url)
+        netloc = parsed.netloc.lower()
+        if netloc.startswith("www."):
+            netloc = netloc[4:]
+        path = parsed.path.rstrip("/") or "/"
+        return f"{parsed.scheme}://{netloc}{path}"
+
     def _crawl_sync(self, url: str, max_pages: int, max_depth: int = 999, on_page=None) -> list[dict]:
         """Crawl using the persistent browser — tracks real URL depth levels.
         
@@ -89,28 +100,67 @@ class PlaywrightTool:
             viewport={"width": 1280, "height": 720},
             user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
         )
-        context.set_default_timeout(8000)
+        context.set_default_timeout(15000)
+
+        # Normalize the base domain for same-origin checks
+        base_parsed = urlparse(url)
+        base_domain = base_parsed.netloc.lower()
+        if base_domain.startswith("www."):
+            base_domain = base_domain[4:]
+
+        # Skip extensions that are not HTML pages
+        SKIP_EXTENSIONS = {
+            ".pdf", ".jpg", ".jpeg", ".png", ".gif", ".svg", ".webp",
+            ".mp3", ".mp4", ".avi", ".mov", ".zip", ".tar", ".gz",
+            ".css", ".js", ".woff", ".woff2", ".ttf", ".eot", ".ico",
+            ".xml", ".json", ".rss", ".atom",
+        }
+
         try:
             discovered = []
-            visited = set()
+            visited_normalized = set()  # normalized URLs for dedup
             # Queue items: (url, depth) — depth 0 = the root URL
             queue = [(url, 0)]
-            base_domain = urlparse(url).netloc
 
-            while queue and len(visited) < max_pages:
+            while queue and len(discovered) < max_pages:
                 current_url, depth = queue.pop(0)
-                if current_url in visited:
+                norm_url = self._normalize_url(current_url)
+
+                if norm_url in visited_normalized:
+                    continue
+
+                # Skip non-HTML file extensions
+                path_lower = urlparse(current_url).path.lower()
+                if any(path_lower.endswith(ext) for ext in SKIP_EXTENSIONS):
+                    visited_normalized.add(norm_url)
                     continue
 
                 page = None
                 try:
                     page = context.new_page()
-                    response = page.goto(current_url, wait_until="commit", timeout=8000)
+                    # Use domcontentloaded for JS-heavy sites; commit is too early
+                    response = page.goto(current_url, wait_until="domcontentloaded", timeout=15000)
                     if not response:
                         page.close()
+                        page = None
+                        visited_normalized.add(norm_url)
                         continue
 
-                    visited.add(current_url)
+                    # Skip non-HTML responses (PDFs opened inline, etc.)
+                    content_type = response.headers.get("content-type", "")
+                    if content_type and "text/html" not in content_type and "application/xhtml" not in content_type:
+                        page.close()
+                        page = None
+                        visited_normalized.add(norm_url)
+                        continue
+
+                    # Wait briefly for any JS-injected links to render
+                    try:
+                        page.wait_for_load_state("networkidle", timeout=5000)
+                    except Exception:
+                        pass  # Timeout is fine — we got domcontentloaded already
+
+                    visited_normalized.add(norm_url)
                     page_type = self._classify_page_sync(page)
 
                     page_data = {
@@ -131,20 +181,34 @@ class PlaywrightTool:
                     # Only follow links if we haven't hit the depth cap
                     if depth < max_depth:
                         links = page.evaluate("""() => {
-                            return Array.from(document.querySelectorAll('a[href]'))
-                                .map(a => a.href)
-                                .filter(href => href.startsWith('http'));
+                            const anchors = Array.from(document.querySelectorAll('a[href]'));
+                            const hrefs = anchors.map(a => {
+                                try { return new URL(a.href, window.location.origin).href; }
+                                catch(e) { return null; }
+                            }).filter(Boolean);
+                            // Also grab links from area, link tags (sitemap-style)
+                            const areaLinks = Array.from(document.querySelectorAll('area[href]'))
+                                .map(a => { try { return new URL(a.href, window.location.origin).href; } catch { return null; } })
+                                .filter(Boolean);
+                            return [...new Set([...hrefs, ...areaLinks])].filter(h => h.startsWith('http'));
                         }""")
 
                         for link in links:
-                            parsed = urlparse(link)
-                            if parsed.netloc == base_domain and link not in visited:
-                                clean_link = f"{parsed.scheme}://{parsed.netloc}{parsed.path}"
-                                if clean_link not in visited:
-                                    queue.append((clean_link, depth + 1))
+                            link_parsed = urlparse(link)
+                            link_domain = link_parsed.netloc.lower()
+                            if link_domain.startswith("www."):
+                                link_domain = link_domain[4:]
+
+                            # Same-origin check using normalized domain
+                            if link_domain == base_domain:
+                                clean = self._normalize_url(link)
+                                if clean not in visited_normalized:
+                                    queue.append((link, depth + 1))
 
                 except Exception as e:
                     print(f"Crawl error on {current_url}: {e}")
+                    # Mark as visited even on error to avoid infinite retries
+                    visited_normalized.add(norm_url)
                 finally:
                     if page:
                         try:
