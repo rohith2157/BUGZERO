@@ -5,6 +5,7 @@ import prisma from '../db.js';
 import { authenticate } from '../middleware/auth.js';
 import { validate, registerRules, loginRules } from '../middleware/validate.js';
 import { emitActivityEvent } from '../services/websocket.js';
+import { verifyFirebaseToken } from '../services/firebase.js';
 
 const router = Router();
 
@@ -127,6 +128,103 @@ router.get('/me', authenticate, async (req, res) => {
 router.delete('/logout', authenticate, (req, res) => {
   // Client should discard the token
   res.json({ message: 'Logged out successfully' });
+});
+
+// POST /api/auth/firebase — Exchange Firebase ID token for gateway JWT
+router.post('/firebase', async (req, res) => {
+  try {
+    const { idToken, name, photo, githubAccessToken } = req.body;
+
+    if (!idToken) {
+      return res.status(400).json({ error: 'Firebase ID token is required' });
+    }
+
+    // Verify the Firebase ID token
+    let decoded;
+    try {
+      decoded = await verifyFirebaseToken(idToken);
+    } catch (err) {
+      console.error('Firebase token verification failed:', err.message);
+      return res.status(401).json({ error: 'Invalid Firebase token' });
+    }
+
+    const email = decoded.email;
+    if (!email) {
+      return res.status(400).json({ error: 'Firebase token missing email claim' });
+    }
+
+    const provider = decoded.firebase?.sign_in_provider || 'firebase';
+    const displayName = name || decoded.name || email.split('@')[0];
+    const avatarUrl = photo || decoded.picture || null;
+
+    // Upsert user: find by firebaseUid or email, create if new
+    let user = await prisma.user.findFirst({
+      where: {
+        OR: [
+          { firebaseUid: decoded.uid },
+          { email: email.toLowerCase() },
+        ],
+      },
+    });
+
+    if (user) {
+      // Update existing user with Firebase info
+      const updateData = {
+        firebaseUid: decoded.uid,
+        provider,
+        name: displayName,
+      };
+      if (avatarUrl) updateData.avatar = avatarUrl;
+      if (githubAccessToken) updateData.githubAccessToken = githubAccessToken;
+
+      user = await prisma.user.update({
+        where: { id: user.id },
+        data: updateData,
+      });
+    } else {
+      // Create new user (no org for OAuth signups initially)
+      user = await prisma.user.create({
+        data: {
+          email: email.toLowerCase(),
+          name: displayName,
+          avatar: avatarUrl,
+          firebaseUid: decoded.uid,
+          provider,
+          role: 'owner',
+          githubAccessToken: githubAccessToken || null,
+        },
+      });
+    }
+
+    // Log activity
+    await prisma.userActivity.create({
+      data: { userId: user.id, action: 'login', metadata: { provider } },
+    });
+
+    if (req.app.get('io')) {
+      emitActivityEvent(req.app.get('io'), 'activity:login', { userId: user.id, provider, timestamp: new Date() });
+    }
+
+    // Generate gateway JWT
+    const token = generateToken(user);
+
+    res.json({
+      token,
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        avatar: user.avatar,
+        role: user.role,
+        orgId: user.orgId,
+        provider: user.provider,
+      },
+      githubAccessToken: user.githubAccessToken || githubAccessToken || null,
+    });
+  } catch (err) {
+    console.error('Firebase auth error:', err);
+    res.status(500).json({ error: 'Firebase authentication failed' });
+  }
 });
 
 export default router;

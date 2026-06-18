@@ -1,25 +1,46 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Globe, Settings2, Play, ChevronDown, Shield, Layers, MonitorSmartphone, Gauge } from 'lucide-react';
+import { Globe, Settings2, Play, ChevronDown, Shield, Layers, MonitorSmartphone, Gauge, Github } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Slider } from '../components/ui/slider';
 import { tests as testsApi, playbooks as playbooksApi } from '../lib/api';
+import { useAuthStore } from '../store/authStore';
 
 const browsers = ['Chromium', 'Firefox', 'WebKit'];
 const depths = ['Shallow (top-level only)', 'Standard (3 levels deep)', 'Deep (entire site)'];
 
 export default function NewTest() {
     const navigate = useNavigate();
+    const [testMode, setTestMode] = useState('url'); // 'url' | 'repo'
     const [url, setUrl] = useState('');
+    const [repoUrl, setRepoUrl] = useState('');
     const [browser, setBrowser] = useState('Chromium');
     const [depth, setDepth] = useState('Standard (3 levels deep)');
     const [maxPages, setMaxPages] = useState(50);
     const [playbook, setPlaybook] = useState('');
     const [launching, setLaunching] = useState(false);
     const [playbooks, setPlaybooks] = useState([]);
+    const [repositories, setRepositories] = useState([]);
+    const [loadingRepos, setLoadingRepos] = useState(false);
     const [error, setError] = useState('');
+    const githubAccessToken = useAuthStore((s) => s.githubAccessToken);
 
     useEffect(() => { document.title = 'New Test — BugZero'; }, []);
+
+    useEffect(() => {
+        if (testMode === 'repo' && githubAccessToken && repositories.length === 0) {
+            setLoadingRepos(true);
+            fetch('https://api.github.com/user/repos?sort=updated&per_page=100', {
+                headers: { Authorization: `Bearer ${githubAccessToken}` }
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (Array.isArray(data)) setRepositories(data);
+            })
+            .catch(err => console.error('Failed to fetch repos:', err))
+            .finally(() => setLoadingRepos(false));
+        }
+    }, [testMode, githubAccessToken]);
 
     useEffect(() => {
         playbooksApi.list()
@@ -36,27 +57,42 @@ export default function NewTest() {
 
     const handleLaunch = async (e) => {
         if (e && e.preventDefault) e.preventDefault();
-        if (!url) return;
-        // Auto-prefix protocol if missing
-        let targetUrl = url.trim().replace(/\/+$/, ''); // trim trailing slashes and whitespace
-        if (!/^https?:\/\//i.test(targetUrl)) {
-            targetUrl = 'https://' + targetUrl;
+        
+        if (testMode === 'url') {
+            if (!url) return;
+            // Auto-prefix protocol if missing
+            let targetUrl = url.trim().replace(/\/+$/, '');
+            if (!/^https?:\/\//i.test(targetUrl)) {
+                targetUrl = 'https://' + targetUrl;
+            }
+            // Basic URL validation
+            try {
+                new URL(targetUrl);
+            } catch {
+                setError('Please enter a valid URL (e.g. https://example.com)');
+                return;
+            }
+            startTestPayload(targetUrl, 'url', null);
+        } else {
+            if (!repoUrl) {
+                setError('Please select a GitHub repository');
+                return;
+            }
+            startTestPayload(repoUrl, 'repo', githubAccessToken);
         }
-        // Basic URL validation
-        try {
-            new URL(targetUrl);
-        } catch {
-            setError('Please enter a valid URL (e.g. https://example.com)');
-            return;
-        }
+    };
+
+    const startTestPayload = async (target, mode, token) => {
         setLaunching(true);
         setError('');
         try {
             const depthMap = { 'Shallow (top-level only)': 'shallow', 'Standard (3 levels deep)': 'standard', 'Deep (entire site)': 'deep' };
             const enabledModules = Object.entries(features).filter(([, v]) => v).map(([k]) => k);
             const result = await testsApi.create({
-                url: targetUrl,
+                url: target,
                 config: {
+                    type: mode, // 'url' or 'repo'
+                    github_token: token || undefined,
                     browser: browser.toLowerCase(),
                     crawl_depth: depthMap[depth] || 'standard',
                     max_pages: maxPages,
@@ -94,11 +130,45 @@ export default function NewTest() {
                     Start New Test Run
                 </h2>
                 <p style={{ fontSize: 14, color: 'var(--text-secondary)' }}>
-                    Enter a URL and configure your test parameters. The AI engine will handle everything else.
+                    Choose a mode, enter your target, and configure test parameters.
                 </p>
             </div>
 
-            {/* URL Input */}
+            {/* Mode Toggle */}
+            <div style={{
+                display: 'flex', gap: 0, marginBottom: 20,
+                background: 'var(--color-bg-tertiary)',
+                borderRadius: 'var(--radius-md)', padding: 3,
+            }}>
+                <button
+                    onClick={() => { setTestMode('url'); setError(''); }}
+                    style={{
+                        flex: 1, padding: '10px 0', fontSize: 13, fontWeight: 600,
+                        border: 'none', borderRadius: 'var(--radius-sm)', cursor: 'pointer',
+                        transition: 'all var(--transition-fast)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                        background: testMode === 'url' ? 'var(--color-bg-elevated)' : 'transparent',
+                        color: testMode === 'url' ? 'var(--text-primary)' : 'var(--text-tertiary)',
+                        boxShadow: testMode === 'url' ? 'var(--shadow-sm)' : 'none',
+                    }}
+                >
+                    <Globe size={16} /> Live URL
+                </button>
+                <button
+                    onClick={() => { setTestMode('repo'); setError(''); }}
+                    style={{
+                        flex: 1, padding: '10px 0', fontSize: 13, fontWeight: 600,
+                        border: 'none', borderRadius: 'var(--radius-sm)', cursor: 'pointer',
+                        transition: 'all var(--transition-fast)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                        background: testMode === 'repo' ? 'var(--color-bg-elevated)' : 'transparent',
+                        color: testMode === 'repo' ? 'var(--text-primary)' : 'var(--text-tertiary)',
+                        boxShadow: testMode === 'repo' ? 'var(--shadow-sm)' : 'none',
+                    }}
+                >
+                    <Github size={16} /> GitHub Repository
+                </button>
+            </div>
+
+            {/* Input Form */}
             <form onSubmit={handleLaunch}>
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
@@ -107,38 +177,115 @@ export default function NewTest() {
                     className="glass-card"
                     style={{ padding: '28px', marginBottom: 20 }}
                 >
-                    <label style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 10, display: 'block', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                        Target URL
-                    </label>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                        <div style={{
-                            width: 42, height: 42, borderRadius: 10,
-                            background: 'rgba(212, 168, 83, 0.08)',
-                            display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            flexShrink: 0,
-                        }}>
-                            <Globe size={20} style={{ color: 'var(--color-accent-gold)' }} />
-                        </div>
-                        <input
-                            type="url"
-                            value={url}
-                            onChange={(e) => { setUrl(e.target.value); setError(''); }}
-                            placeholder="https://your-application.com"
-                            onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleLaunch(e); } }}
-                            style={{
-                                flex: 1, padding: '14px 18px', fontSize: 15,
-                                background: 'var(--color-bg-elevated)',
-                                border: '1px solid rgba(255,255,255,0.06)',
-                                borderRadius: 10,
-                                color: 'var(--text-primary)',
-                                outline: 'none',
-                                fontFamily: "'Geist Mono', 'JetBrains Mono', monospace",
-                                transition: 'border-color var(--transition-fast)',
-                            }}
-                            onFocus={(e) => e.target.style.borderColor = 'var(--color-accent-gold)'}
-                            onBlur={(e) => e.target.style.borderColor = 'rgba(255,255,255,0.06)'}
-                        />
-                    </div>
+                    {testMode === 'url' ? (
+                        <>
+                            <label style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 10, display: 'block', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                                Target URL
+                            </label>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                                <div style={{
+                                    width: 42, height: 42, borderRadius: 10,
+                                    background: 'rgba(212, 168, 83, 0.08)',
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                    flexShrink: 0,
+                                }}>
+                                    <Globe size={20} style={{ color: 'var(--color-accent-gold)' }} />
+                                </div>
+                                <input
+                                    type="url"
+                                    value={url}
+                                    onChange={(e) => { setUrl(e.target.value); setError(''); }}
+                                    placeholder="https://your-application.com"
+                                    onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleLaunch(e); } }}
+                                    style={{
+                                        flex: 1, padding: '14px 18px', fontSize: 15,
+                                        background: 'var(--color-bg-elevated)',
+                                        border: '1px solid rgba(255,255,255,0.06)',
+                                        borderRadius: 10,
+                                        color: 'var(--text-primary)',
+                                        outline: 'none',
+                                        fontFamily: "'Geist Mono', 'JetBrains Mono', monospace",
+                                        transition: 'border-color var(--transition-fast)',
+                                    }}
+                                    onFocus={(e) => e.target.style.borderColor = 'var(--color-accent-gold)'}
+                                    onBlur={(e) => e.target.style.borderColor = 'rgba(255,255,255,0.06)'}
+                                />
+                            </div>
+                        </>
+                    ) : (
+                        <>
+                            <label style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 10, display: 'block', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                                Target Repository
+                            </label>
+                            {!githubAccessToken ? (
+                                <div style={{
+                                    padding: '20px',
+                                    background: 'rgba(255, 255, 255, 0.02)',
+                                    border: '1px solid var(--border-subtle)',
+                                    borderRadius: 12,
+                                    textAlign: 'center',
+                                }}>
+                                    <Github size={28} style={{ color: 'var(--text-tertiary)', marginBottom: 12 }} />
+                                    <p style={{ color: 'var(--text-secondary)', fontSize: 14, marginBottom: 16 }}>
+                                        Connect your GitHub account to test repositories
+                                    </p>
+                                    <button
+                                        onClick={async () => {
+                                            const { loginWithGithub } = useAuthStore.getState();
+                                            setError('');
+                                            const res = await loginWithGithub();
+                                            if (!res.success) {
+                                                const msg = res.error || 'Failed to connect GitHub';
+                                                setError(msg);
+                                                alert(`GitHub Login Failed: ${msg}\n\nDid you forget to add the GitHub Client ID and Secret to the Firebase Console? Go to Firebase Console -> Authentication -> Sign-in method -> GitHub to add them.`);
+                                            }
+                                        }}
+                                        style={{
+                                            padding: '10px 24px', fontSize: 13, fontWeight: 600,
+                                            background: 'rgba(255, 255, 255, 0.08)',
+                                            border: '1px solid rgba(255, 255, 255, 0.15)',
+                                            borderRadius: 8, color: 'var(--text-primary)',
+                                            cursor: 'pointer', display: 'inline-flex',
+                                            alignItems: 'center', gap: 8,
+                                            transition: 'all 0.15s',
+                                        }}
+                                        onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.12)'; }}
+                                        onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.08)'; }}
+                                    >
+                                        <Github size={15} /> Connect GitHub
+                                    </button>
+                                </div>
+                            ) : (
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                                    <div style={{
+                                        width: 42, height: 42, borderRadius: 10,
+                                        background: 'rgba(255, 255, 255, 0.05)',
+                                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                        flexShrink: 0,
+                                    }}>
+                                        <Github size={20} style={{ color: 'var(--text-primary)' }} />
+                                    </div>
+                                    <select
+                                        value={repoUrl}
+                                        onChange={(e) => { setRepoUrl(e.target.value); setError(''); }}
+                                        style={{
+                                            flex: 1, padding: '14px 18px', fontSize: 15,
+                                            background: 'var(--color-bg-elevated)',
+                                            border: '1px solid rgba(255,255,255,0.06)',
+                                            borderRadius: 10, color: 'var(--text-primary)',
+                                            outline: 'none', transition: 'border-color var(--transition-fast)',
+                                            appearance: 'none',
+                                        }}
+                                    >
+                                        <option value="" disabled>{loadingRepos ? 'Loading repositories...' : 'Select a repository...'}</option>
+                                        {repositories.map(repo => (
+                                            <option key={repo.id} value={repo.clone_url}>{repo.full_name}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                            )}
+                        </>
+                    )}
                 </motion.div>
             </form>
 
@@ -342,14 +489,14 @@ export default function NewTest() {
                 whileHover={{ scale: 1.02, boxShadow: '0 0 40px rgba(212,168,83,0.25)' }}
                 whileTap={{ scale: 0.98 }}
                 onClick={handleLaunch}
-                disabled={!url || launching}
+                disabled={(testMode === 'url' ? !url : !repoUrl) || launching}
                 style={{
                     width: '100%', padding: '16px', fontSize: 16, fontWeight: 700,
-                    background: !url ? 'rgba(212,168,83,0.3)' : 'var(--color-accent-gold)', color: 'var(--on-accent)',
+                    background: (testMode === 'url' ? !url : !repoUrl) ? 'rgba(212,168,83,0.3)' : 'var(--color-accent-gold)', color: 'var(--on-accent)',
                     border: 'none', borderRadius: 12,
-                    cursor: !url || launching ? 'not-allowed' : 'pointer',
+                    cursor: (testMode === 'url' ? !url : !repoUrl) || launching ? 'not-allowed' : 'pointer',
                     display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
-                    boxShadow: url ? '0 0 24px rgba(212,168,83,0.2)' : 'none',
+                    boxShadow: (testMode === 'url' ? url : repoUrl) ? '0 0 24px rgba(212,168,83,0.2)' : 'none',
                     opacity: launching ? 0.7 : 1,
                 }}
             >

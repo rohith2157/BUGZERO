@@ -30,6 +30,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "d3-array": "^3.2.4",
+    "firebase": "^12.14.0",
     "framer-motion": "^12.38.0",
     "gradflow": "^0.1.0",
     "gsap": "^3.14.2",

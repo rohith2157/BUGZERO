@@ -153,6 +153,10 @@ const STYLES = `
   -webkit-text-fill-color: transparent;
   background-clip: text;
   filter: drop-shadow(0px 0px 20px rgba(212, 168, 83, 0.15));
+  /* Allow glyph descenders and glows to render without being clipped */
+  display: inline-block;
+  position: relative;
+  overflow: visible;
 }
 
 [data-theme="light"] .footer-text-glow {
@@ -431,7 +435,7 @@ export function CinematicFooter({ onNavigate }: CinematicFooterProps) {
                 letterSpacing: '-0.05em',
                 marginBottom: 48,
                 textAlign: 'center',
-                lineHeight: 1,
+                lineHeight: 1.05,
               }}
             >
               Ship fearlessly.

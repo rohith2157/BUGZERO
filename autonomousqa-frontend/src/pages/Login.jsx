@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { Mail, Lock, User, Building2, ArrowRight, FlaskConical, Eye, EyeOff } from 'lucide-react';
+import { Mail, Lock, User, Building2, ArrowRight, FlaskConical, Eye, EyeOff, Github } from 'lucide-react';
 import { auth as authApi } from '../lib/api';
 import { useAuthStore } from '../store/authStore';
 import TextBlockAnimation from '../components/ui/text-block-animation';
@@ -9,6 +9,8 @@ import TextBlockAnimation from '../components/ui/text-block-animation';
 export default function Login() {
   const navigate = useNavigate();
   const setAuth = useAuthStore((s) => s.setAuth);
+  const loginWithGoogle = useAuthStore((s) => s.loginWithGoogle);
+  const loginWithGithub = useAuthStore((s) => s.loginWithGithub);
   const [mode, setMode] = useState('login'); // 'login' | 'register'
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -283,23 +285,80 @@ export default function Login() {
           <div style={{ flex: 1, height: 1, background: 'var(--border-subtle)' }} />
         </div>
 
-        {/* Demo login */}
+        {/* Demo login and OAuth */}
         <TextBlockAnimation animateOnScroll={false} delay={0.8} blockColor="var(--color-accent-purple)" duration={0.5}>
-          <motion.button
-            onClick={handleDemoLogin}
-            whileHover={{ scale: 1.02, y: -1 }}
-            whileTap={{ scale: 0.98 }}
-            style={{
-              width: '100%', padding: '12px 0', fontSize: 13, fontWeight: 600,
-              background: 'rgba(212, 168, 83, 0.06)',
-              border: '1px solid rgba(212, 168, 83, 0.15)',
-              borderRadius: 'var(--radius-md)',
-              color: 'var(--color-accent-gold)',
-              cursor: 'pointer',
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <motion.button
+              onClick={async () => {
+                setLoading(true);
+                setError('');
+                const res = await loginWithGoogle();
+                if (res.success) navigate('/dashboard');
+                else { 
+                  setError(res.error); 
+                  setLoading(false); 
+                  alert(`Google Login Failed: ${res.error}\n\nPlease ensure you have enabled the Google Sign-in method in your Firebase Console.`);
+                }
+              }}
+              disabled={loading}
+              whileHover={{ scale: 1.02, y: -1 }}
+              whileTap={{ scale: 0.98 }}
+              style={{
+                width: '100%', padding: '12px', fontSize: 13, fontWeight: 600,
+                background: 'var(--color-bg-elevated)', color: 'var(--text-primary)',
+                border: '1px solid rgba(255,255,255,0.06)', borderRadius: 'var(--radius-md)',
+                cursor: loading ? 'wait' : 'pointer',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
+                transition: 'background 0.2s', opacity: loading ? 0.6 : 1,
+              }}
+            >
+              <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google" width={18} height={18} />
+              Continue with Google
+            </motion.button>
+
+            <motion.button
+              onClick={async () => {
+                setLoading(true);
+                setError('');
+                const res = await loginWithGithub();
+                if (res.success) navigate('/dashboard');
+                else { setError(res.error); setLoading(false); }
+              }}
+              disabled={loading}
+              whileHover={{ scale: 1.02, y: -1 }}
+              whileTap={{ scale: 0.98 }}
+              style={{
+                width: '100%', padding: '12px 0', fontSize: 13, fontWeight: 600,
+                background: 'rgba(255, 255, 255, 0.05)',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+                borderRadius: 'var(--radius-md)',
+                color: 'var(--text-primary)',
+                cursor: loading ? 'wait' : 'pointer',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                opacity: loading ? 0.7 : 1,
+              }}
+            >
+              <Github size={16} /> Continue with GitHub
+            </motion.button>
+
+            <motion.button
+              onClick={handleDemoLogin}
+              disabled={loading}
+              whileHover={{ scale: 1.02, y: -1 }}
+              whileTap={{ scale: 0.98 }}
+              style={{
+                width: '100%', padding: '12px 0', fontSize: 13, fontWeight: 600,
+                background: 'rgba(212, 168, 83, 0.06)',
+                border: '1px solid rgba(212, 168, 83, 0.15)',
+                borderRadius: 'var(--radius-md)',
+                color: 'var(--color-accent-gold)',
+                cursor: loading ? 'wait' : 'pointer',
+                opacity: loading ? 0.7 : 1,
             }}
           >
             🚀 Quick Demo Login
           </motion.button>
+          </div>
         </TextBlockAnimation>
       </motion.div>
     </div>

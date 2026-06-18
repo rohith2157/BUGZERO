@@ -32,7 +32,7 @@ async function request(endpoint, options = {}) {
         throw new Error('Network error. Please check your connection and try again.');
     }
 
-    if (res.status === 401 && !endpoint.startsWith('/auth/login') && !endpoint.startsWith('/auth/register')) {
+    if (res.status === 401 && !endpoint.startsWith('/auth/login') && !endpoint.startsWith('/auth/register') && !endpoint.startsWith('/auth/firebase')) {
         try {
             localStorage.removeItem('aq_token');
             localStorage.removeItem('aq_user');
@@ -70,6 +70,7 @@ async function request(endpoint, options = {}) {
 export const auth = {
     register: (data) => request('/auth/register', { method: 'POST', body: JSON.stringify(data) }),
     login: (data) => request('/auth/login', { method: 'POST', body: JSON.stringify(data) }),
+    firebaseLogin: (data) => request('/auth/firebase', { method: 'POST', body: JSON.stringify(data) }),
     me: () => request('/auth/me'),
     refresh: () => request('/auth/refresh', { method: 'POST' }),
 };

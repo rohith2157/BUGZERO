@@ -53,27 +53,38 @@ export default function FlipTextReveal({
             className={cn("inline-flex flex-wrap cursor-pointer", className)}
             onClick={() => setKey((prev) => prev + 1)}
             title="Click to replay"
-            style={{ perspective: 800 }}
+            style={{ perspective: 800, gap: "0.25em" }}
         >
-            {word.split("").map((char, i) => (
-                <span
-                    key={`${key}-${i}`}
-                    style={{
-                        display: "inline-block",
-                        fontSize: fontSize || "inherit",
-                        fontWeight: "inherit",
-                        letterSpacing: "inherit",
-                        lineHeight: "inherit",
-                        color: color || "inherit",
-                        transformOrigin: "bottom center",
-                        opacity: 0,
-                        transform: "rotateX(-90deg) translateY(20px)",
-                        animation: `flip-up-${animId} 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards`,
-                        animationDelay: `${stagger * i}s`,
-                        willChange: "transform, opacity",
-                    }}
-                >
-                    {char === " " ? "\u00A0" : char}
+            {word.split(" ").map((w, wordIndex) => (
+                <span key={`${key}-word-${wordIndex}`} className="inline-flex whitespace-nowrap">
+                    {w.split("").map((char, charLocalIndex) => {
+                        // Compute global index for staggered animation delay
+                        const priorChars = word.split(" ").slice(0, wordIndex).join(" ").length;
+                        // add wordIndex to account for the spaces that were removed
+                        const i = priorChars + (wordIndex > 0 ? 1 : 0) + charLocalIndex;
+                        
+                        return (
+                            <span
+                                key={`${key}-char-${i}`}
+                                style={{
+                                    display: "inline-block",
+                                    fontSize: fontSize || "inherit",
+                                    fontWeight: "inherit",
+                                    letterSpacing: "inherit",
+                                    lineHeight: "inherit",
+                                    color: color || "inherit",
+                                    transformOrigin: "bottom center",
+                                    opacity: 0,
+                                    transform: "rotateX(-90deg) translateY(20px)",
+                                    animation: `flip-up-${animId} 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards`,
+                                    animationDelay: `${stagger * i}s`,
+                                    willChange: "transform, opacity",
+                                }}
+                            >
+                                {char}
+                            </span>
+                        );
+                    })}
                 </span>
             ))}
         </span>

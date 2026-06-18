@@ -30,6 +30,7 @@ from agents.chaos_agent import ChaosAgent
 from agents.self_healing_agent import SelfHealingAgent
 from tools.playwright_tool import PlaywrightTool
 from tools.axe_tool import run_axe_sync
+from utils.repo_server import RepoManager
 from config import settings
 
 logger = logging.getLogger(__name__)
@@ -132,7 +133,31 @@ class Orchestrator:
             api_key=settings.gemini_api_key,
         )
 
+        repo_manager = None
+        target_url = request.url
+
         try:
+            # ────────────────────────────────────────────────
+            #  PRE-STAGE: REPO CLONING & SERVING
+            # ────────────────────────────────────────────────
+            req_type = getattr(config, "type", "url")
+            github_token = getattr(config, "github_token", None)
+            
+            if req_type == "repo":
+                logger.info(f"[{run_id}] Stage 0: Repository mode detected. Cloning and booting server...")
+                repo_manager = RepoManager(request.url, github_token)
+                if repo_manager.clone():
+                    local_url = await repo_manager.start_server()
+                    if local_url:
+                        logger.info(f"[{run_id}] Repository server running at {local_url}")
+                        target_url = local_url
+                        # Add a small delay to ensure server is fully ready
+                        await asyncio.sleep(3)
+                    else:
+                        logger.error(f"[{run_id}] Failed to start local server for repo.")
+                else:
+                    logger.error(f"[{run_id}] Failed to clone repository.")
+                    
             await playwright.start()
 
             
@@ -145,15 +170,15 @@ class Orchestrator:
                 await chaos_agent.inject_cpu_throttling(4)
 
             if getattr(config, "auth_enabled", False) and getattr(config, "auth_username", None) and getattr(config, "auth_password", None):
-                logger.info(f"[{run_id}] Stage 0: Autonomous Authentication on {request.url}")
-                success = await auth_agent.authenticate(request.url, config.auth_username, config.auth_password)
+                logger.info(f"[{run_id}] Stage 0: Autonomous Authentication on {target_url}")
+                success = await auth_agent.authenticate(target_url, config.auth_username, config.auth_password)
                 if not success:
                     logger.warning(f"[{run_id}] Auth failed, but continuing crawl.")
 
 # ────────────────────────────────────────────────
             #  STAGE 1: CRAWL — Discover all pages via BFS
             # ────────────────────────────────────────────────
-            logger.info(f"[{run_id}] Stage 1: BFS Crawl starting on {request.url}")
+            logger.info(f"[{run_id}] Stage 1: BFS Crawl starting on {target_url}")
 
             loop = asyncio.get_running_loop()
 
@@ -171,7 +196,7 @@ class Orchestrator:
                 max_pages = 5 if config.crawl_depth == "shallow" else (100 if config.crawl_depth == "deep" else 20)
 
             discovered = await crawler.crawl(
-                request.url,
+                target_url,
                 depth=config.crawl_depth,
                 max_pages=max_pages,
                 on_page=on_page_discovered
@@ -425,3 +450,6 @@ class Orchestrator:
         finally:
             self.active_runs.discard(run_id)
             await playwright.stop()
+            if repo_manager:
+                logger.info(f"[{run_id}] Cleaning up repository local server.")
+                repo_manager.cleanup()

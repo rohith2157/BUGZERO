@@ -10,13 +10,16 @@ datasource db {
 }
 
 model User {
-  id            String         @id @default(uuid())
-  email         String         @unique
-  password      String
-  name          String
-  avatar        String?
-  role          String         @default("developer")
-  orgId         String?
+  id                String         @id @default(uuid())
+  email             String         @unique
+  password          String?
+  name              String
+  avatar            String?
+  role              String         @default("developer")
+  provider          String         @default("email")
+  githubAccessToken String?
+  firebaseUid       String?        @unique
+  orgId             String?
   org           Organization?  @relation(fields: [orgId], references: [id])
   testRuns      TestRun[]
   apiKeys       ApiKey[]
