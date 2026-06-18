@@ -436,9 +436,12 @@ export function CinematicFooter({ onNavigate }: CinematicFooterProps) {
                 marginBottom: 48,
                 textAlign: 'center',
                 lineHeight: 1.05,
+                wordBreak: 'keep-all', // Prevents arbitrary mid-word wrapping
+                overflowWrap: 'normal',
+                hyphens: 'none',
               }}
             >
-              Ship fearlessly.
+              Ship <span style={{ whiteSpace: "nowrap" }}>fearlessly.</span>
             </h2>
 
             {/* Interactive Magnetic Pills Layout */}

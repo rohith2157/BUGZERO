@@ -62,7 +62,7 @@ export default function FlipTextReveal({
                         const priorChars = word.split(" ").slice(0, wordIndex).join(" ").length;
                         // add wordIndex to account for the spaces that were removed
                         const i = priorChars + (wordIndex > 0 ? 1 : 0) + charLocalIndex;
-                        
+
                         return (
                             <span
                                 key={`${key}-char-${i}`}
