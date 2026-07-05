@@ -22,11 +22,26 @@ export default function Login() {
     // Check if we came back from GitHub OAuth
     const params = new URLSearchParams(window.location.search);
     const token = params.get('token');
+    const urlError = params.get('error');
+    
+    if (urlError) {
+      setError(`GitHub Login Error: ${urlError.replace(/_/g, ' ')}`);
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+
     if (token) {
-      // Decode enough to fake a user object for the store, or rely on a generic user payload
-      // In a real app we'd fetch /api/auth/me, but for now we just set the token
-      setAuth({ id: 'github-user', name: 'GitHub User' }, token);
-      navigate('/dashboard');
+      // Set the token immediately so API calls work
+      localStorage.setItem('aq_token', token);
+      
+      // Fetch the real user data
+      authApi.me().then(data => {
+        setAuth(data.user, token);
+        window.history.replaceState({}, document.title, window.location.pathname);
+        navigate('/dashboard');
+      }).catch(err => {
+        console.error('Failed to fetch user after OAuth', err);
+        setError('Failed to load user profile. Please try logging in again.');
+      });
     }
   }, [navigate, setAuth]);
 
@@ -329,7 +344,9 @@ export default function Login() {
             </motion.button>
 
             <motion.button
-              onClick={() => {
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
                 window.location.href = 'http://localhost:3000/api/auth/github';
               }}
               whileHover={{ scale: 1.02, y: -1 }}
