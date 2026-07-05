@@ -73,6 +73,7 @@ export const auth = {
     firebaseLogin: (data) => request('/auth/firebase', { method: 'POST', body: JSON.stringify(data) }),
     me: () => request('/auth/me'),
     refresh: () => request('/auth/refresh', { method: 'POST' }),
+    disconnectGithub: () => request('/auth/github', { method: 'DELETE' }),
 };
 
 // Tests

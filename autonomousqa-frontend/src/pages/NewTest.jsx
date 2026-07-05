@@ -285,7 +285,7 @@ export default function NewTest() {
                                     >
                                         <option value="" disabled>{loadingRepos ? 'Loading repositories...' : 'Select a repository...'}</option>
                                         {repositories.map(repo => (
-                                            <option key={repo.id} value={repo.clone_url}>{repo.full_name}</option>
+                                            <option key={repo.id} value={repo.url}>{repo.name}</option>
                                         ))}
                                     </select>
                                 </div>

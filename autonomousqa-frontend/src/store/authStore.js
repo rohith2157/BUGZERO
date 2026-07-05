@@ -89,6 +89,13 @@ export const useAuthStore = create((set, get) => ({
         set({ user: null, token: null, githubAccessToken: null, isAuthenticated: false });
     },
 
+    disconnectGithub: () => {
+        try {
+            localStorage.removeItem('aq_github_token');
+        } catch {}
+        set({ githubAccessToken: null });
+    },
+
     updateUser: (updates) => {
         const user = { ...get().user, ...updates };
         try {

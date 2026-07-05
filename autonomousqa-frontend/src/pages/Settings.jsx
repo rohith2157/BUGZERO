@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { User, Users, Key, Bell, CreditCard, Pencil, Trash2, Plus, Copy, Eye, EyeOff, Loader2, Activity, Github, CheckCircle2 } from 'lucide-react';
 import StatusBadge from '../components/ui/StatusBadge';
 import { LoginActivity } from '../components/ui/login-activity';
-import { settings as settingsApi } from '../lib/api';
+import { settings as settingsApi, auth as authApi } from '../lib/api';
 import { useAuthStore } from '../store/authStore';
 
 const tabs = [
@@ -29,21 +29,36 @@ export default function Settings() {
     const [showKeyId, setShowKeyId] = useState(null);
     const [profileError, setProfileError] = useState('');
     const [githubProfile, setGithubProfile] = useState(null);
+    const [repositories, setRepositories] = useState([]);
+    const [loadingRepos, setLoadingRepos] = useState(false);
+    const [isDisconnecting, setIsDisconnecting] = useState(false);
 
     useEffect(() => { document.title = 'Settings — BugZero'; }, []);
 
     useEffect(() => {
-        if (githubAccessToken) {
-            const token = localStorage.getItem('aq_token');
-            fetch('http://localhost:3000/api/auth/github/profile', {
-                headers: { Authorization: `Bearer ${token}` }
-            })
+        // Sync user state to ensure we have latest githubAccessToken
+        authApi.me().then(res => {
+            if (res.user?.githubAccessToken && !githubAccessToken) {
+                localStorage.setItem('aq_github_token', res.user.githubAccessToken);
+                useAuthStore.setState({ githubAccessToken: res.user.githubAccessToken });
+            }
+        }).catch(() => {});
+        
+        if (!githubAccessToken) return;
+        const token = localStorage.getItem('aq_token');
+        const headers = { Authorization: `Bearer ${token}` };
+
+        fetch('http://localhost:3000/api/auth/github/profile', { headers })
             .then(res => res.json())
-            .then(data => {
-                if (data.connected && data.username) setGithubProfile(data);
-            })
+            .then(data => { if (data.connected && data.username) setGithubProfile(data); })
             .catch(() => {});
-        }
+
+        setLoadingRepos(true);
+        fetch('http://localhost:3000/api/auth/github/repos', { headers })
+            .then(res => res.json())
+            .then(data => { if (data.repositories) setRepositories(data.repositories); })
+            .catch(() => {})
+            .finally(() => setLoadingRepos(false));
     }, [githubAccessToken]);
     const [notifications, setNotifications] = useState({
         'Test Completed': true,
@@ -223,14 +238,42 @@ export default function Settings() {
                             </div>
                         </div>
                         {githubAccessToken ? (
-                            <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--color-success)', display: 'flex', alignItems: 'center', gap: 6 }}>
-                                <CheckCircle2 size={16} /> Connected
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                                <div style={{ fontSize: 14, fontWeight: 500, color: isDisconnecting ? 'var(--text-secondary)' : '#10B981', display: 'flex', alignItems: 'center', gap: 6 }}>
+                                    {isDisconnecting ? <Loader2 size={18} style={{ animation: 'spin-slow 1s linear infinite' }} /> : <CheckCircle2 size={18} />} 
+                                    {isDisconnecting ? 'Disconnecting...' : 'Connected'}
+                                </div>
+                                <button
+                                    disabled={isDisconnecting}
+                                    onClick={async () => {
+                                        if (isDisconnecting) return;
+                                        setIsDisconnecting(true);
+                                        try {
+                                            await Promise.all([
+                                                new Promise(r => setTimeout(r, 1500)),
+                                                authApi.disconnectGithub().catch(console.error)
+                                            ]);
+                                            useAuthStore.getState().disconnectGithub();
+                                        } finally {
+                                            setIsDisconnecting(false);
+                                        }
+                                    }}
+                                    style={{
+                                        padding: '8px 16px', fontSize: 14, fontWeight: 500,
+                                        background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.2)',
+                                        borderRadius: 6, color: '#EF4444', cursor: isDisconnecting ? 'wait' : 'pointer',
+                                        opacity: isDisconnecting ? 0.5 : 1,
+                                        transition: 'all 0.2s'
+                                    }}
+                                >
+                                    Disconnect
+                                </button>
                             </div>
                         ) : (
                             <button
                                 onClick={() => {
                                     const token = localStorage.getItem('aq_token');
-                                    window.location.href = `http://localhost:3000/api/auth/github?token=${token}`;
+                                    window.location.href = `http://localhost:3000/api/auth/github?token=${token}&redirect=/settings`;
                                 }}
                                 style={{
                                     padding: '8px 16px', fontSize: 13, fontWeight: 600,
@@ -242,6 +285,56 @@ export default function Settings() {
                             </button>
                         )}
                     </div>
+
+                    {/* Repository List */}
+                    {githubAccessToken && (
+                        <div style={{ marginTop: 24 }}>
+                            <h3 style={{ fontSize: 17, fontWeight: 700, marginBottom: 16 }}>Your Repositories</h3>
+                            {loadingRepos ? (
+                                <div style={{ padding: 20, textAlign: 'center', color: 'var(--text-secondary)', fontSize: 14 }}>
+                                    <Loader2 size={18} style={{ animation: 'spin 1s linear infinite', marginRight: 8, verticalAlign: 'middle' }} />
+                                    Loading repositories...
+                                </div>
+                            ) : repositories.length === 0 ? (
+                                <div style={{ padding: 20, textAlign: 'center', color: 'var(--text-secondary)', fontSize: 14 }}>
+                                    No repositories found.
+                                </div>
+                            ) : (
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                                    {repositories.map(repo => (
+                                        <a
+                                            key={repo.id}
+                                            href={repo.url}
+                                            target="_blank"
+                                            rel="noreferrer"
+                                            style={{
+                                                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                                                padding: '12px 16px',
+                                                background: 'rgba(255,255,255,0.02)',
+                                                border: '1px solid var(--border-subtle)',
+                                                borderRadius: 10,
+                                                textDecoration: 'none',
+                                                transition: 'background 0.15s',
+                                            }}
+                                            onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
+                                            onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.02)'}
+                                        >
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                                                <Github size={15} style={{ color: 'var(--text-secondary)', flexShrink: 0 }} />
+                                                <span style={{ fontSize: 14, fontWeight: 500, color: 'var(--text-primary)' }}>{repo.name}</span>
+                                                {repo.private && (
+                                                    <span style={{ fontSize: 11, padding: '2px 7px', borderRadius: 4, background: 'rgba(255,255,255,0.06)', color: 'var(--text-tertiary)' }}>Private</span>
+                                                )}
+                                            </div>
+                                            <span style={{ fontSize: 12, color: 'var(--text-tertiary)' }}>
+                                                {new Date(repo.updatedAt).toLocaleDateString()}
+                                            </span>
+                                        </a>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    )}
                 </motion.div>
             )}
 

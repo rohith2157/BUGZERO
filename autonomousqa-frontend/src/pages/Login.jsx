@@ -19,15 +19,24 @@ export default function Login() {
   useEffect(() => { document.title = mode === 'login' ? 'Sign In — BugZero' : 'Create Account — BugZero'; }, [mode]);
 
   useEffect(() => {
-    // Check if we came back from GitHub OAuth
     const params = new URLSearchParams(window.location.search);
     const token = params.get('token');
-    if (token) {
-      // Decode enough to fake a user object for the store, or rely on a generic user payload
-      // In a real app we'd fetch /api/auth/me, but for now we just set the token
-      setAuth({ id: 'github-user', name: 'GitHub User' }, token);
-      navigate('/dashboard');
-    }
+    if (!token) return;
+    // Fetch real user data so githubAccessToken is properly populated
+    fetch('http://localhost:3000/api/auth/me', {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.user) {
+          setAuth(data.user, token, data.user.githubAccessToken);
+          navigate('/dashboard');
+        }
+      })
+      .catch(() => {
+        setAuth({ id: 'github-user', name: 'GitHub User' }, token);
+        navigate('/dashboard');
+      });
   }, [navigate, setAuth]);
 
   const [form, setForm] = useState({

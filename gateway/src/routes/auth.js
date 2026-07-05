@@ -113,7 +113,7 @@ router.get('/me', authenticate, async (req, res) => {
   try {
     const user = await prisma.user.findUnique({
       where: { id: req.user.id },
-      select: { id: true, email: true, name: true, avatar: true, role: true, orgId: true, createdAt: true },
+      select: { id: true, email: true, name: true, avatar: true, role: true, orgId: true, createdAt: true, githubAccessToken: true },
     });
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
@@ -225,12 +225,13 @@ router.post('/firebase', async (req, res) => {
 router.get('/github', async (req, res) => {
   try {
     const token = req.query.token;
+    const redirect = req.query.redirect;
     let statePayload = { action: 'login' };
     
     if (token && token !== 'null' && token !== 'undefined') {
       try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        statePayload = { action: 'link', userId: decoded.id };
+        statePayload = { action: 'link', userId: decoded.id, redirect };
       } catch (err) {}
     }
     
@@ -274,7 +275,8 @@ router.get('/github/callback', async (req, res) => {
         where: { id: statePayload.userId },
         data: { githubAccessToken: accessToken }
       });
-      return res.redirect('http://localhost:5173/tests/new?github=linked');
+      const redirectUrl = statePayload.redirect ? `http://localhost:5173${statePayload.redirect}` : 'http://localhost:5173/tests/new?github=linked';
+      return res.redirect(redirectUrl);
     } else {
       const userResponse = await fetch('https://api.github.com/user', {
         headers: { Authorization: `token ${accessToken}` }
@@ -318,6 +320,20 @@ router.get('/github/callback', async (req, res) => {
   } catch (err) {
     console.error('GitHub Callback Error:', err);
     res.redirect('http://localhost:5173/login?error=github_callback_error');
+  }
+});
+
+// DELETE /api/auth/github
+router.delete('/github', authenticate, async (req, res) => {
+  try {
+    await prisma.user.update({
+      where: { id: req.user.id },
+      data: { githubAccessToken: null }
+    });
+    res.json({ success: true, message: 'GitHub disconnected successfully' });
+  } catch (err) {
+    console.error('GitHub Disconnect Error:', err);
+    res.status(500).json({ error: 'Failed to disconnect GitHub' });
   }
 });
 
