@@ -1,280 +1,133 @@
-"""Vision Agent — AI-powered visual bug detection using Google Gemini.
+"""Vision Agent — Pure Algorithmic Visual Regression.
 
 Stage 4 of AutonomousQA pipeline:
   - Takes screenshots of each page (from Playwright)
-  - Sends them to Gemini Vision for analysis
-  - Returns structured defect reports (visual bugs, UX issues)
-
-OPTIONAL: If GEMINI_API_KEY is not set, this stage is skipped entirely.
+  - Performs pure mathematical visual regression (SSIM/MSE style) against a baseline
+  - No LLMs used. 100% deterministic and offline.
 """
 
-import json
 import logging
+import io
+import math
 from typing import Optional
 
 logger = logging.getLogger(__name__)
 
 try:
-    import google.generativeai as genai
-    from PIL import Image
-    import io
-    HAS_GEMINI = True
+    from PIL import Image, ImageChops, ImageStat, ImageFilter
+    HAS_PIL = True
 except ImportError:
-    HAS_GEMINI = False
-    logger.info("google-generativeai or Pillow not installed — Vision analysis disabled")
-
-
-# The prompt sent to Gemini along with each screenshot
-VISION_PROMPT = """You are an expert QA engineer performing visual inspection on a web page screenshot.
-
-Analyze this screenshot carefully and identify:
-
-1. **Visual Bugs**: overlapping elements, cut-off text, broken layouts, misaligned items,
-   images not loading, text overflowing containers, elements outside viewport
-2. **UX Issues**: poor color contrast, unreadable text, inconsistent spacing, cluttered UI,
-   buttons too small to click, confusing navigation, missing visual hierarchy
-3. **Responsive Issues**: elements that appear broken at this viewport size
-
-Return your findings as a JSON object with this exact structure:
-{
-  "defects": [
-    {
-      "type": "Visual" | "UX" | "Responsive",
-      "severity": "critical" | "major" | "minor" | "warning",
-      "message": "Clear description of the issue",
-      "location": "Where on the page (e.g., 'top navigation', 'footer', 'main content area')",
-      "fix": "Suggested fix"
-    }
-  ],
-  "page_quality_score": 0-100,
-  "summary": "One-line summary of visual quality"
-}
-
-If no issues are found, return: {"defects": [], "page_quality_score": 100, "summary": "No visual issues detected"}
-
-IMPORTANT: Return ONLY valid JSON, no markdown, no extra text."""
+    HAS_PIL = False
+    logger.info("Pillow not installed — Vision analysis disabled")
 
 
 class VisionAgent:
-    """Analyzes page screenshots using Google Gemini Vision API."""
+    """Analyzes page screenshots mathematically."""
 
     def __init__(self, api_key: str = ""):
-        self._api_key = api_key
-        self._model = None
-        self._available = True  # Always True to allow simulated fallback
-
-        if not api_key:
-            logger.info("VisionAgent: No GEMINI_API_KEY configured — using high-fidelity QA simulation")
-            return
-
-        if not HAS_GEMINI:
-            logger.warning("VisionAgent: google-generativeai package not installed — falling back to simulation")
-            return
-
-        try:
-            genai.configure(api_key=api_key)
-            self._model = genai.GenerativeModel("gemini-2.0-flash")
-            logger.info("VisionAgent: Gemini Vision initialized successfully")
-        except Exception as e:
-            logger.error(f"VisionAgent: Failed to initialize Gemini — {e}. Falling back to simulation")
+        # We ignore api_key now, pure algorithm!
+        self._available = HAS_PIL
+        if self._available:
+            logger.info("VisionAgent: Initialized in Pure Algorithmic Mode (No LLM).")
+        else:
+            logger.warning("VisionAgent: Pillow is required for algorithmic visual regression.")
 
     def is_available(self) -> bool:
-        """Check if Gemini Vision is configured and ready."""
         return self._available
 
     async def analyze_screenshot(self, screenshot_bytes: bytes, url: str) -> dict:
-        """Send a screenshot to Gemini Vision and return structured defect report.
-
-        Args:
-            screenshot_bytes: PNG screenshot bytes from Playwright
-            url: The URL of the page (for context)
-
-        Returns:
-            Dict with 'defects' list, 'page_quality_score', and 'summary'
-        """
-        if not self._api_key or self._model is None:
-            # Simulated visual analysis
-            defects = []
-            if "login" in url.lower():
-                defects.append({
-                    "type": "Visual",
-                    "severity": "minor",
-                    "message": "Input fields lack shadow styling in login box container",
-                    "location": "login container",
-                    "fix": "Add subtle box-shadow styling to input elements for visual depth",
-                })
-            elif "dashboard" in url.lower() or url.endswith("/") or "index" in url.lower() or "tests" in url.lower():
-                defects.append({
-                    "type": "UX",
-                    "severity": "warning",
-                    "message": "KPI dashboard numbers overlap on low-resolution displays",
-                    "location": "metric summary cards",
-                    "fix": "Reduce font-size of numbers or apply flex-wrap layout",
-                })
-            else:
-                defects.append({
-                    "type": "Visual",
-                    "severity": "warning",
-                    "message": "Navigation menu has inconsistent spacing on smaller viewports",
-                    "location": "header navbar",
-                    "fix": "Adjust gap size or padding in stylesheet for header nav items",
-                })
-            
-            for defect in defects:
-                defect["source"] = "gemini_vision"
-                defect["confidence"] = 0.90
-
-            return {
-                "defects": defects,
-                "page_quality_score": 85.0,
-                "summary": "Simulated Vision QA: Spacing or alignment issues identified",
-            }
+        """Single-shot analysis. Since we don't have an LLM to judge 'ugly UX', 
+        we perform basic sanity checks (e.g., is the page blank?)."""
+        
+        if not self._available:
+            return {"defects": [], "page_quality_score": None, "summary": "Pillow not installed"}
 
         try:
-            # Convert bytes to PIL Image
-            image = Image.open(io.BytesIO(screenshot_bytes))
-
-            # Send to Gemini
-            prompt = f"URL being tested: {url}\n\n{VISION_PROMPT}"
-            response = self._model.generate_content([prompt, image])
-
-            # Parse JSON response
-            text = response.text.strip()
-            # Handle markdown-wrapped JSON (```json ... ```)
-            if text.startswith("```"):
-                text = text.split("```")[1]
-                if text.startswith("json"):
-                    text = text[4:]
-                text = text.strip()
-
-            result = json.loads(text)
-
-            # Validate structure
-            defects = result.get("defects", [])
-            for defect in defects:
-                defect.setdefault("type", "Visual")
-                defect.setdefault("severity", "minor")
-                defect.setdefault("message", "Unknown visual issue")
-                defect.setdefault("fix", None)
-                # Mark as AI-detected
-                defect["source"] = "gemini_vision"
-                defect["confidence"] = 0.85
-
-            logger.info(f"VisionAgent: Found {len(defects)} issue(s) on {url}")
-
+            image = Image.open(io.BytesIO(screenshot_bytes)).convert('RGB')
+            stat = ImageStat.Stat(image)
+            
+            # Basic sanity check: Is the page almost entirely one color?
+            # Standard deviation of colors near 0 means it's a solid block.
+            std_dev = sum(stat.stddev) / len(stat.stddev)
+            
+            defects = []
+            score = 100.0
+            
+            if std_dev < 5.0:
+                score = 0.0
+                defects.append({
+                    "type": "Visual",
+                    "severity": "critical",
+                    "message": "Page appears to be completely blank or solid color. Potential fatal render error.",
+                    "location": "Global",
+                    "fix": "Check for unhandled exceptions or blank white screens of death.",
+                    "source": "algorithmic_vision",
+                    "confidence": 1.0
+                })
+                
             return {
                 "defects": defects,
-                "page_quality_score": result.get("page_quality_score"),
-                "summary": result.get("summary", ""),
+                "page_quality_score": score,
+                "summary": "Algorithmic sanity check passed." if score == 100.0 else "Blank page detected!"
             }
-
-        except json.JSONDecodeError as e:
-            logger.error(f"VisionAgent: Failed to parse Gemini response for {url}: {e}")
-            return {"defects": [], "page_quality_score": None, "summary": f"Parse error: {e}"}
+            
         except Exception as e:
-            logger.error(f"VisionAgent: Analysis failed for {url}: {e}")
+            logger.error(f"VisionAgent: Algorithmic analysis failed for {url}: {e}")
             return {"defects": [], "page_quality_score": None, "summary": f"Error: {e}"}
 
     async def compare_screenshots(self, baseline_bytes: bytes, current_bytes: bytes, url: str) -> dict:
-        """Compare a baseline screenshot against a current screenshot for visual regression.
-
-        Sends both images to Gemini Vision to identify and classify visual changes.
-
-        Args:
-            baseline_bytes: PNG bytes of the baseline (previous run)
-            current_bytes: PNG bytes of the current run
-            url: The URL for context
-
-        Returns:
-            Dict with 'changes' list and 'regression_score'
-        """
-        if not self._api_key or self._model is None:
-            if baseline_bytes == current_bytes:
-                return {
-                    "changes": [],
-                    "regression_score": 100.0,
-                    "summary": "No visual changes detected - page matches baseline",
-                }
-            else:
-                changes = [
-                    {
-                        "change_type": "cosmetic",
-                        "severity": "minor",
-                        "description": "Visual layout difference detected: Layout shift or spacing changes in main container elements.",
-                        "location": "main body",
-                        "confidence": 0.85,
-                    }
-                ]
-                return {
-                    "changes": changes,
-                    "regression_score": 92.0,
-                    "summary": "Simulated Regression: Minor visual elements shifted vs baseline",
-                }
-
-        try:
-            baseline_img = Image.open(io.BytesIO(baseline_bytes))
-            current_img = Image.open(io.BytesIO(current_bytes))
-
-            prompt = f"""You are a Visual Regression Testing AI comparing two screenshots of the same web page.
-URL: {url}
-
-Image 1 = BASELINE (previous known-good state)
-Image 2 = CURRENT (latest version to test)
-
-Compare these two screenshots carefully and identify ALL visual changes:
-
-1. **Cosmetic Changes**: font, color, spacing, border, shadow, gradient differences
-2. **Functional Changes**: layout broken, element missing, text changed, new elements appeared, element repositioned significantly
-3. **Regression Bugs**: elements that appear broken only in the CURRENT version
-
-Return your findings as JSON:
-{{
-  "changes": [
-    {{
-      "change_type": "cosmetic" | "functional",
-      "severity": "critical" | "major" | "minor" | "info",
-      "description": "Clear description of the change",
-      "location": "Where on the page",
-      "confidence": 0.0-1.0
-    }}
-  ],
-  "regression_score": 0-100,
-  "summary": "One-line summary"
-}}
-
-If pages are identical: {{"changes": [], "regression_score": 100, "summary": "No visual changes detected"}}
-
-IMPORTANT: Return ONLY valid JSON, no markdown."""
-
-            response = self._model.generate_content([prompt, baseline_img, current_img])
-
-            text = response.text.strip()
-            if text.startswith("```"):
-                text = text.split("```")[1]
-                if text.startswith("json"):
-                    text = text[4:]
-                text = text.strip()
-
-            result = json.loads(text)
-
-            changes = result.get("changes", [])
-            for change in changes:
-                change.setdefault("change_type", "cosmetic")
-                change.setdefault("severity", "minor")
-                change.setdefault("description", "Unknown change")
-                change.setdefault("confidence", 0.8)
-
-            logger.info(f"VisionAgent: Regression found {len(changes)} change(s) on {url}")
-
+        """Pure mathematical visual regression comparing two images."""
+        if not self._available:
+            return {"changes": [], "regression_score": 100.0, "summary": "Pillow not installed"}
+            
+        if baseline_bytes == current_bytes:
             return {
-                "changes": changes,
-                "regression_score": result.get("regression_score", 100),
-                "summary": result.get("summary", ""),
+                "changes": [],
+                "regression_score": 100.0,
+                "summary": "100% Exact Byte Match"
             }
 
-        except json.JSONDecodeError as e:
-            logger.error(f"VisionAgent: Failed to parse regression response for {url}: {e}")
-            return {"changes": [], "regression_score": None, "summary": f"Parse error: {e}"}
+        try:
+            img1 = Image.open(io.BytesIO(baseline_bytes)).convert('RGB')
+            img2 = Image.open(io.BytesIO(current_bytes)).convert('RGB')
+            
+            # Ensure same size for diffing
+            if img1.size != img2.size:
+                # Resize img2 to match img1 for a best-effort diff
+                img2 = img2.resize(img1.size)
+
+            # Apply slight blur to ignore minor anti-aliasing text shifts
+            blur_radius = 1
+            img1_blurred = img1.filter(ImageFilter.GaussianBlur(blur_radius))
+            img2_blurred = img2.filter(ImageFilter.GaussianBlur(blur_radius))
+            
+            # Calculate absolute difference
+            diff = ImageChops.difference(img1_blurred, img2_blurred)
+            stat = ImageStat.Stat(diff)
+            
+            # Sum of absolute pixel differences across RGB divided by total possible difference
+            total_diff = sum(stat.sum)
+            max_diff = img1.size[0] * img1.size[1] * 255 * 3
+            
+            difference_percentage = (total_diff / max_diff) * 100.0
+            regression_score = max(0.0, 100.0 - (difference_percentage * 5)) # Multiply penalty by 5 for sensitivity
+            
+            changes = []
+            if difference_percentage > 0.5: # 0.5% threshold for noise
+                changes.append({
+                    "change_type": "functional",
+                    "severity": "major" if difference_percentage > 5.0 else "minor",
+                    "description": f"Algorithmic Visual Regression: {difference_percentage:.2f}% pixel variance detected.",
+                    "location": "Global",
+                    "confidence": 1.0
+                })
+                
+            return {
+                "changes": changes,
+                "regression_score": round(regression_score, 2),
+                "summary": f"Algorithmic Diff: {difference_percentage:.2f}% difference"
+            }
+
         except Exception as e:
-            logger.error(f"VisionAgent: Regression analysis failed for {url}: {e}")
+            logger.error(f"VisionAgent: Regression diff failed for {url}: {e}")
             return {"changes": [], "regression_score": None, "summary": f"Error: {e}"}

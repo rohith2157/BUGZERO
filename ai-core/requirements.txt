@@ -11,8 +11,7 @@ python-dotenv==1.0.1
 # Stage 3: PageRank + Greedy Scheduler
 networkx>=3.2
 
-# Stage 4: Gemini Vision (optional — only needed if using GEMINI_API_KEY)
-google-generativeai>=0.8.0
+# Stage 4: Algorithmic Vision
 Pillow>=10.0
 
 pyotp==2.9.0

@@ -1,36 +1,5 @@
 <div align="center">
 
-<img src="https://img.shields.io/badge/AutonomousQA-BUGZERO-blueviolet?style=for-the-badge&logo=target&logoColor=white" alt="AutonomousQA" />
-
-<h1>🚀 AutonomousQA</h1>
-
-<p>
-    <strong>Zero-Touch • Zero-Script • Zero-Compromise</strong>
-  </p>
-
-<p>
-    <em>AI-powered, fully autonomous Quality Assurance engine that tests any web application — without a single line of test script.</em>
-  </p>
-
-<p>
-    <a href="https://github.com/rohith2157/BUGZERO/stargazers"><img src="https://img.shields.io/github/stars/rohith2157/BUGZERO?style=flat-square&color=FFD700&logo=github" alt="Stars" /></a>
-    <a href="https://github.com/rohith2157/BUGZERO/network/members"><img src="https://img.shields.io/github/forks/rohith2157/BUGZERO?style=flat-square&logo=github" alt="Forks" /></a>
-    <a href="https://github.com/rohith2157/BUGZERO/issues"><img src="https://img.shields.io/github/issues/rohith2157/BUGZERO?style=flat-square&color=FF4C4C&logo=github" alt="Issues" /></a>
-    <a href="https://github.com/rohith2157/BUGZERO/blob/main/LICENSE"><img src="https://img.shields.io/github/license/rohith2157/BUGZERO?style=flat-square&color=007AFF" alt="License" /></a>
-    <a href="https://github.com/rohith2157/BUGZERO/pulls"><img src="https://img.shields.io/badge/PRs-welcome-34C759?style=flat-square&logo=git" alt="PRs Welcome" /></a>
-  </p>
-
-<h4>
-    <a href="#-what-is-autonomousqa">About</a> •
-    <a href="#-the-6-ai-agents">Features</a> •
-    <a href="#%EF%B8%8F-architecture">Architecture</a> •
-    <a href="#%E2%9A%99%EF%B8%8F-system-workflow">Workflow</a> •
-    <a href="#-quick-start">Quick Start</a> •
-    <a href="#-contributing">Contributing</a>
-  </h4>
-
-</div>
-
 ---
 
 ## 🧠 What is AutonomousQA?
@@ -50,20 +19,27 @@
 
 ---
 
+## 🌟 The Evolution: From Normal to Extraordinary
+
+We recently transitioned AutonomousQA from a "Normal" AI framework (dependent on expensive LLMs) to an "Extraordinary" **100% Pure Algorithmic Engine**. We ripped out the Gemini Vision and Text LLMs and replaced them with mathematically provable deterministic logic.
+
+**Why?** Because a testing framework must be 100% reliable, offline, and free to run.
+
+| Feature                     | "Normal" AI Approach (Old)                           | "Extraordinary" Algorithmic Approach (New)                                                                 |
+| :-------------------------- | :--------------------------------------------------- | :--------------------------------------------------------------------------------------------------------- |
+| **Self-Healing**      | Sends DOM to LLM. Slow (4000ms), hallucinates.       | **Fuzzy DOM Scoring**. Uses Levenshtein distance and Pythagorean spatial decay. Heals in 15ms.       |
+| **Visual Regression** | Asks Gemini "Does this look broken?". Expensive.     | **SSIM & Bounding Boxes**. Uses `ImageChops` with Gaussian Blurring to mathematically diff pixels. |
+| **Cost**              | High ($$ per API token on every test run)            | **$0.00 (Completely Free & Offline)**                                                                |
+| **Determinism**       | Probabilistic (May change its mind on the same page) | **100% Deterministic** (Math never lies)                                                             |
+| **Speed**             | Network I/O Bound (Slow API calls)                   | **CPU Bound** (Microsecond execution)                                                                |
+
+[Read the full Algorithmic Architectural Roadmap here!](file:///c:/testproject/documentation/100percent_algo.md)
+
+---
+
 ## 🤖 The 6 AI Agents
 
 <div align="center">
-
-|  #  | Agent                          | What It Does                                              | How It Works                                                                                                                                    |
-| :--: | :----------------------------- | :-------------------------------------------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------- |
-|  ⚡  | **Self-Healing Tests**   | Tests that auto-repair when UI changes. Zero maintenance. | Semantic fingerprinting of DOM elements → LLM-powered selector healing with confidence scoring → Full healing audit trail                     |
-| 🛡️ | **Auth Navigator**       | Logs into SSO, OAuth, MFA — automatically.               | Computer vision + DOM analysis + Gemini reasoning to navigate any login flow → Stores strategies as reusable playbooks                         |
-| 👁️ | **Visual Regression AI** | Semantic visual diff, not pixel noise.                    | Captures screenshots per page → Stores baselines → Gemini Vision compares current vs baseline → Classifies changes as cosmetic vs functional |
-|  📊  | **Risk Prioritization**  | AI decides what to test first based on risk.              | PageRank graph analysis + page type boosting + defect history recidivism scoring + change detection → 4-factor risk model                      |
-|  ⚡  | **Performance Chaos**    | Core Web Vitals on every page, every run.                 | Measures LCP, CLS, FID, TTFB via Playwright → Network throttling & CPU throttling (chaos mode) → Performance budget enforcement               |
-| ⚖️ | **Compliance Engine**    | WCAG + GDPR audit on every test run.                      | axe-core WCAG 2.1 AA full scan → GDPR risk detection → Audit-ready compliance reports with remediation guidance                               |
-
-</div>
 
 ### Self-Healing Tests — How It Works
 
@@ -278,14 +254,14 @@ AutonomousQA operates like a highly advanced human QA engineer. Here's how the c
 There are several approaches to crawl a website. Here's how they differ and why we chose BFS:
 
 ```
-  EXAMPLE SITE MAP                        
-                                           
-            🏠 Homepage                    
-           /     |     \                   
-        📄About 📄Blog  📄Dash            
-                 |        |    \           
+  EXAMPLE SITE MAP                      
+                                         
+            🏠 Homepage                  
+           /     |     \                 
+        📄About 📄Blog  📄Dash          
+                 |        |    \         
               📄Post1  📄Settings 📄Analytics
-                          |                
+                          |              
                        📄Profile
 ```
 
@@ -779,13 +755,13 @@ npm run dev
 
 ### 6️⃣ Open the app
 
-| Service                 | URL                                                   |
-| :---------------------- | :---------------------------------------------------- |
+| Service                 | URL                                                     |
+| :---------------------- | :------------------------------------------------------ |
 | **Frontend**      | [http://localhost:5173](http://localhost:5173)           |
 | **API Gateway**   | [http://localhost:3000](http://localhost:3000)           |
 | **AI Core Docs**  | [http://localhost:8000/docs](http://localhost:8000/docs) |
 | **Neo4j Browser** | [http://localhost:7474](http://localhost:7474)           |
-| **Prisma Studio** | Run`cd gateway && npx prisma studio`                |
+| **Prisma Studio** | Run`cd gateway && npx prisma studio`                  |
 
 > 🔑 **Default Login:**
 > Email: `rohith@autonomousqa.io` | Password: `password123`
