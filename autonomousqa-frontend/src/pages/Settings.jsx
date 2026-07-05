@@ -31,6 +31,7 @@ export default function Settings() {
     const [profileError, setProfileError] = useState('');
     const [githubProfile, setGithubProfile] = useState(null);
     const [disconnecting, setDisconnecting] = useState(false);
+    const [isHoveringDisconnect, setIsHoveringDisconnect] = useState(false);
 
     useEffect(() => { document.title = 'Settings — BugZero'; }, []);
 
@@ -242,27 +243,29 @@ export default function Settings() {
                             </div>
                         </div>
                         {githubAccessToken ? (
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                                <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--color-success)', display: 'flex', alignItems: 'center', gap: 6 }}>
-                                    <CheckCircle2 size={16} /> Connected
-                                </div>
-                                <motion.button
-                                    whileHover={{ scale: 1.05 }}
-                                    whileTap={{ scale: 0.95 }}
-                                    onClick={handleDisconnectGithub}
-                                    disabled={disconnecting}
-                                    style={{
-                                        padding: '6px 12px', fontSize: 12, fontWeight: 600,
-                                        background: 'rgba(239, 68, 68, 0.1)', color: '#EF4444',
-                                        border: '1px solid rgba(239, 68, 68, 0.2)', borderRadius: 6,
-                                        cursor: disconnecting ? 'wait' : 'pointer', display: 'flex', alignItems: 'center', gap: 6,
-                                        opacity: disconnecting ? 0.5 : 1
-                                    }}
-                                >
-                                    {disconnecting ? <Loader2 size={14} className="spin" /> : null}
-                                    Disconnect
-                                </motion.button>
-                            </div>
+                            <motion.button
+                                onMouseEnter={() => setIsHoveringDisconnect(true)}
+                                onMouseLeave={() => setIsHoveringDisconnect(false)}
+                                whileTap={{ scale: 0.95 }}
+                                onClick={handleDisconnectGithub}
+                                disabled={disconnecting}
+                                style={{
+                                    padding: '8px 16px', fontSize: 13, fontWeight: 600,
+                                    background: isHoveringDisconnect ? 'rgba(239, 68, 68, 0.1)' : 'rgba(34, 197, 94, 0.1)', 
+                                    color: isHoveringDisconnect ? '#EF4444' : '#22C55E',
+                                    border: `1px solid ${isHoveringDisconnect ? 'rgba(239, 68, 68, 0.2)' : 'rgba(34, 197, 94, 0.2)'}`, 
+                                    borderRadius: 6,
+                                    cursor: disconnecting ? 'wait' : 'pointer', 
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                                    opacity: disconnecting ? 0.5 : 1,
+                                    width: 120,
+                                    transition: 'all 0.2s ease'
+                                }}
+                            >
+                                {disconnecting ? <Loader2 size={14} className="spin" /> : null}
+                                {!disconnecting && !isHoveringDisconnect ? <CheckCircle2 size={14} /> : null}
+                                {disconnecting ? 'Wait...' : (isHoveringDisconnect ? 'Disconnect' : 'Connected')}
+                            </motion.button>
                         ) : (
                             <button
                                 onClick={() => {
