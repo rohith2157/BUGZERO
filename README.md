@@ -35,7 +35,12 @@
 
 ## 🧠 What is AutonomousQA?
 
-![The Zero-Touch Promise](assets/illustrations/01-zero-touch.png)
+<div align="center">
+  <img src="assets/illustrations/01-zero-touch.png" alt="The Zero-Touch Promise" width="800">
+  <br>
+  <em>The Zero-Touch Promise: Point it at a URL, and it delivers a complete test report.</em>
+</div>
+<br>
 
 **AutonomousQA** is an AI-driven testing platform that autonomously crawls, analyzes, and tests any web application. Point it at a URL — it discovers every page, runs accessibility audits, performance checks, visual regression analysis, and functional tests — then reports defects with full evidence. **No scripts. No config. No babysitting.**
 
@@ -258,6 +263,13 @@ AutonomousQA operates like a highly advanced human QA engineer. Here's how the c
 
 ### 2. Autonomous Crawling (The "Explorer")
 
+<div align="center">
+  <img src="assets/illustrations/05-crawling.png" alt="Autonomous Crawling (BFS)" width="800">
+  <br>
+  <em>BFS Crawler: Discovering and mapping all pages level-by-level.</em>
+</div>
+<br>
+
 - **What it is:** A Breadth-First Search (BFS) spider that maps the application.
 - **How it works:** Starting from a seed URL, the crawler scans the DOM for valid `<a>` href links belonging to the same domain. It places these in a queue and visits them sequentially up to the configured `max_depth` and `max_pages`. This requires zero configuration from the user.
 
@@ -430,6 +442,13 @@ There are several approaches to crawl a website. Here's how they differ and why 
 
 ### 3. The DOM (Document Object Model) Analysis
 
+<div align="center">
+  <img src="assets/illustrations/06-dom-analysis.png" alt="The DOM Analysis" width="800">
+  <br>
+  <em>DOM Analysis: Inspecting the exact structure and accessibility of the page.</em>
+</div>
+<br>
+
 The DOM is the tree-like structure the browser builds from HTML. Our AI uses the DOM as its primary source of truth to detect defects:
 
 - **Accessibility:** Scans the DOM tree for `<img>` tags missing `alt` attributes, or `<input>` fields detached from `<label>` elements.
@@ -438,7 +457,12 @@ The DOM is the tree-like structure the browser builds from HTML. Our AI uses the
 
 ### 4. Self-Healing Agent (The "Mechanic") 🆕
 
-![Self-Healing Selectors](assets/illustrations/02-self-healing.png)
+<div align="center">
+  <img src="assets/illustrations/02-self-healing.png" alt="Self-Healing Selectors" width="800">
+  <br>
+  <em>Self-Healing: Using LLMs to dynamically stitch broken UI selectors back together.</em>
+</div>
+<br>
 
 An AI-powered selector repair system that keeps tests running when UI changes.
 
@@ -498,7 +522,12 @@ flowchart TD
 
 ### 5. Visual Regression Engine (The "Designer's Eye") 🆕
 
-![Visual Regression AI](assets/illustrations/03-visual-regression.png)
+<div align="center">
+  <img src="assets/illustrations/03-visual-regression.png" alt="Visual Regression AI" width="800">
+  <br>
+  <em>Visual Regression: Ignoring cosmetic noise while catching critical functional UI changes.</em>
+</div>
+<br>
 
 A Gemini Vision-powered visual comparison system that detects meaningful UI changes.
 
@@ -554,7 +583,12 @@ flowchart TD
 
 ### 6. Risk Prioritization (The "Strategist") 🆕
 
-![Risk Prioritization](assets/illustrations/04-risk-priority.png)
+<div align="center">
+  <img src="assets/illustrations/04-risk-priority.png" alt="Risk Prioritization" width="800">
+  <br>
+  <em>Risk Prioritization: Weighing forms and defect history to test high-risk pages first.</em>
+</div>
+<br>
 
 A multi-factor scoring system that determines which pages to test first.
 
