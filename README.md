@@ -35,6 +35,8 @@
 
 ## 🧠 What is AutonomousQA?
 
+![The Zero-Touch Promise](assets/illustrations/01-zero-touch.png)
+
 **AutonomousQA** is an AI-driven testing platform that autonomously crawls, analyzes, and tests any web application. Point it at a URL — it discovers every page, runs accessibility audits, performance checks, visual regression analysis, and functional tests — then reports defects with full evidence. **No scripts. No config. No babysitting.**
 
 > 💡 **The Problem:** Writing and maintaining test scripts is slow, expensive, and fragile. Traditional QA can't keep pace with rapid development cycles, and critical bugs slip through because manual testing doesn't scale.
@@ -436,6 +438,8 @@ The DOM is the tree-like structure the browser builds from HTML. Our AI uses the
 
 ### 4. Self-Healing Agent (The "Mechanic") 🆕
 
+![Self-Healing Selectors](assets/illustrations/02-self-healing.png)
+
 An AI-powered selector repair system that keeps tests running when UI changes.
 
 ```mermaid
@@ -494,6 +498,8 @@ flowchart TD
 
 ### 5. Visual Regression Engine (The "Designer's Eye") 🆕
 
+![Visual Regression AI](assets/illustrations/03-visual-regression.png)
+
 A Gemini Vision-powered visual comparison system that detects meaningful UI changes.
 
 ```mermaid
@@ -547,6 +553,8 @@ flowchart TD
 ```
 
 ### 6. Risk Prioritization (The "Strategist") 🆕
+
+![Risk Prioritization](assets/illustrations/04-risk-priority.png)
 
 A multi-factor scoring system that determines which pages to test first.
 
