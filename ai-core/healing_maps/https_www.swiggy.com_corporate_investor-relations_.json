@@ -1,0 +1,362 @@
+{
+  "link_0": {
+    "tagName": "A",
+    "id": "",
+    "className": "skip-link screen-reader-text",
+    "textContent": "Skip to content",
+    "type": "",
+    "name": "",
+    "href": "https://www.swiggy.com/corporate/investor-relations/#content",
+    "ariaLabel": "",
+    "placeholder": "",
+    "attributes": [
+      {
+        "name": "class",
+        "value": "skip-link screen-reader-text"
+      },
+      {
+        "name": "href",
+        "value": "#content"
+      }
+    ],
+    "metrics": {
+      "x": -1,
+      "y": -160001,
+      "width": 1,
+      "height": 1
+    },
+    "selector": ""
+  },
+  "link_1": {
+    "tagName": "A",
+    "id": "",
+    "className": "",
+    "textContent": "",
+    "type": "",
+    "name": "",
+    "href": "https://www.swiggy.com/corporate",
+    "ariaLabel": "",
+    "placeholder": "",
+    "attributes": [
+      {
+        "name": "href",
+        "value": "https://www.swiggy.com/corporate"
+      }
+    ],
+    "metrics": {
+      "x": 19,
+      "y": 22,
+      "width": 150,
+      "height": 49
+    },
+    "selector": ""
+  },
+  "link_2": {
+    "tagName": "A",
+    "id": "",
+    "className": "elementor-item",
+    "textContent": "About Swiggy",
+    "type": "",
+    "name": "",
+    "href": "https://www.swiggy.com/corporate/",
+    "ariaLabel": "",
+    "placeholder": "",
+    "attributes": [
+      {
+        "name": "href",
+        "value": "https://www.swiggy.com/corporate/"
+      },
+      {
+        "name": "class",
+        "value": "elementor-item"
+      }
+    ],
+    "metrics": {
+      "x": 248,
+      "y": 28,
+      "width": 102,
+      "height": 36
+    },
+    "selector": ""
+  },
+  "link_3": {
+    "tagName": "A",
+    "id": "",
+    "className": "elementor-item",
+    "textContent": "Our Businesses",
+    "type": "",
+    "name": "",
+    "href": "https://www.swiggy.com/corporate/our-business/",
+    "ariaLabel": "",
+    "placeholder": "",
+    "attributes": [
+      {
+        "name": "href",
+        "value": "https://www.swiggy.com/corporate/our-business/"
+      },
+      {
+        "name": "class",
+        "value": "elementor-item"
+      }
+    ],
+    "metrics": {
+      "x": 362,
+      "y": 28,
+      "width": 108,
+      "height": 36
+    },
+    "selector": ""
+  },
+  "link_4": {
+    "tagName": "A",
+    "id": "",
+    "className": "elementor-item",
+    "textContent": "Delivering For Everyone",
+    "type": "",
+    "name": "",
+    "href": "https://www.swiggy.com/corporate/delivering-for-everyone/",
+    "ariaLabel": "",
+    "placeholder": "",
+    "attributes": [
+      {
+        "name": "href",
+        "value": "https://www.swiggy.com/corporate/delivering-for-everyone/"
+      },
+      {
+        "name": "class",
+        "value": "elementor-item"
+      }
+    ],
+    "metrics": {
+      "x": 481,
+      "y": 28,
+      "width": 169,
+      "height": 36
+    },
+    "selector": ""
+  },
+  "link_5": {
+    "tagName": "A",
+    "id": "",
+    "className": "elementor-item",
+    "textContent": "Newsroom",
+    "type": "",
+    "name": "",
+    "href": "https://www.swiggy.com/corporate/newsroom/",
+    "ariaLabel": "",
+    "placeholder": "",
+    "attributes": [
+      {
+        "name": "href",
+        "value": "https://www.swiggy.com/corporate/newsroom/"
+      },
+      {
+        "name": "class",
+        "value": "elementor-item"
+      }
+    ],
+    "metrics": {
+      "x": 662,
+      "y": 28,
+      "width": 76,
+      "height": 36
+    },
+    "selector": ""
+  },
+  "link_6": {
+    "tagName": "A",
+    "id": "sm-17832603702254155-1",
+    "className": "elementor-item has-submenu",
+    "textContent": "Governance",
+    "type": "",
+    "name": "",
+    "href": "https://www.swiggy.com/corporate/governance/",
+    "ariaLabel": "",
+    "placeholder": "",
+    "attributes": [
+      {
+        "name": "href",
+        "value": "https://www.swiggy.com/corporate/governance/"
+      },
+      {
+        "name": "class",
+        "value": "elementor-item has-submenu"
+      },
+      {
+        "name": "id",
+        "value": "sm-17832603702254155-1"
+      },
+      {
+        "name": "aria-haspopup",
+        "value": "true"
+      },
+      {
+        "name": "aria-controls",
+        "value": "sm-17832603702254155-2"
+      },
+      {
+        "name": "aria-expanded",
+        "value": "false"
+      }
+    ],
+    "metrics": {
+      "x": 750,
+      "y": 28,
+      "width": 117,
+      "height": 36
+    },
+    "selector": "#sm-17832603702254155-1"
+  },
+  "input_7": {
+    "tagName": "INPUT",
+    "id": "",
+    "className": "wpcf7-form-control wpcf7-email wpcf7-validates-as-required wpcf7-text wpcf7-validates-as-email",
+    "textContent": "",
+    "type": "email",
+    "name": "your-email",
+    "href": "",
+    "ariaLabel": "",
+    "placeholder": "Enter Your mail",
+    "attributes": [
+      {
+        "name": "size",
+        "value": "40"
+      },
+      {
+        "name": "maxlength",
+        "value": "400"
+      },
+      {
+        "name": "class",
+        "value": "wpcf7-form-control wpcf7-email wpcf7-validates-as-required w"
+      },
+      {
+        "name": "autocomplete",
+        "value": "email"
+      },
+      {
+        "name": "aria-required",
+        "value": "true"
+      },
+      {
+        "name": "aria-invalid",
+        "value": "false"
+      },
+      {
+        "name": "placeholder",
+        "value": "Enter Your mail"
+      },
+      {
+        "name": "value",
+        "value": ""
+      }
+    ],
+    "metrics": {
+      "x": 176,
+      "y": 1731,
+      "width": 341,
+      "height": 46
+    },
+    "selector": "input[name=\"your-email\"]"
+  },
+  "input_8": {
+    "tagName": "INPUT",
+    "id": "",
+    "className": "wpcf7-form-control wpcf7-submit has-spinner",
+    "textContent": "",
+    "type": "submit",
+    "name": "",
+    "href": "",
+    "ariaLabel": "",
+    "placeholder": "",
+    "attributes": [
+      {
+        "name": "class",
+        "value": "wpcf7-form-control wpcf7-submit has-spinner"
+      },
+      {
+        "name": "type",
+        "value": "submit"
+      },
+      {
+        "name": "value",
+        "value": "Subscribe"
+      }
+    ],
+    "metrics": {
+      "x": 553,
+      "y": 1731,
+      "width": 98,
+      "height": 46
+    },
+    "selector": ""
+  },
+  "form_9": {
+    "tagName": "FORM",
+    "id": "",
+    "className": "wpcf7-form init",
+    "textContent": "",
+    "type": "",
+    "name": "",
+    "href": "",
+    "ariaLabel": "Contact form",
+    "placeholder": "",
+    "attributes": [
+      {
+        "name": "action",
+        "value": "/corporate/investor-relations/#wpcf7-f2740-p2355-o1"
+      },
+      {
+        "name": "method",
+        "value": "post"
+      },
+      {
+        "name": "class",
+        "value": "wpcf7-form init"
+      },
+      {
+        "name": "aria-label",
+        "value": "Contact form"
+      },
+      {
+        "name": "novalidate",
+        "value": "novalidate"
+      },
+      {
+        "name": "data-status",
+        "value": "init"
+      }
+    ],
+    "metrics": {
+      "x": 176,
+      "y": 1731,
+      "width": 928,
+      "height": 46
+    },
+    "selector": ""
+  },
+  "select_10": {
+    "tagName": "SELECT",
+    "id": "",
+    "className": "form-select",
+    "textContent": "679 cities",
+    "type": "select-one",
+    "name": "",
+    "href": "",
+    "ariaLabel": "",
+    "placeholder": "",
+    "attributes": [
+      {
+        "name": "class",
+        "value": "form-select"
+      }
+    ],
+    "metrics": {
+      "x": 889,
+      "y": 3184,
+      "width": 140,
+      "height": 36
+    },
+    "selector": ""
+  }
+}

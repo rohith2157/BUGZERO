@@ -33,6 +33,9 @@ class PlaywrightTool:
 
     def _ensure_browser(self):
         """Return a live browser, (re)launching if necessary."""
+        if self._pw is None:
+            self._pw = sync_playwright().start()
+
         if self._browser is not None:
             try:
                 # Quick check — is_connected() raises if already closed
@@ -40,13 +43,8 @@ class PlaywrightTool:
                     return self._browser
             except Exception:
                 pass
+        
         # Launch fresh
-        if self._pw:
-            try:
-                self._pw.stop()
-            except Exception:
-                pass
-        self._pw = sync_playwright().start()
         self._browser = getattr(self._pw, self._browser_type).launch(
             headless=self._headless,
             args=[
@@ -85,12 +83,8 @@ class PlaywrightTool:
             except Exception:
                 pass
             self._browser = None
-        if self._pw:
-            try:
-                self._pw.stop()
-            except Exception:
-                pass
-            self._pw = None
+        # We intentionally keep self._pw alive for the lifetime of the application
+        # to avoid greenlet/asyncio thread collision bugs on subsequent restarts.
 
     async def start(self):
         await _run_sync(self._start_sync)
@@ -651,7 +645,7 @@ class PlaywrightTool:
         page = context.new_page()
 
         try:
-            page.goto(url, wait_until="domcontentloaded", timeout=12000)
+            page.goto(url, wait_until="domcontentloaded", timeout=20000)
             violations = _axe_scan(page)
             return violations
         except Exception as e:
@@ -659,6 +653,7 @@ class PlaywrightTool:
             return []
         finally:
             try:
+                page.close()
                 context.close()
             except Exception:
                 pass
@@ -680,12 +675,13 @@ class PlaywrightTool:
         context.set_default_timeout(10000)
         page = context.new_page()
         try:
-            page.goto(url, wait_until="domcontentloaded", timeout=10000)
+            page.goto(url, wait_until="domcontentloaded", timeout=20000)
             page.wait_for_timeout(500)
             return page, context
         except Exception as e:
             print(f"get_page error on {url}: {e}")
             try:
+                page.close()
                 context.close()
             except Exception:
                 pass
@@ -790,11 +786,8 @@ class _ManagedPage:
     async def count(self, selector):
         return await _run_sync(lambda: self._page.locator(selector).count())
     
-    def close(self):
+    async def close(self):
         try:
-            self._context.close()
+            await _run_sync(self._context.close)
         except Exception:
             pass
-    
-    def __del__(self):
-        self.close()

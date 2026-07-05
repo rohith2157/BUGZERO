@@ -248,7 +248,7 @@ class SelfHealingAgent:
 
                 # Check if the original selector still works
                 try:
-                    count = await page.locator(selector).count()
+                    count = await page.count(selector)
                     if count > 0:
                         continue  # Element still found, no healing needed
                 except Exception:
@@ -275,7 +275,7 @@ class SelfHealingAgent:
                     
                     # Ensure selector is relatively unique or grab first
                     try:
-                        if await page.locator(new_sel).count() > 0:
+                        if await page.count(new_sel) > 0:
                             confidence = best_score / 100.0
                             event = {
                                 "original_selector": selector,
@@ -326,7 +326,7 @@ class SelfHealingAgent:
                     
             if best_candidate and best_score >= 55.0:
                 new_selector = best_candidate["selector"]
-                if await page.locator(new_selector).count() > 0:
+                if await page.count(new_selector) > 0:
                     logger.info(f"SelfHealingAgent: Healed {element_id} -> {new_selector} (Score: {best_score:.1f})")
                     event = {
                         "original_selector": broken_selector,
@@ -348,10 +348,10 @@ class SelfHealingAgent:
     async def create_fingerprint(self, page, selector: str, test_id: str, element_id: str):
         """Creates a snapshot of an element's DOM neighborhood."""
         try:
-            element = page.locator(selector).first
-            if not await element.count():
+            if not await page.count(selector):
                 logger.warning(f"SelfHealingAgent: Could not find target {selector} to fingerprint.")
                 return False
+            element = page.locator(selector).first
 
             eval_script = """
             (el) => {

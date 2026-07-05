@@ -55,22 +55,25 @@ export default function LiveTest() {
                 timestamp: d.createdAt || '',
             }));
 
-            const totalPages = testRun.totalPages || pages.length || 1;
-            const testedPages = testRun.testedPages || pages.filter(p => p.status === 'tested').length;
-            const progress = totalPages > 0 ? Math.round((testedPages / totalPages) * 100) : 0;
+            setData(prev => {
+                const localQueued = prev ? prev.pagesDiscovered.filter(lp => lp.status === 'queued' && !pages.some(dp => dp.url === lp.url)) : [];
+                const finalTotalPages = testRun.totalPages || (pages.length + localQueued.length) || 1;
+                const testedPages = testRun.testedPages || pages.filter(p => p.status === 'tested').length;
+                const finalProgress = testRun.status === 'completed' ? 100 : Math.round((testedPages / finalTotalPages) * 100);
 
-            setData({
-                url: testRun.url,
-                status: testRun.status,
-                totalPages,
-                testedPages,
-                defectsFound: testRun.defectCount || defects.length,
-                duration: testRun.duration || '—',
-                startedAt: testRun.startedAt,
-                progress: testRun.status === 'completed' ? 100 : progress,
-                pagesDiscovered: pages,
-                liveDefects: defects,
-                overallScore: testRun.overallScore,
+                return {
+                    url: testRun.url,
+                    status: testRun.status,
+                    totalPages: finalTotalPages,
+                    testedPages,
+                    defectsFound: testRun.defectCount || defects.length,
+                    duration: testRun.duration || '—',
+                    startedAt: testRun.startedAt,
+                    progress: finalProgress,
+                    pagesDiscovered: [...pages, ...localQueued],
+                    liveDefects: defects,
+                    overallScore: testRun.overallScore,
+                };
             });
 
             // Stop polling if test is done

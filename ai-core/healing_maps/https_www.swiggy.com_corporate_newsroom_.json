@@ -1,0 +1,618 @@
+{
+  "button_0": {
+    "tagName": "BUTTON",
+    "id": "e-n-tab-title-15157268421",
+    "className": "e-n-tab-title",
+    "textContent": "Press Release",
+    "type": "submit",
+    "name": "",
+    "href": "",
+    "ariaLabel": "",
+    "placeholder": "",
+    "attributes": [
+      {
+        "name": "id",
+        "value": "e-n-tab-title-15157268421"
+      },
+      {
+        "name": "data-tab-title-id",
+        "value": "e-n-tab-title-15157268421"
+      },
+      {
+        "name": "class",
+        "value": "e-n-tab-title"
+      },
+      {
+        "name": "aria-selected",
+        "value": "true"
+      },
+      {
+        "name": "data-tab-index",
+        "value": "1"
+      },
+      {
+        "name": "role",
+        "value": "tab"
+      },
+      {
+        "name": "tabindex",
+        "value": "0"
+      },
+      {
+        "name": "aria-controls",
+        "value": "e-n-tab-content-15157268421"
+      }
+    ],
+    "metrics": {
+      "x": 50,
+      "y": 1206,
+      "width": 187,
+      "height": 63
+    },
+    "selector": "#e-n-tab-title-15157268421"
+  },
+  "button_1": {
+    "tagName": "BUTTON",
+    "id": "e-n-tab-title-15157268422",
+    "className": "e-n-tab-title",
+    "textContent": "Media Kit",
+    "type": "submit",
+    "name": "",
+    "href": "",
+    "ariaLabel": "",
+    "placeholder": "",
+    "attributes": [
+      {
+        "name": "id",
+        "value": "e-n-tab-title-15157268422"
+      },
+      {
+        "name": "data-tab-title-id",
+        "value": "e-n-tab-title-15157268422"
+      },
+      {
+        "name": "class",
+        "value": "e-n-tab-title"
+      },
+      {
+        "name": "aria-selected",
+        "value": "false"
+      },
+      {
+        "name": "data-tab-index",
+        "value": "2"
+      },
+      {
+        "name": "role",
+        "value": "tab"
+      },
+      {
+        "name": "tabindex",
+        "value": "-1"
+      },
+      {
+        "name": "aria-controls",
+        "value": "e-n-tab-content-15157268422"
+      }
+    ],
+    "metrics": {
+      "x": 261,
+      "y": 1206,
+      "width": 150,
+      "height": 63
+    },
+    "selector": "#e-n-tab-title-15157268422"
+  },
+  "link_2": {
+    "tagName": "A",
+    "id": "",
+    "className": "skip-link screen-reader-text",
+    "textContent": "Skip to content",
+    "type": "",
+    "name": "",
+    "href": "https://www.swiggy.com/corporate/newsroom/#content",
+    "ariaLabel": "",
+    "placeholder": "",
+    "attributes": [
+      {
+        "name": "class",
+        "value": "skip-link screen-reader-text"
+      },
+      {
+        "name": "href",
+        "value": "#content"
+      }
+    ],
+    "metrics": {
+      "x": -1,
+      "y": -160001,
+      "width": 1,
+      "height": 1
+    },
+    "selector": ""
+  },
+  "link_3": {
+    "tagName": "A",
+    "id": "",
+    "className": "",
+    "textContent": "",
+    "type": "",
+    "name": "",
+    "href": "https://www.swiggy.com/corporate",
+    "ariaLabel": "",
+    "placeholder": "",
+    "attributes": [
+      {
+        "name": "href",
+        "value": "https://www.swiggy.com/corporate"
+      }
+    ],
+    "metrics": {
+      "x": 19,
+      "y": 22,
+      "width": 150,
+      "height": 49
+    },
+    "selector": ""
+  },
+  "link_4": {
+    "tagName": "A",
+    "id": "",
+    "className": "elementor-item",
+    "textContent": "About Swiggy",
+    "type": "",
+    "name": "",
+    "href": "https://www.swiggy.com/corporate/",
+    "ariaLabel": "",
+    "placeholder": "",
+    "attributes": [
+      {
+        "name": "href",
+        "value": "https://www.swiggy.com/corporate/"
+      },
+      {
+        "name": "class",
+        "value": "elementor-item"
+      }
+    ],
+    "metrics": {
+      "x": 248,
+      "y": 28,
+      "width": 102,
+      "height": 36
+    },
+    "selector": ""
+  },
+  "link_5": {
+    "tagName": "A",
+    "id": "",
+    "className": "elementor-item",
+    "textContent": "Our Businesses",
+    "type": "",
+    "name": "",
+    "href": "https://www.swiggy.com/corporate/our-business/",
+    "ariaLabel": "",
+    "placeholder": "",
+    "attributes": [
+      {
+        "name": "href",
+        "value": "https://www.swiggy.com/corporate/our-business/"
+      },
+      {
+        "name": "class",
+        "value": "elementor-item"
+      }
+    ],
+    "metrics": {
+      "x": 362,
+      "y": 28,
+      "width": 108,
+      "height": 36
+    },
+    "selector": ""
+  },
+  "link_6": {
+    "tagName": "A",
+    "id": "",
+    "className": "elementor-item",
+    "textContent": "Delivering For Everyone",
+    "type": "",
+    "name": "",
+    "href": "https://www.swiggy.com/corporate/delivering-for-everyone/",
+    "ariaLabel": "",
+    "placeholder": "",
+    "attributes": [
+      {
+        "name": "href",
+        "value": "https://www.swiggy.com/corporate/delivering-for-everyone/"
+      },
+      {
+        "name": "class",
+        "value": "elementor-item"
+      }
+    ],
+    "metrics": {
+      "x": 481,
+      "y": 28,
+      "width": 169,
+      "height": 36
+    },
+    "selector": ""
+  },
+  "link_7": {
+    "tagName": "A",
+    "id": "",
+    "className": "elementor-item elementor-item-active",
+    "textContent": "Newsroom",
+    "type": "",
+    "name": "",
+    "href": "https://www.swiggy.com/corporate/newsroom/",
+    "ariaLabel": "",
+    "placeholder": "",
+    "attributes": [
+      {
+        "name": "href",
+        "value": "https://www.swiggy.com/corporate/newsroom/"
+      },
+      {
+        "name": "aria-current",
+        "value": "page"
+      },
+      {
+        "name": "class",
+        "value": "elementor-item elementor-item-active"
+      }
+    ],
+    "metrics": {
+      "x": 662,
+      "y": 28,
+      "width": 76,
+      "height": 36
+    },
+    "selector": ""
+  },
+  "link_8": {
+    "tagName": "A",
+    "id": "sm-17832626375855657-1",
+    "className": "elementor-item has-submenu",
+    "textContent": "Governance",
+    "type": "",
+    "name": "",
+    "href": "https://www.swiggy.com/corporate/governance/",
+    "ariaLabel": "",
+    "placeholder": "",
+    "attributes": [
+      {
+        "name": "href",
+        "value": "https://www.swiggy.com/corporate/governance/"
+      },
+      {
+        "name": "class",
+        "value": "elementor-item has-submenu"
+      },
+      {
+        "name": "id",
+        "value": "sm-17832626375855657-1"
+      },
+      {
+        "name": "aria-haspopup",
+        "value": "true"
+      },
+      {
+        "name": "aria-controls",
+        "value": "sm-17832626375855657-2"
+      },
+      {
+        "name": "aria-expanded",
+        "value": "false"
+      }
+    ],
+    "metrics": {
+      "x": 750,
+      "y": 28,
+      "width": 117,
+      "height": 36
+    },
+    "selector": "#sm-17832626375855657-1"
+  },
+  "input_9": {
+    "tagName": "INPUT",
+    "id": "search-ff87e94",
+    "className": "e-search-input",
+    "textContent": "",
+    "type": "search",
+    "name": "s",
+    "href": "",
+    "ariaLabel": "",
+    "placeholder": "Search",
+    "attributes": [
+      {
+        "name": "id",
+        "value": "search-ff87e94"
+      },
+      {
+        "name": "placeholder",
+        "value": "Search"
+      },
+      {
+        "name": "class",
+        "value": "e-search-input"
+      },
+      {
+        "name": "type",
+        "value": "search"
+      },
+      {
+        "name": "name",
+        "value": "s"
+      },
+      {
+        "name": "value",
+        "value": ""
+      },
+      {
+        "name": "autocomplete",
+        "value": "on"
+      },
+      {
+        "name": "role",
+        "value": "combobox"
+      }
+    ],
+    "metrics": {
+      "x": 650,
+      "y": 1203,
+      "width": 580,
+      "height": 66
+    },
+    "selector": "#search-ff87e94"
+  },
+  "form_10": {
+    "tagName": "FORM",
+    "id": "",
+    "className": "e-search-form",
+    "textContent": "Search",
+    "type": "",
+    "name": "",
+    "href": "",
+    "ariaLabel": "",
+    "placeholder": "",
+    "attributes": [
+      {
+        "name": "class",
+        "value": "e-search-form"
+      },
+      {
+        "name": "action",
+        "value": "https://www.swiggy.com/corporate"
+      },
+      {
+        "name": "method",
+        "value": "get"
+      }
+    ],
+    "metrics": {
+      "x": 650,
+      "y": 1203,
+      "width": 580,
+      "height": 66
+    },
+    "selector": ""
+  },
+  "role-button_11": {
+    "tagName": "DIV",
+    "id": "",
+    "className": "elementor-swiper-button elementor-swiper-button-prev",
+    "textContent": "",
+    "type": "",
+    "name": "",
+    "href": "",
+    "ariaLabel": "Previous slide",
+    "placeholder": "",
+    "attributes": [
+      {
+        "name": "class",
+        "value": "elementor-swiper-button elementor-swiper-button-prev"
+      },
+      {
+        "name": "role",
+        "value": "button"
+      },
+      {
+        "name": "tabindex",
+        "value": "0"
+      },
+      {
+        "name": "aria-label",
+        "value": "Previous slide"
+      },
+      {
+        "name": "aria-controls",
+        "value": "swiper-wrapper-c0d79fbfb1eda2a9"
+      }
+    ],
+    "metrics": {
+      "x": 340,
+      "y": 266,
+      "width": 32,
+      "height": 32
+    },
+    "selector": ""
+  },
+  "role-button_12": {
+    "tagName": "DIV",
+    "id": "",
+    "className": "elementor-swiper-button elementor-swiper-button-next",
+    "textContent": "",
+    "type": "",
+    "name": "",
+    "href": "",
+    "ariaLabel": "Next slide",
+    "placeholder": "",
+    "attributes": [
+      {
+        "name": "class",
+        "value": "elementor-swiper-button elementor-swiper-button-next"
+      },
+      {
+        "name": "role",
+        "value": "button"
+      },
+      {
+        "name": "tabindex",
+        "value": "0"
+      },
+      {
+        "name": "aria-label",
+        "value": "Next slide"
+      },
+      {
+        "name": "aria-controls",
+        "value": "swiper-wrapper-c0d79fbfb1eda2a9"
+      }
+    ],
+    "metrics": {
+      "x": 908,
+      "y": 266,
+      "width": 32,
+      "height": 32
+    },
+    "selector": ""
+  },
+  "role-button_13": {
+    "tagName": "SPAN",
+    "id": "",
+    "className": "swiper-pagination-bullet swiper-pagination-bullet-active active",
+    "textContent": "",
+    "type": "",
+    "name": "",
+    "href": "",
+    "ariaLabel": "Go to slide 1",
+    "placeholder": "",
+    "attributes": [
+      {
+        "name": "class",
+        "value": "swiper-pagination-bullet swiper-pagination-bullet-active act"
+      },
+      {
+        "name": "role",
+        "value": "button"
+      },
+      {
+        "name": "data-bullet-index",
+        "value": "0"
+      },
+      {
+        "name": "aria-label",
+        "value": "Go to slide 1"
+      },
+      {
+        "name": "aria-current",
+        "value": "true"
+      }
+    ],
+    "metrics": {
+      "x": 608,
+      "y": 880,
+      "width": 32,
+      "height": 8
+    },
+    "selector": ""
+  },
+  "role-button_14": {
+    "tagName": "SPAN",
+    "id": "",
+    "className": "swiper-pagination-bullet",
+    "textContent": "",
+    "type": "",
+    "name": "",
+    "href": "",
+    "ariaLabel": "Go to slide 2",
+    "placeholder": "",
+    "attributes": [
+      {
+        "name": "class",
+        "value": "swiper-pagination-bullet"
+      },
+      {
+        "name": "role",
+        "value": "button"
+      },
+      {
+        "name": "data-bullet-index",
+        "value": "1"
+      },
+      {
+        "name": "aria-label",
+        "value": "Go to slide 2"
+      }
+    ],
+    "metrics": {
+      "x": 648,
+      "y": 880,
+      "width": 8,
+      "height": 8
+    },
+    "selector": ""
+  },
+  "role-button_15": {
+    "tagName": "SPAN",
+    "id": "",
+    "className": "swiper-pagination-bullet",
+    "textContent": "",
+    "type": "",
+    "name": "",
+    "href": "",
+    "ariaLabel": "Go to slide 3",
+    "placeholder": "",
+    "attributes": [
+      {
+        "name": "class",
+        "value": "swiper-pagination-bullet"
+      },
+      {
+        "name": "role",
+        "value": "button"
+      },
+      {
+        "name": "data-bullet-index",
+        "value": "2"
+      },
+      {
+        "name": "aria-label",
+        "value": "Go to slide 3"
+      }
+    ],
+    "metrics": {
+      "x": 664,
+      "y": 880,
+      "width": 8,
+      "height": 8
+    },
+    "selector": ""
+  },
+  "select_16": {
+    "tagName": "SELECT",
+    "id": "",
+    "className": "form-select",
+    "textContent": "679 cities",
+    "type": "select-one",
+    "name": "",
+    "href": "",
+    "ariaLabel": "",
+    "placeholder": "",
+    "attributes": [
+      {
+        "name": "class",
+        "value": "form-select"
+      }
+    ],
+    "metrics": {
+      "x": 889,
+      "y": 4052,
+      "width": 140,
+      "height": 36
+    },
+    "selector": ""
+  }
+}

@@ -1,0 +1,462 @@
+{
+  "link_0": {
+    "tagName": "A",
+    "id": "",
+    "className": "skip-link screen-reader-text",
+    "textContent": "Skip to content",
+    "type": "",
+    "name": "",
+    "href": "https://www.swiggy.com/corporate/contact-us/#content",
+    "ariaLabel": "",
+    "placeholder": "",
+    "attributes": [
+      {
+        "name": "class",
+        "value": "skip-link screen-reader-text"
+      },
+      {
+        "name": "href",
+        "value": "#content"
+      }
+    ],
+    "metrics": {
+      "x": -1,
+      "y": -160001,
+      "width": 1,
+      "height": 1
+    },
+    "selector": ""
+  },
+  "link_1": {
+    "tagName": "A",
+    "id": "",
+    "className": "",
+    "textContent": "",
+    "type": "",
+    "name": "",
+    "href": "https://www.swiggy.com/corporate",
+    "ariaLabel": "",
+    "placeholder": "",
+    "attributes": [
+      {
+        "name": "href",
+        "value": "https://www.swiggy.com/corporate"
+      }
+    ],
+    "metrics": {
+      "x": 19,
+      "y": 22,
+      "width": 150,
+      "height": 49
+    },
+    "selector": ""
+  },
+  "link_2": {
+    "tagName": "A",
+    "id": "",
+    "className": "elementor-item",
+    "textContent": "About Swiggy",
+    "type": "",
+    "name": "",
+    "href": "https://www.swiggy.com/corporate/",
+    "ariaLabel": "",
+    "placeholder": "",
+    "attributes": [
+      {
+        "name": "href",
+        "value": "https://www.swiggy.com/corporate/"
+      },
+      {
+        "name": "class",
+        "value": "elementor-item"
+      }
+    ],
+    "metrics": {
+      "x": 248,
+      "y": 28,
+      "width": 102,
+      "height": 36
+    },
+    "selector": ""
+  },
+  "link_3": {
+    "tagName": "A",
+    "id": "",
+    "className": "elementor-item",
+    "textContent": "Our Businesses",
+    "type": "",
+    "name": "",
+    "href": "https://www.swiggy.com/corporate/our-business/",
+    "ariaLabel": "",
+    "placeholder": "",
+    "attributes": [
+      {
+        "name": "href",
+        "value": "https://www.swiggy.com/corporate/our-business/"
+      },
+      {
+        "name": "class",
+        "value": "elementor-item"
+      }
+    ],
+    "metrics": {
+      "x": 362,
+      "y": 28,
+      "width": 108,
+      "height": 36
+    },
+    "selector": ""
+  },
+  "link_4": {
+    "tagName": "A",
+    "id": "",
+    "className": "elementor-item",
+    "textContent": "Delivering For Everyone",
+    "type": "",
+    "name": "",
+    "href": "https://www.swiggy.com/corporate/delivering-for-everyone/",
+    "ariaLabel": "",
+    "placeholder": "",
+    "attributes": [
+      {
+        "name": "href",
+        "value": "https://www.swiggy.com/corporate/delivering-for-everyone/"
+      },
+      {
+        "name": "class",
+        "value": "elementor-item"
+      }
+    ],
+    "metrics": {
+      "x": 481,
+      "y": 28,
+      "width": 169,
+      "height": 36
+    },
+    "selector": ""
+  },
+  "link_5": {
+    "tagName": "A",
+    "id": "",
+    "className": "elementor-item",
+    "textContent": "Newsroom",
+    "type": "",
+    "name": "",
+    "href": "https://www.swiggy.com/corporate/newsroom/",
+    "ariaLabel": "",
+    "placeholder": "",
+    "attributes": [
+      {
+        "name": "href",
+        "value": "https://www.swiggy.com/corporate/newsroom/"
+      },
+      {
+        "name": "class",
+        "value": "elementor-item"
+      }
+    ],
+    "metrics": {
+      "x": 662,
+      "y": 28,
+      "width": 76,
+      "height": 36
+    },
+    "selector": ""
+  },
+  "link_6": {
+    "tagName": "A",
+    "id": "sm-1783260245600709-1",
+    "className": "elementor-item has-submenu",
+    "textContent": "Governance",
+    "type": "",
+    "name": "",
+    "href": "https://www.swiggy.com/corporate/governance/",
+    "ariaLabel": "",
+    "placeholder": "",
+    "attributes": [
+      {
+        "name": "href",
+        "value": "https://www.swiggy.com/corporate/governance/"
+      },
+      {
+        "name": "class",
+        "value": "elementor-item has-submenu"
+      },
+      {
+        "name": "id",
+        "value": "sm-1783260245600709-1"
+      },
+      {
+        "name": "aria-haspopup",
+        "value": "true"
+      },
+      {
+        "name": "aria-controls",
+        "value": "sm-1783260245600709-2"
+      },
+      {
+        "name": "aria-expanded",
+        "value": "false"
+      }
+    ],
+    "metrics": {
+      "x": 750,
+      "y": 28,
+      "width": 117,
+      "height": 36
+    },
+    "selector": "#sm-1783260245600709-1"
+  },
+  "input_7": {
+    "tagName": "INPUT",
+    "id": "",
+    "className": "wpcf7-form-control wpcf7-text wpcf7-validates-as-required",
+    "textContent": "",
+    "type": "text",
+    "name": "your-name",
+    "href": "",
+    "ariaLabel": "",
+    "placeholder": "Enter Name",
+    "attributes": [
+      {
+        "name": "size",
+        "value": "40"
+      },
+      {
+        "name": "maxlength",
+        "value": "400"
+      },
+      {
+        "name": "class",
+        "value": "wpcf7-form-control wpcf7-text wpcf7-validates-as-required"
+      },
+      {
+        "name": "autocomplete",
+        "value": "name"
+      },
+      {
+        "name": "aria-required",
+        "value": "true"
+      },
+      {
+        "name": "aria-invalid",
+        "value": "false"
+      },
+      {
+        "name": "placeholder",
+        "value": "Enter Name"
+      },
+      {
+        "name": "value",
+        "value": ""
+      }
+    ],
+    "metrics": {
+      "x": 814,
+      "y": 269,
+      "width": 388,
+      "height": 55
+    },
+    "selector": "input[name=\"your-name\"]"
+  },
+  "input_8": {
+    "tagName": "INPUT",
+    "id": "",
+    "className": "wpcf7-form-control wpcf7-email wpcf7-validates-as-required wpcf7-text wpcf7-validates-as-email",
+    "textContent": "",
+    "type": "email",
+    "name": "your-email",
+    "href": "",
+    "ariaLabel": "",
+    "placeholder": "Enter Email Address",
+    "attributes": [
+      {
+        "name": "size",
+        "value": "40"
+      },
+      {
+        "name": "maxlength",
+        "value": "400"
+      },
+      {
+        "name": "class",
+        "value": "wpcf7-form-control wpcf7-email wpcf7-validates-as-required w"
+      },
+      {
+        "name": "autocomplete",
+        "value": "email"
+      },
+      {
+        "name": "aria-required",
+        "value": "true"
+      },
+      {
+        "name": "aria-invalid",
+        "value": "false"
+      },
+      {
+        "name": "placeholder",
+        "value": "Enter Email Address"
+      },
+      {
+        "name": "value",
+        "value": ""
+      }
+    ],
+    "metrics": {
+      "x": 814,
+      "y": 342,
+      "width": 388,
+      "height": 55
+    },
+    "selector": "input[name=\"your-email\"]"
+  },
+  "input_9": {
+    "tagName": "INPUT",
+    "id": "",
+    "className": "wpcf7-form-control wpcf7-submit has-spinner custom-btn",
+    "textContent": "",
+    "type": "submit",
+    "name": "",
+    "href": "",
+    "ariaLabel": "",
+    "placeholder": "",
+    "attributes": [
+      {
+        "name": "class",
+        "value": "wpcf7-form-control wpcf7-submit has-spinner custom-btn"
+      },
+      {
+        "name": "type",
+        "value": "submit"
+      },
+      {
+        "name": "value",
+        "value": "Submit"
+      }
+    ],
+    "metrics": {
+      "x": 828,
+      "y": 614,
+      "width": 80,
+      "height": 38
+    },
+    "selector": ""
+  },
+  "form_10": {
+    "tagName": "FORM",
+    "id": "",
+    "className": "wpcf7-form resetting",
+    "textContent": "",
+    "type": "",
+    "name": "",
+    "href": "",
+    "ariaLabel": "Contact form",
+    "placeholder": "",
+    "attributes": [
+      {
+        "name": "action",
+        "value": "/corporate/contact-us/#wpcf7-f2052-p1957-o1"
+      },
+      {
+        "name": "method",
+        "value": "post"
+      },
+      {
+        "name": "class",
+        "value": "wpcf7-form resetting"
+      },
+      {
+        "name": "aria-label",
+        "value": "Contact form"
+      },
+      {
+        "name": "novalidate",
+        "value": "novalidate"
+      },
+      {
+        "name": "data-status",
+        "value": "resetting"
+      }
+    ],
+    "metrics": {
+      "x": 814,
+      "y": 269,
+      "width": 388,
+      "height": 396
+    },
+    "selector": ""
+  },
+  "select_11": {
+    "tagName": "SELECT",
+    "id": "",
+    "className": "form-select",
+    "textContent": "679 cities",
+    "type": "select-one",
+    "name": "",
+    "href": "",
+    "ariaLabel": "",
+    "placeholder": "",
+    "attributes": [
+      {
+        "name": "class",
+        "value": "form-select"
+      }
+    ],
+    "metrics": {
+      "x": 889,
+      "y": 1362,
+      "width": 140,
+      "height": 36
+    },
+    "selector": ""
+  },
+  "textarea_12": {
+    "tagName": "TEXTAREA",
+    "id": "",
+    "className": "wpcf7-form-control wpcf7-textarea",
+    "textContent": "",
+    "type": "textarea",
+    "name": "your-message",
+    "href": "",
+    "ariaLabel": "",
+    "placeholder": "Enter Message",
+    "attributes": [
+      {
+        "name": "cols",
+        "value": "40"
+      },
+      {
+        "name": "rows",
+        "value": "10"
+      },
+      {
+        "name": "maxlength",
+        "value": "2000"
+      },
+      {
+        "name": "class",
+        "value": "wpcf7-form-control wpcf7-textarea"
+      },
+      {
+        "name": "aria-invalid",
+        "value": "false"
+      },
+      {
+        "name": "placeholder",
+        "value": "Enter Message"
+      },
+      {
+        "name": "name",
+        "value": "your-message"
+      }
+    ],
+    "metrics": {
+      "x": 814,
+      "y": 415,
+      "width": 388,
+      "height": 171
+    },
+    "selector": "textarea[name=\"your-message\"]"
+  }
+}

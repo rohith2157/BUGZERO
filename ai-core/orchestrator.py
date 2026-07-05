@@ -291,6 +291,7 @@ class Orchestrator:
                                         confidence=h["confidence"],
                                     ))
                                 logger.info(f"  Self-healing: {len(healing_results)} selector(s) healed")
+                                await browser_page.close()
                         except Exception as e:
                             logger.warning(f"  Self-healing failed on {url}: {e}")
 
