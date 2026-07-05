@@ -1,18 +1,18 @@
 <div align="center">
 
-  <img src="https://img.shields.io/badge/AutonomousQA-BUGZERO-blueviolet?style=for-the-badge&logo=target&logoColor=white" alt="AutonomousQA" />
+<img src="https://img.shields.io/badge/AutonomousQA-BUGZERO-blueviolet?style=for-the-badge&logo=target&logoColor=white" alt="AutonomousQA" />
 
-  <h1>🚀 AutonomousQA</h1>
+<h1>🚀 AutonomousQA</h1>
 
-  <p>
+<p>
     <strong>Zero-Touch • Zero-Script • Zero-Compromise</strong>
   </p>
 
-  <p>
+<p>
     <em>AI-powered, fully autonomous Quality Assurance engine that tests any web application — without a single line of test script.</em>
   </p>
 
-  <p>
+<p>
     <a href="https://github.com/rohith2157/BUGZERO/stargazers"><img src="https://img.shields.io/github/stars/rohith2157/BUGZERO?style=flat-square&color=FFD700&logo=github" alt="Stars" /></a>
     <a href="https://github.com/rohith2157/BUGZERO/network/members"><img src="https://img.shields.io/github/forks/rohith2157/BUGZERO?style=flat-square&logo=github" alt="Forks" /></a>
     <a href="https://github.com/rohith2157/BUGZERO/issues"><img src="https://img.shields.io/github/issues/rohith2157/BUGZERO?style=flat-square&color=FF4C4C&logo=github" alt="Issues" /></a>
@@ -20,7 +20,7 @@
     <a href="https://github.com/rohith2157/BUGZERO/pulls"><img src="https://img.shields.io/badge/PRs-welcome-34C759?style=flat-square&logo=git" alt="PRs Welcome" /></a>
   </p>
 
-  <h4>
+<h4>
     <a href="#-what-is-autonomousqa">About</a> •
     <a href="#-the-6-ai-agents">Features</a> •
     <a href="#%EF%B8%8F-architecture">Architecture</a> •
@@ -47,14 +47,14 @@
 
 <div align="center">
 
-| # | Agent | What It Does | How It Works |
-|:-:|:---|:---|:---|
-| ⚡ | **Self-Healing Tests** | Tests that auto-repair when UI changes. Zero maintenance. | Semantic fingerprinting of DOM elements → LLM-powered selector healing with confidence scoring → Full healing audit trail |
-| 🛡️ | **Auth Navigator** | Logs into SSO, OAuth, MFA — automatically. | Computer vision + DOM analysis + Gemini reasoning to navigate any login flow → Stores strategies as reusable playbooks |
-| 👁️ | **Visual Regression AI** | Semantic visual diff, not pixel noise. | Captures screenshots per page → Stores baselines → Gemini Vision compares current vs baseline → Classifies changes as cosmetic vs functional |
-| 📊 | **Risk Prioritization** | AI decides what to test first based on risk. | PageRank graph analysis + page type boosting + defect history recidivism scoring + change detection → 4-factor risk model |
-| ⚡ | **Performance Chaos** | Core Web Vitals on every page, every run. | Measures LCP, CLS, FID, TTFB via Playwright → Network throttling & CPU throttling (chaos mode) → Performance budget enforcement |
-| ⚖️ | **Compliance Engine** | WCAG + GDPR audit on every test run. | axe-core WCAG 2.1 AA full scan → GDPR risk detection → Audit-ready compliance reports with remediation guidance |
+|  #  | Agent                          | What It Does                                              | How It Works                                                                                                                                    |
+| :--: | :----------------------------- | :-------------------------------------------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------- |
+|  ⚡  | **Self-Healing Tests**   | Tests that auto-repair when UI changes. Zero maintenance. | Semantic fingerprinting of DOM elements → LLM-powered selector healing with confidence scoring → Full healing audit trail                     |
+| 🛡️ | **Auth Navigator**       | Logs into SSO, OAuth, MFA — automatically.               | Computer vision + DOM analysis + Gemini reasoning to navigate any login flow → Stores strategies as reusable playbooks                         |
+| 👁️ | **Visual Regression AI** | Semantic visual diff, not pixel noise.                    | Captures screenshots per page → Stores baselines → Gemini Vision compares current vs baseline → Classifies changes as cosmetic vs functional |
+|  📊  | **Risk Prioritization**  | AI decides what to test first based on risk.              | PageRank graph analysis + page type boosting + defect history recidivism scoring + change detection → 4-factor risk model                      |
+|  ⚡  | **Performance Chaos**    | Core Web Vitals on every page, every run.                 | Measures LCP, CLS, FID, TTFB via Playwright → Network throttling & CPU throttling (chaos mode) → Performance budget enforcement               |
+| ⚖️ | **Compliance Engine**    | WCAG + GDPR audit on every test run.                      | axe-core WCAG 2.1 AA full scan → GDPR risk detection → Audit-ready compliance reports with remediation guidance                               |
 
 </div>
 
@@ -104,11 +104,11 @@ Pages sorted by combined risk → highest-risk tested first
 graph TD;
     Frontend["🖥️ Frontend\n(React + Vite)\nPort 5173"] --> API["⚙️ API Gateway\n(Express.js)\nPort 3000"];
     API --> AI["🤖 AI Core\n(Python FastAPI)\nPort 8000"];
-    
+  
     API --> DB[("🐘 PostgreSQL\n(Data Storage)")]
     API --> Redis[("🔴 Redis\n(Cache/Queues)")]
     API --> Neo[("🕸️ Neo4j\n(Graph Mappings)")]
-    
+  
     AI --> PW["🌐 Playwright\n(Browser Engine)"]
     AI --> Axe["♿ axe-core\n(A11y Tests)"]
     AI --> Gemini["🔮 Gemini Vision\n(Visual AI)"]
@@ -124,14 +124,14 @@ graph TD;
     style Gemini fill:#0F172A,stroke:#F59E0B,color:#fff
 ```
 
-| Service | Technology | Purpose |
-|:---|:---|:---|
-| **Frontend** | React 19, Vite 7, Framer Motion, Recharts | Interactive dashboard & real-time monitoring |
-| **API Gateway** | Express.js, Prisma ORM, Socket.io, JWT | REST API, authentication, WebSocket relay |
-| **AI Core** | Python FastAPI, Playwright, axe-core, Gemini | Autonomous crawling, testing, healing, and visual regression |
-| **PostgreSQL** | v16 | Persistent storage (users, tests, defects, healing events, baselines) |
-| **Redis** | v7 | Caching, session management, job queues |
-| **Neo4j** | v5 | Graph-based page relationship mapping |
+| Service               | Technology                                   | Purpose                                                               |
+| :-------------------- | :------------------------------------------- | :-------------------------------------------------------------------- |
+| **Frontend**    | React 19, Vite 7, Framer Motion, Recharts    | Interactive dashboard & real-time monitoring                          |
+| **API Gateway** | Express.js, Prisma ORM, Socket.io, JWT       | REST API, authentication, WebSocket relay                             |
+| **AI Core**     | Python FastAPI, Playwright, axe-core, Gemini | Autonomous crawling, testing, healing, and visual regression          |
+| **PostgreSQL**  | v16                                          | Persistent storage (users, tests, defects, healing events, baselines) |
+| **Redis**       | v7                                           | Caching, session management, job queues                               |
+| **Neo4j**       | v5                                           | Graph-based page relationship mapping                                 |
 
 ---
 
@@ -155,7 +155,7 @@ sequenceDiagram
     G-->>F: Return UUID
     F->>W: Join room {testRun.id} (Live UI)
     G->>A: Trigger pipeline (POST /api/test/run) via proxy
-    
+  
     note over A: STAGE 0: AUTH & CHAOS (Optional)
     opt Auth enabled
         A->>A: AuthAgent navigates SSO/OAuth/MFA flow
@@ -163,12 +163,12 @@ sequenceDiagram
     opt Chaos mode
         A->>A: ChaosAgent injects Slow 3G + CPU throttling
     end
-    
+  
     note over A: STAGE 1: BFS CRAWL 🕷️
     A->>A: Playwright BFS — discover all pages + links
     A->>G: POST /api/tests/progress (crawl_complete)
     G->>W: emit 'crawl:complete' (Updates UI Pages Total)
-    
+  
     note over A: STAGE 2: RISK SCORING 📊
     A->>G: GET /api/tests/history/lookup (defect history)
     G-->>A: Return defect counts + previous scores
@@ -176,7 +176,7 @@ sequenceDiagram
     A->>A: Greedy sort — most critical pages first
     A->>G: POST /api/tests/progress (pagerank_complete)
     G->>W: emit 'pagerank:complete' (Shows priority order)
-    
+  
     note over A: STAGE 3: TEST LOOP 🔬
     loop For each page (risk priority order)
         A->>A: 3a: Self-Healing — detect broken selectors, heal via LLM
@@ -191,7 +191,7 @@ sequenceDiagram
         G->>DB: Save metrics, defects, compliance, healing events
         G->>W: emit 'page:complete' & 'defect:found' & 'heal:success'
     end
-    
+  
     note over A: STAGE 4: REPORT GENERATION 📋
     A->>A: Aggregate scores → calculate grade (A+ to F)
     A->>A: WCAG compliance % + top issues
@@ -209,33 +209,33 @@ flowchart LR
     Gateway --> Auth{"JWT Valid?"}
     Auth -- No --> Deny(["401 Unauthorized"])
     Auth -- Yes --> Route["tests route"]
-    
+  
     Route --> InitDB[("DB: test run created")]
     Route --> EventQueue(("Trigger Pipeline"))
-    
+  
     EventQueue --> AICore["AI Core Orchestrator"]
     AICore --> PW["Playwright Tool"]
-    
+  
     PW --> Crawler["Crawler Agent (BFS)"]
     Crawler --> Pages{"Discovered Pages + Links"}
-    
+  
     Pages --> History["Fetch Defect History"]
     History --> PR["Scheduler (PageRank + 4-Factor Risk)"]
     PR --> Sort["Greedy Sort (Priority)"]
     Sort --> WS1{{"WS: crawl:complete + pagerank:complete"}}
-    
+  
     Sort --> Loop["Test Loop (each page)"]
     Loop --> Heal["Self-Healing Agent"]
     Loop --> Basic["Tester Agent (SEO/Perf/Forms)"]
     Loop --> Axe["axe-core Tool (WCAG 2.1)"]
     Loop --> Vision["Vision Agent (Gemini + Regression)"]
-    
+  
     Heal --> Results["Page Results"]
     Basic --> Results
     Axe --> Results
     Vision --> Results
     Results --> WS2{{"WS: page:complete & defect:found & heal:success"}}
-    
+  
     WS2 --> Report["Report Agent"]
     Report --> Grade["Score + Grade (A+ to F)"]
     Grade --> FinDB[("Save report + baselines to Postgres")]
@@ -249,11 +249,13 @@ flowchart LR
 AutonomousQA operates like a highly advanced human QA engineer. Here's how the core technologies work together:
 
 ### 1. Playwright (The "Eyes and Hands")
+
 - **What it is:** A browser automation tool that launches real headless Chromium browsers.
 - **Why we use it:** Unlike basic HTTP fetchers, Playwright executes JavaScript, renders React/Vue apps, paints CSS, and evaluates the actual Document Object Model (DOM) exactly as a human sees it.
 - **How it works:** Python scripts inject evaluation code directly into the active browser page to measure Core Web Vitals (LCP, CLS, FID), check for accessibility violations, and perform visual heuristics.
 
 ### 2. Autonomous Crawling (The "Explorer")
+
 - **What it is:** A Breadth-First Search (BFS) spider that maps the application.
 - **How it works:** Starting from a seed URL, the crawler scans the DOM for valid `<a>` href links belonging to the same domain. It places these in a queue and visits them sequentially up to the configured `max_depth` and `max_pages`. This requires zero configuration from the user.
 
@@ -262,15 +264,15 @@ AutonomousQA operates like a highly advanced human QA engineer. Here's how the c
 There are several approaches to crawl a website. Here's how they differ and why we chose BFS:
 
 ```
-  EXAMPLE SITE MAP                          
-                                             
-            🏠 Homepage                      
-           /     |     \                     
-        📄About 📄Blog  📄Dash              
-                 |        |    \             
+  EXAMPLE SITE MAP                        
+                                           
+            🏠 Homepage                    
+           /     |     \                   
+        📄About 📄Blog  📄Dash            
+                 |        |    \           
               📄Post1  📄Settings 📄Analytics
-                          |                  
-                       📄Profile             
+                          |                
+                       📄Profile
 ```
 
 ---
@@ -425,7 +427,9 @@ There are several approaches to crawl a website. Here's how they differ and why 
 > 🟢 **Current Implementation:** BugZero uses **BFS (Breadth-First Search)** with an `asyncio.Queue`. This ensures top-level pages (homepage, navigation links, dashboards) are tested first, matching our Shallow → Standard → Deep crawl depth model perfectly.
 
 ### 3. The DOM (Document Object Model) Analysis
+
 The DOM is the tree-like structure the browser builds from HTML. Our AI uses the DOM as its primary source of truth to detect defects:
+
 - **Accessibility:** Scans the DOM tree for `<img>` tags missing `alt` attributes, or `<input>` fields detached from `<label>` elements.
 - **SEO & Structure:** Evaluates the heading hierarchy (e.g., checking for exactly one `<h1>` node).
 - **UI Integrity:** Uses `getComputedStyle(element)` to ask the browser engine the exact painted color of text vs background to calculate real mathematical contrast ratios.
@@ -449,7 +453,7 @@ flowchart TD
         J --> K["💾 Save HealingEvent to DB\noriginal → healed + confidence"]
         K --> L["📡 WebSocket: heal:success"]
     end
-    
+  
     subgraph "Stage 3e — After Each Page Test"
         M["🔍 fingerprint_page()"] --> N["📸 Capture all buttons,\nlinks, inputs, forms"]
         N --> O["💾 Store fingerprints\nfor next run"]
@@ -593,6 +597,7 @@ flowchart LR
 ```
 
 ### 7. WebSockets / Socket.io (The "Live Broadcaster")
+
 - **Why we use it:** Full autonomous testing can take 5-20 minutes. Polling is inefficient. WebSockets keep a permanent two-way "phone line" open between the browser and the server.
 - **How it works:**
   1. The React frontend subscribes to a specific `testRunId` room.
@@ -732,13 +737,13 @@ npm run dev
 
 ### 6️⃣ Open the app
 
-| Service | URL |
-|:---|:---|
-| **Frontend** | [http://localhost:5173](http://localhost:5173) |
-| **API Gateway** | [http://localhost:3000](http://localhost:3000) |
-| **AI Core Docs** | [http://localhost:8000/docs](http://localhost:8000/docs) |
-| **Neo4j Browser** | [http://localhost:7474](http://localhost:7474) |
-| **Prisma Studio** | Run `cd gateway && npx prisma studio` |
+| Service                 | URL                                                   |
+| :---------------------- | :---------------------------------------------------- |
+| **Frontend**      | [http://localhost:5173](http://localhost:5173)           |
+| **API Gateway**   | [http://localhost:3000](http://localhost:3000)           |
+| **AI Core Docs**  | [http://localhost:8000/docs](http://localhost:8000/docs) |
+| **Neo4j Browser** | [http://localhost:7474](http://localhost:7474)           |
+| **Prisma Studio** | Run`cd gateway && npx prisma studio`                |
 
 > 🔑 **Default Login:**
 > Email: `rohith@autonomousqa.io` | Password: `password123`
@@ -825,78 +830,78 @@ BUGZERO/
 <details>
 <summary><strong>🔐 Authentication</strong></summary>
 
-| Method | Endpoint | Description |
-|:---|:---|:---|
-| `POST` | `/api/auth/register` | Register a new user |
-| `POST` | `/api/auth/login` | Login — returns JWT |
-| `GET` | `/api/auth/me` | Get current user profile |
-| `POST` | `/api/auth/refresh` | Refresh access token |
+| Method   | Endpoint               | Description              |
+| :------- | :--------------------- | :----------------------- |
+| `POST` | `/api/auth/register` | Register a new user      |
+| `POST` | `/api/auth/login`    | Login — returns JWT     |
+| `GET`  | `/api/auth/me`       | Get current user profile |
+| `POST` | `/api/auth/refresh`  | Refresh access token     |
 
 </details>
 
 <details>
 <summary><strong>🧪 Test Runs</strong></summary>
 
-| Method | Endpoint | Description |
-|:---|:---|:---|
-| `POST` | `/api/tests` | Start a new autonomous test run |
-| `GET` | `/api/tests` | List all test runs |
-| `GET` | `/api/tests/:id` | Get test run details |
-| `DELETE` | `/api/tests/:id` | Cancel a running test |
-| `GET` | `/api/tests/:id/pages` | Get page-level results |
-| `GET` | `/api/tests/:id/compliance` | Compliance report |
-| `GET` | `/api/tests/:id/performance` | Performance report |
-| `GET` | `/api/tests/:id/healing` | 🆕 Self-healing events for a run |
-| `GET` | `/api/tests/history/lookup` | 🆕 Defect history for risk prioritization |
+| Method     | Endpoint                       | Description                               |
+| :--------- | :----------------------------- | :---------------------------------------- |
+| `POST`   | `/api/tests`                 | Start a new autonomous test run           |
+| `GET`    | `/api/tests`                 | List all test runs                        |
+| `GET`    | `/api/tests/:id`             | Get test run details                      |
+| `DELETE` | `/api/tests/:id`             | Cancel a running test                     |
+| `GET`    | `/api/tests/:id/pages`       | Get page-level results                    |
+| `GET`    | `/api/tests/:id/compliance`  | Compliance report                         |
+| `GET`    | `/api/tests/:id/performance` | Performance report                        |
+| `GET`    | `/api/tests/:id/healing`     | 🆕 Self-healing events for a run          |
+| `GET`    | `/api/tests/history/lookup`  | 🆕 Defect history for risk prioritization |
 
 </details>
 
 <details>
 <summary><strong>📸 Visual Regression Baselines</strong></summary>
 
-| Method | Endpoint | Description |
-|:---|:---|:---|
-| `GET` | `/api/baselines?url=&orgId=` | 🆕 Fetch baseline screenshot for a URL |
-| `POST` | `/api/baselines` | 🆕 Save/update baseline screenshot |
+| Method   | Endpoint                       | Description                            |
+| :------- | :----------------------------- | :------------------------------------- |
+| `GET`  | `/api/baselines?url=&orgId=` | 🆕 Fetch baseline screenshot for a URL |
+| `POST` | `/api/baselines`             | 🆕 Save/update baseline screenshot     |
 
 </details>
 
 <details>
 <summary><strong>📋 Playbooks</strong></summary>
 
-| Method | Endpoint | Description |
-|:---|:---|:---|
-| `GET` | `/api/playbooks` | List saved playbooks |
-| `POST` | `/api/playbooks` | Create a playbook |
-| `PUT` | `/api/playbooks/:id` | Update a playbook |
-| `DELETE` | `/api/playbooks/:id` | Delete a playbook |
+| Method     | Endpoint               | Description          |
+| :--------- | :--------------------- | :------------------- |
+| `GET`    | `/api/playbooks`     | List saved playbooks |
+| `POST`   | `/api/playbooks`     | Create a playbook    |
+| `PUT`    | `/api/playbooks/:id` | Update a playbook    |
+| `DELETE` | `/api/playbooks/:id` | Delete a playbook    |
 
 </details>
 
 <details>
 <summary><strong>⚙️ Settings</strong></summary>
 
-| Method | Endpoint | Description |
-|:---|:---|:---|
-| `GET` | `/api/settings/team` | Get team members |
-| `PUT` | `/api/settings/profile` | Update user profile |
-| `GET` | `/api/settings/api-keys` | List API keys |
-| `POST` | `/api/settings/api-keys` | Generate new API key |
-| `DELETE` | `/api/settings/api-keys/:id` | Revoke an API key |
+| Method     | Endpoint                       | Description          |
+| :--------- | :----------------------------- | :------------------- |
+| `GET`    | `/api/settings/team`         | Get team members     |
+| `PUT`    | `/api/settings/profile`      | Update user profile  |
+| `GET`    | `/api/settings/api-keys`     | List API keys        |
+| `POST`   | `/api/settings/api-keys`     | Generate new API key |
+| `DELETE` | `/api/settings/api-keys/:id` | Revoke an API key    |
 
 </details>
 
 ### WebSocket Events
 
-| Event | Direction | Description |
-|:---|:---|:---|
-| `test:started` | Server → Client | Test run initiated |
-| `page:discovered` | Server → Client | New page found during crawl |
-| `page:complete` | Server → Client | Page testing finished |
-| `defect:found` | Server → Client | Defect detected in real time |
-| `heal:success` | Server → Client | 🆕 Self-healing selector repair |
-| `test:complete` | Server → Client | Full test run finished |
-| `test:cancel` | Client → Server | Request to cancel a test |
+| Event               | Direction        | Description                     |
+| :------------------ | :--------------- | :------------------------------ |
+| `test:started`    | Server → Client | Test run initiated              |
+| `page:discovered` | Server → Client | New page found during crawl     |
+| `page:complete`   | Server → Client | Page testing finished           |
+| `defect:found`    | Server → Client | Defect detected in real time    |
+| `heal:success`    | Server → Client | 🆕 Self-healing selector repair |
+| `test:complete`   | Server → Client | Full test run finished          |
+| `test:cancel`     | Client → Server | Request to cancel a test        |
 
 ---
 
@@ -904,37 +909,37 @@ BUGZERO/
 
 The platform uses **13 Prisma models** across PostgreSQL:
 
-| Model | Purpose |
-|:---|:---|
-| `User` | Authentication & profile |
-| `Organization` | Team management |
-| `TestRun` | Test execution records |
-| `Page` | Discovered pages with scores |
-| `Defect` | Detected bugs with severity |
-| `ComplianceResult` | WCAG/GDPR violations |
-| `PerformanceMetric` | Core Web Vitals per page |
-| `HealingEvent` | 🆕 Self-healing audit trail (original → healed selector + confidence) |
-| `ScreenshotBaseline` | 🆕 Visual regression baseline screenshots per URL |
-| `AuthPlaybook` | Saved authentication strategies |
-| `ApiKey` | API key management |
-| `NotificationPreference` | Notification settings |
-| `UserActivity` | Activity tracking |
+| Model                      | Purpose                                                                |
+| :------------------------- | :--------------------------------------------------------------------- |
+| `User`                   | Authentication & profile                                               |
+| `Organization`           | Team management                                                        |
+| `TestRun`                | Test execution records                                                 |
+| `Page`                   | Discovered pages with scores                                           |
+| `Defect`                 | Detected bugs with severity                                            |
+| `ComplianceResult`       | WCAG/GDPR violations                                                   |
+| `PerformanceMetric`      | Core Web Vitals per page                                               |
+| `HealingEvent`           | 🆕 Self-healing audit trail (original → healed selector + confidence) |
+| `ScreenshotBaseline`     | 🆕 Visual regression baseline screenshots per URL                      |
+| `AuthPlaybook`           | Saved authentication strategies                                        |
+| `ApiKey`                 | API key management                                                     |
+| `NotificationPreference` | Notification settings                                                  |
+| `UserActivity`           | Activity tracking                                                      |
 
 ---
 
 ## 🗺️ Roadmap
 
-- [x] Autonomous web crawler with Playwright
-- [x] Accessibility auditing (axe-core WCAG 2.1 AA)
-- [x] Real-time dashboard with WebSocket
-- [x] JWT authentication & team management
-- [x] Playbook save/replay system
-- [x] Core Web Vitals performance monitoring
-- [x] Gemini Vision AI visual bug detection
-- [x] 🆕 Self-healing tests with semantic fingerprinting
-- [x] 🆕 Visual regression AI with baseline comparison
-- [x] 🆕 Risk prioritization with defect history + change detection
-- [x] 🆕 Self-healing audit trail (DB + frontend UI)
+- [X] Autonomous web crawler with Playwright
+- [X] Accessibility auditing (axe-core WCAG 2.1 AA)
+- [X] Real-time dashboard with WebSocket
+- [X] JWT authentication & team management
+- [X] Playbook save/replay system
+- [X] Core Web Vitals performance monitoring
+- [X] Gemini Vision AI visual bug detection
+- [X] 🆕 Self-healing tests with semantic fingerprinting
+- [X] 🆕 Visual regression AI with baseline comparison
+- [X] 🆕 Risk prioritization with defect history + change detection
+- [X] 🆕 Self-healing audit trail (DB + frontend UI)
 - [ ] Natural language test generation (LangChain + OpenAI)
 - [ ] CI/CD pipeline integration (GitHub Actions, Jenkins)
 - [ ] PDF/HTML report export
