@@ -28,19 +28,30 @@ export default function NewTest() {
     useEffect(() => { document.title = 'New Test — BugZero'; }, []);
 
     useEffect(() => {
-        if (testMode === 'repo' && githubAccessToken && repositories.length === 0) {
+        if (testMode === 'repo' && repositories.length === 0) {
             setLoadingRepos(true);
-            fetch('https://api.github.com/user/repos?sort=updated&per_page=100', {
-                headers: { Authorization: `Bearer ${githubAccessToken}` }
+            const token = localStorage.getItem('aq_token');
+            if (!token) return setLoadingRepos(false);
+            
+            fetch('http://localhost:3000/api/auth/github/repos', {
+                headers: { Authorization: `Bearer ${token}` }
             })
-            .then(res => res.json())
+            .then(res => {
+                if (res.status === 401 || res.status === 404) {
+                    // Not linked yet
+                    return { repositories: [] };
+                }
+                return res.json();
+            })
             .then(data => {
-                if (Array.isArray(data)) setRepositories(data);
+                if (data.repositories) {
+                    setRepositories(data.repositories);
+                }
             })
             .catch(err => console.error('Failed to fetch repos:', err))
             .finally(() => setLoadingRepos(false));
         }
-    }, [testMode, githubAccessToken]);
+    }, [testMode]);
 
     useEffect(() => {
         playbooksApi.list()
@@ -217,7 +228,7 @@ export default function NewTest() {
                             <label style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 10, display: 'block', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                                 Target Repository
                             </label>
-                            {!githubAccessToken ? (
+                            {repositories.length === 0 && !loadingRepos ? (
                                 <div style={{
                                     padding: '20px',
                                     background: 'rgba(255, 255, 255, 0.02)',
@@ -230,15 +241,10 @@ export default function NewTest() {
                                         Connect your GitHub account to test repositories
                                     </p>
                                     <button
-                                        onClick={async () => {
-                                            const { loginWithGithub } = useAuthStore.getState();
-                                            setError('');
-                                            const res = await loginWithGithub();
-                                            if (!res.success) {
-                                                const msg = res.error || 'Failed to connect GitHub';
-                                                setError(msg);
-                                                alert(`GitHub Login Failed: ${msg}\n\nDid you forget to add the GitHub Client ID and Secret to the Firebase Console? Go to Firebase Console -> Authentication -> Sign-in method -> GitHub to add them.`);
-                                            }
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            const token = localStorage.getItem('aq_token');
+                                            window.location.href = `http://localhost:3000/api/auth/github?token=${token}`;
                                         }}
                                         style={{
                                             padding: '10px 24px', fontSize: 13, fontWeight: 600,

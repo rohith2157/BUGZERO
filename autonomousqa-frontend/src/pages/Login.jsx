@@ -18,6 +18,18 @@ export default function Login() {
 
   useEffect(() => { document.title = mode === 'login' ? 'Sign In — BugZero' : 'Create Account — BugZero'; }, [mode]);
 
+  useEffect(() => {
+    // Check if we came back from GitHub OAuth
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get('token');
+    if (token) {
+      // Decode enough to fake a user object for the store, or rely on a generic user payload
+      // In a real app we'd fetch /api/auth/me, but for now we just set the token
+      setAuth({ id: 'github-user', name: 'GitHub User' }, token);
+      navigate('/dashboard');
+    }
+  }, [navigate, setAuth]);
+
   const [form, setForm] = useState({
     email: '',
     password: '',
@@ -317,14 +329,9 @@ export default function Login() {
             </motion.button>
 
             <motion.button
-              onClick={async () => {
-                setLoading(true);
-                setError('');
-                const res = await loginWithGithub();
-                if (res.success) navigate('/dashboard');
-                else { setError(res.error); setLoading(false); }
+              onClick={() => {
+                window.location.href = 'http://localhost:3000/api/auth/github';
               }}
-              disabled={loading}
               whileHover={{ scale: 1.02, y: -1 }}
               whileTap={{ scale: 0.98 }}
               style={{
