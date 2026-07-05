@@ -357,20 +357,6 @@ router.get('/github/profile', authenticate, async (req, res) => {
   }
 });
 
-// DELETE /api/auth/github/disconnect
-router.delete('/github/disconnect', authenticate, async (req, res) => {
-  try {
-    await prisma.user.update({
-      where: { id: req.user.id },
-      data: { githubAccessToken: null }
-    });
-    res.json({ success: true });
-  } catch (err) {
-    console.error('Disconnect error:', err);
-    res.status(500).json({ error: 'Failed to disconnect GitHub' });
-  }
-});
-
 // GET /api/auth/github/repos
 router.get('/github/repos', authenticate, async (req, res) => {
   try {
