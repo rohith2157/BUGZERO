@@ -41,31 +41,45 @@ We recently transitioned AutonomousQA from a "Normal" AI framework (dependent on
 
 <div align="center">
 
-### Self-Healing Tests — How It Works
+### 🧮 Self-Healing Tests — The Fuzzy Algorithmic Engine
 
-```
-Page Load → fingerprint_page() saves all interactive elements (buttons, links, inputs, forms)
-  ↓
-Next Run → detect_and_heal() compares current DOM vs saved fingerprints
-  ↓
-Broken selector found → Gemini LLM analyzes DOM + fingerprint → proposes new selector
-  ↓
-Validates selector exists → Records HealingEvent in DB with confidence score
-  ↓
-WebSocket → LiveTest shows "✅ Healed button_3: #old-btn → .new-btn (95%)"
+We completely removed Large Language Models (LLMs) from the healing process to guarantee 100% mathematical determinism. When a UI element changes its class, ID, or text, a traditional test script fails. Our algorithmic engine heals it instantly using a multi-variable heuristic scoring system.
+
+**1. The Historical Fingerprint**
+Before any test, the system saves a lightweight JSON fingerprint of all interactive elements:
+- `tagName` (e.g., `button`)
+- `textContent` (e.g., "Submit Order")
+- `attributes` (e.g., classes, IDs, names)
+- `metrics` (2D spatial coordinates via `getBoundingClientRect()`)
+
+**2. The Mathematical Scoring Matrix**
+When a selector breaks, the engine scans the current DOM and calculates a score `S(E, F)` for every element `E` against the historical fingerprint `F`:
+- **Tag Match**: Exact match grants +20 points.
+- **Text Similarity (Levenshtein Distance)**: We calculate the minimum number of single-character edits required to change the old text into the new text. This catches subtle changes (like "Log in" to "Login"). Grants up to +35 points.
+- **Attribute Intersection**: We split CSS classes into sets and calculate the overlap. Grants up to +25 points.
+- **Spatial Proximity (Pythagorean Decay)**: If the text and classes are heavily obfuscated, spatial location is the ultimate fallback. We calculate the Pythagorean distance between the old element and the new element. We apply an exponential decay function so elements perfectly in place get max points (+20), and elements further away rapidly lose points.
+
+If the highest-scoring element exceeds a strict threshold (e.g., > 55/100), the system dynamically generates a new CSS selector, clicks the button, and records a `HealingEvent` in the database.
+
+```text
+  OLD: #checkout-form > button.btn-primary     ← BROKEN ❌      
+  NEW: .checkout-container > .cta-button        ← HEALED ✅      
+  ALGO SCORE: 88.5/100 (Levenshtein text match + perfect spatial match)              
 ```
 
-### Visual Regression AI — How It Works
+### 👁️ Visual Regression — SSIM and Pixel Math
 
-```
-Run 1: Screenshot → Gemini analyzes for visual bugs → Save as baseline in DB
-  ↓
-Run 2: Screenshot → Fetch baseline → Gemini compares BOTH images side-by-side
-  ↓
-Changes classified: "Cosmetic: font-size changed" vs "Functional: button missing"
-  ↓
-Report page shows Visual Regression section with severity + confidence per change
-```
+Just like self-healing, we ripped out the "Vision LLMs" and replaced them with raw pixel mathematics using Python's `Pillow` library.
+
+**The Problem with MSE (Mean Squared Error)**
+Traditional visual regression compares absolute pixel differences. If a browser updates its font anti-aliasing engine, every text pixel shifts by a microscopic hex value. MSE will fail the test, causing a nightmare of "false positive" noise for QA teams.
+
+**Our Solution: Blurred Image Subtraction**
+1. **Gaussian Blurring:** We apply a low-radius Gaussian blur to both the baseline and current screenshots. This intentionally destroys 1-pixel micro-variations (like anti-aliasing) while preserving macro-structures (buttons, layout, spacing).
+2. **Difference Subtraction:** Using `Pillow.ImageChops.difference()`, we mathematically subtract the pixel values of the baseline from the current image. The resulting image is completely black where the UI matches, and highlighted where it differs.
+3. **Statistical Variance:** We calculate the sum of all pixel values in the difference image. By dividing this by the maximum possible difference (Width × Height × 255 × 3 channels), we obtain a precise "Drift Percentage".
+
+If the Drift Percentage exceeds a predefined noise threshold (e.g., 0.5%), the test fails with a functional visual regression. No AI hallucination, just pure structural validation.
 
 ### Risk Prioritization — 4-Factor Model
 
