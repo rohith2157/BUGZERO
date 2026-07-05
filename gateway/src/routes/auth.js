@@ -365,7 +365,11 @@ router.get('/github/profile', authenticate, async (req, res) => {
       connected: true, 
       username: githubData.login,
       avatar: githubData.avatar_url,
-      profileUrl: githubData.html_url 
+      profileUrl: githubData.html_url,
+      followers: githubData.followers,
+      following: githubData.following,
+      publicRepos: githubData.public_repos,
+      createdAt: githubData.created_at
     });
   } catch (err) {
     console.error('GitHub Profile Error:', err);

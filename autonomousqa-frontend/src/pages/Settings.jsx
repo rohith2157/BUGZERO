@@ -3,7 +3,8 @@ import { motion } from 'framer-motion';
 import { User, Users, Key, Bell, CreditCard, Pencil, Trash2, Plus, Copy, Eye, EyeOff, Loader2, Activity, Github, CheckCircle2 } from 'lucide-react';
 import StatusBadge from '../components/ui/StatusBadge';
 import { LoginActivity } from '../components/ui/login-activity';
-import { settings as settingsApi, auth as authApi } from '../lib/api';
+import { settings as settingsApi, auth as authApi, tests as testsApi } from '../lib/api';
+import { generateGitHubTag } from '../lib/githubRanking';
 import { useAuthStore } from '../store/authStore';
 
 const tabs = [
@@ -29,6 +30,7 @@ export default function Settings() {
     const [showKeyId, setShowKeyId] = useState(null);
     const [profileError, setProfileError] = useState('');
     const [githubProfile, setGithubProfile] = useState(null);
+    const [githubRank, setGithubRank] = useState(null);
     const [repositories, setRepositories] = useState([]);
     const [loadingRepos, setLoadingRepos] = useState(false);
     const [isDisconnecting, setIsDisconnecting] = useState(false);
@@ -48,17 +50,30 @@ export default function Settings() {
         const token = localStorage.getItem('aq_token');
         const headers = { Authorization: `Bearer ${token}` };
 
-        fetch('http://localhost:3000/api/auth/github/profile', { headers })
-            .then(res => res.json())
-            .then(data => { if (data.connected && data.username) setGithubProfile(data); })
-            .catch(() => {});
-
         setLoadingRepos(true);
-        fetch('http://localhost:3000/api/auth/github/repos', { headers })
-            .then(res => res.json())
-            .then(data => { if (data.repositories) setRepositories(data.repositories); })
-            .catch(() => {})
-            .finally(() => setLoadingRepos(false));
+        Promise.all([
+            fetch('http://localhost:3000/api/auth/github/profile', { headers }).then(res => res.json()),
+            fetch('http://localhost:3000/api/auth/github/repos', { headers }).then(res => res.json()),
+            testsApi.list({ limit: 1000 }).catch(() => ({ testRuns: [] }))
+        ])
+        .then(([profileData, reposData, testsData]) => {
+            if (profileData.connected && profileData.username) {
+                setGithubProfile(profileData);
+            }
+            if (reposData.repositories) {
+                if (profileData.connected) {
+                    setGithubRank(generateGitHubTag(profileData, reposData.repositories));
+                }
+                const testedUrls = new Set((testsData.testRuns || []).map(t => t.url?.toLowerCase().replace(/\/+$/, '')));
+                const filteredRepos = reposData.repositories.filter(repo => {
+                    const repoUrl = repo.url?.toLowerCase().replace(/\/+$/, '');
+                    return testedUrls.has(repoUrl);
+                });
+                setRepositories(filteredRepos);
+            }
+        })
+        .catch(() => {})
+        .finally(() => setLoadingRepos(false));
     }, [githubAccessToken]);
     const [notifications, setNotifications] = useState({
         'Test Completed': true,
@@ -226,15 +241,32 @@ export default function Settings() {
                             </div>
                             <div>
                                 <h4 style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)', margin: 0 }}>GitHub</h4>
-                                <p style={{ fontSize: 13, color: 'var(--text-secondary)', margin: '4px 0 0 0' }}>
-                                    {githubProfile?.username ? (
-                                        <a href={githubProfile.profileUrl} target="_blank" rel="noreferrer" style={{ color: 'var(--color-accent-gold)', textDecoration: 'none' }}>@{githubProfile.username}</a>
-                                    ) : githubAccessToken ? (
-                                        'Connected securely to BugZero engine'
-                                    ) : (
-                                        'Not connected'
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginTop: 4 }}>
+                                    <p style={{ fontSize: 13, color: 'var(--text-secondary)', margin: 0 }}>
+                                        {githubProfile?.username ? (
+                                            <a href={githubProfile.profileUrl} target="_blank" rel="noreferrer" style={{ color: 'var(--color-accent-gold)', textDecoration: 'none' }}>@{githubProfile.username}</a>
+                                        ) : githubAccessToken ? (
+                                            'Connected securely to BugZero engine'
+                                        ) : (
+                                            'Not connected'
+                                        )}
+                                    </p>
+                                    {githubRank && (
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                            <span style={{
+                                                fontSize: 11, padding: '2px 8px', borderRadius: 12,
+                                                background: githubRank.tier === 'gold' ? 'rgba(250, 204, 21, 0.15)' : githubRank.tier === 'silver' ? 'rgba(156, 163, 175, 0.15)' : 'rgba(180, 83, 9, 0.15)',
+                                                color: githubRank.tier === 'gold' ? '#FACC15' : githubRank.tier === 'silver' ? '#9CA3AF' : '#eab308',
+                                                border: `1px solid ${githubRank.tier === 'gold' ? 'rgba(250, 204, 21, 0.3)' : githubRank.tier === 'silver' ? 'rgba(156, 163, 175, 0.3)' : 'rgba(180, 83, 9, 0.3)'}`,
+                                                fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.02em',
+                                                boxShadow: githubRank.tier === 'gold' ? '0 0 10px rgba(250, 204, 21, 0.1)' : 'none'
+                                            }}>
+                                                {githubRank.tag}
+                                            </span>
+                                            <span style={{ fontSize: 11, color: 'var(--text-tertiary)', fontWeight: 600 }}>OVR {githubRank.score}</span>
+                                        </div>
                                     )}
-                                </p>
+                                </div>
                             </div>
                         </div>
                         {githubAccessToken ? (

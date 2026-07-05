@@ -5,6 +5,7 @@ import { Shield, AlertTriangle, Eye, Filter, Loader2 } from 'lucide-react';
 import HygieneScoreGauge from '../components/ui/HygieneScoreGauge';
 import StatusBadge from '../components/ui/StatusBadge';
 import { tests as testsApi } from '../lib/api';
+import EmptyTestState from '../components/ui/EmptyTestState';
 
 function safePath(url) { try { return new URL(url).pathname || url; } catch { return url; } }
 
@@ -13,6 +14,9 @@ const item = { hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0, transiti
 
 export default function Compliance() {
     const { id } = useParams();
+    
+    if (id === 'none') return <EmptyTestState title="Compliance Report" />;
+
     const [filter, setFilter] = useState('all');
     const [complianceData, setComplianceData] = useState(null);
     const [loading, setLoading] = useState(true);

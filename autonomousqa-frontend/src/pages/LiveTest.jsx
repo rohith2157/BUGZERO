@@ -7,12 +7,16 @@ import { GridBackground } from '../components/ui/GridBackground';
 import { TextShimmer } from '../components/ui/TextShimmer';
 import { tests as testsApi } from '../lib/api';
 import { useWebSocket } from '../hooks/useWebSocket';
+import EmptyTestState from '../components/ui/EmptyTestState';
 
 function safePath(url) { try { return new URL(url).pathname || url; } catch { return url; } }
 
 export default function LiveTest() {
     const { id } = useParams();
     const navigate = useNavigate();
+    
+    if (id === 'none') return <EmptyTestState title="Live Test" />;
+
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);

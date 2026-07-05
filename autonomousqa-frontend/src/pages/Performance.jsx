@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { Gauge, AlertTriangle, TrendingDown, Loader2, Zap, Eye, MousePointerClick, Move } from 'lucide-react';
 import StatusBadge from '../components/ui/StatusBadge';
 import { tests as testsApi } from '../lib/api';
+import EmptyTestState from '../components/ui/EmptyTestState';
 import { AreaChart, Area, Grid, XAxis, ChartTooltip } from '../components/ui/area-chart';
 import { CardSpotlight } from '../components/ui/card-spotlight';
 
@@ -33,6 +34,9 @@ function getStatusColor(status) {
 
 export default function Performance() {
     const { id } = useParams();
+    
+    if (id === 'none') return <EmptyTestState title="Performance Report" />;
+
     const [performanceData, setPerformanceData] = useState(null);
     const [loading, setLoading] = useState(true);
 

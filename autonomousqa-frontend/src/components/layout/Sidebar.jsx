@@ -40,15 +40,13 @@ export default function Sidebar({ collapsed, setCollapsed }) {
         findActiveTest();
     }, [location.pathname]);
 
-    // Build nav items with dynamic test ID
+    // Build nav items with dynamic test ID or 'none' fallback
     const navItems = [
         ...staticNavItems.slice(0, 2),
-        ...(latestTestId ? [
-            { to: `/tests/${latestTestId}`, icon: Activity, label: 'Live Test' },
-            { to: `/tests/${latestTestId}/report`, icon: Bug, label: 'Report' },
-            { to: `/tests/${latestTestId}/compliance`, icon: Shield, label: 'Compliance' },
-            { to: `/tests/${latestTestId}/performance`, icon: Zap, label: 'Performance' },
-        ] : []),
+        { to: `/tests/${latestTestId || 'none'}`, icon: Activity, label: 'Live Test' },
+        { to: `/tests/${latestTestId || 'none'}/report`, icon: Bug, label: 'Report' },
+        { to: `/tests/${latestTestId || 'none'}/compliance`, icon: Shield, label: 'Compliance' },
+        { to: `/tests/${latestTestId || 'none'}/performance`, icon: Zap, label: 'Performance' },
         ...staticNavItems.slice(2),
     ];
 

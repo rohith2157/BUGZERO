@@ -78,19 +78,19 @@ export default function Dashboard() {
                     });
                     setHygieneHistory(history);
                 } else {
-                    loadMockHistory();
+                    setHygieneHistory([]);
                 }
             } else {
-                loadMock();
+                loadEmpty();
             }
         }).catch(() => {
-            loadMock();
+            loadEmpty();
         });
 
-        function loadMock() {
-            setRecentRuns(mockRuns);
-            setKpiData(mockKpi);
-            loadMockHistory();
+        function loadEmpty() {
+            setRecentRuns([]);
+            setKpiData({ totalRuns: 0, avgHygieneScore: 0, totalDefects: 0, complianceScore: 0, complianceChange: null, runsChange: null, hygieneChange: null, defectsChange: null });
+            setHygieneHistory([]);
         }
 
         function loadMockHistory() {

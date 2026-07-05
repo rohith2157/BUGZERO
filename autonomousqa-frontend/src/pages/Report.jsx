@@ -6,6 +6,7 @@ import HygieneScoreGauge from '../components/ui/HygieneScoreGauge';
 import StatusBadge from '../components/ui/StatusBadge';
 import { severityConfig, defectTypeColors } from '../data/mockData';
 import { tests as testsApi } from '../lib/api';
+import EmptyTestState from '../components/ui/EmptyTestState';
 
 import { BarChart, Bar, BarYAxis, Grid, ChartTooltip } from '../components/ui/bar-chart';
 import DatabaseWithRestApi from '../components/ui/database-with-rest-api';
@@ -18,6 +19,9 @@ const item = { hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0, transiti
 
 export default function Report() {
     const { id } = useParams();
+    
+    if (id === 'none') return <EmptyTestState title="Test Report" />;
+
     const [reportData, setReportData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [viewMode, setViewMode] = useState('visual');
