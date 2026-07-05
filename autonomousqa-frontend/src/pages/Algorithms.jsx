@@ -26,16 +26,16 @@ const implAlgos = [
 ];
 
 const coreAlgos = [
-  { icon: Fingerprint, title: 'Semantic Fingerprinting', accent: 'var(--color-accent-gold)',
-    desc: 'Creates a multi-dimensional fingerprint of every DOM element — visual position, surrounding text, ARIA roles, DOM depth. When UI changes, fuzzy-matching finds moved elements and self-heals tests with confidence thresholds.' },
-  { icon: Shield, title: 'Risk Model Algorithm', accent: 'var(--color-accent-purple)',
-    desc: 'Weighted scoring: Change Frequency + Defect History + User Traffic + Business Criticality. Generates a dynamic priority queue so the most dangerous areas are tested first.' },
-  { icon: Eye, title: 'Visual Semantic Diffing', accent: 'var(--color-accent-cyan)',
-    desc: 'Computer Vision model compares the meaning of visual changes instead of pixel-by-pixel. Classifies cosmetic noise vs. real layout-breaking defects automatically.' },
-  { icon: Globe, title: 'DOM Traversal & Exploration', accent: 'var(--color-accent-emerald)',
-    desc: 'LangChain-based autonomous agent recursively explores websites. Reads the DOM, identifies interactive elements, decides what actions to take (click, type, scroll) to map all state transitions.' },
-  { icon: Cpu, title: 'Defect Classification', accent: 'var(--color-accent-gold-bright)',
-    desc: 'LLM (GPT-4o) processes console logs, network traces, and visual snapshots to classify bugs by type and assign severity scores automatically.' },
+  { icon: Fingerprint, title: 'Levenshtein Heuristics', accent: 'var(--color-accent-gold)',
+    desc: 'When UI changes break tests, the engine calculates the Levenshtein text distance and Pythagorean spatial decay across all DOM nodes to algorithmically locate the moved element.' },
+  { icon: Shield, title: 'PageRank Priority Queue', accent: 'var(--color-accent-purple)',
+    desc: 'We map your application as a Directed Graph and run Google\'s exact PageRank math (α=0.85) to determine which features are most critical to test first.' },
+  { icon: Eye, title: 'Structural Image Subtraction', accent: 'var(--color-accent-cyan)',
+    desc: 'Applies Gaussian Blurring to filter font rendering noise, followed by mathematical ImageChops subtraction and SSIM calculation to detect real layout breaks without false positives.' },
+  { icon: Globe, title: 'BFS DOM Traversal', accent: 'var(--color-accent-emerald)',
+    desc: 'A pure Breadth-First Search (BFS) algorithm recursively explores websites, building a deterministic state tree of every interactive element and navigation path.' },
+  { icon: Cpu, title: 'Deterministic Assertion Engine', accent: 'var(--color-accent-gold-bright)',
+    desc: 'Evaluates network payloads, HTTP status codes, and structural DOM invariants against strict mathematical thresholds. No hallucinations, just pure logic.' },
 ];
 
 const archLayers = [
@@ -43,8 +43,8 @@ const archLayers = [
     rules: ['Fully decoupled SPA — handles only state (Zustand) and UI rendering', 'Communicates exclusively via REST APIs and WebSocket connections'] },
   { title: 'API Gateway', tech: 'Express.js + Node.js', icon: Server, accent: '#34A853',
     rules: ['Central orchestrator — auth, PostgreSQL connections, request routing', 'WebSocket streams real-time test execution data to frontend'] },
-  { title: 'AI Core Engine', tech: 'Python FastAPI + Playwright + LangChain', icon: Brain, accent: '#EA4335',
-    rules: ['Heavy lifting — best Python AI ecosystem with Playwright automation', 'Total isolation — never touches DB directly, reports via internal HTTP'] },
+  { title: 'Algorithmic Core', tech: 'Python FastAPI + Playwright', icon: Brain, accent: '#EA4335',
+    rules: ['Heavy algorithmic lifting — pure math and heuristics (zero LLM wrappers)', 'Total isolation — never touches DB directly, reports via internal HTTP'] },
 ];
 
 const pipeline = [
@@ -120,7 +120,7 @@ export default function Algorithms() {
       {/* Pipeline Visualization */}
       <section style={{ maxWidth: 900, margin: '0 auto', padding: '0 24px 80px', position: 'relative', zIndex: 1 }}>
         <motion.div variants={stagger} initial="hidden" whileInView="show" viewport={{ once: true }}
-          style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0, flexWrap: 'wrap' }}>
+          style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0, flexWrap: 'wrap', marginBottom: 60 }}>
           {pipeline.map(({ step, label, color }, i) => (
             <motion.div key={step} variants={fadeUp} style={{ display: 'flex', alignItems: 'center' }}>
               <div style={{ textAlign: 'center' }}>
@@ -132,6 +132,47 @@ export default function Algorithms() {
               {i < pipeline.length - 1 && <div style={{ width: 40, height: 2, background: `linear-gradient(90deg, ${color}, ${pipeline[i+1].color})`, margin: '0 8px', marginBottom: 20, opacity: 0.5 }} />}
             </motion.div>
           ))}
+        </motion.div>
+
+        {/* Node Graph Visualizer */}
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }}
+          style={{ 
+            background: '#0F172A', borderRadius: 16, padding: 32, border: '1px solid var(--border-subtle)',
+            boxShadow: 'inset 0 4px 20px rgba(0,0,0,0.5)', position: 'relative', overflow: 'hidden', height: 300
+          }}>
+          <div style={{ position: 'absolute', top: 16, left: 24, fontSize: 12, color: 'var(--text-tertiary)', fontWeight: 700, letterSpacing: '0.1em' }}>BFS CRAWLER SIMULATION</div>
+          
+          {/* Central Root Node */}
+          <motion.div 
+            initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 0.2, type: 'spring' }}
+            style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: 24, height: 24, borderRadius: '50%', background: '#4285F4', boxShadow: '0 0 20px #4285F4', zIndex: 10 }}
+          />
+          
+          {/* Child Nodes */}
+          {[
+            { top: '20%', left: '30%', d: 0.4 }, { top: '80%', left: '35%', d: 0.6 },
+            { top: '30%', left: '75%', d: 0.8 }, { top: '70%', left: '65%', d: 1.0 },
+            { top: '50%', left: '15%', d: 1.2 }, { top: '50%', left: '85%', d: 1.4 }
+          ].map((pos, i) => (
+            <div key={i}>
+              <motion.div 
+                initial={{ scale: 0 }} whileInView={{ scale: 1 }} viewport={{ once: true }} transition={{ delay: pos.d, type: 'spring' }}
+                style={{ position: 'absolute', top: pos.top, left: pos.left, width: 12, height: 12, borderRadius: '50%', background: '#34A853', zIndex: 10 }}
+              />
+              <motion.svg style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: 5, pointerEvents: 'none' }}>
+                <motion.line 
+                  initial={{ pathLength: 0, opacity: 0 }}
+                  whileInView={{ pathLength: 1, opacity: 0.3 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: pos.d - 0.1, duration: 0.5 }}
+                  x1="50%" y1="50%" x2={pos.left} y2={pos.top} 
+                  stroke="#34A853" strokeWidth="2" strokeDasharray="4 4"
+                />
+              </motion.svg>
+            </div>
+          ))}
+          <div style={{ position: 'absolute', bottom: 16, right: 24, fontSize: 11, color: '#10B981', fontFamily: 'monospace' }}>[Queue: 0] [Visited: 7] [Status: Converged]</div>
         </motion.div>
       </section>
 

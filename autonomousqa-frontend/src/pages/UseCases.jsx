@@ -23,28 +23,28 @@ const features = [
     {
         icon: Zap, secondaryIcon: Wrench, tag: 'AGENT 01', title: 'Self-Healing Test Intelligence', accent: '#F59E0B', gradient: 'linear-gradient(135deg, #F59E0B, #D97706)',
         problem: 'A developer renames a button from "Submit" to "Save & Continue". Every test that clicked that button fails. QA spends a day fixing selectors.',
-        solution: 'BugZero creates Semantic Fingerprints for every element — visual position, surrounding text, ARIA labels, functional role. When UI changes, it auto-heals with confidence scoring.',
-        highlights: ['Semantic Fingerprinting', 'Confidence-Scored Healing', 'Zero False Positives', 'Full Healing Audit Trail'],
+        solution: 'BugZero creates Semantic Fingerprints for every element — visual position, surrounding text, ARIA labels, functional role. When UI changes, it auto-heals using a Fuzzy Scoring Matrix (Levenshtein Distance + Pythagorean Spatial Decay).',
+        highlights: ['Semantic Fingerprinting', 'Levenshtein Text Matching', 'Spatial Decay Algorithms', 'Deterministic Healing'],
         impact: 'Eliminates 60% of test maintenance effort',
-        techFlow: ['fingerprint_page()', '→ detect_and_heal()', '→ Gemini LLM repair', '→ validate on page', '→ store HealingEvent'],
+        techFlow: ['fingerprint_DOM()', '→ node_missing_exception', '→ init_fuzzy_score_matrix()', '→ match = max_score(candidates)', '→ update_selector(match)'],
         metric: { value: '0', label: 'Scripts to maintain' },
     },
     {
         icon: Shield, secondaryIcon: Lock, tag: 'AGENT 02', title: 'Autonomous Auth Navigator', accent: '#A78BFA', gradient: 'linear-gradient(135deg, #A78BFA, #7C3AED)',
         problem: 'Modern apps use Google SSO, OAuth2, MFA with TOTP codes, CAPTCHA. Setting up test automation for these requires dedicated engineering effort.',
-        solution: 'The Auth Navigator uses computer vision, DOM analysis, and LLM reasoning to navigate any login flow autonomously — SSO, MFA, CAPTCHA — and stores strategies as reusable playbooks.',
+        solution: 'The Auth Navigator uses deterministic DOM traversal and structural heuristics to navigate any login flow autonomously — SSO, MFA, CAPTCHA — and stores strategies as reusable playbooks.',
         highlights: ['SSO & OAuth Navigation', 'MFA/TOTP Handling', 'JWT Lifecycle Management', 'Reusable Auth Playbooks'],
         impact: 'Set once, run forever — zero auth setup per environment',
-        techFlow: ['detect login form', '→ classify auth type', '→ navigate SSO/OAuth', '→ handle MFA', '→ save playbook'],
+        techFlow: ['detect_auth_gate()', '→ classify_auth_type()', '→ execute_sso_oauth_flow()', '→ inject_totp_seed()', '→ persist_session_state()'],
         metric: { value: '∞', label: 'Auth flows supported' },
     },
     {
         icon: Eye, secondaryIcon: GitCompare, tag: 'AGENT 03', title: 'Visual Regression AI Engine', accent: '#22D3EE', gradient: 'linear-gradient(135deg, #22D3EE, #06B6D4)',
         problem: 'Traditional tools compare screenshots pixel by pixel. A single font rendering difference generates hundreds of false positives. Teams turn off visual testing.',
-        solution: 'BugZero uses Gemini Vision to understand the meaning of visual changes like a human designer — distinguishing cosmetic noise from real usability-breaking issues.',
-        highlights: ['Semantic Visual Diff', 'Cosmetic vs Functional Classification', 'Automatic Baseline Management', 'Confidence-Scored Changes'],
+        solution: 'BugZero uses Structural Image Differencing (Gaussian Blur preprocessing + ImageChops Subtraction + SSIM) to mathematically distinguish cosmetic noise from real layout-breaking defects.',
+        highlights: ['Structural Differencing', 'Gaussian Pre-processing', 'SSIM Thresholding', 'Zero AI Hallucination'],
         impact: 'Only real problems surface — zero false positive mode',
-        techFlow: ['take screenshot', '→ fetch baseline', '→ Gemini compares both', '→ classify changes', '→ update baseline'],
+        techFlow: ['capture_viewport()', '→ apply_gaussian_blur(radius=5)', '→ ImageChops.difference(base, new)', '→ calculate_SSIM()', '→ if SSIM < 0.95: flag_defect()'],
         metric: { value: '0', label: 'False positives' },
     },
     {
@@ -356,31 +356,39 @@ export default function UseCases() {
                                                 </div>
                                             </div>
 
-                                            {/* Technical flow — pipeline visualization */}
-                                            <div>
+                                            {/* Technical flow — Terminal Visualization */}
+                                            <div style={{ marginTop: 8 }}>
                                                 <span style={{ fontSize: 10, fontWeight: 800, letterSpacing: '0.15em', color: 'var(--text-tertiary)', textTransform: 'uppercase', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
-                                                    <Activity size={12} /> PIPELINE FLOW
+                                                    <Activity size={12} /> ALGORITHMIC EXECUTION PIPELINE
                                                 </span>
                                                 <div style={{
-                                                    display: 'flex', alignItems: 'center', gap: 4, flexWrap: 'wrap', marginTop: 8,
-                                                    padding: '14px 18px', borderRadius: 10,
-                                                    background: isDark ? 'rgba(0,0,0,0.3)' : 'rgba(0,0,0,0.03)',
+                                                    display: 'flex', flexDirection: 'column', gap: 8, marginTop: 8,
+                                                    padding: '20px', borderRadius: 10,
+                                                    background: '#0F172A',
                                                     border: '1px solid var(--border-subtle)',
                                                     fontFamily: "'Geist Mono', 'JetBrains Mono', monospace",
+                                                    boxShadow: 'inset 0 2px 10px rgba(0,0,0,0.5)',
+                                                    position: 'relative',
+                                                    overflow: 'hidden'
                                                 }}>
+                                                    <div style={{ position: 'absolute', top: 12, right: 16, display: 'flex', gap: 6 }}>
+                                                        <div style={{ width: 10, height: 10, borderRadius: 5, background: '#EF4444' }} />
+                                                        <div style={{ width: 10, height: 10, borderRadius: 5, background: '#F59E0B' }} />
+                                                        <div style={{ width: 10, height: 10, borderRadius: 5, background: '#10B981' }} />
+                                                    </div>
                                                     {techFlow.map((step, si) => (
-                                                        <motion.span key={si}
-                                                            initial={{ opacity: 0, x: -5 }}
+                                                        <motion.div key={si}
+                                                            initial={{ opacity: 0, x: -10 }}
                                                             animate={{ opacity: 1, x: 0 }}
-                                                            transition={{ delay: si * 0.1 }}
+                                                            transition={{ delay: si * 0.15 }}
                                                             style={{
-                                                                fontSize: 12, fontWeight: 500,
-                                                                color: step.startsWith('→') ? 'var(--text-tertiary)' : accent,
-                                                                padding: step.startsWith('→') ? '2px 2px' : '4px 10px',
-                                                                borderRadius: step.startsWith('→') ? 0 : 6,
-                                                                background: step.startsWith('→') ? 'transparent' : `${accent}10`,
+                                                                fontSize: 13, fontWeight: 500,
+                                                                color: step.startsWith('→') ? '#94A3B8' : accent,
                                                             }}
-                                                        >{step}</motion.span>
+                                                        >
+                                                            <span style={{ color: '#475569', marginRight: 12 }}>{si + 1 > 9 ? si + 1 : `0${si + 1}`}</span> 
+                                                            {step}
+                                                        </motion.div>
                                                     ))}
                                                 </div>
                                             </div>

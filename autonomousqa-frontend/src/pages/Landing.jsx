@@ -70,6 +70,30 @@ export default function Landing() {
             overflowX: 'hidden',
             transition: 'background 0.3s ease',
         }}>
+            {/* ponytail: Native HTML5 dialog element. The browser handles the backdrop and focus trap. */}
+            <dialog id="demo-modal" onClick={(e) => e.target.id === 'demo-modal' && e.target.close()} style={{
+                padding: 0, border: '1px solid var(--border-subtle)', borderRadius: 16, background: 'var(--color-bg-primary)',
+                maxWidth: 800, width: '90%', backdropFilter: 'blur(10px)', margin: 'auto'
+            }} className="backdrop:bg-black/60 backdrop:backdrop-blur-sm">
+                <div style={{ padding: 24 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+                        <h3 style={{ fontSize: 18, fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>Terminal Output Demo</h3>
+                        <button onClick={() => document.getElementById('demo-modal').close()} style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer' }}>✕</button>
+                    </div>
+                    <div style={{ background: '#0F172A', padding: 20, borderRadius: 8, fontFamily: 'monospace', color: '#10B981', fontSize: 13, lineHeight: 1.6, overflowX: 'auto' }}>
+                        <div style={{ color: '#64748B' }}>$ autonomousqa run --url https://example.com</div>
+                        <br/>
+                        <div>[INFO] Initializing Crawler (BFS)...</div>
+                        <div>[INFO] Found 142 interactive elements.</div>
+                        <div style={{ color: '#F59E0B' }}>[WARN] Selector #checkout-btn broken. Initiating fuzzy score matrix.</div>
+                        <div>[INFO] Levenshtein match found (94%). Pythagorean distance: 0px.</div>
+                        <div style={{ color: '#A78BFA' }}>[HEAL] ✅ Self-Healed #checkout-btn → .btn-checkout-new</div>
+                        <div>[INFO] Baseline comparison: ImageChops variance = 0.02%. Pass.</div>
+                        <br/>
+                        <div style={{ color: '#60A5FA' }}>Test completed in 1.42s. 0 AI tokens used. Cost: $0.00.</div>
+                    </div>
+                </div>
+            </dialog>
             <DynamicArrow targetRef={getStartedRef} containerRef={quoteContainerRef} />
             
             {/* Subtle grid */}
@@ -130,6 +154,11 @@ export default function Landing() {
                     <span style={{ fontWeight: 700, fontSize: 15, letterSpacing: '-0.02em', color: 'var(--text-primary)' }}>
                         Bug<span style={{ color: 'var(--color-accent-gold)' }}>Zero</span>
                     </span>
+                    {/* ponytail: Native CSS pulse dot. No websocket bloat for a static landing page. */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginLeft: 16, padding: '4px 8px', background: 'var(--glass-subtle)', borderRadius: 20, border: '1px solid var(--border-subtle)' }}>
+                        <span className="animate-pulse" style={{ display: 'inline-block', width: 6, height: 6, borderRadius: '50%', background: '#10B981', boxShadow: '0 0 8px #10B981' }} />
+                        <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Engine Online</span>
+                    </div>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
                     <AnimatedThemeToggle />
@@ -219,7 +248,9 @@ export default function Landing() {
                             label="Start Testing Free"
                             onClick={() => navigate('/login')}
                         />
+                        {/* ponytail: Native HTML <dialog> trigger. No React-modal dependency. */}
                         <motion.button
+                            onClick={() => document.getElementById('demo-modal').showModal()}
                             whileHover={{ scale: 1.03, borderColor: 'var(--border-default)' }}
                             whileTap={{ scale: 0.97 }}
                             style={{
@@ -235,6 +266,26 @@ export default function Landing() {
                             <Globe size={17} /> Watch Demo
                         </motion.button>
                     </div>
+
+                    {/* ponytail: Native clipboard API. One-click copy, zero dependencies. */}
+                    <motion.div 
+                        initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.6 }}
+                        onClick={(e) => {
+                            navigator.clipboard.writeText('npx create-autonomousqa@latest');
+                            e.currentTarget.style.borderColor = 'var(--color-accent-gold)';
+                            setTimeout(() => e.currentTarget.style.borderColor = 'var(--border-subtle)', 1000);
+                        }}
+                        style={{
+                            marginTop: 24, padding: '8px 16px', background: 'var(--glass-subtle)',
+                            border: '1px solid var(--border-subtle)', borderRadius: 8,
+                            display: 'inline-flex', alignItems: 'center', gap: 10, cursor: 'pointer',
+                            fontFamily: 'monospace', fontSize: 13, color: 'var(--text-secondary)',
+                            transition: 'border-color 0.2s', margin: '24px auto 0'
+                        }}
+                        title="Click to copy"
+                    >
+                        <span style={{ color: 'var(--color-accent-gold)' }}>$</span> npx create-autonomousqa@latest
+                    </motion.div>
 
                     {/* Social proof */}
                     <motion.div

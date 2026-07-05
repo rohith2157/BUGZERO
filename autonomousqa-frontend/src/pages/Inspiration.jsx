@@ -59,18 +59,37 @@ const LighthouseGauge = ({ score, color, size = 54 }) => {
     const numScore = parseInt(score) || 0;
     const r = (size - 6) / 2;
     const circ = 2 * Math.PI * r;
-    const offset = circ - (numScore / 100) * circ;
+    const [offset, setOffset] = useState(circ);
+    const [isHovered, setIsHovered] = useState(false);
+    
+    useEffect(() => {
+        setOffset(circ - (numScore / 100) * circ);
+    }, [numScore, circ]);
+    
     const scoreColor = numScore >= 90 ? LH.scoreGreen : numScore >= 50 ? LH.scoreOrange : LH.scoreRed;
     return (
-        <svg width={size} height={size} style={{ transform: 'rotate(-90deg)' }}>
-            <circle cx={size/2} cy={size/2} r={r} fill="none" stroke={`${color}20`} strokeWidth={4} />
-            <circle cx={size/2} cy={size/2} r={r} fill="none" stroke={scoreColor} strokeWidth={4}
-                strokeDasharray={circ} strokeDashoffset={offset} strokeLinecap="round"
-                style={{ transition: 'stroke-dashoffset 1.5s ease' }} />
-            <text x={size/2} y={size/2} textAnchor="middle" dominantBaseline="central"
-                style={{ transform: 'rotate(90deg)', transformOrigin: 'center', fontSize: 16, fontWeight: 900, fill: scoreColor }}
-            >{score}</text>
-        </svg>
+        <motion.div 
+            onMouseEnter={() => setIsHovered(true)} 
+            onMouseLeave={() => setIsHovered(false)}
+            whileHover={{ scale: 1.15, rotate: 10 }}
+            transition={{ type: 'spring', stiffness: 300 }}
+            style={{ position: 'relative', cursor: 'pointer', display: 'inline-block' }}
+        >
+            <svg width={size} height={size} style={{ transform: 'rotate(-90deg)' }}>
+                <circle cx={size/2} cy={size/2} r={r} fill="none" stroke={`${color}20`} strokeWidth={4} />
+                <circle cx={size/2} cy={size/2} r={r} fill="none" stroke={isHovered ? color : scoreColor} strokeWidth={isHovered ? 6 : 4}
+                    strokeDasharray={circ} strokeDashoffset={offset} strokeLinecap="round"
+                    style={{ transition: 'all 1.5s cubic-bezier(0.22, 1, 0.36, 1)' }} />
+                <text x={size/2} y={size/2} textAnchor="middle" dominantBaseline="central"
+                    style={{ transform: 'rotate(90deg)', transformOrigin: 'center', fontSize: 16, fontWeight: 900, fill: isHovered ? color : scoreColor, transition: 'fill 0.3s' }}
+                >{score}</text>
+            </svg>
+            {isHovered && numScore === 100 && (
+                <div style={{ position: 'absolute', inset: -20, pointerEvents: 'none' }}>
+                    <div style={{ position: 'absolute', top: '50%', left: '50%', width: 8, height: 8, borderRadius: '50%', background: scoreColor, animation: 'particle-burst 0.6s ease-out forwards', transform: 'translate(-50%, -50%)' }} />
+                </div>
+            )}
+        </motion.div>
     );
 };
 
@@ -84,8 +103,8 @@ const lighthouseCategories = [
 
 const lighthouseFlow = [
     { step: '01', title: 'URL Submitted', desc: 'User enters any URL into BugZero', icon: Globe },
-    { step: '02', title: 'Headless Lighthouse', desc: 'Automated Lighthouse audit runs on every discovered page', icon: Cpu },
-    { step: '03', title: 'AI Classification', desc: 'GPT-4o analyzes audit failures, classifies severity & business impact', icon: Brain },
+    { step: '02', title: 'Deterministic Audit', desc: 'Automated heuristic scan executes against every discovered DOM node', icon: Cpu },
+    { step: '03', title: 'Algorithmic Grading', desc: 'Mathematical thresholding classifies severity and business impact without hallucinations', icon: Brain },
     { step: '04', title: 'Actionable Report', desc: 'Hygiene scores, fix guidance, and trend tracking — all in one dashboard', icon: BarChart3 },
 ];
 
@@ -367,6 +386,13 @@ export default function Inspiration() {
 
             {/* Footer */}
             <CinematicFooter onNavigate={(path) => navigate(path)} />
+
+            <style>{`
+                @keyframes particle-burst {
+                    0% { transform: translate(-50%, -50%) scale(1); opacity: 0.8; box-shadow: 0 0 0 0 rgba(12, 206, 107, 0.7); }
+                    100% { transform: translate(-50%, -50%) scale(3); opacity: 0; box-shadow: 0 0 0 30px rgba(12, 206, 107, 0); }
+                }
+            `}</style>
         </div>
     );
 }
