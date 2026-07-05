@@ -1,10 +1,9 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { User, Users, Key, Bell, CreditCard, Pencil, Trash2, Plus, Copy, Eye, EyeOff, Loader2, Activity, Github, CheckCircle2 } from 'lucide-react';
+import { User, Users, Key, Bell, CreditCard, Pencil, Trash2, Plus, Copy, Eye, EyeOff, Loader2, Activity } from 'lucide-react';
 import StatusBadge from '../components/ui/StatusBadge';
 import { LoginActivity } from '../components/ui/login-activity';
 import { settings as settingsApi } from '../lib/api';
-import { useAuthStore } from '../store/authStore';
 
 const tabs = [
     { id: 'profile', icon: User, label: 'Profile' },
@@ -16,9 +15,6 @@ const tabs = [
 ];
 
 export default function Settings() {
-    const user = useAuthStore(s => s.user) || {};
-    const githubAccessToken = useAuthStore(s => s.githubAccessToken);
-    const setAuth = useAuthStore(s => s.setAuth);
     const [activeTab, setActiveTab] = useState('profile');
     const [teamMembers, setTeamMembers] = useState([]);
     const [apiKeys, setApiKeys] = useState([]);
@@ -29,42 +25,8 @@ export default function Settings() {
     const [copiedKeyId, setCopiedKeyId] = useState(null);
     const [showKeyId, setShowKeyId] = useState(null);
     const [profileError, setProfileError] = useState('');
-    const [githubProfile, setGithubProfile] = useState(null);
-    const [disconnecting, setDisconnecting] = useState(false);
-    const [isHoveringDisconnect, setIsHoveringDisconnect] = useState(false);
 
     useEffect(() => { document.title = 'Settings — BugZero'; }, []);
-
-    const handleDisconnectGithub = async () => {
-        setDisconnecting(true);
-        const token = localStorage.getItem('aq_token');
-        try {
-            await fetch('http://localhost:3000/api/auth/github/disconnect', {
-                method: 'DELETE',
-                headers: { Authorization: `Bearer ${token}` }
-            });
-            setAuth(user, token, null); // Clear githubAccessToken in store
-            setGithubProfile(null);
-        } catch (err) {
-            console.error('Failed to disconnect:', err);
-        } finally {
-            setDisconnecting(false);
-        }
-    };
-
-    useEffect(() => {
-        if (githubAccessToken) {
-            const token = localStorage.getItem('aq_token');
-            fetch('http://localhost:3000/api/auth/github/profile', {
-                headers: { Authorization: `Bearer ${token}` }
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.connected && data.username) setGithubProfile(data);
-            })
-            .catch(() => {});
-        }
-    }, [githubAccessToken]);
     const [notifications, setNotifications] = useState({
         'Test Completed': true,
         'Critical Defects': true,
@@ -180,10 +142,10 @@ export default function Settings() {
                 <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="glass-card" style={{ padding: '28px', maxWidth: 600 }}>
                     <h3 style={{ fontSize: 17, fontWeight: 700, marginBottom: 24 }}>Profile Settings</h3>
                     {[
-                        { label: 'Full Name', field: 'name', value: user.name || '', type: 'text' },
-                        { label: 'Email', field: 'email', value: user.email || '', type: 'email', disabled: true },
-                        { label: 'Organization', field: 'organization', value: user.orgId ? 'BugZero Inc.' : 'No Organization', type: 'text', disabled: true },
-                        { label: 'Role', field: 'role', value: user.role || 'Developer', type: 'text', disabled: true },
+                        { label: 'Full Name', field: 'name', value: 'Rohith Kumar', type: 'text' },
+                        { label: 'Email', field: 'email', value: 'rohith@autonomousqa.io', type: 'email', disabled: true },
+                        { label: 'Organization', field: 'organization', value: 'BugZero Inc.', type: 'text', disabled: true },
+                        { label: 'Role', field: 'role', value: 'Owner', type: 'text', disabled: true },
                     ].map(({ label, field, value, type, disabled }) => (
                         <div key={label} style={{ marginBottom: 18 }}>
                             <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 6, display: 'block', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{label}</label>
@@ -210,78 +172,7 @@ export default function Settings() {
                             padding: '10px 24px', fontSize: 14, fontWeight: 600,
                             background: 'var(--gradient-primary)', color: '#fff',
                             border: 'none', borderRadius: 'var(--radius-md)', cursor: profileSaving ? 'wait' : 'pointer',
-                            marginBottom: 40
                         }}>{profileSaving ? 'Saving...' : 'Save Changes'}</motion.button>
-
-                    <h3 style={{ fontSize: 17, fontWeight: 700, marginBottom: 24 }}>Connected Accounts</h3>
-                    <div style={{
-                        padding: '16px 20px',
-                        background: 'rgba(255, 255, 255, 0.02)',
-                        border: '1px solid var(--border-subtle)',
-                        borderRadius: 12,
-                        display: 'flex', alignItems: 'center', justifyContent: 'space-between'
-                    }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                            <div style={{ width: 40, height: 40, borderRadius: 8, background: 'rgba(255, 255, 255, 0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
-                                {githubProfile?.avatar ? (
-                                    <img src={githubProfile.avatar} alt="GitHub" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                                ) : (
-                                    <Github size={20} />
-                                )}
-                            </div>
-                            <div>
-                                <h4 style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)', margin: 0 }}>GitHub</h4>
-                                <p style={{ fontSize: 13, color: 'var(--text-secondary)', margin: '4px 0 0 0' }}>
-                                    {githubProfile?.username ? (
-                                        <a href={githubProfile.profileUrl} target="_blank" rel="noreferrer" style={{ color: 'var(--color-accent-gold)', textDecoration: 'none' }}>@{githubProfile.username}</a>
-                                    ) : githubAccessToken ? (
-                                        'Connected securely to BugZero engine'
-                                    ) : (
-                                        'Not connected'
-                                    )}
-                                </p>
-                            </div>
-                        </div>
-                        {githubAccessToken ? (
-                            <motion.button
-                                onMouseEnter={() => setIsHoveringDisconnect(true)}
-                                onMouseLeave={() => setIsHoveringDisconnect(false)}
-                                whileTap={{ scale: 0.95 }}
-                                onClick={handleDisconnectGithub}
-                                disabled={disconnecting}
-                                style={{
-                                    padding: '8px 16px', fontSize: 13, fontWeight: 600,
-                                    background: isHoveringDisconnect ? 'rgba(239, 68, 68, 0.1)' : 'rgba(34, 197, 94, 0.1)', 
-                                    color: isHoveringDisconnect ? '#EF4444' : '#22C55E',
-                                    border: `1px solid ${isHoveringDisconnect ? 'rgba(239, 68, 68, 0.2)' : 'rgba(34, 197, 94, 0.2)'}`, 
-                                    borderRadius: 6,
-                                    cursor: disconnecting ? 'wait' : 'pointer', 
-                                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-                                    opacity: disconnecting ? 0.5 : 1,
-                                    width: 120,
-                                    transition: 'all 0.2s ease'
-                                }}
-                            >
-                                {disconnecting ? <Loader2 size={14} className="spin" /> : null}
-                                {!disconnecting && !isHoveringDisconnect ? <CheckCircle2 size={14} /> : null}
-                                {disconnecting ? 'Wait...' : (isHoveringDisconnect ? 'Disconnect' : 'Connected')}
-                            </motion.button>
-                        ) : (
-                            <button
-                                onClick={() => {
-                                    const token = localStorage.getItem('aq_token');
-                                    window.location.href = `http://localhost:3000/api/auth/github?token=${token}`;
-                                }}
-                                style={{
-                                    padding: '8px 16px', fontSize: 13, fontWeight: 600,
-                                    background: 'var(--color-bg-elevated)', border: '1px solid var(--border-subtle)',
-                                    borderRadius: 6, color: 'var(--text-primary)', cursor: 'pointer'
-                                }}
-                            >
-                                Connect
-                            </button>
-                        )}
-                    </div>
                 </motion.div>
             )}
 
