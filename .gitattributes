@@ -1,0 +1,3 @@
+# Ignore massive mock/dump HTML files from GitHub language statistics
+ai-core/insta_page.html linguist-generated=true
+*.html linguist-detectable=false
