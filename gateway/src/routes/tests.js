@@ -178,19 +178,35 @@ router.post('/', authenticate, createTestRules, validate, async (req, res) => {
     try {
         const { url, config } = req.body;
 
+        if (config && config.type === 'repo') {
+            const user = await prisma.user.findUnique({
+                where: { id: req.user.id },
+                select: { githubAccessToken: true }
+            });
+            if (!user || !user.githubAccessToken) {
+                return res.status(401).json({ error: 'GitHub account not linked or token revoked' });
+            }
+            config.github_token = user.githubAccessToken;
+        }
+
+        const dbConfig = { ...config };
+        delete dbConfig.github_token; // Never save the token in plaintext in the testRun config
+
         const testRun = await prisma.testRun.create({
             data: {
                 url,
                 status: 'queued',
-                config: config || {},
+                config: dbConfig,
                 userId: req.user.id,
                 orgId: req.user.orgId,
             },
         });
 
-        // Trigger AI Core asynchronously
+        // Trigger AI Core asynchronously (pass the memory object with the token included)
         const io = req.app.get('io');
-        triggerAITest(testRun, io).catch(err => {
+        const aiTestRun = { ...testRun, config };
+        
+        triggerAITest(aiTestRun, io).catch(err => {
             console.error('AI test trigger failed:', err);
         });
 

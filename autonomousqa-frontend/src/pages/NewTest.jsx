@@ -104,7 +104,6 @@ export default function NewTest() {
                 url: target,
                 config: {
                     type: mode, // 'url' or 'repo'
-                    github_token: token || undefined,
                     branch: mode === 'repo' ? repoBranch : undefined,
                     browser: browser.toLowerCase(),
                     crawl_depth: depthMap[depth] || 'standard',
