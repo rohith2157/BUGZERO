@@ -1,0 +1,128 @@
+﻿Technical Roadmap: Phase 3 'God-Mode' AutonomousQA Engine
+1. The 'God-Mode' Paradigm Shift: Deterministic Engineering
+The transition from "Normal" AI—characterized by high-latency, probabilistic LLM dependencies—to Phase 3 "God-Mode" represents an architectural manifesto for 100% deterministic engineering. We are moving away from asking models if a UI "looks right" and toward mathematically provable truth. By replacing expensive, hallucination-prone API calls with localized algorithmic scoring, we achieve microsecond execution speed and absolute reliability.Table 1: Normal AI (Probabilistic) vs. Phase 3 God-Mode (Deterministic)| Dimension | Normal AI Approach (Probabilistic) | Phase 3 God-Mode (Deterministic) || ------ | ------ | ------ || Speed | Network I/O Bound (4000ms+ API latency) | CPU Bound (Microsecond/15ms execution) || Cost | High ($ per API token per run) | $0.00 (Offline & Local execution) || Reliability | Probabilistic (Hallucinations possible) | 100% Deterministic (Mathematical Truth) || Self-Healing | LLM-driven DOM repair | Fuzzy DOM Scoring (Levenshtein + Pythagorean) || Vision | Gemini-driven visual analysis | SSIM, Pixel Math, and Gaussian Blurring |
+Deterministic Logic Overrides
+* Visual Regression Math:  Traditional Mean Squared Error (MSE) approaches fail due to pixel-level noise from font anti-aliasing. Our "Extraordinary" engine utilizes  Blurred Image Subtraction . By applying a Gaussian blur to both baseline and current screenshots, we eliminate microscopic hex variations while preserving macro-structural integrity. We then use Pillow.ImageChops.difference() to calculate statistical variance.
+* Algorithmic Healing:  We utilize a  Mathematical Scoring Matrix  to identify elements when selectors break. This is not a "guess"; it is a heuristic summation:
+* Tag Match:  +20 points.
+* Text Similarity (Levenshtein Distance):  Up to +35 points for character-level proximity.
+* Attribute Intersection:  Up to +25 points for CSS class/ID overlap.
+* Spatial Proximity (Pythagorean Spatial Decay):  Up to +20 points based on 2D coordinate drift.
+2. Implementation A+C: GitHub Metadata Engine & Advanced UI
+The GitHub Engine enables "Shift Left" testing, allowing autonomous validation of code states before they reach a production URL.
+OAuth Workflow (Stage 0)
+* Redirect to GitHub:  The Gateway redirects users to the GitHub OAuth portal requesting the repo and user:email scopes.
+* Token Exchange:  Upon user approval, the temporary code is exchanged for a githubAccessToken, persisted in the Database Layer.
+* Repository Synchronization:  The engine uses the token to fetch a list of all public and private repositories accessible to the user.
+Metadata Extraction Logic
+The RepoManager (located in ai-core/utils/repo_server.py) captures developer-centric context immediately following a shallow clone (--depth 1).
+* Command:  git log -1 --pretty=format:"%H|%s|%an|%ae"
+* Captured Data:  Commit SHA (Full), Commit Message, Author Name, and Author Email.
+* Branch Identification:  Captured via git rev-parse --abbrev-ref HEAD.
+Frontend UI Specifications
+The Dashboard and History pages utilize  Next.js 16.1  for microsecond responsiveness.
+* GitHub Chip:  A premium UI element for repo-mode runs. It features a GitHub icon, the branch name, and a  Short SHA Pill (7 characters) .
+* Contextual Linking:  The report header provides a direct "View on GitHub" link mapping to the specific commit SHA.
+3. RepoGraph: Tree-sitter AST to Neo4j Mapping
+RepoGraph provides a structured representation of the repository, enabling fine-grained context for autonomous agents without ingesting the entire codebase.
+Construction Logic
+1. Code Line Parsing:  The engine traverses the repository, using  Tree-sitter  to generate an Abstract Syntax Tree (AST). We selectively retain only those lines involving function calls and dependency relations, discarding extraneous boilerplate and individual redundant variables.
+2. Project-Dependent Filtering:  We exclude "Global" (Python built-ins like len, list) and "Local" (third-party imports identified via import statement parsing) relations to minimize noise.
+3. Graph Organization:  The repo is mapped as  $G = \{V, E\}$ .
+Graph Schema Definition
+Element,Type,Description
+Node (  $V$  ),def,"Line where a function, class, or variable is defined. Attributes: file, line, category."
+Node (  $V$  ),ref,"Line where an entity is invoked. Attributes: file, line, method."
+Edge (  $E$  ),Einvoke,Directed edge from a definition to a reference.
+Edge (  $E$  ),Econtain,"Directed edge connecting a module (e.g., class) to its internal components."
+Neo4j Retrieval
+The engine retrieves  k-hop ego-graphs  centered on specific search terms. This captures immediate functional relationships, allowing the agent to understand the "blast radius" of a potential defect without loading irrelevant files into the context window.
+4. KISS Sorcar: Git Worktree Isolation & Dev-Server Orchestration
+KISS Sorcar ensures that every test run occurs in a pristine, isolated environment.
+Isolation & Setup
+The system executes a git clone --depth 1 into a unique directory per run. This shallow clone provides the necessary files without the overhead of full repository history.
+Project Detection Mapping
+The engine identifies the stack based on root-level manifest files:| Root File | Project Type | Dev Start Sequence || ------ | ------ | ------ || package.json | Node.js | npm install -> npm run dev || pyproject.toml | Python | pip install . -> python -m app || Cargo.toml | Rust | cargo run || go.mod | Go | go run . || index.html | Static | python3 -m http.server |
+Dev-Server Logic
+The engine monitors stdout for URL patterns (e.g., http://localhost:5173).
+1. Timeout:  If no URL is detected within  15 seconds , the engine fallbacks to the provided PORT environment variable.
+2. Warm-up:  Once the URL is found, a  2-second warm-up period  is enforced before the crawler agent is dispatched.
+5. Architectural Blueprints & File System Mapping
+4-Layer Tech Stack
+1. Client Layer:  Next.js 16.1 (App Router), shadcn/ui, and Framer Motion for a premium, high-performance interface.
+2. API Gateway:  Express.js handling NextAuth.js, Prisma ORM, and Socket.io WebSocket relays.
+3. AI Core:  Python FastAPI orchestrating multi-agent LangGraph workflows.
+4. Database Layer:  PostgreSQL (via Prisma), Neo4j (Graph), and Redis (Caching).
+Agent Directory (ai-core/agents/)
+* ai-core/agents/crawler.py: BFS discovery.
+* ai-core/agents/tester.py: Functional/SEO checks.
+* ai-core/agents/self_healing_agent.py: Algorithmic repair.
+* ai-core/agents/vision_agent.py: Mathematical pixel diffing.
+* ai-core/agents/scheduler.py: Risk-scored prioritization.
+* ai-core/agents/auth_agent.py: SSO/OAuth/MFA navigation.
+* ai-core/agents/chaos_agent.py: Throttling/Failure injection.
+* ai-core/agents/report_agent.py: Score aggregation.
+Database Schema (13 Prisma Models)
+The persistence layer is defined by: User, Organization, TestRun, Page, Defect, ComplianceResult, PerformanceMetric, HealingEvent, ScreenshotBaseline, AuthPlaybook, ApiKey, NotificationPreference, and UserActivity.
+6. Phase 3 Step-by-Step Implementation Roadmap (16-Week Schedule)
+* Phase 0-1: Foundation & Crawling (Weeks 1-3)
+* Deliverables: Monorepo, Playwright Crawler, Sitemap storage.
+* Status: Foundation
+* Phase 2: Auth Navigator (Week 4)
+* Deliverables: SSO/OAuth automation and Redis session management.
+* Status: Feature 2
+* Phase 3-4: Detection & Intelligence (Weeks 5-7)
+* Deliverables: axe-core integration, functional testing, and GPT-4o classification.
+* Status: Intelligence Layer
+* Phase 5-6: Self-Healing & Visual Regression (Weeks 8-9)
+* Deliverables: Semantic fingerprinting and SSIM/Pixel Math pipeline.
+* Status: Deterministic Layer
+* Phase 7-9: Analytics & Visualization (Weeks 10-12)
+* Deliverables: 4-Factor Risk Model and D3.js Knowledge Graph UI.
+* Status: Visualization
+* Phase 10-11: Scale & Production (Weeks 13-16)
+* Deliverables: Multi-tenant management, API Key system, and Commit Status CI Gate.
+* Status: Production Ready
+7. Feature-Specific Deep Dives & Validation Protocols
+Feature 1: Self-Healing (Fuzzy Algorithmic Engine)
+* Validation:  Modify a button's id and text (e.g., "Submit" to "Confirm Order") in the dev server.
+* Protocol:  Verify the engine re-identifies the target based on its spatial coordinate and tag similarity. The click must resolve in  < 15ms .
+Feature 3: Visual Regression (Blurred Image Subtraction)
+* Validation:  Introduce a 1px shift in a navigation menu.
+* Protocol:  The engine must apply Gaussian blurring to baseline/current states. Fail the test only if the "Drift Percentage" calculated by ImageChops exceeds the  0.5% noise threshold .
+Feature 5: Performance Chaos Agent
+* Validation:  Inject network throttling (3G) using the Chaos Agent.
+* Protocol:  Measure LCP and FID against the unthrottled baseline. The engine must generate a "Performance Regression" alert.
+God-Mode Demo Checklist
+1. Input GitHub URL/Branch.
+2. Successful clone + Metadata extraction (SHA/Author).
+3. Automatic dev-server startup with dynamic port detection.
+4. RepoGraph construction in Neo4j.
+5. Execution of 0.5% threshold visual diffing.
+6. Autonomous "Pass/Fail" posted back to the GitHub Commit Status API.
+8. Deployment, DevOps, and CI/CD Integration
+Containerization (Docker Service Ports)
+* 3001: Frontend (Next.js)
+* 3000: API Gateway (Express)
+* 8000: AI Core (FastAPI)
+* 5432: PostgreSQL
+* 7474/7687: Neo4j (HTTP/Bolt)
+* 6379: Redis
+CI/CD Pipeline
+GitHub Actions workflow triggered on PR:
+1. Run Ruff (Python) and ESLint (JS) linting.
+2. Execute pytest and vitest suites.
+3. Trigger autonomous deployment to Vercel (Frontend) and Railway (Core).
+Environment Variables
+# Gateway (.env)
+DATABASE_URL=postgresql://user:pass@host:5432/autonomousqa
+GITHUB_CLIENT_ID=your_id
+GITHUB_CLIENT_SECRET=your_secret
+JWT_SECRET=your_secret
+
+
+# AI Core (.env)
+NEO4J_URI=neo4j+s://host.databases.neo4j.io
+REDIS_URL=rediss://default:token@host:6380
+GEMINI_API_KEY=your_key_for_vision_fallbacks
+HEADLESS=true
