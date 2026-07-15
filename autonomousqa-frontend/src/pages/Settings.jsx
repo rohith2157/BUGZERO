@@ -432,12 +432,29 @@ export default function Settings() {
                 <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="glass-card" style={{ padding: '24px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
                         <h3 style={{ fontSize: 17, fontWeight: 700 }}>API Keys</h3>
-                        <motion.button whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }} style={{
-                            padding: '8px 16px', fontSize: 12, fontWeight: 600,
-                            background: 'var(--gradient-primary)', color: '#fff',
-                            border: 'none', borderRadius: 'var(--radius-md)', cursor: 'pointer',
-                            display: 'flex', alignItems: 'center', gap: 4,
-                        }}>
+                        <motion.button 
+                            whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }} 
+                            onClick={async () => {
+                                const name = window.prompt("Enter a name for the new API Key:", "CI/CD Key");
+                                if (!name) return;
+                                try {
+                                    setLoadingKeys(true);
+                                    const { apiKey } = await settingsApi.createApiKey({ name });
+                                    setApiKeys(prev => [apiKey, ...prev]);
+                                    // Show full key just once!
+                                    window.alert(`Your new API Key is:\n\n${apiKey.key}\n\nPlease copy it now. You will not be able to see it again!`);
+                                } catch (err) {
+                                    window.alert(err.message || 'Failed to create API key');
+                                } finally {
+                                    setLoadingKeys(false);
+                                }
+                            }}
+                            style={{
+                                padding: '8px 16px', fontSize: 12, fontWeight: 600,
+                                background: 'var(--gradient-primary)', color: '#fff',
+                                border: 'none', borderRadius: 'var(--radius-md)', cursor: 'pointer',
+                                display: 'flex', alignItems: 'center', gap: 4,
+                            }}>
                             <Plus size={14} /> Generate Key
                         </motion.button>
                     </div>
@@ -485,6 +502,28 @@ export default function Settings() {
                                                 transition: 'all 0.2s',
                                             }}>
                                             {copiedKeyId === key.id ? '✓' : <Copy size={13} />}
+                                        </motion.button>
+                                        <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}
+                                            aria-label="Revoke API key"
+                                            onClick={async () => {
+                                                if (!window.confirm(`Are you sure you want to revoke the API key "${key.name}"?`)) return;
+                                                try {
+                                                    await settingsApi.revokeApiKey(key.id);
+                                                    setApiKeys(prev => prev.map(k => k.id === key.id ? { ...k, status: 'revoked' } : k));
+                                                } catch (err) {
+                                                    window.alert('Failed to revoke API key');
+                                                }
+                                            }}
+                                            style={{
+                                                width: 28, height: 28, borderRadius: 'var(--radius-sm)',
+                                                background: 'rgba(239, 68, 68, 0.1)', border: 'none',
+                                                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                                color: '#EF4444', cursor: 'pointer',
+                                                transition: 'all 0.2s', opacity: key.status === 'revoked' ? 0.5 : 1
+                                            }}
+                                            disabled={key.status === 'revoked'}
+                                        >
+                                            <Trash2 size={13} />
                                         </motion.button>
                                     </div>
                                 </div>

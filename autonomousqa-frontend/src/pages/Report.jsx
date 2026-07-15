@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Download, FileJson, FileText, FileSpreadsheet, ChevronDown, ExternalLink, Loader2, Eye, RefreshCw } from 'lucide-react';
+import { Download, FileJson, FileText, FileSpreadsheet, ChevronDown, ExternalLink, Loader2, Eye, RefreshCw, Wrench, CheckCircle2 } from 'lucide-react';
 import HygieneScoreGauge from '../components/ui/HygieneScoreGauge';
 import StatusBadge from '../components/ui/StatusBadge';
 import { severityConfig, defectTypeColors } from '../data/mockData';
@@ -23,6 +23,7 @@ export default function Report() {
     if (id === 'none') return <EmptyTestState title="Test Report" />;
 
     const [reportData, setReportData] = useState(null);
+    const [healingEvents, setHealingEvents] = useState([]);
     const [loading, setLoading] = useState(true);
     const [viewMode, setViewMode] = useState('visual');
 
@@ -115,9 +116,22 @@ export default function Report() {
                     score: Math.round(p.visionQualityScore),
                 })),
             });
+            });
         }).catch(() => {
             setReportData(null);
         }).finally(() => setLoading(false));
+
+        testsApi.healing(id).then(({ events }) => {
+            setHealingEvents((events || []).map(e => ({
+                id: e.id,
+                page: e.pageUrl ? safePath(e.pageUrl) : '/',
+                originalSelector: e.originalSelector,
+                healedSelector: e.healedSelector,
+                elementId: e.elementId,
+                confidence: e.confidence != null ? Math.round(e.confidence * 100) : 100,
+                time: e.createdAt ? new Date(e.createdAt).toLocaleString() : '',
+            })));
+        }).catch(() => {});
     }, [id]);
 
     if (loading) {
@@ -488,6 +502,62 @@ export default function Report() {
                             <br />No visual regressions detected — page visuals match baseline
                         </div>
                     )}
+                </motion.div>
+            )}
+
+            {/* Self-Healing Events List */}
+            {healingEvents.length > 0 && (
+                <motion.div variants={item} className="glass-card" style={{ padding: '24px', marginBottom: 24 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20 }}>
+                        <div style={{
+                            width: 32, height: 32, borderRadius: 8,
+                            background: 'rgba(16, 185, 129, 0.1)',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        }}>
+                            <Wrench size={16} style={{ color: '#10B981' }} />
+                        </div>
+                        <div>
+                            <h3 style={{ fontSize: 16, fontWeight: 700, margin: 0, color: 'var(--text-primary)' }}>Self-Healing Intelligence Log</h3>
+                            <div style={{ fontSize: 12, color: 'var(--text-tertiary)' }}>{healingEvents.length} selector{healingEvents.length !== 1 ? 's' : ''} auto-repaired during this run</div>
+                        </div>
+                    </div>
+                    
+                    <div style={{ overflowX: 'auto' }}>
+                        <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: 13 }}>
+                            <thead>
+                                <tr style={{ borderBottom: '1px solid var(--border-subtle)' }}>
+                                    <th style={{ padding: '12px 16px', color: 'var(--text-tertiary)', fontWeight: 600 }}>Status</th>
+                                    <th style={{ padding: '12px 16px', color: 'var(--text-tertiary)', fontWeight: 600 }}>Element</th>
+                                    <th style={{ padding: '12px 16px', color: 'var(--text-tertiary)', fontWeight: 600 }}>Original Selector</th>
+                                    <th style={{ padding: '12px 16px', color: 'var(--text-tertiary)', fontWeight: 600 }}>Healed To</th>
+                                    <th style={{ padding: '12px 16px', color: 'var(--text-tertiary)', fontWeight: 600 }}>Confidence</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {healingEvents.map((heal) => (
+                                    <tr key={heal.id} style={{ borderBottom: '1px solid var(--border-subtle)', background: 'var(--color-bg-card)' }}>
+                                        <td style={{ padding: '12px 16px' }}>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                                                <CheckCircle2 size={14} style={{ color: '#10B981' }} />
+                                                <span style={{ fontWeight: 600, color: '#10B981' }}>Healed</span>
+                                            </div>
+                                        </td>
+                                        <td style={{ padding: '12px 16px', fontFamily: "'Geist Mono', monospace", color: 'var(--text-secondary)' }}>{heal.elementId}</td>
+                                        <td style={{ padding: '12px 16px', fontFamily: "'Geist Mono', monospace", color: '#EF4444', textDecoration: 'line-through' }}>{heal.originalSelector}</td>
+                                        <td style={{ padding: '12px 16px', fontFamily: "'Geist Mono', monospace", color: '#10B981' }}>{heal.healedSelector}</td>
+                                        <td style={{ padding: '12px 16px' }}>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                                <div style={{ width: 60, height: 4, borderRadius: 2, background: 'rgba(255,255,255,0.06)', overflow: 'hidden' }}>
+                                                    <div style={{ width: `${heal.confidence}%`, height: '100%', borderRadius: 2, background: heal.confidence >= 80 ? '#10B981' : heal.confidence >= 50 ? '#F59E0B' : '#EF4444' }} />
+                                                </div>
+                                                <span style={{ fontWeight: 700, color: heal.confidence >= 80 ? '#10B981' : heal.confidence >= 50 ? '#F59E0B' : '#EF4444' }}>{heal.confidence}%</span>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
                 </motion.div>
             )}
 
