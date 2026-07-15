@@ -4,6 +4,7 @@ import { Activity, Bug, Shield, Gauge, ArrowRight, ExternalLink } from 'lucide-r
 import { useNavigate } from 'react-router-dom';
 import KPICard from '../components/ui/KPICard';
 import StatusBadge from '../components/ui/StatusBadge';
+import GitHubChip from '../components/ui/GitHubChip';
 import { AreaChart, Area, Grid, XAxis, ChartTooltip } from '../components/ui/area-chart';
 import { kpiData as mockKpi, hygieneHistory as mockHistory, recentRuns as mockRuns } from '../data/mockData';
 import { tests as testsApi } from '../lib/api';
@@ -37,6 +38,11 @@ export default function Dashboard() {
                     duration: r.duration || '—',
                     date: r.createdAt?.split('T')[0] || '',
                     pagesDiscovered: r.totalPages || 0,
+                    repoName: r.repoName,
+                    repoUrl: r.repoUrl,
+                    branch: r.branch,
+                    commitSha: r.commitSha,
+                    commitShaShort: r.commitShaShort,
                 }));
                 setRecentRuns(runs.slice(0, 8));
 
@@ -244,7 +250,17 @@ export default function Dashboard() {
                                 }}
                             >
                                 <span style={{ fontSize: 13, color: 'var(--text-secondary)', fontFamily: "'Geist Mono', 'JetBrains Mono', monospace" }}>
-                                    {(run.url || '').replace('https://', '')}
+                                    {run.commitSha ? (
+                                        <GitHubChip 
+                                            repoName={run.repoName} 
+                                            branch={run.branch} 
+                                            commitSha={run.commitSha} 
+                                            commitShaShort={run.commitShaShort} 
+                                            repoUrl={run.repoUrl} 
+                                        />
+                                    ) : (
+                                        (run.url || '').replace('https://', '')
+                                    )}
                                 </span>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                                     <StatusBadge status={run.status} size="sm" />
@@ -299,7 +315,17 @@ export default function Dashboard() {
                                     onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
                                 >
                                     <td style={{ padding: '14px', fontSize: 13, fontFamily: "'Geist Mono', 'JetBrains Mono', monospace", color: 'var(--color-accent-gold)' }}>
-                                        {(run.url || '').replace('https://', '') || '—'}
+                                        {run.commitSha ? (
+                                            <GitHubChip 
+                                                repoName={run.repoName} 
+                                                branch={run.branch} 
+                                                commitSha={run.commitSha} 
+                                                commitShaShort={run.commitShaShort} 
+                                                repoUrl={run.repoUrl} 
+                                            />
+                                        ) : (
+                                            (run.url || '').replace('https://', '') || '—'
+                                        )}
                                     </td>
                                     <td style={{ padding: '14px' }}><StatusBadge status={run.status} size="sm" /></td>
                                     <td style={{

@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Search, SlidersHorizontal, ArrowUpDown, ExternalLink, Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import StatusBadge from '../components/ui/StatusBadge';
+import GitHubChip from '../components/ui/GitHubChip';
 import { tests as testsApi } from '../lib/api';
 
 export default function History() {
@@ -27,6 +28,11 @@ export default function History() {
                     pages: r.totalPages || r._count?.pages || 0,
                     duration: r.duration || '—',
                     date: r.createdAt?.split('T')[0] || '',
+                    repoName: r.repoName,
+                    repoUrl: r.repoUrl,
+                    branch: r.branch,
+                    commitSha: r.commitSha,
+                    commitShaShort: r.commitShaShort,
                 })));
             }
         }).catch(() => { }).finally(() => setLoading(false));
@@ -163,7 +169,17 @@ export default function History() {
                                     onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
                                 >
                                     <td style={{ padding: '14px', fontSize: 13, fontFamily: "'Geist Mono', 'JetBrains Mono', monospace", color: 'var(--color-accent-gold)' }}>
-                                        {(run.url || '').replace('https://', '') || '—'}
+                                        {run.commitSha ? (
+                                            <GitHubChip 
+                                                repoName={run.repoName} 
+                                                branch={run.branch} 
+                                                commitSha={run.commitSha} 
+                                                commitShaShort={run.commitShaShort} 
+                                                repoUrl={run.repoUrl} 
+                                            />
+                                        ) : (
+                                            (run.url || '').replace('https://', '') || '—'
+                                        )}
                                     </td>
                                     <td style={{ padding: '14px' }}><StatusBadge status={run.status} size="sm" /></td>
                                     <td style={{ padding: '14px' }}>

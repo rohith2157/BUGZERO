@@ -409,6 +409,7 @@ router.get('/github/repos', authenticate, async (req, res) => {
       name: repo.full_name,
       url: repo.html_url,
       private: repo.private,
+      default_branch: repo.default_branch,
       updatedAt: repo.updated_at
     }));
     

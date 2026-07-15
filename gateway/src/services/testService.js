@@ -195,6 +195,13 @@ export async function triggerAITest(testRun, io) {
                 grade: report?.grade || null,
                 wcagCompliancePct: report?.wcag_compliance_pct || null,
                 reportJson: report || null,
+                repoName: result.repo_name ?? null,
+                repoUrl: result.repo_url ?? null,
+                branch: result.branch ?? null,
+                commitSha: result.commit_sha ?? null,
+                commitShaShort: result.commit_sha_short ?? null,
+                commitMessage: result.commit_message ?? null,
+                commitAuthor: result.commit_author ?? null,
             },
         });
 
