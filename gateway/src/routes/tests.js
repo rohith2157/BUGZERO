@@ -464,7 +464,24 @@ router.get('/history/lookup', async (req, res) => {
             }
         }
 
-        res.json({ defect_history, previous_scores });
+        // Get most recent performance metrics per page
+        const metrics = await prisma.performanceMetric.findMany({
+            where: { runId: { in: runIds } },
+            select: { pageUrl: true, metricName: true, value: true },
+            orderBy: { createdAt: 'desc' },
+        });
+
+        const previous_performance = {};
+        for (const m of metrics) {
+            if (!previous_performance[m.pageUrl]) {
+                previous_performance[m.pageUrl] = {};
+            }
+            if (!(m.metricName in previous_performance[m.pageUrl])) {
+                previous_performance[m.pageUrl][m.metricName] = { value: m.value };
+            }
+        }
+
+        res.json({ defect_history, previous_scores, previous_performance });
     } catch (err) {
         console.error('Get history error:', err);
         res.status(500).json({ error: 'Failed to get defect history' });

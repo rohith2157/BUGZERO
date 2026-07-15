@@ -23,6 +23,8 @@ export default function NewTest() {
     const [playbooks, setPlaybooks] = useState([]);
     const [repositories, setRepositories] = useState([]);
     const [loadingRepos, setLoadingRepos] = useState(false);
+    const [repoBranches, setRepoBranches] = useState([]);
+    const [loadingBranches, setLoadingBranches] = useState(false);
     const [error, setError] = useState('');
     const githubAccessToken = useAuthStore((s) => s.githubAccessToken);
 
@@ -53,6 +55,32 @@ export default function NewTest() {
             .finally(() => setLoadingRepos(false));
         }
     }, [testMode]);
+
+    useEffect(() => {
+        if (!repoUrl) {
+            setRepoBranches([]);
+            return;
+        }
+        const repo = repositories.find(r => r.url === repoUrl);
+        if (!repo || !repo.name) return;
+
+        setLoadingBranches(true);
+        const token = localStorage.getItem('aq_token');
+        fetch(`http://localhost:3000/api/auth/github/repos/${repo.name}/branches`, {
+            headers: { Authorization: `Bearer ${token}` }
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.branches) {
+                setRepoBranches(data.branches);
+                if (data.branches.length > 0 && !data.branches.includes(repoBranch)) {
+                    setRepoBranch(repo.default_branch || data.branches[0]);
+                }
+            }
+        })
+        .catch(err => console.error('Failed to fetch branches:', err))
+        .finally(() => setLoadingBranches(false));
+    }, [repoUrl, repositories]);
 
     useEffect(() => {
         playbooksApi.list()
@@ -303,19 +331,39 @@ export default function NewTest() {
                                             <div style={{ width: 42, display: 'flex', justifyContent: 'center', flexShrink: 0 }}>
                                                  <GitBranch size={16} style={{ color: 'var(--text-tertiary)' }} />
                                             </div>
-                                            <input
-                                                type="text"
-                                                value={repoBranch}
-                                                onChange={(e) => setRepoBranch(e.target.value)}
-                                                placeholder="Branch (e.g. main)"
-                                                style={{
-                                                    flex: 1, padding: '10px 14px', fontSize: 14,
-                                                    background: 'var(--color-bg-elevated)',
-                                                    border: '1px solid rgba(255,255,255,0.06)',
-                                                    borderRadius: 8, color: 'var(--text-primary)',
-                                                    outline: 'none', fontFamily: "'Geist Mono', 'JetBrains Mono', monospace",
-                                                }}
-                                            />
+                                            {repoBranches.length > 0 ? (
+                                                <select
+                                                    value={repoBranch}
+                                                    onChange={(e) => setRepoBranch(e.target.value)}
+                                                    style={{
+                                                        flex: 1, padding: '10px 14px', fontSize: 14,
+                                                        background: 'var(--color-bg-elevated)',
+                                                        border: '1px solid rgba(255,255,255,0.06)',
+                                                        borderRadius: 8, color: 'var(--text-primary)',
+                                                        outline: 'none', fontFamily: "'Geist Mono', 'JetBrains Mono', monospace",
+                                                        appearance: 'none',
+                                                    }}
+                                                >
+                                                    <option value="" disabled>{loadingBranches ? 'Loading branches...' : 'Select branch...'}</option>
+                                                    {repoBranches.map(b => (
+                                                        <option key={b} value={b}>{b}</option>
+                                                    ))}
+                                                </select>
+                                            ) : (
+                                                <input
+                                                    type="text"
+                                                    value={repoBranch}
+                                                    onChange={(e) => setRepoBranch(e.target.value)}
+                                                    placeholder={loadingBranches ? "Loading branches..." : "Branch (e.g. main)"}
+                                                    style={{
+                                                        flex: 1, padding: '10px 14px', fontSize: 14,
+                                                        background: 'var(--color-bg-elevated)',
+                                                        border: '1px solid rgba(255,255,255,0.06)',
+                                                        borderRadius: 8, color: 'var(--text-primary)',
+                                                        outline: 'none', fontFamily: "'Geist Mono', 'JetBrains Mono', monospace",
+                                                    }}
+                                                />
+                                            )}
                                         </div>
                                     )}
                                 </div>

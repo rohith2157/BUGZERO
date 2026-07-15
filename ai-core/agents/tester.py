@@ -2,6 +2,7 @@
 
 from tools.playwright_tool import PlaywrightTool
 from models.schemas import PageResult, DefectResult, ComplianceViolation, PerformanceMetric
+from agents.vision_agent import VisionAgent
 
 
 class TesterAgent:
@@ -10,7 +11,7 @@ class TesterAgent:
     def __init__(self, playwright_tool: PlaywrightTool):
         self.tool = playwright_tool
 
-    async def test_page(self, url: str, modules: list[str] | None = None) -> PageResult:
+    async def test_page(self, url: str, modules: list[str] | None = None, previous_performance: dict | None = None) -> PageResult:
         """Run all enabled test modules on a single page."""
         if modules is None:
             modules = ["functional", "accessibility", "performance", "seo", "compliance"]
@@ -52,10 +53,35 @@ class TesterAgent:
         performance = {}
         if "performance" in modules:
             for name, data in raw.get("performance", {}).items():
+                val = data["value"]
                 performance[name] = PerformanceMetric(
-                    value=data["value"],
+                    value=val,
                     rating=data.get("rating"),
                 )
+                
+                # Compare against baseline if available
+                if previous_performance and name in previous_performance:
+                    prev_val = previous_performance[name].get("value", 0)
+                    if prev_val > 0 and val > prev_val * 1.2:  # Degraded by > 20%
+                        defects.append(DefectResult(
+                            type="Performance",
+                            severity="major",
+                            message=f"Performance Regression: {name} degraded from {prev_val} to {val} (>20% worse)",
+                            fix=f"Investigate {name} regressions under throttled network/CPU conditions."
+                        ))
+
+        # Check visual layout defects mathematically
+        elements = raw.get("elements", [])
+        if elements and ("visual" in modules or not modules):
+            vision = VisionAgent()
+            overlap_defects = vision.check_bounding_box_overlaps(elements)
+            for d in overlap_defects:
+                defects.append(DefectResult(
+                    type=d["type"],
+                    severity=d["severity"],
+                    message=d["message"],
+                    fix=d.get("fix")
+                ))
 
         # Calculate hygiene score
         severity_weights = {"critical": 15, "major": 8, "minor": 3, "warning": 1}

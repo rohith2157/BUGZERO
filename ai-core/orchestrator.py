@@ -60,13 +60,14 @@ class Orchestrator:
         except Exception as e:
             logger.warning(f"[progress] {event} report failed (non-fatal): {e}")
 
-    async def _fetch_defect_history(self, url: str) -> tuple[dict, dict]:
-        """Fetch defect history and previous scores from gateway for risk prioritization.
+    async def _fetch_defect_history(self, url: str) -> tuple[dict, dict, dict]:
+        """Fetch defect history, previous scores, and previous performance from gateway for risk prioritization and regression detection.
 
-        Returns (defect_history, previous_scores) dicts.
+        Returns (defect_history, previous_scores, previous_performance) dicts.
         """
         defect_history = {}
         previous_scores = {}
+        previous_performance = {}
         try:
             async with httpx.AsyncClient(timeout=5.0) as client:
                 resp = await client.get(
@@ -77,10 +78,11 @@ class Orchestrator:
                     data = resp.json()
                     defect_history = data.get("defect_history", {})
                     previous_scores = data.get("previous_scores", {})
+                    previous_performance = data.get("previous_performance", {})
                     logger.info(f"Fetched defect history: {len(defect_history)} pages with history")
         except Exception as e:
             logger.warning(f"Could not fetch defect history (non-fatal): {e}")
-        return defect_history, previous_scores
+        return defect_history, previous_scores, previous_performance
 
     async def _fetch_baseline(self, url: str, org_id: str) -> bytes | None:
         """Fetch baseline screenshot from gateway."""
@@ -171,8 +173,8 @@ class Orchestrator:
             # ────────────────────────────────────────────────
             if getattr(config, "chaos_mode", False):
                 logger.info(f"[{run_id}] Stage 0: Injecting Chaos (Slow 3G, 4x CPU Throttling)")
-                await chaos_agent.inject_network_chaos('Slow 3G')
-                await chaos_agent.inject_cpu_throttling(4)
+                await playwright.set_network_conditions('Slow 3G')
+                await playwright.set_cpu_throttling(4)
 
             if getattr(config, "auth_enabled", False) and getattr(config, "auth_username", None) and getattr(config, "auth_password", None):
                 logger.info(f"[{run_id}] Stage 0: Autonomous Authentication on {target_url}")
@@ -232,8 +234,8 @@ class Orchestrator:
 
             scores = calculate_pagerank(discovered)
 
-            # Fetch defect history from previous runs for risk-based prioritization
-            defect_history, previous_scores = await self._fetch_defect_history(request.url)
+            # Fetch defect history from previous runs for risk-based prioritization and regression testing
+            defect_history, previous_scores, previous_performance = await self._fetch_defect_history(request.url)
 
             discovered = greedy_sort(
                 discovered,

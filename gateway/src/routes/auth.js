@@ -433,4 +433,38 @@ router.get('/github/repos', authenticate, async (req, res) => {
   }
 });
 
+// GET /api/auth/github/repos/:owner/:repo/branches
+router.get('/github/repos/:owner/:repo/branches', authenticate, async (req, res) => {
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: req.user.id },
+      select: { githubAccessToken: true }
+    });
+    
+    if (!user || !user.githubAccessToken) {
+      return res.status(401).json({ error: 'GitHub account not linked' });
+    }
+
+    const { owner, repo } = req.params;
+    const branchesResponse = await fetch(`https://api.github.com/repos/${owner}/${repo}/branches?per_page=100`, {
+      headers: {
+        Authorization: `token ${user.githubAccessToken}`,
+        Accept: 'application/vnd.github.v3+json'
+      }
+    });
+
+    if (!branchesResponse.ok) {
+      return res.status(branchesResponse.status).json({ error: 'Failed to fetch branches' });
+    }
+
+    const branchesData = await branchesResponse.json();
+    const branches = branchesData.map(b => b.name);
+    
+    res.json({ branches });
+  } catch (err) {
+    console.error('GitHub Fetch Branches Error:', err);
+    res.status(500).json({ error: 'Failed to fetch branches' });
+  }
+});
+
 export default router;

@@ -131,3 +131,42 @@ class VisionAgent:
         except Exception as e:
             logger.error(f"VisionAgent: Regression diff failed for {url}: {e}")
             return {"changes": [], "regression_score": None, "summary": f"Error: {e}"}
+
+    def check_bounding_box_overlaps(self, elements: list[dict]) -> list[dict]:
+        """Mathematically checks for overlapping bounding boxes without proper z-index isolation."""
+        defects = []
+        n = len(elements)
+        for i in range(n):
+            for j in range(i + 1, n):
+                e1 = elements[i]
+                e2 = elements[j]
+                
+                # Check intersection (if they DO NOT intersect, the condition is true, so we invert)
+                if not (e1['x2'] <= e2['x1'] or e1['x1'] >= e2['x2'] or e1['y2'] <= e2['y1'] or e1['y1'] >= e2['y2']):
+                    
+                    # If they are essentially the same element (parent/child sometimes have exact same box), skip
+                    if abs(e1['x1'] - e2['x1']) < 5 and abs(e1['y1'] - e2['y1']) < 5 and abs(e1['x2'] - e2['x2']) < 5 and abs(e1['y2'] - e2['y2']) < 5:
+                        continue
+                        
+                    # If one completely contains the other, usually it's a parent/child wrapper, skip
+                    if e1['x1'] <= e2['x1'] and e1['y1'] <= e2['y1'] and e1['x2'] >= e2['x2'] and e1['y2'] >= e2['y2']:
+                        continue
+                    if e2['x1'] <= e1['x1'] and e2['y1'] <= e1['y1'] and e2['x2'] >= e1['x2'] and e2['y2'] >= e1['y2']:
+                        continue
+                        
+                    # If they intersect but don't contain each other, it's a layout collision!
+                    defects.append({
+                        "type": "Visual",
+                        "severity": "major",
+                        "message": f"Overlapping elements detected: {e1['tag']} ({e1.get('text', '')}) overlaps with {e2['tag']} ({e2.get('text', '')})",
+                        "location": f"Coordinates: ({int(e1['x1'])},{int(e1['y1'])})",
+                        "fix": "Adjust CSS margins, padding, or flex/grid layout to prevent collision. Ensure proper z-index if intentional.",
+                        "source": "algorithmic_vision",
+                        "confidence": 0.8
+                    })
+                    
+                    # Limit to 5 defects to avoid spam
+                    if len(defects) >= 5:
+                        return defects
+                        
+        return defects

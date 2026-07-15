@@ -30,6 +30,8 @@ class PlaywrightTool:
         self._browser_type = browser_type
         self._pw = None
         self._browser = None
+        self._network_profile = None
+        self._cpu_throttling = None
 
     def _ensure_browser(self):
         """Return a live browser, (re)launching if necessary."""
@@ -333,8 +335,25 @@ class PlaywrightTool:
         """Test a single page using the persistent browser — fresh context per page."""
         browser = self._ensure_browser()
         context = self._new_context(browser)
-        context.set_default_timeout(10000)
+        context.set_default_timeout(15000) # Increased timeout to account for throttling
         page = context.new_page()
+
+        # Apply Chaos Throttling via CDP if enabled
+        try:
+            if getattr(self, '_network_profile', None) or getattr(self, '_cpu_throttling', None):
+                client = context.new_cdp_session(page)
+                if getattr(self, '_cpu_throttling', None):
+                    client.send('Emulation.setCPUThrottlingRate', {'rate': self._cpu_throttling})
+                if getattr(self, '_network_profile', None):
+                    profiles = {
+                        "Slow 3G": {"offline": False, "downloadThroughput": int(500 * 1024 / 8), "uploadThroughput": int(500 * 1024 / 8), "latency": int(400 * 1.5)},
+                        "Fast 3G": {"offline": False, "downloadThroughput": int(1.5 * 1024 * 1024 / 8), "uploadThroughput": int(750 * 1024 / 8), "latency": int(40 * 1.5)},
+                    }
+                    if self._network_profile in profiles:
+                        client.send('Network.enable')
+                        client.send('Network.emulateNetworkConditions', profiles[self._network_profile])
+        except Exception as e:
+            print(f"Chaos injection failed: {e}")
 
         results = {
             "url": url,
@@ -344,7 +363,7 @@ class PlaywrightTool:
         }
 
         try:
-            response = page.goto(url, wait_until="domcontentloaded", timeout=12000)
+            response = page.goto(url, wait_until="domcontentloaded", timeout=20000)
             results["status_code"] = response.status if response else 0
             results["title"] = page.title()
 
@@ -595,6 +614,30 @@ class PlaywrightTool:
                     "description": "No privacy policy link found on page",
                     "remediation": "Add a visible link to your privacy policy",
                 })
+
+            # Extract bounding boxes for VisionAgent overlap check
+            elements = page.evaluate("""() => {
+                const els = Array.from(document.querySelectorAll('button, a, input, select, textarea, h1, h2, h3, h4, h5, h6, p, span, div.card, .button, [role="button"], [role="link"]'));
+                const rects = [];
+                for (const el of els) {
+                    const rect = el.getBoundingClientRect();
+                    if (rect.width > 0 && rect.height > 0 && rect.top >= 0 && rect.left >= 0) {
+                        const style = window.getComputedStyle(el);
+                        rects.push({
+                            tag: el.tagName.toLowerCase(),
+                            selector: el.id ? '#' + el.id : (el.className ? '.' + el.className.split(' ').slice(0, 2).join('.') : el.tagName),
+                            x1: rect.left,
+                            y1: rect.top,
+                            x2: rect.right,
+                            y2: rect.bottom,
+                            zIndex: style.zIndex === 'auto' ? 0 : (parseInt(style.zIndex, 10) || 0),
+                            text: (el.innerText || '').substring(0, 30)
+                        });
+                    }
+                }
+                return rects;
+            }""")
+            results["elements"] = elements
 
         except Exception as e:
             results["defects"].append({
