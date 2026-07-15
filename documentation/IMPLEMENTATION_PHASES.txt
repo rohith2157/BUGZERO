@@ -1,0 +1,233 @@
+﻿====================================================================
+  AUTONOMOUSQA - 15-PHASE IMPLEMENTATION PLAN
+  Based on: 3.1v God-Mode Roadmap + Premium Roadmap + Full Codebase Audit
+  Stack: React+Vite (frontend) | Express+Prisma+SQLite (gateway) | FastAPI+Python (AI core)
+  Goal: God-Mode deterministic engine + GitHub Engine + premium UI upgrades
+====================================================================
+
+CONTEXT: What already works
+----------------------------
+- BFS crawler (Playwright)
+- PageRank scheduler
+- TesterAgent (SEO, accessibility, security, GDPR checks)
+- axe-core WCAG 2.1 AA integration
+- SelfHealingAgent (Levenshtein + Pythagorean, v2.0)
+- VisionAgent (Pillow pixel math, v2.0)
+- AuthAgent (basic form auth stub)
+- ChaosAgent (network throttling stub - not wired)
+- ReportAgent (score aggregation)
+- Gateway (Express, Socket.IO, Prisma/SQLite, JWT auth)
+- Frontend (React+Vite: Dashboard, NewTest, LiveTest, Report, History, etc.)
+- GitHub OAuth flow (routes exist in gateway/src/routes/auth.js - partial)
+- RepoManager (clone + detect + serve dev server - no commit metadata yet)
+
+WHAT NEEDS BUILDING (dependency order)
+--------------------------------------------------
+
+====================================================================
+PHASE 1 - Commit Metadata Capture (Git Engine core)
+====================================================================
+FILES: ai-core/utils/repo_server.py
+WHAT:
+  - After shallow clone, run git log -1 to get SHA, message, author, email
+  - Run git rev-parse --abbrev-ref HEAD to get branch name
+  - Store on RepoManager: commit_sha, commit_message, commit_author, branch
+  - Return metadata from clone() method alongside target_url
+WHY FIRST: Everything downstream (DB storage, UI chip, GitHub status) depends on this.
+RISK: None. Pure subprocess calls. No new dependencies.
+
+====================================================================
+PHASE 2 - TestResult Schema + DB: GitHub Fields
+====================================================================
+FILES: ai-core/models/schemas.py | gateway/prisma/schema.prisma | migration
+WHAT:
+  - Add to TestConfig: type (url|repo), github_token, branch
+  - Add to TestResult: repo_name, repo_url, branch, commit_sha,
+    commit_sha_short (7 chars), commit_message, commit_author
+  - Add nullable fields to Prisma TestRun model
+  - Run prisma migrate dev
+  - Update gateway tests.js to save new fields from final result
+WHY: Schema must exist before UI or CI gate can use the data.
+RISK: Additive/nullable migration - safe.
+
+====================================================================
+PHASE 3 - Orchestrator: Wire Repo Metadata Through Pipeline
+====================================================================
+FILES: ai-core/orchestrator.py
+WHAT:
+  - Capture metadata from RepoManager.clone() in repo-mode pre-stage
+  - Pass repo_name, branch, commit_sha etc. into final TestResult
+  - Fix stale docstring that says "Gemini Vision" in the header
+WHY: Connects Phase 1 (capture) to Phase 2 (schema).
+RISK: Minimal. Just threading data that already exists.
+
+====================================================================
+PHASE 4 - Gateway: Save and Expose GitHub Metadata
+====================================================================
+FILES: gateway/src/routes/tests.js | gateway/src/services/testService.js
+WHAT:
+  - Save new fields (repoName, repoUrl, branch, commitSha etc.) to Prisma
+  - Expose these in GET /api/tests/:id and GET /api/tests list
+  - Update auth.js repos endpoint to return default_branch per repo
+WHY: UI and GitHub status API need these from gateway.
+RISK: Low. Adding fields to existing Prisma update calls.
+
+====================================================================
+PHASE 5 - Frontend: GitHub Chip in History + Dashboard
+====================================================================
+FILES: src/pages/History.jsx | src/pages/Dashboard.jsx
+       src/components/ui/GitHubChip.jsx (new small component)
+WHAT:
+  - Detect run.commitSha present (repo-mode runs)
+  - Render: [GitHub icon] owner/repo  branch  abc123d (SHA pill)
+  - Clicking SHA links to github.com/{owner}/{repo}/commit/{full_sha}
+  - URL-mode runs unchanged
+WHY: Visual distinction for repo-mode. Pure UI polish.
+RISK: Zero. Additive only.
+
+====================================================================
+PHASE 6 - Frontend: GitHub Metadata in Report Header
+====================================================================
+FILES: src/pages/Report.jsx
+WHAT:
+  - If commitSha present, show commit context card in report header:
+    Repository | Branch | Commit SHA + message | Author | [View on GitHub]
+  - URL-mode shows just the URL as before
+WHY: Developers need to see which exact code state they tested.
+RISK: Zero. Additive only.
+
+====================================================================
+PHASE 7 - GitHub Commit Status API: pending (CI Gate start)
+====================================================================
+FILES: ai-core/utils/github_status.py (new) | ai-core/orchestrator.py
+WHAT:
+  - New utility: post_commit_status(owner, repo, sha, state, description, run_id, token)
+    --> POST https://api.github.com/repos/{owner}/{repo}/statuses/{sha}
+  - In orchestrator repo-mode, after clone: post "pending" status
+  - Extract owner/repo from repo_url by splitting on /
+WHY: PRs show a pending check immediately when test begins.
+RISK: Network call. Non-fatal if it fails.
+
+====================================================================
+PHASE 8 - GitHub Commit Status API: success/failure (CI Gate end)
+====================================================================
+FILES: ai-core/orchestrator.py
+WHAT:
+  - After ReportAgent completes:
+    score >= 70 + no critical defects --> "success"
+    else --> "failure"
+    post_commit_status with final score in description
+  - target_url points to the BugZero report page
+WHY: Completes the CI gate - PR checks go green/red automatically.
+RISK: Same as Phase 7. Non-fatal.
+
+====================================================================
+PHASE 9 - Branch Selector in NewTest
+====================================================================
+FILES: src/pages/NewTest.jsx | gateway/src/routes/auth.js
+WHAT:
+  - New gateway route: GET /api/auth/github/repos/:owner/:repo/branches
+    --> fetches branches from GitHub API using stored token
+  - NewTest.jsx: after repo selection, load branch dropdown
+    default selection = default_branch
+  - Send selected branch in test config payload
+WHY: Users need to test PRs and feature branches, not just main.
+RISK: Low. One new gateway route.
+
+====================================================================
+PHASE 10 - Bounding Box Overlap Engine
+====================================================================
+FILES: ai-core/agents/vision_agent.py | ai-core/tools/playwright_tool.py
+WHAT:
+  - PlaywrightTool: evaluate JS to get getBoundingClientRect() for all
+    text + interactive elements, return list of bounding boxes
+  - VisionAgent: naive O(N^2) rectangle intersection check
+    (ponytail: fine for < 500 elements; upgrade to R-tree if needed)
+    Overlapping elements without valid z-index --> Visual defect
+  - Wire into tester.py test loop
+WHY: Detects overlapping UI with pure math. No LLMs. Documented in 100percent_algo.md.
+RISK: Medium. DOM eval + geometry. Well-defined algorithm.
+
+====================================================================
+PHASE 11 - ChaosAgent: Real Network Throttling + Perf Regression
+====================================================================
+FILES: ai-core/agents/chaos_agent.py | ai-core/orchestrator.py
+WHAT:
+  - Real Playwright CDP network throttling via Network.emulateNetworkConditions
+  - Profiles: 3G, Slow 3G, Fast 3G (kbps values)
+  - Capture LCP, FID, CLS, TTFB via window.performance API
+  - Compare against first-run baseline; > 20% degradation = regression defect
+  - chaos_mode flag already in TestConfig - wire it to actually do this
+WHY: Performance Chaos Agent feature from roadmap.
+RISK: CDP is tricky. Scope to chaos_mode=True only.
+
+====================================================================
+PHASE 12 - Auth Playbooks: Real Form Auth Navigation
+====================================================================
+FILES: ai-core/agents/auth_agent.py | gateway/src/routes/playbooks.js
+WHAT:
+  - AuthAgent: implement full form-based auth:
+    detect email/password inputs, fill, submit, wait for redirect
+    detect success by URL change + no login form visible
+  - Store session cookies/localStorage, inject into subsequent pages
+  - Wire playbooks gateway route to read/write from Prisma AuthPlaybook
+  - PlaybookId in TestConfig selects which playbook to use
+WHY: Without auth, auth-gated pages show only the login screen.
+RISK: High complexity. Form-based first. SSO out of scope for this phase.
+
+====================================================================
+PHASE 13 - Healing Map UI: Audit Trail in Report + LiveTest
+====================================================================
+FILES: src/pages/Report.jsx | src/pages/LiveTest.jsx
+WHAT:
+  - Backend already captures HealingEventResult per page
+  - Report.jsx: add Self-Healing Events table section
+    (Original Selector | Healed To | Confidence | Status)
+  - LiveTest.jsx: show healing events in live feed as they happen
+WHY: Data already exists in API. Just not shown. Key differentiator.
+RISK: Low. Pure UI. Data already in response.
+
+====================================================================
+PHASE 14 - Settings: GitHub Connection Panel + API Keys
+====================================================================
+FILES: src/pages/Settings.jsx | gateway/src/routes/settings.js
+WHAT:
+  - Settings GitHub section: show connected GitHub account or Connect button
+  - Uses GET /api/auth/github/profile (add to gateway auth.js)
+  - API Keys section: generate, list, revoke keys for CI use
+  - New Prisma ApiKey model (id, keyHash, name, userId, createdAt)
+  - Gateway: POST/GET/DELETE /api/settings/api-keys
+WHY: Users need to manage GitHub connection and CI integration keys.
+RISK: Medium. New Prisma model + migration.
+
+====================================================================
+PHASE 15 - GitHub Webhook: Auto-Trigger on Push/PR
+====================================================================
+FILES: gateway/src/routes/webhooks.js (new) | gateway/src/index.js
+WHAT:
+  - POST /api/webhooks/github endpoint
+  - Validate X-Hub-Signature-256 HMAC signature
+  - Parse push/pull_request events, extract repo URL + SHA + branch
+  - Find matching user via repo lookup in DB
+  - Auto-create TestRun (same code path as /api/tests)
+  - Respond 200 immediately, run test async
+WHY: Makes BugZero a real CI gate - every push auto-triggers a test.
+RISK: High. HMAC validation is security-critical. Test carefully.
+
+====================================================================
+PHASE ORDER RATIONALE
+====================================================================
+Phases 1-4:   Core data pipeline. Everything else depends on these.
+Phases 5-6:   Quick UI wins. Visible immediately after 1-4 done.
+Phases 7-8:   CI gate headline feature. Needs commit SHA from 1-4.
+Phase 9:      Branch picker. Quality of life, needs 1-4.
+Phase 10:     Bounding box. Standalone. No external dependencies.
+Phase 11:     Chaos agent. Standalone. Existing infra only.
+Phase 12:     Auth playbooks. Highest complexity. Own slot.
+Phase 13:     Healing UI. Data exists. Pure frontend.
+Phase 14:     Settings GitHub panel. Needs Phase 9 profile route.
+Phase 15:     Webhook. Final boss. Needs everything working.
+
+====================================================================
+STATUS: STARTING PHASE 1
+====================================================================

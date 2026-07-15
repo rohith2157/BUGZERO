@@ -1,0 +1,47 @@
+====================================================================
+PHASE 5 -- Frontend: GitHub Chip in History + Dashboard
+====================================================================
+
+TARGET FILES:
+  autonomousqa-frontend/src/components/ui/GitHubChip.jsx  (NEW FILE)
+  autonomousqa-frontend/src/pages/History.jsx
+  autonomousqa-frontend/src/pages/Dashboard.jsx
+
+STEP A -- Build GitHubChip.jsx (small, reusable, ~60 lines)
+
+  Props: { repoName, branch, commitSha, commitShaShort, repoUrl }
+
+  Visual structure:
+    <span className="github-chip">
+      <GitHubIcon />                          -- octicon SVG
+      <span className="repo-name">{repoName}</span>
+      <span className="branch-badge">{branch}</span>
+      <a href={`https://github.com/${repoName}/commit/${commitSha}`} className="sha-pill">{commitShaShort}</a>
+    </span>
+
+  Styling: inline flex, gap-2, small monospace font for SHA pill,
+           dark background pill, green left border or GitHub icon color
+
+STEP B -- History.jsx
+  In the run row where URL is currently displayed:
+    if (run.commitSha) {
+      render <GitHubChip
+        repoName={run.repoName}
+        branch={run.branch}
+        commitSha={run.commitSha}
+        commitShaShort={run.commitShaShort}
+        repoUrl={run.repoUrl}
+      />
+    } else {
+      render the URL as before
+    }
+
+STEP C -- Dashboard.jsx
+  Same pattern in the "Recent Runs" list/table.
+  If run has commitSha: show GitHubChip. Else show URL.
+
+VERIFICATION:
+  Create a repo-mode test run manually with commitSha set.
+  Open /history -- should see chip with icon, repo name, branch, 7-char SHA.
+  Clicking SHA links to GitHub.
+  URL-mode runs should still show the URL unchanged.

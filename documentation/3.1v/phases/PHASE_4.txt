@@ -1,0 +1,43 @@
+====================================================================
+PHASE 4 -- Gateway: Save & Expose GitHub Metadata
+====================================================================
+
+TARGET FILES:
+  gateway/src/services/testService.js
+  gateway/src/routes/tests.js
+  gateway/src/routes/auth.js
+
+STEP A -- testService.js
+  In the function that receives the AI Core response and calls
+  prisma.testRun.update() with status "completed":
+
+  Add to the update data object:
+    repoName:       aiResult.repo_name        ?? null,
+    repoUrl:        aiResult.repo_url         ?? null,
+    branch:         aiResult.branch           ?? null,
+    commitSha:      aiResult.commit_sha       ?? null,
+    commitShaShort: aiResult.commit_sha_short ?? null,
+    commitMessage:  aiResult.commit_message   ?? null,
+    commitAuthor:   aiResult.commit_author    ?? null,
+
+STEP B -- tests.js GET /api/tests/:id and GET /api/tests (list)
+  In the Prisma select or response mapping, include these new fields.
+  They are already on the model after Phase 2 migration, just make sure
+  they're not being stripped before being returned to the frontend.
+
+STEP C -- auth.js repos endpoint
+  In GET /api/auth/github/repos, the GitHub API response per repo already
+  includes "default_branch". Make sure this is returned:
+    repos.map(r => ({
+      id: r.id,
+      name: r.name,
+      full_name: r.full_name,
+      private: r.private,
+      default_branch: r.default_branch,   // ADD THIS
+      updated_at: r.updated_at,
+    }))
+
+VERIFICATION:
+  GET /api/tests (with auth header)
+  Response should include commitSha, branch, repoName for repo-mode runs.
+  For url-mode runs, they should be null.

@@ -1,0 +1,20 @@
+====================================================================
+PHASE 10 -- Bounding Box Overlap Engine (Algorithmic Visual — Phase 2)
+====================================================================
+
+TARGET FILES:
+  ai-core/tools/playwright_tool.py
+  ai-core/agents/vision_agent.py
+  ai-core/agents/tester.py
+
+WHAT:
+  - Add detect_overlapping_elements(page) to PlaywrightTool:
+      page.evaluate JS to get getBoundingClientRect() for all text + interactive elements
+      Return list of {tag, selector, x1, y1, x2, y2, zIndex}
+  - In VisionAgent, add check_bounding_box_overlaps(elements):
+      For each pair, check if rectangles intersect.
+      If overlap with no valid z-index stacking context → flag as "Visual: Overlapping Elements"
+  - Wire into tester.py test loop
+
+VERIFICATION:
+  Detects overlapping UI without screenshots or LLMs.

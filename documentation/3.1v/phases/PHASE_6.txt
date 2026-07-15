@@ -1,0 +1,22 @@
+====================================================================
+PHASE 6 -- Frontend: GitHub Metadata in Report Header
+====================================================================
+
+TARGET FILE: autonomousqa-frontend/src/pages/Report.jsx
+
+WHAT TO FIND:
+  The report header section that currently shows the tested URL.
+
+WHAT TO ADD (below or alongside the existing header):
+  If testRun.commitSha is present, show a card/row:
+      Repository:  owner/repo-name
+      Branch:      feature/login-redesign
+      Commit:      abc123d — "fix: resolve login redirect loop"
+      Author:      Jane Dev
+      [View on GitHub →]  (links to specific commit)
+
+  If url-mode: show just the URL as before.
+
+VERIFICATION:
+  Open a report for a repo-mode run. Commit card appears at top.
+  Open a report for a url-mode run. No commit card. Normal URL shown.

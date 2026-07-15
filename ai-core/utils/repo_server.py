@@ -17,6 +17,12 @@ class RepoManager:
         self.temp_dir = tempfile.mkdtemp(prefix="bugzero_repo_")
         self.server_process = None
         self.local_url = None
+        # Commit metadata — populated after clone()
+        self.commit_sha: str | None = None
+        self.commit_sha_short: str | None = None
+        self.commit_message: str | None = None
+        self.commit_author: str | None = None
+        self.branch: str | None = None
 
     def _get_auth_repo_url(self) -> str:
         """Injects the OAuth token into the github URL for cloning."""
@@ -29,24 +35,59 @@ class RepoManager:
             url = url.replace("https://github.com/", f"https://x-access-token:{self.github_token}@github.com/")
         return url
 
-    def clone(self) -> bool:
-        """Clones the repository into the temporary directory."""
+    def clone(self, branch: str | None = None) -> bool:
+        """Clones the repository into the temporary directory.
+
+        Captures commit metadata (SHA, message, author, branch) after clone.
+        Optional branch arg enables testing feature branches / PRs.
+        """
         auth_url = self._get_auth_repo_url()
         logger.info(f"Cloning repository to {self.temp_dir}...")
         try:
-            # Shallow clone for speed
-            result = subprocess.run(
-                ["git", "clone", "--depth", "1", auth_url, "."],
+            cmd = ["git", "clone", "--depth", "1"]
+            if branch:
+                cmd += ["--branch", branch]
+            cmd += [auth_url, "."]
+            subprocess.run(
+                cmd,
                 cwd=self.temp_dir,
                 capture_output=True,
                 text=True,
                 check=True
             )
             logger.info("Clone successful.")
+            self._capture_commit_metadata()
             return True
         except subprocess.CalledProcessError as e:
             logger.error(f"Failed to clone repo: {e.stderr}")
             return False
+
+    def _capture_commit_metadata(self) -> None:
+        """Reads git log + rev-parse to populate commit fields. Non-fatal."""
+        try:
+            # Format: fullSHA|subject|authorName  (pipe is safe separator for commit messages)
+            log = subprocess.run(
+                ["git", "log", "-1", "--pretty=format:%H|%s|%an"],
+                cwd=self.temp_dir, capture_output=True, text=True, check=True
+            )
+            parts = log.stdout.strip().split("|", 2)
+            if len(parts) == 3:
+                self.commit_sha = parts[0]
+                self.commit_sha_short = parts[0][:7]
+                self.commit_message = parts[1]
+                self.commit_author = parts[2]
+
+            branch_out = subprocess.run(
+                ["git", "rev-parse", "--abbrev-ref", "HEAD"],
+                cwd=self.temp_dir, capture_output=True, text=True, check=True
+            )
+            self.branch = branch_out.stdout.strip()
+            logger.info(
+                f"Commit metadata: branch={self.branch} sha={self.commit_sha_short} "
+                f"msg='{self.commit_message}' author={self.commit_author}"
+            )
+        except Exception as e:
+            logger.warning(f"Could not capture commit metadata (non-fatal): {e}")
 
     def _find_free_port(self) -> int:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:

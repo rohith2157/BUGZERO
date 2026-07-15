@@ -1,0 +1,18 @@
+====================================================================
+PHASE 11 -- ChaosAgent: Real Network Throttling + Performance Regression
+====================================================================
+
+TARGET FILES:
+  ai-core/agents/chaos_agent.py
+  ai-core/orchestrator.py
+
+WHAT:
+  - In ChaosAgent, implement actual Playwright CDP network throttling:
+      await page.context.new_cdp_session(page) → Network.emulateNetworkConditions
+      Profiles: 3G (750kbps down), Slow 3G (500kbps), Fast 3G (1.5Mbps)
+  - Capture LCP, FID, CLS, TTFB using window.performance
+  - Compare against a baseline. If any metric degrades > 20% → "Performance Regression" defect
+  - Wire chaos_mode in orchestrator to actually apply throttling
+
+VERIFICATION:
+  Tests can run under simulated slow network conditions.

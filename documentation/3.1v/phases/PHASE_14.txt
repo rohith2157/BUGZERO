@@ -1,0 +1,16 @@
+====================================================================
+PHASE 14 -- Settings Page: GitHub Connection + API Key UI
+====================================================================
+
+TARGET FILES:
+  autonomousqa-frontend/src/pages/Settings.jsx
+  gateway/src/routes/settings.js
+
+WHAT:
+  - [GitHub Integration]: Shows connection status (connected as @username / Connect GitHub)
+  - [API Keys]: Generate + revoke API keys for CI/CD webhook use
+    - Create ApiKey Prisma model (id, key_hash, name, userId, createdAt)
+    - Gateway: POST /api/settings/api-keys, GET /api/settings/api-keys, DELETE /api/settings/api-keys/:id
+
+VERIFICATION:
+  Users can manage GitHub connection and generate API keys.

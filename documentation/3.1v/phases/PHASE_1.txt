@@ -1,0 +1,31 @@
+====================================================================
+PHASE 1 -- Commit Metadata Capture [STATUS: COMPLETE]
+====================================================================
+
+TARGET FILE: ai-core/utils/repo_server.py
+
+WHAT WAS BUILT:
+  - Added 5 instance fields to RepoManager.__init__:
+      self.commit_sha         (str | None)
+      self.commit_sha_short   (str | None)   -- first 7 chars
+      self.commit_message     (str | None)
+      self.commit_author      (str | None)
+      self.branch             (str | None)
+
+  - clone() now accepts optional branch: str | None = None
+    If branch provided: git clone --depth 1 --branch {branch} {url} .
+    Without branch: git clone --depth 1 {url} .
+
+  - New private method _capture_commit_metadata() runs after clone:
+      git log -1 --pretty=format:"%H|%s|%an"
+      --> splits on "|" to get sha, subject, author
+      git rev-parse --abbrev-ref HEAD
+      --> gets branch name
+      All wrapped in try/except: non-fatal, just logs a warning
+
+VERIFICATION:
+  In Python: from utils.repo_server import RepoManager
+  rm = RepoManager("https://github.com/any/public-repo", "")
+  rm.clone()
+  print(rm.commit_sha, rm.branch, rm.commit_message)
+  Expected: full 40-char SHA, branch name, first commit message line

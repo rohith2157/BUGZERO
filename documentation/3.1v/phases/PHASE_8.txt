@@ -1,0 +1,18 @@
+====================================================================
+PHASE 8 -- GitHub Commit Status API (CI Gate — "success"/"failure")
+====================================================================
+
+TARGET FILE: ai-core/orchestrator.py
+
+WHAT:
+  - After ReportAgent finishes and final score is calculated:
+      critical_count = sum(...)
+      if result.overall_score >= 70 and critical_count == 0:
+          state = "success"
+      else:
+          state = "failure"
+      post_commit_status(..., state=state, description=f"Score: {score}/100 · {n} defects")
+  - target_url in the status points to: {settings.frontend_url}/tests/{run_id}/report
+
+VERIFICATION:
+  Completes the CI gate loop — PR checks go green/red automatically.

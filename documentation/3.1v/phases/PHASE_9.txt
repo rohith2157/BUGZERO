@@ -1,0 +1,17 @@
+====================================================================
+PHASE 9 -- Branch Selector in NewTest (Frontend + Gateway)
+====================================================================
+
+TARGET FILES:
+  gateway/src/routes/auth.js
+  autonomousqa-frontend/src/pages/NewTest.jsx
+
+WHAT:
+  - Add GET /api/auth/github/repos/:owner/:repo/branches gateway route
+    → hits api.github.com/repos/{owner}/{repo}/branches with stored token
+  - In NewTest.jsx GitHub tab: after user selects a repo, fetch branches
+    and show a branch dropdown (default: default_branch from Phase 4)
+  - Include selected branch in the test config payload
+
+VERIFICATION:
+  Users can select branches from a dropdown when creating a new test run.

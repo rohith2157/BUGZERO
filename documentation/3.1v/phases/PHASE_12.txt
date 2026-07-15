@@ -1,0 +1,21 @@
+====================================================================
+PHASE 12 -- Auth Playbooks: Real SSO/Form Auth Navigation
+====================================================================
+
+TARGET FILES:
+  ai-core/agents/auth_agent.py
+  gateway/src/routes/playbooks.js
+
+WHAT:
+  - AuthAgent currently stubs out after basic form fill
+  - Implement full form-based auth:
+      Detect: input[type=email], input[type=password]
+      Fill: page.fill(selector, value)
+      Submit: form submit or Enter key
+      Wait: network idle after submit
+      Detect success: URL changed + no login form visible
+  - Store auth session (cookies/localStorage) and inject into new Playwright pages
+  - Gateway playbooks route already exists — wire it to read/write AuthPlaybook model
+
+VERIFICATION:
+  Tests can log in and test pages behind an auth wall.

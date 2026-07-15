@@ -1,0 +1,15 @@
+====================================================================
+PHASE 13 -- Healing Map UI + Audit Trail in Report
+====================================================================
+
+TARGET FILES:
+  autonomousqa-frontend/src/pages/Report.jsx
+  autonomousqa-frontend/src/pages/LiveTest.jsx
+
+WHAT:
+  - Add a "Self-Healing Events" section to Report.jsx:
+      Table: Original Selector | Healed To | Element | Confidence | Status
+  - Add healing events to LiveTest.jsx live feed
+
+VERIFICATION:
+  Users can see exactly what selectors were healed during the run.

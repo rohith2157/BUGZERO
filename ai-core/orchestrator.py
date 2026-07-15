@@ -8,7 +8,7 @@ Pipeline stages:
        a. Self-healing  (Fingerprint + detect broken selectors)
        b. Basic tests   (TesterAgent — SEO, links, forms, perf)
        c. axe-core      (Accessibility WCAG audit)
-       d. Gemini Vision (AI visual bug detection + regression diff)
+       d. Algo Vision  (Pillow pixel-math visual regression, v2.0, no LLM)
   4. REPORT     — Aggregate everything into compliance report (ReportAgent)
 """
 
@@ -135,6 +135,7 @@ class Orchestrator:
 
         repo_manager = None
         target_url = request.url
+        repo_name = None
 
         try:
             # ────────────────────────────────────────────────
@@ -147,6 +148,10 @@ class Orchestrator:
                 logger.info(f"[{run_id}] Stage 0: Repository mode detected. Cloning and booting server...")
                 repo_manager = RepoManager(request.url, github_token)
                 if repo_manager.clone():
+                    repo_parts = request.url.rstrip('/').rstrip('.git').split('/')
+                    if len(repo_parts) >= 2:
+                        repo_name = f"{repo_parts[-2]}/{repo_parts[-1]}"
+                    
                     local_url = await repo_manager.start_server()
                     if local_url:
                         logger.info(f"[{run_id}] Repository server running at {local_url}")
@@ -438,7 +443,7 @@ class Orchestrator:
             # Calculate overall score
             overall_score = report.overall_score
 
-            return TestResult(
+            result = TestResult(
                 run_id=run_id,
                 url=request.url,
                 status="completed",
@@ -447,6 +452,17 @@ class Orchestrator:
                 total_defects=total_defects,
                 report=report,
             )
+
+            if req_type == "repo" and repo_manager:
+                result.repo_name = repo_name
+                result.repo_url = request.url
+                result.branch = repo_manager.branch
+                result.commit_sha = repo_manager.commit_sha
+                result.commit_sha_short = repo_manager.commit_sha_short
+                result.commit_message = repo_manager.commit_message
+                result.commit_author = repo_manager.commit_author
+
+            return result
 
         finally:
             self.active_runs.discard(run_id)

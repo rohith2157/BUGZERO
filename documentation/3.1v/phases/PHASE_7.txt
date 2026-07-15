@@ -1,0 +1,18 @@
+====================================================================
+PHASE 7 -- GitHub Commit Status API (CI Gate — "pending")
+====================================================================
+
+TARGET FILES:
+  ai-core/utils/github_status.py (new)
+  ai-core/orchestrator.py
+
+WHAT:
+  - Create ai-core/utils/github_status.py with a single async function:
+      post_commit_status(owner, repo, sha, state, description, run_id, token)
+      → POST https://api.github.com/repos/{owner}/{repo}/statuses/{sha}
+  - In orchestrator.py repo-mode pre-stage, after clone + metadata capture:
+      post_commit_status(..., state="pending", description="BugZero is running QA...")
+  - Extract owner/repo from repo_url: url.rstrip('/').split('/')[-2:]
+
+VERIFICATION:
+  PRs start showing a "pending" check immediately when test begins.

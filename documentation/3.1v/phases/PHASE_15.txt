@@ -1,0 +1,17 @@
+====================================================================
+PHASE 15 -- GitHub Webhook: Auto-Trigger on Push/PR (CI Gate V2)
+====================================================================
+
+TARGET FILES:
+  gateway/src/routes/webhooks.js (new file)
+  gateway/src/index.js
+
+WHAT:
+  - New route: POST /api/webhooks/github
+  - Validates X-Hub-Signature-256 HMAC signature
+  - Parses push/pull_request events
+  - Automatically creates a new TestRun using the repo URL + SHA + branch
+  - Responds 200 immediately (async — webhook must respond in < 10s)
+
+VERIFICATION:
+  Every push automatically triggers a test in BugZero.

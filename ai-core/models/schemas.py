@@ -5,6 +5,9 @@ from typing import Optional
 
 
 class TestConfig(BaseModel):
+    type: str = "url"
+    github_token: Optional[str] = None
+    branch: Optional[str] = None
     browser: str = "chromium"
     crawl_depth: str = "standard"
     modules: list[str] = [
@@ -75,7 +78,7 @@ class PageResult(BaseModel):
     page_type: Optional[str] = None
     hygiene_score: Optional[float] = None
     pagerank_score: Optional[float] = None       # Stage 3: PageRank importance
-    vision_quality_score: Optional[float] = None  # Stage 4: Gemini visual score
+    vision_quality_score: Optional[float] = None  # Stage 4: Algorithmic visual score (Pillow, no LLM)
     defects: list[DefectResult] = []
     compliance: list[ComplianceViolation] = []
     performance: dict[str, PerformanceMetric] = {}
@@ -115,6 +118,13 @@ class SiteReport(BaseModel):
 class TestResult(BaseModel):
     run_id: str
     url: str
+    repo_name: Optional[str] = None
+    repo_url: Optional[str] = None
+    branch: Optional[str] = None
+    commit_sha: Optional[str] = None
+    commit_sha_short: Optional[str] = None
+    commit_message: Optional[str] = None
+    commit_author: Optional[str] = None
     status: str = "completed"
     pages: list[PageResult] = []
     overall_score: Optional[float] = None

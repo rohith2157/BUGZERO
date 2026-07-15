@@ -1,0 +1,37 @@
+====================================================================
+PHASE 3 -- Orchestrator: Wire Metadata Through Pipeline
+====================================================================
+
+TARGET FILE: ai-core/orchestrator.py
+
+WHAT TO FIND (current repo-mode pre-stage around line 100-140):
+  Look for the block that does:
+    repo_manager = RepoManager(config.url, config.github_token)
+    cloned = repo_manager.clone()
+    target_url = await repo_manager.start_server()
+
+WHAT TO ADD right after clone():
+  Extract metadata from repo_manager:
+    repo_url = request.url
+    repo_name_parts = repo_url.rstrip('/').split('/')
+    repo_name = repo_name_parts[-2] + '/' + repo_name_parts[-1]  if len >= 2 else None
+
+  After pipeline completes, before returning TestResult:
+    if config.type == "repo" and repo_manager:
+        result.repo_name     = repo_name
+        result.repo_url      = repo_url
+        result.branch        = repo_manager.branch
+        result.commit_sha    = repo_manager.commit_sha
+        result.commit_sha_short = repo_manager.commit_sha_short
+        result.commit_message   = repo_manager.commit_message
+        result.commit_author    = repo_manager.commit_author
+
+ALSO FIX: Line 11 of orchestrator.py docstring still says:
+  "d. Gemini Vision (AI visual bug detection + regression diff)"
+  Change to:
+  "d. Algo Vision  (Pillow pixel-math visual regression, v2.0)"
+
+VERIFICATION:
+  Start AI core: python main.py
+  POST /api/test/run with config.type = "repo" and a valid github repo URL
+  Response should contain repo_name, commit_sha etc. in the JSON

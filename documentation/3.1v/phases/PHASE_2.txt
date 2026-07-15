@@ -1,0 +1,46 @@
+====================================================================
+PHASE 2 -- Schema + DB: Add GitHub Fields
+====================================================================
+
+TARGET FILES:
+  ai-core/models/schemas.py
+  gateway/prisma/schema.prisma
+  gateway/  (run: npx prisma migrate dev --name add_github_fields)
+
+STEP A -- schemas.py changes:
+
+  In TestConfig, add:
+    type: str = "url"              # "url" or "repo"
+    github_token: Optional[str] = None
+    branch: Optional[str] = None
+
+  In TestResult, add:
+    repo_name: Optional[str] = None       # "owner/repo"
+    repo_url: Optional[str] = None        # full github URL
+    branch: Optional[str] = None
+    commit_sha: Optional[str] = None      # full 40-char
+    commit_sha_short: Optional[str] = None  # 7-char
+    commit_message: Optional[str] = None
+    commit_author: Optional[str] = None
+
+  In PageResult, update the comment on vision_quality_score:
+    # Stage 4: Algorithmic visual score (Pillow, no LLM)
+
+STEP B -- schema.prisma changes:
+
+  In model TestRun, add these nullable fields:
+    repoName       String?
+    repoUrl        String?
+    branch         String?
+    commitSha      String?
+    commitShaShort String?
+    commitMessage  String?
+    commitAuthor   String?
+
+STEP C -- Migration:
+  cd gateway
+  npx prisma migrate dev --name add_github_fields
+
+VERIFICATION:
+  npx prisma studio
+  Open TestRun table. Confirm 7 new columns exist (all nullable).

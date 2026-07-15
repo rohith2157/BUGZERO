@@ -1,0 +1,497 @@
+====================================================================
+  AUTONOMOUSQA v3.1 -- GOD-MODE ENGINE
+  15-PHASE DETAILED IMPLEMENTATION PLAN
+  
+  Author: BugZero Engineering
+  Based on: God-Mode Technical Roadmap (3.1v folder) + Premium Roadmap + 
+            100percent_algo.md + Full Codebase Audit (July 2026)
+  Stack:
+    Frontend : React 18 + Vite (src/ in autonomousqa-frontend/)
+    Gateway  : Node.js + Express + Prisma + SQLite (gateway/)
+    AI Core  : Python 3.11 + FastAPI + Playwright (ai-core/)
+  Status   : Phase 1 COMPLETE. Phases 2-15 pending.
+====================================================================
+
+
+====================================================================
+WHAT ALREADY EXISTS (DO NOT REBUILD)
+====================================================================
+
+  AI Core (ai-core/)
+  ------------------
+  orchestrator.py         Full pipeline controller. 457 lines.
+  agents/crawler.py       BFS page discovery using Playwright
+  agents/tester.py        DOM checks: SEO, forms, links, security, GDPR
+  agents/scheduler.py     PageRank + defect history + risk scoring
+  agents/self_healing_agent.py  Levenshtein + Pythagorean fuzzy heal (v2.0)
+  agents/vision_agent.py  Pillow pixel-math visual regression (v2.0)
+  agents/report_agent.py  Score aggregation + WCAG/GDPR compliance report
+  agents/auth_agent.py    Auth navigator (form-based stub -- needs Phase 12)
+  agents/chaos_agent.py   Network throttle stub (not wired -- needs Phase 11)
+  tools/playwright_tool.py  Real browser wrapper
+  tools/axe_tool.py       axe-core WCAG 2.1 AA injection
+  utils/repo_server.py    RepoManager: clone + detect + serve (Phase 1 done)
+  models/schemas.py       Pydantic models for all request/response types
+
+  Gateway (gateway/)
+  ------------------
+  src/index.js            Express server, Socket.IO, rate limiter
+  src/routes/auth.js      Login, register, GitHub OAuth (partial)
+  src/routes/tests.js     Create/track test runs, progress updates
+  src/routes/playbooks.js Auth playbooks CRUD (not wired to AuthAgent)
+  src/routes/settings.js  User settings (no API key or GitHub panel yet)
+  src/routes/baselines.js Screenshot baseline storage
+  src/services/testService.js  Calls AI Core, handles WebSocket events
+  src/services/websocket.js    Socket.IO room management
+
+  Frontend (autonomousqa-frontend/src/)
+  --------------------------------------
+  pages/Landing.jsx       Public landing page
+  pages/Login.jsx         Auth page (JWT)
+  pages/Dashboard.jsx     KPI cards + recent runs
+  pages/NewTest.jsx       Start test (URL mode works; repo mode partial)
+  pages/LiveTest.jsx      Real-time test progress via WebSocket
+  pages/Report.jsx        Full test report (no healing events shown yet)
+  pages/History.jsx       All past runs (no GitHub chip yet)
+  pages/Compliance.jsx    WCAG/GDPR violation detail
+  pages/Performance.jsx   Core Web Vitals charts
+  pages/Settings.jsx      User settings (no GitHub connection panel)
+  pages/Playbooks.jsx     Auth playbook management
+
+
+====================================================================
+DEPENDENCY MAP (read before changing phase order)
+====================================================================
+
+  Phase 1 ---> Phase 2 ---> Phase 3 ---> Phase 4
+                                              |
+                              +--------------+--------------+
+                              |              |              |
+                          Phase 5        Phase 7        Phase 9
+                          (UI chip)      (CI gate)      (branch)
+                              |              |
+                          Phase 6        Phase 8
+                          (report)       (final status)
+
+  Phase 10  -- standalone (bounding box engine)
+  Phase 11  -- standalone (chaos agent)
+  Phase 12  -- standalone (auth playbooks)
+  Phase 13  -- depends on Phase 3 (healing events in response)
+  Phase 14  -- depends on Phase 9 (GitHub profile route)
+  Phase 15  -- depends on everything working end to end
+
+
+====================================================================
+PHASE 1 -- Commit Metadata Capture [STATUS: COMPLETE]
+====================================================================
+
+TARGET FILE: ai-core/utils/repo_server.py
+
+WHAT WAS BUILT:
+  - Added 5 instance fields to RepoManager.__init__:
+      self.commit_sha         (str | None)
+      self.commit_sha_short   (str | None)   -- first 7 chars
+      self.commit_message     (str | None)
+      self.commit_author      (str | None)
+      self.branch             (str | None)
+
+  - clone() now accepts optional branch: str | None = None
+    If branch provided: git clone --depth 1 --branch {branch} {url} .
+    Without branch: git clone --depth 1 {url} .
+
+  - New private method _capture_commit_metadata() runs after clone:
+      git log -1 --pretty=format:"%H|%s|%an"
+      --> splits on "|" to get sha, subject, author
+      git rev-parse --abbrev-ref HEAD
+      --> gets branch name
+      All wrapped in try/except: non-fatal, just logs a warning
+
+VERIFICATION:
+  In Python: from utils.repo_server import RepoManager
+  rm = RepoManager("https://github.com/any/public-repo", "")
+  rm.clone()
+  print(rm.commit_sha, rm.branch, rm.commit_message)
+  Expected: full 40-char SHA, branch name, first commit message line
+
+
+====================================================================
+PHASE 2 -- Schema + DB: Add GitHub Fields
+====================================================================
+
+TARGET FILES:
+  ai-core/models/schemas.py
+  gateway/prisma/schema.prisma
+  gateway/  (run: npx prisma migrate dev --name add_github_fields)
+
+STEP A -- schemas.py changes:
+
+  In TestConfig, add:
+    type: str = "url"              # "url" or "repo"
+    github_token: Optional[str] = None
+    branch: Optional[str] = None
+
+  In TestResult, add:
+    repo_name: Optional[str] = None       # "owner/repo"
+    repo_url: Optional[str] = None        # full github URL
+    branch: Optional[str] = None
+    commit_sha: Optional[str] = None      # full 40-char
+    commit_sha_short: Optional[str] = None  # 7-char
+    commit_message: Optional[str] = None
+    commit_author: Optional[str] = None
+
+  In PageResult, update the comment on vision_quality_score:
+    # Stage 4: Algorithmic visual score (Pillow, no LLM)
+
+STEP B -- schema.prisma changes:
+
+  In model TestRun, add these nullable fields:
+    repoName       String?
+    repoUrl        String?
+    branch         String?
+    commitSha      String?
+    commitShaShort String?
+    commitMessage  String?
+    commitAuthor   String?
+
+STEP C -- Migration:
+  cd gateway
+  npx prisma migrate dev --name add_github_fields
+
+VERIFICATION:
+  npx prisma studio
+  Open TestRun table. Confirm 7 new columns exist (all nullable).
+
+
+====================================================================
+PHASE 3 -- Orchestrator: Wire Metadata Through Pipeline
+====================================================================
+
+TARGET FILE: ai-core/orchestrator.py
+
+WHAT TO FIND (current repo-mode pre-stage around line 100-140):
+  Look for the block that does:
+    repo_manager = RepoManager(config.url, config.github_token)
+    cloned = repo_manager.clone()
+    target_url = await repo_manager.start_server()
+
+WHAT TO ADD right after clone():
+  Extract metadata from repo_manager:
+    repo_url = request.url
+    repo_name_parts = repo_url.rstrip('/').split('/')
+    repo_name = repo_name_parts[-2] + '/' + repo_name_parts[-1]  if len >= 2 else None
+
+  After pipeline completes, before returning TestResult:
+    if config.type == "repo" and repo_manager:
+        result.repo_name     = repo_name
+        result.repo_url      = repo_url
+        result.branch        = repo_manager.branch
+        result.commit_sha    = repo_manager.commit_sha
+        result.commit_sha_short = repo_manager.commit_sha_short
+        result.commit_message   = repo_manager.commit_message
+        result.commit_author    = repo_manager.commit_author
+
+ALSO FIX: Line 11 of orchestrator.py docstring still says:
+  "d. Gemini Vision (AI visual bug detection + regression diff)"
+  Change to:
+  "d. Algo Vision  (Pillow pixel-math visual regression, v2.0)"
+
+VERIFICATION:
+  Start AI core: python main.py
+  POST /api/test/run with config.type = "repo" and a valid github repo URL
+  Response should contain repo_name, commit_sha etc. in the JSON
+
+
+====================================================================
+PHASE 4 -- Gateway: Save & Expose GitHub Metadata
+====================================================================
+
+TARGET FILES:
+  gateway/src/services/testService.js
+  gateway/src/routes/tests.js
+  gateway/src/routes/auth.js
+
+STEP A -- testService.js
+  In the function that receives the AI Core response and calls
+  prisma.testRun.update() with status "completed":
+
+  Add to the update data object:
+    repoName:       aiResult.repo_name        ?? null,
+    repoUrl:        aiResult.repo_url         ?? null,
+    branch:         aiResult.branch           ?? null,
+    commitSha:      aiResult.commit_sha       ?? null,
+    commitShaShort: aiResult.commit_sha_short ?? null,
+    commitMessage:  aiResult.commit_message   ?? null,
+    commitAuthor:   aiResult.commit_author    ?? null,
+
+STEP B -- tests.js GET /api/tests/:id and GET /api/tests (list)
+  In the Prisma select or response mapping, include these new fields.
+  They are already on the model after Phase 2 migration, just make sure
+  they're not being stripped before being returned to the frontend.
+
+STEP C -- auth.js repos endpoint
+  In GET /api/auth/github/repos, the GitHub API response per repo already
+  includes "default_branch". Make sure this is returned:
+    repos.map(r => ({
+      id: r.id,
+      name: r.name,
+      full_name: r.full_name,
+      private: r.private,
+      default_branch: r.default_branch,   // ADD THIS
+      updated_at: r.updated_at,
+    }))
+
+VERIFICATION:
+  GET /api/tests (with auth header)
+  Response should include commitSha, branch, repoName for repo-mode runs.
+  For url-mode runs, they should be null.
+
+
+====================================================================
+PHASE 5 -- Frontend: GitHub Chip in History + Dashboard
+====================================================================
+
+TARGET FILES:
+  autonomousqa-frontend/src/components/ui/GitHubChip.jsx  (NEW FILE)
+  autonomousqa-frontend/src/pages/History.jsx
+  autonomousqa-frontend/src/pages/Dashboard.jsx
+
+STEP A -- Build GitHubChip.jsx (small, reusable, ~60 lines)
+
+  Props: { repoName, branch, commitSha, commitShaShort, repoUrl }
+
+  Visual structure:
+    <span className="github-chip">
+      <GitHubIcon />                          -- octicon SVG
+      <span className="repo-name">{repoName}</span>
+      <span className="branch-badge">{branch}</span>
+      <a href={`https://github.com/${repoName}/commit/${commitSha}`} className="sha-pill">{commitShaShort}</a>
+    </span>
+
+  Styling: inline flex, gap-2, small monospace font for SHA pill,
+           dark background pill, green left border or GitHub icon color
+
+STEP B -- History.jsx
+  In the run row where URL is currently displayed:
+    if (run.commitSha) {
+      render <GitHubChip
+        repoName={run.repoName}
+        branch={run.branch}
+        commitSha={run.commitSha}
+        commitShaShort={run.commitShaShort}
+        repoUrl={run.repoUrl}
+      />
+    } else {
+      render the URL as before
+    }
+
+STEP C -- Dashboard.jsx
+  Same pattern in the "Recent Runs" list/table.
+  If run has commitSha: show GitHubChip. Else show URL.
+
+VERIFICATION:
+  Create a repo-mode test run manually with commitSha set.
+  Open /history -- should see chip with icon, repo name, branch, 7-char SHA.
+  Clicking SHA links to GitHub.
+  URL-mode runs should still show the URL unchanged.
+
+
+====================================================================
+PHASE 6 -- Frontend: GitHub Metadata in Report Header
+====================================================================
+
+TARGET FILE: autonomousqa-frontend/src/pages/Report.jsx
+
+WHAT TO FIND:
+  The report header section that currently shows the tested URL.
+
+WHAT TO ADD (below or alongside the existing header):
+  If testRun.commitSha is present, show a card/row:
+      Repository:  owner/repo-name
+      Branch:      feature/login-redesign
+      Commit:      abc123d — "fix: resolve login redirect loop"
+      Author:      Jane Dev
+      [View on GitHub →]  (links to specific commit)
+
+  If url-mode: show just the URL as before.
+
+VERIFICATION:
+  Open a report for a repo-mode run. Commit card appears at top.
+  Open a report for a url-mode run. No commit card. Normal URL shown.
+
+
+====================================================================
+PHASE 7 -- GitHub Commit Status API (CI Gate — "pending")
+====================================================================
+
+TARGET FILES:
+  ai-core/utils/github_status.py (new)
+  ai-core/orchestrator.py
+
+WHAT:
+  - Create ai-core/utils/github_status.py with a single async function:
+      post_commit_status(owner, repo, sha, state, description, run_id, token)
+      → POST https://api.github.com/repos/{owner}/{repo}/statuses/{sha}
+  - In orchestrator.py repo-mode pre-stage, after clone + metadata capture:
+      post_commit_status(..., state="pending", description="BugZero is running QA...")
+  - Extract owner/repo from repo_url: url.rstrip('/').split('/')[-2:]
+
+VERIFICATION:
+  PRs start showing a "pending" check immediately when test begins.
+
+
+====================================================================
+PHASE 8 -- GitHub Commit Status API (CI Gate — "success"/"failure")
+====================================================================
+
+TARGET FILE: ai-core/orchestrator.py
+
+WHAT:
+  - After ReportAgent finishes and final score is calculated:
+      critical_count = sum(...)
+      if result.overall_score >= 70 and critical_count == 0:
+          state = "success"
+      else:
+          state = "failure"
+      post_commit_status(..., state=state, description=f"Score: {score}/100 · {n} defects")
+  - target_url in the status points to: {settings.frontend_url}/tests/{run_id}/report
+
+VERIFICATION:
+  Completes the CI gate loop — PR checks go green/red automatically.
+
+
+====================================================================
+PHASE 9 -- Branch Selector in NewTest (Frontend + Gateway)
+====================================================================
+
+TARGET FILES:
+  gateway/src/routes/auth.js
+  autonomousqa-frontend/src/pages/NewTest.jsx
+
+WHAT:
+  - Add GET /api/auth/github/repos/:owner/:repo/branches gateway route
+    → hits api.github.com/repos/{owner}/{repo}/branches with stored token
+  - In NewTest.jsx GitHub tab: after user selects a repo, fetch branches
+    and show a branch dropdown (default: default_branch from Phase 4)
+  - Include selected branch in the test config payload
+
+VERIFICATION:
+  Users can select branches from a dropdown when creating a new test run.
+
+
+====================================================================
+PHASE 10 -- Bounding Box Overlap Engine (Algorithmic Visual — Phase 2)
+====================================================================
+
+TARGET FILES:
+  ai-core/tools/playwright_tool.py
+  ai-core/agents/vision_agent.py
+  ai-core/agents/tester.py
+
+WHAT:
+  - Add detect_overlapping_elements(page) to PlaywrightTool:
+      page.evaluate JS to get getBoundingClientRect() for all text + interactive elements
+      Return list of {tag, selector, x1, y1, x2, y2, zIndex}
+  - In VisionAgent, add check_bounding_box_overlaps(elements):
+      For each pair, check if rectangles intersect.
+      If overlap with no valid z-index stacking context → flag as "Visual: Overlapping Elements"
+  - Wire into tester.py test loop
+
+VERIFICATION:
+  Detects overlapping UI without screenshots or LLMs.
+
+
+====================================================================
+PHASE 11 -- ChaosAgent: Real Network Throttling + Performance Regression
+====================================================================
+
+TARGET FILES:
+  ai-core/agents/chaos_agent.py
+  ai-core/orchestrator.py
+
+WHAT:
+  - In ChaosAgent, implement actual Playwright CDP network throttling:
+      await page.context.new_cdp_session(page) → Network.emulateNetworkConditions
+      Profiles: 3G (750kbps down), Slow 3G (500kbps), Fast 3G (1.5Mbps)
+  - Capture LCP, FID, CLS, TTFB using window.performance
+  - Compare against a baseline. If any metric degrades > 20% → "Performance Regression" defect
+  - Wire chaos_mode in orchestrator to actually apply throttling
+
+VERIFICATION:
+  Tests can run under simulated slow network conditions.
+
+
+====================================================================
+PHASE 12 -- Auth Playbooks: Real SSO/Form Auth Navigation
+====================================================================
+
+TARGET FILES:
+  ai-core/agents/auth_agent.py
+  gateway/src/routes/playbooks.js
+
+WHAT:
+  - AuthAgent currently stubs out after basic form fill
+  - Implement full form-based auth:
+      Detect: input[type=email], input[type=password]
+      Fill: page.fill(selector, value)
+      Submit: form submit or Enter key
+      Wait: network idle after submit
+      Detect success: URL changed + no login form visible
+  - Store auth session (cookies/localStorage) and inject into new Playwright pages
+  - Gateway playbooks route already exists — wire it to read/write AuthPlaybook model
+
+VERIFICATION:
+  Tests can log in and test pages behind an auth wall.
+
+
+====================================================================
+PHASE 13 -- Healing Map UI + Audit Trail in Report
+====================================================================
+
+TARGET FILES:
+  autonomousqa-frontend/src/pages/Report.jsx
+  autonomousqa-frontend/src/pages/LiveTest.jsx
+
+WHAT:
+  - Add a "Self-Healing Events" section to Report.jsx:
+      Table: Original Selector | Healed To | Element | Confidence | Status
+  - Add healing events to LiveTest.jsx live feed
+
+VERIFICATION:
+  Users can see exactly what selectors were healed during the run.
+
+
+====================================================================
+PHASE 14 -- Settings Page: GitHub Connection + API Key UI
+====================================================================
+
+TARGET FILES:
+  autonomousqa-frontend/src/pages/Settings.jsx
+  gateway/src/routes/settings.js
+
+WHAT:
+  - [GitHub Integration]: Shows connection status (connected as @username / Connect GitHub)
+  - [API Keys]: Generate + revoke API keys for CI/CD webhook use
+    - Create ApiKey Prisma model (id, key_hash, name, userId, createdAt)
+    - Gateway: POST /api/settings/api-keys, GET /api/settings/api-keys, DELETE /api/settings/api-keys/:id
+
+VERIFICATION:
+  Users can manage GitHub connection and generate API keys.
+
+
+====================================================================
+PHASE 15 -- GitHub Webhook: Auto-Trigger on Push/PR (CI Gate V2)
+====================================================================
+
+TARGET FILES:
+  gateway/src/routes/webhooks.js (new file)
+  gateway/src/index.js
+
+WHAT:
+  - New route: POST /api/webhooks/github
+  - Validates X-Hub-Signature-256 HMAC signature
+  - Parses push/pull_request events
+  - Automatically creates a new TestRun using the repo URL + SHA + branch
+  - Responds 200 immediately (async — webhook must respond in < 10s)
+
+VERIFICATION:
+  Every push automatically triggers a test in BugZero.
