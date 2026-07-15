@@ -176,11 +176,16 @@ class Orchestrator:
                 await playwright.set_network_conditions('Slow 3G')
                 await playwright.set_cpu_throttling(4)
 
-            if getattr(config, "auth_enabled", False) and getattr(config, "auth_username", None) and getattr(config, "auth_password", None):
-                logger.info(f"[{run_id}] Stage 0: Autonomous Authentication on {target_url}")
-                success = await auth_agent.authenticate(target_url, config.auth_username, config.auth_password)
-                if not success:
-                    logger.warning(f"[{run_id}] Auth failed, but continuing crawl.")
+            auth_config = getattr(config, "auth_config", {})
+            if auth_config.get("enabled"):
+                auth_url = auth_config.get("login_url", target_url)
+                logger.info(f"[{run_id}] Stage 0: Autonomous Authentication on {auth_url}")
+                try:
+                    success_state = await auth_agent.authenticate(auth_config)
+                    if not success_state:
+                        logger.warning(f"[{run_id}] Auth failed, but continuing crawl.")
+                except Exception as e:
+                    logger.warning(f"[{run_id}] Auth sequence aborted: {e}")
 
 # ────────────────────────────────────────────────
             #  STAGE 1: CRAWL — Discover all pages via BFS

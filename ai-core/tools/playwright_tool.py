@@ -32,6 +32,7 @@ class PlaywrightTool:
         self._browser = None
         self._network_profile = None
         self._cpu_throttling = None
+        self._storage_state = None
 
     def _ensure_browser(self):
         """Return a live browser, (re)launching if necessary."""
@@ -73,6 +74,8 @@ class PlaywrightTool:
             }
         }
         context_args.update(kwargs)
+        if getattr(self, '_storage_state', None):
+            context_args["storage_state"] = self._storage_state
         return browser.new_context(**context_args)
 
     def _start_sync(self):
@@ -792,6 +795,56 @@ class PlaywrightTool:
 
     async def execute_login(self, url: str, username_selector: str, password_selector: str, submit_selector: str, username: str, password: str) -> bool:
         return await _run_sync(self._execute_login_sync, url, username_selector, password_selector, submit_selector, username, password)
+
+    def _execute_login_stateful_sync(self, url: str, username_selector: str, password_selector: str, submit_selector: str, username: str, password: str, totp_value: str = None) -> dict:
+        browser = self._ensure_browser()
+        context = self._new_context(browser)
+        page = context.new_page()
+        try:
+            page.goto(url, wait_until="domcontentloaded", timeout=15000)
+            page.wait_for_selector(username_selector, timeout=10000)
+            page.fill(username_selector, username)
+            page.fill(password_selector, password)
+            if totp_value:
+                pass # A real implementation would handle TOTP prompts on the next screen
+            page.click(submit_selector)
+            page.wait_for_load_state("networkidle", timeout=15000)
+            
+            # Save the session state (cookies + localStorage)
+            state = context.storage_state()
+            self._storage_state = state
+            return state
+        except Exception as e:
+            print(f"Stateful login error on {url}: {e}")
+            return {}
+        finally:
+            context.close()
+
+    async def execute_login_stateful(self, url: str, username_selector: str, password_selector: str, submit_selector: str, username: str, password: str, totp_value: str = None) -> dict:
+        return await _run_sync(self._execute_login_stateful_sync, url, username_selector, password_selector, submit_selector, username, password, totp_value)
+
+    def _execute_sso_login_stateful_sync(self, url: str, sso_selector: str, credentials: dict) -> dict:
+        browser = self._ensure_browser()
+        context = self._new_context(browser)
+        page = context.new_page()
+        try:
+            page.goto(url, wait_until="domcontentloaded", timeout=15000)
+            page.wait_for_selector(sso_selector, timeout=10000)
+            page.click(sso_selector)
+            # Wait for SSO flow redirects
+            page.wait_for_load_state("networkidle", timeout=20000)
+            
+            state = context.storage_state()
+            self._storage_state = state
+            return state
+        except Exception as e:
+            print(f"SSO login error on {url}: {e}")
+            return {}
+        finally:
+            context.close()
+
+    async def execute_sso_login_stateful(self, url: str, sso_selector: str, credentials: dict) -> dict:
+        return await _run_sync(self._execute_sso_login_stateful_sync, url, sso_selector, credentials)
 
     def _set_network_conditions_sync(self, profile: str):
         self._network_profile = profile

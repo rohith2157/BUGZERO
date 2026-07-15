@@ -189,6 +189,21 @@ router.post('/', authenticate, createTestRules, validate, async (req, res) => {
             config.github_token = user.githubAccessToken;
         }
 
+        if (config && config.playbook_id) {
+            const playbook = await prisma.authPlaybook.findFirst({
+                where: { id: config.playbook_id, orgId: req.user.orgId }
+            });
+            if (playbook) {
+                config.auth_config = {
+                    enabled: true,
+                    strategy: playbook.authType,
+                    login_url: playbook.config?.login_url || url,
+                    credentials: playbook.config?.credentials || {},
+                    ...playbook.config
+                };
+            }
+        }
+
         const dbConfig = { ...config };
         delete dbConfig.github_token; // Never save the token in plaintext in the testRun config
 
