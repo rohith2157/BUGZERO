@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Globe, Settings2, Play, ChevronDown, Shield, Layers, MonitorSmartphone, Gauge, Github } from 'lucide-react';
+import { Globe, Settings2, Play, ChevronDown, Shield, Layers, MonitorSmartphone, Gauge, Github, GitBranch } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Slider } from '../components/ui/slider';
 import { tests as testsApi, playbooks as playbooksApi } from '../lib/api';
@@ -14,6 +14,7 @@ export default function NewTest() {
     const [testMode, setTestMode] = useState('url'); // 'url' | 'repo'
     const [url, setUrl] = useState('');
     const [repoUrl, setRepoUrl] = useState('');
+    const [repoBranch, setRepoBranch] = useState('main');
     const [browser, setBrowser] = useState('Chromium');
     const [depth, setDepth] = useState('Standard (3 levels deep)');
     const [maxPages, setMaxPages] = useState(50);
@@ -104,6 +105,7 @@ export default function NewTest() {
                 config: {
                     type: mode, // 'url' or 'repo'
                     github_token: token || undefined,
+                    branch: mode === 'repo' ? repoBranch : undefined,
                     browser: browser.toLowerCase(),
                     crawl_depth: depthMap[depth] || 'standard',
                     max_pages: maxPages,
@@ -262,32 +264,61 @@ export default function NewTest() {
                                     </button>
                                 </div>
                             ) : (
-                                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                                    <div style={{
-                                        width: 42, height: 42, borderRadius: 10,
-                                        background: 'rgba(255, 255, 255, 0.05)',
-                                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                        flexShrink: 0,
-                                    }}>
-                                        <Github size={20} style={{ color: 'var(--text-primary)' }} />
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                                        <div style={{
+                                            width: 42, height: 42, borderRadius: 10,
+                                            background: 'rgba(255, 255, 255, 0.05)',
+                                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                            flexShrink: 0,
+                                        }}>
+                                            <Github size={20} style={{ color: 'var(--text-primary)' }} />
+                                        </div>
+                                        <select
+                                            value={repoUrl}
+                                            onChange={(e) => { 
+                                                setRepoUrl(e.target.value); 
+                                                const repo = repositories.find(r => r.url === e.target.value);
+                                                if (repo && repo.default_branch) setRepoBranch(repo.default_branch);
+                                                setError(''); 
+                                            }}
+                                            style={{
+                                                flex: 1, padding: '14px 18px', fontSize: 15,
+                                                background: 'var(--color-bg-elevated)',
+                                                border: '1px solid rgba(255,255,255,0.06)',
+                                                borderRadius: 10, color: 'var(--text-primary)',
+                                                outline: 'none', transition: 'border-color var(--transition-fast)',
+                                                appearance: 'none',
+                                            }}
+                                        >
+                                            <option value="" disabled>{loadingRepos ? 'Loading repositories...' : 'Select a repository...'}</option>
+                                            {repositories.map(repo => (
+                                                <option key={repo.id} value={repo.url}>{repo.name}</option>
+                                            ))}
+                                        </select>
                                     </div>
-                                    <select
-                                        value={repoUrl}
-                                        onChange={(e) => { setRepoUrl(e.target.value); setError(''); }}
-                                        style={{
-                                            flex: 1, padding: '14px 18px', fontSize: 15,
-                                            background: 'var(--color-bg-elevated)',
-                                            border: '1px solid rgba(255,255,255,0.06)',
-                                            borderRadius: 10, color: 'var(--text-primary)',
-                                            outline: 'none', transition: 'border-color var(--transition-fast)',
-                                            appearance: 'none',
-                                        }}
-                                    >
-                                        <option value="" disabled>{loadingRepos ? 'Loading repositories...' : 'Select a repository...'}</option>
-                                        {repositories.map(repo => (
-                                            <option key={repo.id} value={repo.url}>{repo.name}</option>
-                                        ))}
-                                    </select>
+                                    
+                                    {/* Branch Input */}
+                                    {repoUrl && (
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 4 }}>
+                                            <div style={{ width: 42, display: 'flex', justifyContent: 'center', flexShrink: 0 }}>
+                                                 <GitBranch size={16} style={{ color: 'var(--text-tertiary)' }} />
+                                            </div>
+                                            <input
+                                                type="text"
+                                                value={repoBranch}
+                                                onChange={(e) => setRepoBranch(e.target.value)}
+                                                placeholder="Branch (e.g. main)"
+                                                style={{
+                                                    flex: 1, padding: '10px 14px', fontSize: 14,
+                                                    background: 'var(--color-bg-elevated)',
+                                                    border: '1px solid rgba(255,255,255,0.06)',
+                                                    borderRadius: 8, color: 'var(--text-primary)',
+                                                    outline: 'none', fontFamily: "'Geist Mono', 'JetBrains Mono', monospace",
+                                                }}
+                                            />
+                                        </div>
+                                    )}
                                 </div>
                             )}
                         </>

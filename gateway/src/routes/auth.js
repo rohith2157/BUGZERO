@@ -236,7 +236,7 @@ router.get('/github', async (req, res) => {
     }
     
     const state = Buffer.from(JSON.stringify(statePayload)).toString('base64');
-    const githubAuthUrl = `https://github.com/login/oauth/authorize?client_id=${process.env.GITHUB_CLIENT_ID}&redirect_uri=${process.env.GITHUB_CALLBACK_URL}&scope=repo,user:email&state=${state}`;
+    const githubAuthUrl = `https://github.com/login/oauth/authorize?client_id=${process.env.GITHUB_CLIENT_ID}&redirect_uri=${process.env.GITHUB_CALLBACK_URL}&scope=read:user,user:email,repo&state=${state}`;
     
     res.redirect(githubAuthUrl);
   } catch (err) {
@@ -357,7 +357,13 @@ router.get('/github/profile', authenticate, async (req, res) => {
     });
     
     if (!githubRes.ok) {
-      return res.json({ connected: false, error: 'Invalid token' });
+      if (githubRes.status === 401) {
+        await prisma.user.update({
+          where: { id: req.user.id },
+          data: { githubAccessToken: null }
+        });
+      }
+      return res.json({ connected: false, error: 'Invalid or expired token' });
     }
     
     const githubData = await githubRes.json();
@@ -397,6 +403,13 @@ router.get('/github/repos', authenticate, async (req, res) => {
     });
     
     if (!reposResponse.ok) {
+      if (reposResponse.status === 401) {
+        await prisma.user.update({
+          where: { id: req.user.id },
+          data: { githubAccessToken: null }
+        });
+        return res.status(401).json({ error: 'GitHub session expired. Please reconnect.' });
+      }
       const errorData = await reposResponse.json();
       console.error('GitHub API error:', errorData);
       return res.status(reposResponse.status).json({ error: 'Failed to fetch repositories' });
