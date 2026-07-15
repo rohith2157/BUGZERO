@@ -116,7 +116,6 @@ export default function Report() {
                     score: Math.round(p.visionQualityScore),
                 })),
             });
-            });
         }).catch(() => {
             setReportData(null);
         }).finally(() => setLoading(false));
