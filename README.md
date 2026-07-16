@@ -1,5 +1,7 @@
 <div align="center">
 
+# 🚀 BUGZERO (AutonomousQA v3.1 — God-Mode)
+
 ---
 
 ## 🧠 What is AutonomousQA?

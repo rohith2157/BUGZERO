@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Download, FileJson, FileText, FileSpreadsheet, ChevronDown, ExternalLink, Loader2, Eye, RefreshCw, Wrench, CheckCircle2 } from 'lucide-react';
+import { Download, FileJson, FileText, FileSpreadsheet, ChevronDown, ExternalLink, Loader2, Eye, RefreshCw, Wrench, CheckCircle2, Terminal } from 'lucide-react';
 import HygieneScoreGauge from '../components/ui/HygieneScoreGauge';
 import StatusBadge from '../components/ui/StatusBadge';
 import { severityConfig, defectTypeColors } from '../data/mockData';
@@ -115,6 +115,9 @@ export default function Report() {
                     page: safePath(p.url),
                     score: Math.round(p.visionQualityScore),
                 })),
+                rawPages: testRun.pages || [],
+                rawCompliance: testRun.complianceResults || [],
+                rawLogs: testRun.reportJson?.logs || testRun.logs || [], // Capture logs if available
             });
         }).catch(() => {
             setReportData(null);
@@ -194,26 +197,40 @@ export default function Report() {
                                             wcagCompliancePct: reportData.wcagCompliancePct,
                                             breakdown: reportData.scoreBreakdown,
                                         },
-                                        aiSiteReport: reportData.siteReport, // Full PageRank/axe-core/Gemini data!
+                                        aiSiteReport: reportData.siteReport, // Full PageRank/axe-core/Pillow data!
                                         heatmap: reportData.heatmapData,
                                         allDefects: reportData.defects,
+                                        healingEvents: healingEvents,
+                                        pages: reportData.rawPages,
+                                        compliance: reportData.rawCompliance,
+                                        systemLogs: reportData.rawLogs,
                                     };
                                     const blob = new Blob([JSON.stringify(exportPayload, null, 2)], { type: 'application/json' });
                                     const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `autonomousqa-report-${id}.json`; a.click();
                                 } else if (label === 'CSV') {
-                                    const rows = [['Type', 'Severity', 'Page', 'Message', 'Fix', 'Source', 'Location', 'Confidence']];
-                                    
-                                    // Prevent CSV Formula Injection
                                     const sanitizeCsv = (val) => {
                                         let str = String(val || 'N/A').replace(/"/g, '""');
                                         if (/^[=+\-@\t\r]/.test(str)) str = "'" + str;
                                         return `"${str}"`;
                                     };
 
-                                    reportData.defects.forEach(d => rows.push([d.type, d.severity, d.page, d.message, d.fix, d.source, d.location, d.confidence]));
-                                    const csv = rows.map(r => r.map(sanitizeCsv).join(',')).join('\n');
-                                    const blob = new Blob([csv], { type: 'text/csv' });
-                                    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `autonomousqa-defects-${id}.csv`; a.click();
+                                    let csvContent = "=== BUGZERO TEST REPORT ===\n\n";
+                                    csvContent += "--- METADATA ---\n";
+                                    csvContent += "URL,Date,Overall Score,Grade,Duration,Total Pages,Total Defects\n";
+                                    csvContent += [reportData.url, reportData.date, reportData.overallScore, reportData.grade, reportData.duration, reportData.totalPages, reportData.totalDefects].map(sanitizeCsv).join(',') + "\n\n";
+                                    
+                                    csvContent += "--- DEFECTS ---\n";
+                                    const defectRows = [['Type', 'Severity', 'Page', 'Message', 'Fix', 'Source', 'Location', 'Confidence']];
+                                    reportData.defects.forEach(d => defectRows.push([d.type, d.severity, d.page, d.message, d.fix, d.source, d.location, d.confidence]));
+                                    csvContent += defectRows.map(r => r.map(sanitizeCsv).join(',')).join('\n') + "\n\n";
+
+                                    csvContent += "--- HEALING EVENTS ---\n";
+                                    const healingRows = [['Page', 'Original Selector', 'Healed Selector', 'Element ID', 'Confidence', 'Time']];
+                                    healingEvents.forEach(h => healingRows.push([h.page, h.originalSelector, h.healedSelector, h.elementId, h.confidence + '%', h.time]));
+                                    csvContent += healingRows.map(r => r.map(sanitizeCsv).join(',')).join('\n') + "\n\n";
+
+                                    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                                    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `autonomousqa-detailed-${id}.csv`; a.click();
                                 }
                             }}
                             style={{
@@ -224,6 +241,7 @@ export default function Report() {
                                 color: 'var(--text-secondary)', cursor: 'pointer',
                                 display: 'flex', alignItems: 'center', gap: 6,
                             }}
+                            className="no-print"
                         >
                             <Icon size={14} /> {label}
                         </motion.button>
@@ -623,6 +641,30 @@ export default function Report() {
                     )}
                 </div>
             </motion.div>
+
+            {/* System Logs (For in-depth details and PDF export) */}
+            {reportData.rawLogs && reportData.rawLogs.length > 0 && (
+                <motion.div variants={item} className="glass-card" style={{ padding: '24px', marginTop: '24px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
+                        <div style={{
+                            width: 32, height: 32, borderRadius: 8,
+                            background: 'rgba(59, 130, 246, 0.1)',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        }}>
+                            <Terminal size={16} style={{ color: '#3B82F6' }} />
+                        </div>
+                        <h3 style={{ fontSize: 16, fontWeight: 700, margin: 0, color: 'var(--text-primary)' }}>System Logs & Raw Output</h3>
+                    </div>
+                    <pre style={{
+                        background: '#0F172A', color: '#E2E8F0', padding: '16px', borderRadius: '8px',
+                        fontSize: '12px', fontFamily: "'Geist Mono', 'JetBrains Mono', monospace",
+                        overflowX: 'auto', whiteSpace: 'pre-wrap', maxHeight: '500px', overflowY: 'auto',
+                        border: '1px solid rgba(255,255,255,0.05)'
+                    }}>
+                        {Array.isArray(reportData.rawLogs) ? reportData.rawLogs.join('\n') : reportData.rawLogs}
+                    </pre>
+                </motion.div>
+            )}
         </motion.div>
     );
 }

@@ -1,0 +1,506 @@
+{
+  "button_0": {
+    "tagName": "BUTTON",
+    "id": "",
+    "className": "NavDropdown-module__button__PEHWX js-details-target",
+    "textContent": "Platform",
+    "type": "button",
+    "name": "",
+    "href": "",
+    "ariaLabel": "",
+    "placeholder": "",
+    "attributes": [
+      {
+        "name": "type",
+        "value": "button"
+      },
+      {
+        "name": "class",
+        "value": "NavDropdown-module__button__PEHWX js-details-target"
+      },
+      {
+        "name": "aria-expanded",
+        "value": "false"
+      }
+    ],
+    "metrics": {
+      "x": 80,
+      "y": 16,
+      "width": 101,
+      "height": 40
+    },
+    "selector": ""
+  },
+  "button_1": {
+    "tagName": "BUTTON",
+    "id": "",
+    "className": "NavDropdown-module__button__PEHWX js-details-target",
+    "textContent": "Solutions",
+    "type": "button",
+    "name": "",
+    "href": "",
+    "ariaLabel": "",
+    "placeholder": "",
+    "attributes": [
+      {
+        "name": "type",
+        "value": "button"
+      },
+      {
+        "name": "class",
+        "value": "NavDropdown-module__button__PEHWX js-details-target"
+      },
+      {
+        "name": "aria-expanded",
+        "value": "false"
+      }
+    ],
+    "metrics": {
+      "x": 181,
+      "y": 16,
+      "width": 106,
+      "height": 40
+    },
+    "selector": ""
+  },
+  "button_2": {
+    "tagName": "BUTTON",
+    "id": "",
+    "className": "NavDropdown-module__button__PEHWX js-details-target",
+    "textContent": "Resources",
+    "type": "button",
+    "name": "",
+    "href": "",
+    "ariaLabel": "",
+    "placeholder": "",
+    "attributes": [
+      {
+        "name": "type",
+        "value": "button"
+      },
+      {
+        "name": "class",
+        "value": "NavDropdown-module__button__PEHWX js-details-target"
+      },
+      {
+        "name": "aria-expanded",
+        "value": "false"
+      }
+    ],
+    "metrics": {
+      "x": 287,
+      "y": 16,
+      "width": 115,
+      "height": 40
+    },
+    "selector": ""
+  },
+  "button_3": {
+    "tagName": "BUTTON",
+    "id": "",
+    "className": "NavDropdown-module__button__PEHWX js-details-target",
+    "textContent": "Open Source",
+    "type": "button",
+    "name": "",
+    "href": "",
+    "ariaLabel": "",
+    "placeholder": "",
+    "attributes": [
+      {
+        "name": "type",
+        "value": "button"
+      },
+      {
+        "name": "class",
+        "value": "NavDropdown-module__button__PEHWX js-details-target"
+      },
+      {
+        "name": "aria-expanded",
+        "value": "false"
+      }
+    ],
+    "metrics": {
+      "x": 402,
+      "y": 16,
+      "width": 134,
+      "height": 40
+    },
+    "selector": ""
+  },
+  "button_4": {
+    "tagName": "BUTTON",
+    "id": "",
+    "className": "NavDropdown-module__button__PEHWX js-details-target",
+    "textContent": "Enterprise",
+    "type": "button",
+    "name": "",
+    "href": "",
+    "ariaLabel": "",
+    "placeholder": "",
+    "attributes": [
+      {
+        "name": "type",
+        "value": "button"
+      },
+      {
+        "name": "class",
+        "value": "NavDropdown-module__button__PEHWX js-details-target"
+      },
+      {
+        "name": "aria-expanded",
+        "value": "false"
+      }
+    ],
+    "metrics": {
+      "x": 535,
+      "y": 16,
+      "width": 112,
+      "height": 40
+    },
+    "selector": ""
+  },
+  "button_5": {
+    "tagName": "BUTTON",
+    "id": "",
+    "className": "header-search-button placeholder input-button form-control d-flex flex-1 flex-self-stretch flex-items-center no-wrap width-full py-0 pl-2 pr-0 text-left border-0 box-shadow-none",
+    "textContent": "Search or jump to...",
+    "type": "button",
+    "name": "",
+    "href": "",
+    "ariaLabel": "Search or jump to\u2026",
+    "placeholder": "",
+    "attributes": [
+      {
+        "name": "type",
+        "value": "button"
+      },
+      {
+        "name": "class",
+        "value": "header-search-button placeholder input-button form-control d"
+      },
+      {
+        "name": "data-target",
+        "value": "qbsearch-input.inputButton"
+      },
+      {
+        "name": "aria-label",
+        "value": "Search or jump to\u2026"
+      },
+      {
+        "name": "aria-haspopup",
+        "value": "dialog"
+      },
+      {
+        "name": "placeholder",
+        "value": "Search or jump to..."
+      },
+      {
+        "name": "data-hotkey",
+        "value": "s,/"
+      },
+      {
+        "name": "autocapitalize",
+        "value": "off"
+      }
+    ],
+    "metrics": {
+      "x": 1054,
+      "y": 21,
+      "width": 30,
+      "height": 30
+    },
+    "selector": ""
+  },
+  "link_6": {
+    "tagName": "A",
+    "id": "",
+    "className": "px-2 tmp-py-4 color-bg-accent-emphasis color-fg-on-emphasis show-on-focus js-skip-to-content",
+    "textContent": "Skip to content",
+    "type": "",
+    "name": "",
+    "href": "https://github.com/features/copilot#start-of-content",
+    "ariaLabel": "",
+    "placeholder": "",
+    "attributes": [
+      {
+        "name": "href",
+        "value": "#start-of-content"
+      },
+      {
+        "name": "data-skip-target-assigned",
+        "value": "false"
+      },
+      {
+        "name": "class",
+        "value": "px-2 tmp-py-4 color-bg-accent-emphasis color-fg-on-emphasis "
+      }
+    ],
+    "metrics": {
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    "selector": ""
+  },
+  "link_7": {
+    "tagName": "A",
+    "id": "",
+    "className": "tmp-mr-lg-3 color-fg-inherit flex-order-2 js-prevent-focus-on-mobile-nav",
+    "textContent": "",
+    "type": "",
+    "name": "",
+    "href": "https://github.com/",
+    "ariaLabel": "Homepage",
+    "placeholder": "",
+    "attributes": [
+      {
+        "name": "class",
+        "value": "tmp-mr-lg-3 color-fg-inherit flex-order-2 js-prevent-focus-o"
+      },
+      {
+        "name": "href",
+        "value": "/"
+      },
+      {
+        "name": "aria-label",
+        "value": "Homepage"
+      },
+      {
+        "name": "data-analytics-event",
+        "value": "{\"category\":\"Marketing nav\",\"action\":\"click to go to homepag"
+      }
+    ],
+    "metrics": {
+      "x": 32,
+      "y": 19,
+      "width": 32,
+      "height": 34
+    },
+    "selector": ""
+  },
+  "link_8": {
+    "tagName": "A",
+    "id": "",
+    "className": "NavLink-module__link__EG3d4",
+    "textContent": "GitHub CopilotWrite better code with AI",
+    "type": "",
+    "name": "",
+    "href": "https://github.com/features/copilot",
+    "ariaLabel": "",
+    "placeholder": "",
+    "attributes": [
+      {
+        "name": "href",
+        "value": "https://github.com/features/copilot"
+      },
+      {
+        "name": "data-analytics-event",
+        "value": "{\"action\":\"github_copilot\",\"tag\":\"link\",\"context\":\"platform\""
+      },
+      {
+        "name": "class",
+        "value": "NavLink-module__link__EG3d4"
+      }
+    ],
+    "metrics": {
+      "x": 117,
+      "y": 118,
+      "width": 257,
+      "height": 45
+    },
+    "selector": ""
+  },
+  "link_9": {
+    "tagName": "A",
+    "id": "",
+    "className": "NavLink-module__link__EG3d4",
+    "textContent": "GitHub Copilot appDirect agents from issue to merge",
+    "type": "",
+    "name": "",
+    "href": "https://github.com/features/ai/github-app",
+    "ariaLabel": "",
+    "placeholder": "",
+    "attributes": [
+      {
+        "name": "href",
+        "value": "https://github.com/features/ai/github-app"
+      },
+      {
+        "name": "data-analytics-event",
+        "value": "{\"action\":\"github_copilot_app\",\"tag\":\"link\",\"context\":\"platf"
+      },
+      {
+        "name": "class",
+        "value": "NavLink-module__link__EG3d4"
+      }
+    ],
+    "metrics": {
+      "x": 117,
+      "y": 183,
+      "width": 257,
+      "height": 45
+    },
+    "selector": ""
+  },
+  "link_10": {
+    "tagName": "A",
+    "id": "",
+    "className": "NavLink-module__link__EG3d4",
+    "textContent": "MCP RegistryNewIntegrate external tools",
+    "type": "",
+    "name": "",
+    "href": "https://github.com/mcp",
+    "ariaLabel": "",
+    "placeholder": "",
+    "attributes": [
+      {
+        "name": "href",
+        "value": "https://github.com/mcp"
+      },
+      {
+        "name": "data-analytics-event",
+        "value": "{\"action\":\"mcp_registry\",\"tag\":\"link\",\"context\":\"platform\",\""
+      },
+      {
+        "name": "class",
+        "value": "NavLink-module__link__EG3d4"
+      }
+    ],
+    "metrics": {
+      "x": 117,
+      "y": 247,
+      "width": 257,
+      "height": 45
+    },
+    "selector": ""
+  },
+  "link_11": {
+    "tagName": "A",
+    "id": "",
+    "className": "NavLink-module__link__EG3d4",
+    "textContent": "ActionsAutomate any workflow",
+    "type": "",
+    "name": "",
+    "href": "https://github.com/features/actions",
+    "ariaLabel": "",
+    "placeholder": "",
+    "attributes": [
+      {
+        "name": "href",
+        "value": "https://github.com/features/actions"
+      },
+      {
+        "name": "data-analytics-event",
+        "value": "{\"action\":\"actions\",\"tag\":\"link\",\"context\":\"platform\",\"locat"
+      },
+      {
+        "name": "class",
+        "value": "NavLink-module__link__EG3d4"
+      }
+    ],
+    "metrics": {
+      "x": 414,
+      "y": 118,
+      "width": 203,
+      "height": 45
+    },
+    "selector": ""
+  },
+  "link_12": {
+    "tagName": "A",
+    "id": "",
+    "className": "NavLink-module__link__EG3d4",
+    "textContent": "CodespacesInstant dev environments",
+    "type": "",
+    "name": "",
+    "href": "https://github.com/features/codespaces",
+    "ariaLabel": "",
+    "placeholder": "",
+    "attributes": [
+      {
+        "name": "href",
+        "value": "https://github.com/features/codespaces"
+      },
+      {
+        "name": "data-analytics-event",
+        "value": "{\"action\":\"codespaces\",\"tag\":\"link\",\"context\":\"platform\",\"lo"
+      },
+      {
+        "name": "class",
+        "value": "NavLink-module__link__EG3d4"
+      }
+    ],
+    "metrics": {
+      "x": 414,
+      "y": 183,
+      "width": 203,
+      "height": 45
+    },
+    "selector": ""
+  },
+  "link_13": {
+    "tagName": "A",
+    "id": "",
+    "className": "NavLink-module__link__EG3d4",
+    "textContent": "IssuesPlan and track work",
+    "type": "",
+    "name": "",
+    "href": "https://github.com/features/issues",
+    "ariaLabel": "",
+    "placeholder": "",
+    "attributes": [
+      {
+        "name": "href",
+        "value": "https://github.com/features/issues"
+      },
+      {
+        "name": "data-analytics-event",
+        "value": "{\"action\":\"issues\",\"tag\":\"link\",\"context\":\"platform\",\"locati"
+      },
+      {
+        "name": "class",
+        "value": "NavLink-module__link__EG3d4"
+      }
+    ],
+    "metrics": {
+      "x": 414,
+      "y": 247,
+      "width": 203,
+      "height": 45
+    },
+    "selector": ""
+  },
+  "link_14": {
+    "tagName": "A",
+    "id": "",
+    "className": "NavLink-module__link__EG3d4",
+    "textContent": "Code ReviewManage code changes",
+    "type": "",
+    "name": "",
+    "href": "https://github.com/features/code-review",
+    "ariaLabel": "",
+    "placeholder": "",
+    "attributes": [
+      {
+        "name": "href",
+        "value": "https://github.com/features/code-review"
+      },
+      {
+        "name": "data-analytics-event",
+        "value": "{\"action\":\"code_review\",\"tag\":\"link\",\"context\":\"platform\",\"l"
+      },
+      {
+        "name": "class",
+        "value": "NavLink-module__link__EG3d4"
+      }
+    ],
+    "metrics": {
+      "x": 414,
+      "y": 311,
+      "width": 203,
+      "height": 45
+    },
+    "selector": ""
+  }
+}

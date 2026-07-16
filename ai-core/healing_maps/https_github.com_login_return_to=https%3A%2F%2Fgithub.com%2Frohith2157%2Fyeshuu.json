@@ -1,0 +1,682 @@
+{
+  "button_0": {
+    "tagName": "BUTTON",
+    "id": "",
+    "className": "Button--secondary Button--medium Button Button--fullWidth mt-2 tmp-mt-2",
+    "textContent": "Continue with Google",
+    "type": "submit",
+    "name": "",
+    "href": "",
+    "ariaLabel": "",
+    "placeholder": "",
+    "attributes": [
+      {
+        "name": "data-disable-with",
+        "value": "Continuing with Google..."
+      },
+      {
+        "name": "type",
+        "value": "submit"
+      },
+      {
+        "name": "data-view-component",
+        "value": "true"
+      },
+      {
+        "name": "class",
+        "value": "Button--secondary Button--medium Button Button--fullWidth mt"
+      }
+    ],
+    "metrics": {
+      "x": 464,
+      "y": 425,
+      "width": 352,
+      "height": 40
+    },
+    "selector": ""
+  },
+  "button_1": {
+    "tagName": "BUTTON",
+    "id": "",
+    "className": "Button--secondary Button--medium Button Button--fullWidth mt-2 tmp-mt-2",
+    "textContent": "Continue with Apple",
+    "type": "submit",
+    "name": "",
+    "href": "",
+    "ariaLabel": "",
+    "placeholder": "",
+    "attributes": [
+      {
+        "name": "data-disable-with",
+        "value": "Continuing with Apple..."
+      },
+      {
+        "name": "type",
+        "value": "submit"
+      },
+      {
+        "name": "data-view-component",
+        "value": "true"
+      },
+      {
+        "name": "class",
+        "value": "Button--secondary Button--medium Button Button--fullWidth mt"
+      }
+    ],
+    "metrics": {
+      "x": 464,
+      "y": 473,
+      "width": 352,
+      "height": 40
+    },
+    "selector": ""
+  },
+  "button_2": {
+    "tagName": "BUTTON",
+    "id": "",
+    "className": "Button--link Button--medium Button",
+    "textContent": "Sign in with a passkey",
+    "type": "button",
+    "name": "",
+    "href": "",
+    "ariaLabel": "",
+    "placeholder": "",
+    "attributes": [
+      {
+        "name": "data-action",
+        "value": "click:webauthn-subtle#prompt"
+      },
+      {
+        "name": "type",
+        "value": "button"
+      },
+      {
+        "name": "data-view-component",
+        "value": "true"
+      },
+      {
+        "name": "class",
+        "value": "Button--link Button--medium Button"
+      }
+    ],
+    "metrics": {
+      "x": 570,
+      "y": 570,
+      "width": 139,
+      "height": 21
+    },
+    "selector": ""
+  },
+  "button_3": {
+    "tagName": "BUTTON",
+    "id": "",
+    "className": "Link--secondary underline-on-hover border-0 p-0 color-bg-transparent",
+    "textContent": "Manage cookies",
+    "type": "button",
+    "name": "",
+    "href": "",
+    "ariaLabel": "",
+    "placeholder": "",
+    "attributes": [
+      {
+        "name": "type",
+        "value": "button"
+      },
+      {
+        "name": "class",
+        "value": "Link--secondary underline-on-hover border-0 p-0 color-bg-tra"
+      },
+      {
+        "name": "data-action",
+        "value": "click:cookie-consent-link#showConsentManagement"
+      },
+      {
+        "name": "data-analytics-event",
+        "value": "{\"location\":\"footer\",\"action\":\"cookies\",\"context\":\"subfooter"
+      }
+    ],
+    "metrics": {
+      "x": 647,
+      "y": 686,
+      "width": 86,
+      "height": 18
+    },
+    "selector": ""
+  },
+  "button_4": {
+    "tagName": "BUTTON",
+    "id": "",
+    "className": "Link--secondary underline-on-hover border-0 p-0 color-bg-transparent text-left",
+    "textContent": "Do not share my personal information",
+    "type": "button",
+    "name": "",
+    "href": "",
+    "ariaLabel": "",
+    "placeholder": "",
+    "attributes": [
+      {
+        "name": "type",
+        "value": "button"
+      },
+      {
+        "name": "class",
+        "value": "Link--secondary underline-on-hover border-0 p-0 color-bg-tra"
+      },
+      {
+        "name": "data-action",
+        "value": "click:cookie-consent-link#showConsentManagement"
+      },
+      {
+        "name": "data-analytics-event",
+        "value": "{\"location\":\"footer\",\"action\":\"dont_share_info\",\"context\":\"s"
+      }
+    ],
+    "metrics": {
+      "x": 781,
+      "y": 686,
+      "width": 202,
+      "height": 18
+    },
+    "selector": ""
+  },
+  "link_5": {
+    "tagName": "A",
+    "id": "",
+    "className": "px-2 tmp-py-4 color-bg-accent-emphasis color-fg-on-emphasis show-on-focus js-skip-to-content",
+    "textContent": "Skip to content",
+    "type": "",
+    "name": "",
+    "href": "https://github.com/login?return_to=https%3A%2F%2Fgithub.com%2Frohith2157%2Fyeshuu#start-of-content",
+    "ariaLabel": "",
+    "placeholder": "",
+    "attributes": [
+      {
+        "name": "href",
+        "value": "#start-of-content"
+      },
+      {
+        "name": "data-skip-target-assigned",
+        "value": "false"
+      },
+      {
+        "name": "class",
+        "value": "px-2 tmp-py-4 color-bg-accent-emphasis color-fg-on-emphasis "
+      }
+    ],
+    "metrics": {
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    "selector": ""
+  },
+  "link_6": {
+    "tagName": "A",
+    "id": "forgot-password",
+    "className": "label-link position-absolute top-0 right-0",
+    "textContent": "Forgot password?",
+    "type": "",
+    "name": "",
+    "href": "https://github.com/password_reset",
+    "ariaLabel": "",
+    "placeholder": "",
+    "attributes": [
+      {
+        "name": "class",
+        "value": "label-link position-absolute top-0 right-0"
+      },
+      {
+        "name": "id",
+        "value": "forgot-password"
+      },
+      {
+        "name": "href",
+        "value": "/password_reset"
+      }
+    ],
+    "metrics": {
+      "x": 706,
+      "y": 243,
+      "width": 110,
+      "height": 21
+    },
+    "selector": "#forgot-password"
+  },
+  "link_7": {
+    "tagName": "A",
+    "id": "",
+    "className": "",
+    "textContent": "Create an account",
+    "type": "",
+    "name": "",
+    "href": "https://github.com/signup?return_to=https%3A%2F%2Fgithub.com%2Frohith2157%2Fyeshuu&source=login",
+    "ariaLabel": "",
+    "placeholder": "",
+    "attributes": [
+      {
+        "name": "data-ga-click",
+        "value": "Sign in, switch to sign up"
+      },
+      {
+        "name": "data-hydro-click",
+        "value": "{\"event_type\":\"authentication.click\",\"payload\":{\"location_in"
+      },
+      {
+        "name": "data-hydro-click-hmac",
+        "value": "7f4f5edc6ff230f029a3520696afc3ab7d130506a5ded2d4752d7c932743"
+      },
+      {
+        "name": "href",
+        "value": "/signup?return_to=https%3A%2F%2Fgithub.com%2Frohith2157%2Fye"
+      }
+    ],
+    "metrics": {
+      "x": 635,
+      "y": 534,
+      "width": 112,
+      "height": 19
+    },
+    "selector": ""
+  },
+  "link_8": {
+    "tagName": "A",
+    "id": "",
+    "className": "Link--secondary Link",
+    "textContent": "Terms",
+    "type": "",
+    "name": "",
+    "href": "https://docs.github.com/site-policy/github-terms/github-terms-of-service",
+    "ariaLabel": "",
+    "placeholder": "",
+    "attributes": [
+      {
+        "name": "data-analytics-event",
+        "value": "{\"category\":\"Footer\",\"action\":\"go to Terms\",\"label\":\"text:te"
+      },
+      {
+        "name": "href",
+        "value": "https://docs.github.com/site-policy/github-terms/github-term"
+      },
+      {
+        "name": "data-view-component",
+        "value": "true"
+      },
+      {
+        "name": "class",
+        "value": "Link--secondary Link"
+      }
+    ],
+    "metrics": {
+      "x": 289,
+      "y": 687,
+      "width": 31,
+      "height": 16
+    },
+    "selector": ""
+  },
+  "link_9": {
+    "tagName": "A",
+    "id": "",
+    "className": "Link--secondary Link",
+    "textContent": "Privacy",
+    "type": "",
+    "name": "",
+    "href": "https://docs.github.com/site-policy/privacy-policies/github-privacy-statement",
+    "ariaLabel": "",
+    "placeholder": "",
+    "attributes": [
+      {
+        "name": "data-analytics-event",
+        "value": "{\"category\":\"Footer\",\"action\":\"go to privacy\",\"label\":\"text:"
+      },
+      {
+        "name": "href",
+        "value": "https://docs.github.com/site-policy/privacy-policies/github-"
+      },
+      {
+        "name": "data-view-component",
+        "value": "true"
+      },
+      {
+        "name": "class",
+        "value": "Link--secondary Link"
+      }
+    ],
+    "metrics": {
+      "x": 352,
+      "y": 687,
+      "width": 37,
+      "height": 16
+    },
+    "selector": ""
+  },
+  "link_10": {
+    "tagName": "A",
+    "id": "",
+    "className": "Link--secondary Link",
+    "textContent": "Docs",
+    "type": "",
+    "name": "",
+    "href": "https://docs.github.com/",
+    "ariaLabel": "",
+    "placeholder": "",
+    "attributes": [
+      {
+        "name": "data-analytics-event",
+        "value": "{\"category\":\"Footer\",\"action\":\"go to docs\",\"label\":\"text:doc"
+      },
+      {
+        "name": "href",
+        "value": "https://docs.github.com"
+      },
+      {
+        "name": "data-view-component",
+        "value": "true"
+      },
+      {
+        "name": "class",
+        "value": "Link--secondary Link"
+      }
+    ],
+    "metrics": {
+      "x": 421,
+      "y": 687,
+      "width": 26,
+      "height": 16
+    },
+    "selector": ""
+  },
+  "link_11": {
+    "tagName": "A",
+    "id": "",
+    "className": "Link--secondary Link",
+    "textContent": "Contact GitHub Support",
+    "type": "",
+    "name": "",
+    "href": "https://support.github.com/",
+    "ariaLabel": "",
+    "placeholder": "",
+    "attributes": [
+      {
+        "name": "data-analytics-event",
+        "value": "{\"category\":\"Footer\",\"action\":\"go to contact\",\"label\":\"text:"
+      },
+      {
+        "name": "href",
+        "value": "https://support.github.com"
+      },
+      {
+        "name": "data-view-component",
+        "value": "true"
+      },
+      {
+        "name": "class",
+        "value": "Link--secondary Link"
+      }
+    ],
+    "metrics": {
+      "x": 479,
+      "y": 687,
+      "width": 128,
+      "height": 16
+    },
+    "selector": ""
+  },
+  "input_12": {
+    "tagName": "INPUT",
+    "id": "login_field",
+    "className": "form-control  js-login-field",
+    "textContent": "",
+    "type": "text",
+    "name": "login",
+    "href": "",
+    "ariaLabel": "",
+    "placeholder": "",
+    "attributes": [
+      {
+        "name": "type",
+        "value": "text"
+      },
+      {
+        "name": "name",
+        "value": "login"
+      },
+      {
+        "name": "id",
+        "value": "login_field"
+      },
+      {
+        "name": "autocapitalize",
+        "value": "off"
+      },
+      {
+        "name": "autocorrect",
+        "value": "off"
+      },
+      {
+        "name": "autocomplete",
+        "value": "username"
+      },
+      {
+        "name": "class",
+        "value": "form-control  js-login-field"
+      },
+      {
+        "name": "autofocus",
+        "value": "autofocus"
+      }
+    ],
+    "metrics": {
+      "x": 464,
+      "y": 187,
+      "width": 352,
+      "height": 40
+    },
+    "selector": "#login_field"
+  },
+  "input_13": {
+    "tagName": "INPUT",
+    "id": "password",
+    "className": "form-control form-control js-password-field",
+    "textContent": "",
+    "type": "password",
+    "name": "password",
+    "href": "",
+    "ariaLabel": "",
+    "placeholder": "",
+    "attributes": [
+      {
+        "name": "type",
+        "value": "password"
+      },
+      {
+        "name": "name",
+        "value": "password"
+      },
+      {
+        "name": "id",
+        "value": "password"
+      },
+      {
+        "name": "class",
+        "value": "form-control form-control js-password-field"
+      },
+      {
+        "name": "autocomplete",
+        "value": "current-password"
+      },
+      {
+        "name": "required",
+        "value": "required"
+      }
+    ],
+    "metrics": {
+      "x": 464,
+      "y": 268,
+      "width": 352,
+      "height": 40
+    },
+    "selector": "#password"
+  },
+  "input_14": {
+    "tagName": "INPUT",
+    "id": "",
+    "className": "btn btn-primary btn-block js-sign-in-button",
+    "textContent": "",
+    "type": "submit",
+    "name": "commit",
+    "href": "",
+    "ariaLabel": "",
+    "placeholder": "",
+    "attributes": [
+      {
+        "name": "type",
+        "value": "submit"
+      },
+      {
+        "name": "name",
+        "value": "commit"
+      },
+      {
+        "name": "value",
+        "value": "Sign in"
+      },
+      {
+        "name": "class",
+        "value": "btn btn-primary btn-block js-sign-in-button"
+      },
+      {
+        "name": "data-disable-with",
+        "value": "Signing in\u2026"
+      },
+      {
+        "name": "data-signin-label",
+        "value": "Sign in"
+      },
+      {
+        "name": "data-sso-label",
+        "value": "Sign in with your identity provider"
+      },
+      {
+        "name": "development",
+        "value": "false"
+      }
+    ],
+    "metrics": {
+      "x": 464,
+      "y": 324,
+      "width": 352,
+      "height": 40
+    },
+    "selector": "input[name=\"commit\"]"
+  },
+  "form_15": {
+    "tagName": "FORM",
+    "id": "",
+    "className": "",
+    "textContent": "Username or email address\n    \n    \n  \n\n\n  \n    \n      Password\n    \n    \n    Fo",
+    "type": "",
+    "name": "",
+    "href": "",
+    "ariaLabel": "",
+    "placeholder": "",
+    "attributes": [
+      {
+        "name": "data-turbo",
+        "value": "false"
+      },
+      {
+        "name": "action",
+        "value": "/session"
+      },
+      {
+        "name": "accept-charset",
+        "value": "UTF-8"
+      },
+      {
+        "name": "method",
+        "value": "post"
+      }
+    ],
+    "metrics": {
+      "x": 464,
+      "y": 162,
+      "width": 352,
+      "height": 202
+    },
+    "selector": ""
+  },
+  "form_16": {
+    "tagName": "FORM",
+    "id": "",
+    "className": "",
+    "textContent": "Continue with Google",
+    "type": "",
+    "name": "",
+    "href": "",
+    "ariaLabel": "",
+    "placeholder": "",
+    "attributes": [
+      {
+        "name": "data-turbo",
+        "value": "false"
+      },
+      {
+        "name": "action",
+        "value": "/sessions/social/google/initiate"
+      },
+      {
+        "name": "accept-charset",
+        "value": "UTF-8"
+      },
+      {
+        "name": "method",
+        "value": "get"
+      }
+    ],
+    "metrics": {
+      "x": 464,
+      "y": 417,
+      "width": 352,
+      "height": 48
+    },
+    "selector": ""
+  },
+  "form_17": {
+    "tagName": "FORM",
+    "id": "",
+    "className": "",
+    "textContent": "Continue with Apple",
+    "type": "",
+    "name": "",
+    "href": "",
+    "ariaLabel": "",
+    "placeholder": "",
+    "attributes": [
+      {
+        "name": "data-turbo",
+        "value": "false"
+      },
+      {
+        "name": "action",
+        "value": "/sessions/social/apple/initiate"
+      },
+      {
+        "name": "accept-charset",
+        "value": "UTF-8"
+      },
+      {
+        "name": "method",
+        "value": "get"
+      }
+    ],
+    "metrics": {
+      "x": 464,
+      "y": 465,
+      "width": 352,
+      "height": 48
+    },
+    "selector": ""
+  }
+}

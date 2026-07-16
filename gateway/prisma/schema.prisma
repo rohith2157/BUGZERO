@@ -45,6 +45,19 @@ model NotificationPreference {
   @@map("notification_preferences")
 }
 
+model HealingMap {
+  id        String       @id @default(uuid())
+  url       String       // The base domain/url of the tested app
+  mapData   Json         @default("{}") // The JSON fingerprint map
+  orgId     String
+  org       Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  @@unique([orgId, url])
+  @@map("healing_maps")
+}
+
 model Organization {
   id        String     @id @default(uuid())
   name      String
@@ -54,6 +67,7 @@ model Organization {
   users     User[]
   testRuns  TestRun[]
   playbooks AuthPlaybook[]
+  healingMaps HealingMap[]
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
 

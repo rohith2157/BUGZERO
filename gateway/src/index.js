@@ -11,6 +11,7 @@ import playbookRoutes from './routes/playbooks.js';
 import settingsRoutes from './routes/settings.js';
 import baselineRoutes from './routes/baselines.js';
 import webhookRoutes from './routes/webhooks.js';
+import healingRoutes from './routes/healing.js';
 import { setupWebSocket } from './services/websocket.js';
 import prisma from './db.js';
 
@@ -62,6 +63,7 @@ app.use('/api/playbooks', playbookRoutes);
 app.use('/api/settings', settingsRoutes);
 app.use('/api/baselines', baselineRoutes);
 app.use('/api/webhooks', webhookRoutes);
+app.use('/api/healing', healingRoutes);
 
 // WebSocket
 setupWebSocket(io);

@@ -15,6 +15,7 @@ import logging
 import asyncio
 from typing import Optional
 import math
+import httpx
 
 logger = logging.getLogger(__name__)
 
@@ -49,25 +50,18 @@ def string_similarity(s1: str, s2: str) -> float:
 class SelfHealingAgent:
     """Manages DOM fingerprints and fixes broken selectors on the fly using fuzzy DOM matching."""
 
-    def __init__(self, playwright_tool=None, api_key: str = "", storage_dir: str = "healing_maps"):
-        self.storage_dir = storage_dir
+    def __init__(self, playwright_tool=None, api_key: str = "", gateway_url: str = "", org_id: str = ""):
         self._playwright = playwright_tool
+        self.gateway_url = gateway_url
+        self.org_id = org_id
         self.healing_events = []  # Track all healing events for this run
 
-        if not os.path.exists(self.storage_dir):
-            os.makedirs(self.storage_dir, exist_ok=True)
-            
         # We ignore api_key as we are now 100% algorithmic!
         logger.info("SelfHealingAgent initialized in Pure Algorithmic Mode (No LLM).")
 
     def is_available(self) -> bool:
         # Always available since it relies on pure math, not an API key.
         return True
-
-    def _get_fingerprint_path(self, url: str) -> str:
-        """Get the file path for a page's fingerprints."""
-        clean = url.replace("://", "_").replace("/", "_").replace(":", "_").replace("?", "_")[:120]
-        return os.path.join(self.storage_dir, f"{clean}.json")
 
     async def fingerprint_page(self, page, url: str) -> dict:
         """Auto-fingerprint key interactive elements on a page.
@@ -116,11 +110,18 @@ class SelfHealingAgent:
                 return results;
             }""")
 
-            # Save fingerprints to disk
-            path = self._get_fingerprint_path(url)
-            with open(path, 'w', encoding='utf-8') as f:
-                json.dump(fingerprints, f, indent=2)
-
+            # Save fingerprints to PostgreSQL via Node Gateway
+            if self.gateway_url and self.org_id:
+                async with httpx.AsyncClient(timeout=10.0) as client:
+                    await client.post(
+                        f"{self.gateway_url}/api/healing/map",
+                        json={
+                            "orgId": self.org_id,
+                            "url": url,
+                            "mapData": fingerprints
+                        }
+                    )
+            
             logger.info(f"SelfHealingAgent: Fingerprinted {len(fingerprints)} elements on {url}")
             return fingerprints
 
@@ -128,15 +129,22 @@ class SelfHealingAgent:
             logger.warning(f"SelfHealingAgent: Fingerprinting failed on {url}: {e}")
             return {}
 
-    def get_previous_fingerprints(self, url: str) -> Optional[dict]:
-        """Load previously saved fingerprints for a URL."""
-        path = self._get_fingerprint_path(url)
-        if not os.path.exists(path):
+    async def get_previous_fingerprints(self, url: str) -> Optional[dict]:
+        """Load previously saved fingerprints for a URL from the PostgreSQL database."""
+        if not self.gateway_url or not self.org_id:
             return None
+            
         try:
-            with open(path, 'r', encoding='utf-8') as f:
-                return json.load(f)
-        except Exception:
+            async with httpx.AsyncClient(timeout=10.0) as client:
+                response = await client.get(
+                    f"{self.gateway_url}/api/healing/map",
+                    params={"orgId": self.org_id, "url": url}
+                )
+                if response.status_code == 200:
+                    return response.json()
+                return None
+        except Exception as e:
+            logger.warning(f"SelfHealingAgent: Failed to fetch previous fingerprints for {url}: {e}")
             return None
 
     def _score_element(self, candidate: dict, fingerprint: dict) -> float:

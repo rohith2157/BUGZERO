@@ -16,6 +16,8 @@ def _run_sync(fn, *args):
     ctx = contextvars.Context()
     return loop.run_in_executor(_executor, ctx.run, fn, *args)
 
+_global_pw = None  # ponytail: lazy singleton to prevent greenlet loop crashes on restart
+
 
 class PlaywrightTool:
     """Manages Playwright browser for crawling and testing.
@@ -36,8 +38,10 @@ class PlaywrightTool:
 
     def _ensure_browser(self):
         """Return a live browser, (re)launching if necessary."""
-        if self._pw is None:
-            self._pw = sync_playwright().start()
+        global _global_pw
+        if _global_pw is None:
+            _global_pw = sync_playwright().start()
+        self._pw = _global_pw
 
         if self._browser is not None:
             try:

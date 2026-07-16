@@ -133,6 +133,8 @@ class Orchestrator:
         healing_agent = SelfHealingAgent(
             playwright_tool=playwright,
             api_key=settings.gemini_api_key,
+            gateway_url=settings.gateway_url,
+            org_id=request.org_id,
         )
 
         repo_manager = None
