@@ -108,7 +108,7 @@ graph TD;
   
     AI --> PW["🌐 Playwright\n(Browser Engine)"]
     AI --> Axe["♿ axe-core\n(A11y Tests)"]
-    AI --> Gemini["🔮 Gemini Vision\n(Visual AI)"]
+    AI --> Pillow["🖼️ Pillow\n(Visual Math)"]
 
     style Frontend fill:#1E293B,stroke:#3B82F6,stroke-width:2px,color:#fff
     style API fill:#1E293B,stroke:#10B981,stroke-width:2px,color:#fff
@@ -118,14 +118,14 @@ graph TD;
     style Neo fill:#0F172A,stroke:#64748B,color:#fff
     style PW fill:#0F172A,stroke:#64748B,color:#fff
     style Axe fill:#0F172A,stroke:#64748B,color:#fff
-    style Gemini fill:#0F172A,stroke:#F59E0B,color:#fff
+    style Pillow fill:#0F172A,stroke:#F59E0B,color:#fff
 ```
 
 | Service               | Technology                                   | Purpose                                                               |
 | :-------------------- | :------------------------------------------- | :-------------------------------------------------------------------- |
 | **Frontend**    | React 19, Vite 7, Framer Motion, Recharts    | Interactive dashboard & real-time monitoring                          |
 | **API Gateway** | Express.js, Prisma ORM, Socket.io, JWT       | REST API, authentication, WebSocket relay                             |
-| **AI Core**     | Python FastAPI, Playwright, axe-core, Gemini | Autonomous crawling, testing, healing, and visual regression          |
+| **AI Core**     | Python FastAPI, Playwright, axe-core, Pillow | Autonomous crawling, testing, healing, and visual regression          |
 | **PostgreSQL**  | v16                                          | Persistent storage (users, tests, defects, healing events, baselines) |
 | **Redis**       | v7                                           | Caching, session management, job queues                               |
 | **Neo4j**       | v5                                           | Graph-based page relationship mapping                                 |
@@ -144,21 +144,18 @@ sequenceDiagram
     participant DB as 🐘 Database (Postgres)
     participant W as ⚡ WebSocket Server
     participant A as 🤖 AI Core (Python)
-    participant Gem as 🔮 Gemini Vision
+    participant Vis as 🖼️ Algo Vision (Pillow)
 
-    U->>F: Clicks "Launch Test" (URL, Config)
+    U->>F: Clicks "Launch Test" (URL/Repo, Config)
     F->>G: POST /api/tests { url, config }
     G->>DB: Create test_run status="queued"
     G-->>F: Return UUID
     F->>W: Join room {testRun.id} (Live UI)
     G->>A: Trigger pipeline (POST /api/test/run) via proxy
   
-    note over A: STAGE 0: AUTH & CHAOS (Optional)
-    opt Auth enabled
-        A->>A: AuthAgent navigates SSO/OAuth/MFA flow
-    end
-    opt Chaos mode
-        A->>A: ChaosAgent injects Slow 3G + CPU throttling
+    note over A: STAGE 0: REPO CLONE & BOOT (Repo Mode Only)
+    opt Repo mode
+        A->>A: Clone repo, detect framework, start dev server
     end
   
     note over A: STAGE 1: BFS CRAWL 🕷️
@@ -176,12 +173,12 @@ sequenceDiagram
   
     note over A: STAGE 3: TEST LOOP 🔬
     loop For each page (risk priority order)
-        A->>A: 3a: Self-Healing — detect broken selectors, heal via LLM
+        A->>A: 3a: Self-Healing — fuzzy DOM math matching
         A->>A: 3b: Basic tests (SEO, forms, perf, links)
         A->>A: 3c: Inject axe-core → full WCAG 2.1 audit
         A->>G: GET /api/baselines (fetch baseline screenshot)
-        A->>Gem: Send current + baseline screenshot for regression diff
-        Gem-->>A: Return visual bugs + regression changes
+        A->>Vis: Send current + baseline for Pillow Math SSIM diff
+        Vis-->>A: Return mathematical drift % + bounding boxes
         A->>G: POST /api/baselines (save new baseline)
         A->>A: 3e: Fingerprint page for future self-healing
         A->>G: POST /api/tests/progress (page_complete)
@@ -225,7 +222,7 @@ flowchart LR
     Loop --> Heal["Self-Healing Agent"]
     Loop --> Basic["Tester Agent (SEO/Perf/Forms)"]
     Loop --> Axe["axe-core Tool (WCAG 2.1)"]
-    Loop --> Vision["Vision Agent (Gemini + Regression)"]
+    Loop --> Vision["Vision Agent (Pillow Math + Regression)"]
   
     Heal --> Results["Page Results"]
     Basic --> Results
@@ -515,58 +512,59 @@ flowchart TD
 <div align="center">
   <img src="assets/illustrations/03-visual-regression.png" alt="Visual Regression AI" width="800">
   <br>
-  <em>Visual Regression: Ignoring cosmetic noise while catching critical functional UI changes.</em>
+  <em>Visual Regression: Ignoring cosmetic noise while catching critical functional UI changes using Pillow Math.</em>
 </div>
 <br>
 
-A Gemini Vision-powered visual comparison system that detects meaningful UI changes.
+A 100% deterministic pixel-math comparison system that detects meaningful UI changes without LLMs.
 
 ```mermaid
 flowchart TD
     subgraph "Run 1 — Establish Baseline"
-        A1["📸 Take screenshot"] --> A2["🤖 Gemini: single-image\nbug detection"]
-        A2 --> A3["💾 Save screenshot as\nbaseline in DB"]
+        A1["📸 Take screenshot"] --> A3["💾 Save screenshot as\nbaseline in DB"]
     end
 
     subgraph "Run 2+ — Compare Against Baseline"
         B1["📸 Take new screenshot"] --> B2["📦 Fetch baseline\nfrom DB"]
-        B2 --> B3["🤖 Gemini: compare\nBOTH images"]
-        B3 --> B4{"Classify each\nchange"}
-        B4 -- "Font/color/spacing" --> B5["🟡 Cosmetic\n(informational)"]
-        B4 -- "Layout/element missing" --> B6["🔴 Functional\n(actionable)"]
-        B5 --> B7["📊 Report with\nconfidence scores"]
-        B6 --> B7
-        B3 --> B8["💾 Update baseline\nfor next run"]
+        B2 --> B3["🖼️ Pillow: Gaussian\nBlur both images"]
+        B3 --> B4["➖ Pillow: ImageChops\ndifference subtraction"]
+        B4 --> B5{"Calculate total\nPixel Drift %"}
+        B5 -- "Drift < 0.5%" --> B6["🟡 Cosmetic\n(informational noise)"]
+        B5 -- "Drift > 0.5%" --> B7["🔴 Functional\n(actionable regression)"]
+        B6 --> B8["📊 Report drift\npercentage"]
+        B7 --> B8
+        B3 --> B9["💾 Update baseline\nfor next run"]
     end
 
-    style A2 fill:#1E293B,stroke:#F59E0B,color:#fff
-    style B3 fill:#1E293B,stroke:#22D3EE,color:#fff
-    style B5 fill:#0F172A,stroke:#FBBF24,color:#fff
-    style B6 fill:#0F172A,stroke:#EF4444,color:#fff
+    style B3 fill:#1E293B,stroke:#F59E0B,color:#fff
+    style B4 fill:#1E293B,stroke:#22D3EE,color:#fff
+    style B6 fill:#0F172A,stroke:#FBBF24,color:#fff
+    style B7 fill:#0F172A,stroke:#EF4444,color:#fff
 ```
 
 **Visual diff classification examples:**
 
 ```
   ┌────────────────────────────────────────────────────────────────┐
-  │  GEMINI VISION — REGRESSION CLASSIFICATION                    │
+  │  PILLOW MATH — REGRESSION CLASSIFICATION                        │
   │────────────────────────────────────────────────────────────────│
   │                                                                │
   │  🟡 COSMETIC (informational — no action needed)               │
   │  ──────────────────────────────────────────────                │
-  │  • Font size changed from 14px to 15px in paragraph           │
-  │  • Button border-radius increased from 4px to 8px             │
-  │  • Background color shifted from #f8f9fa to #f1f3f5           │
-  │  • Icon spacing adjusted in navigation bar                    │
+  │  • Font anti-aliasing engine changes in browser               │
+  │  • 1-pixel micro-variations from rendering jitter             │
+  │  • Sub-pixel rounding differences across OS                   │
+  │  (Drift is caught by blur threshold < 0.5%)                   │
   │                                                                │
   │  🔴 FUNCTIONAL (actionable — must fix)                        │
   │  ──────────────────────────────────────────────                │
   │  • Submit button missing from checkout form                   │
   │  • Navigation menu items overlapping on mobile                │
   │  • Login form fields not visible (zero height)                │
-  │  • Price display shows "$NaN" instead of "$49.99"             │
+  │  • Price display structurally shifted                         │
+  │  (Drift exceeds blur threshold > 0.5%)                        │
   │                                                                │
-  │  Confidence: 0.72 – 0.98 (Gemini's certainty score)           │
+  │  Drift Metric: Exact % difference calculation                 │
   │                                                                │
   └────────────────────────────────────────────────────────────────┘
 ```

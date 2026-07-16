@@ -373,7 +373,8 @@ export default function NewTest() {
                 </motion.div>
             </form>
 
-            {/* Config Grid */}
+            {/* Config Grid — context-sensitive per mode */}
+            {testMode === 'url' ? (
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 20 }}>
                 {/* Browser Selection */}
                 <motion.div
@@ -437,6 +438,82 @@ export default function NewTest() {
                     </div>
                 </motion.div>
             </div>
+            ) : (
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 20 }}>
+                {/* Repo Test Scope */}
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.15 }}
+                    className="glass-card"
+                    style={{ padding: '24px' }}
+                >
+                    <label style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 12, display: 'block', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                        Test Scope
+                    </label>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                        {[
+                            { key: 'quick', label: 'Quick Scan', desc: 'Landing page + 3 routes · ~1 min', pages: 5 },
+                            { key: 'standard', label: 'Standard', desc: 'Up to 12 discovered routes · ~3 min', pages: 12 },
+                            { key: 'full', label: 'Full Coverage', desc: 'Every reachable route · ~8 min', pages: 50 },
+                        ].map(s => {
+                            const active = maxPages === s.pages;
+                            return (
+                                <div
+                                    key={s.key}
+                                    onClick={() => setMaxPages(s.pages)}
+                                    style={{
+                                        padding: '12px 14px', borderRadius: 'var(--radius-md)',
+                                        background: active ? 'rgba(212, 168, 83, 0.08)' : 'var(--color-bg-elevated)',
+                                        border: `1px solid ${active ? 'rgba(212, 168, 83, 0.2)' : 'rgba(255,255,255,0.05)'}`,
+                                        cursor: 'pointer', transition: 'all var(--transition-fast)',
+                                    }}
+                                >
+                                    <div style={{ fontSize: 14, fontWeight: active ? 600 : 400, color: active ? 'var(--color-accent-gold)' : 'var(--text-secondary)' }}>
+                                        {s.label}
+                                    </div>
+                                    <div style={{ fontSize: 11, color: 'var(--text-tertiary)', marginTop: 2 }}>{s.desc}</div>
+                                </div>
+                            );
+                        })}
+                    </div>
+                </motion.div>
+
+                {/* Quality Gate — CI/CD perspective */}
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2 }}
+                    className="glass-card"
+                    style={{ padding: '24px' }}
+                >
+                    <label style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 12, display: 'block', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                        How It Works
+                    </label>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                        {[
+                            { step: '1', icon: '📦', label: 'Clone & Install', desc: 'Shallow clone + auto-detect stack' },
+                            { step: '2', icon: '🚀', label: 'Boot Dev Server', desc: 'npm run dev / static serve' },
+                            { step: '3', icon: '🕷️', label: 'Crawl & Test', desc: 'BFS discovery + AI-powered QA' },
+                            { step: '4', icon: '📊', label: 'Generate Report', desc: 'Scores, defects, healing events' },
+                        ].map((s, i) => (
+                            <div key={s.step} style={{
+                                display: 'flex', alignItems: 'center', gap: 12,
+                                padding: '10px 12px', borderRadius: 'var(--radius-md)',
+                                background: 'var(--color-bg-elevated)',
+                                border: '1px solid rgba(255,255,255,0.04)',
+                            }}>
+                                <span style={{ fontSize: 18, width: 28, textAlign: 'center', flexShrink: 0 }}>{s.icon}</span>
+                                <div>
+                                    <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)' }}>{s.label}</div>
+                                    <div style={{ fontSize: 11, color: 'var(--text-tertiary)', marginTop: 1 }}>{s.desc}</div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </motion.div>
+            </div>
+            )}
 
             {/* Max Pages Slider */}
             <motion.div

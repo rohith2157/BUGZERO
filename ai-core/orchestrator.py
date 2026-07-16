@@ -149,21 +149,24 @@ class Orchestrator:
             if req_type == "repo":
                 logger.info(f"[{run_id}] Stage 0: Repository mode detected. Cloning and booting server...")
                 repo_manager = RepoManager(request.url, github_token)
-                if repo_manager.clone():
-                    repo_parts = request.url.rstrip('/').rstrip('.git').split('/')
-                    if len(repo_parts) >= 2:
-                        repo_name = f"{repo_parts[-2]}/{repo_parts[-1]}"
-                    
-                    local_url = await repo_manager.start_server()
-                    if local_url:
-                        logger.info(f"[{run_id}] Repository server running at {local_url}")
-                        target_url = local_url
-                        # Add a small delay to ensure server is fully ready
-                        await asyncio.sleep(3)
-                    else:
-                        logger.error(f"[{run_id}] Failed to start local server for repo.")
-                else:
-                    logger.error(f"[{run_id}] Failed to clone repository.")
+                branch = getattr(config, "branch", None)
+                if not repo_manager.clone(branch=branch):
+                    raise RuntimeError(f"Failed to clone repository: {request.url}")
+                
+                repo_parts = request.url.rstrip('/').rstrip('.git').split('/')
+                if len(repo_parts) >= 2:
+                    repo_name = f"{repo_parts[-2]}/{repo_parts[-1]}"
+                
+                local_url = await repo_manager.start_server()
+                if not local_url:
+                    raise RuntimeError(
+                        f"Failed to start dev server for {repo_name or request.url}. "
+                        "Check that the repo has a 'dev' or 'start' script in package.json, "
+                        "or an index.html for static sites."
+                    )
+                logger.info(f"[{run_id}] Repository server running at {local_url}")
+                target_url = local_url
+                await asyncio.sleep(2)  # warm-up
                     
             await playwright.start()
 

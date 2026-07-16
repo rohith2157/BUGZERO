@@ -72,6 +72,15 @@ model TestRun {
   grade        String?                   // Stage 6: A+ to F grade
   wcagCompliancePct Float?               // Stage 6: WCAG compliance percentage
   reportJson   Json?                     // Stage 6: Full site report JSON
+  
+  // GitHub Metadata (Phase 11)
+  repoName       String?
+  repoUrl        String?
+  branch         String?
+  commitSha      String?
+  commitShaShort String?
+  commitMessage  String?
+  commitAuthor   String?
   startedAt   DateTime  @default(now())
   completedAt DateTime?
   duration    String?
