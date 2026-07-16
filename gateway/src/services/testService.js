@@ -69,6 +69,7 @@ export async function triggerAITest(testRun, io) {
             body: JSON.stringify({
                 run_id: testRun.id,
                 url: testRun.url,
+                org_id: testRun.orgId,
                 config: testRun.config,
             }),
             timeout: 30 * 60 * 1000, // 30 minutes

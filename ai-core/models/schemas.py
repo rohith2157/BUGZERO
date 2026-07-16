@@ -28,6 +28,7 @@ class TestConfig(BaseModel):
 class TestRequest(BaseModel):
     run_id: str
     url: str
+    org_id: Optional[str] = None
     config: Optional[TestConfig] = None
 
 

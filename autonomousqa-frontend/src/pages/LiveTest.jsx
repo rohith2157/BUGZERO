@@ -279,7 +279,7 @@ export default function LiveTest() {
                 {/* Stats row */}
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginTop: 20 }}>
                     {[
-                        { icon: Globe, label: 'Pages Found', value: data.totalPages, color: 'var(--color-accent-gold)' },
+                        { icon: Globe, label: data.config?.maxPages ? `Pages Found (Max: ${data.config.maxPages})` : 'Pages Found', value: data.totalPages, color: 'var(--color-accent-gold)' },
                         { icon: CheckCircle2, label: 'Tested', value: data.testedPages, color: '#10B981' },
                         { icon: Bug, label: 'Defects', value: data.defectsFound, color: '#EF4444' },
                         { icon: Clock, label: 'Elapsed', value: elapsed, color: '#F59E0B' },
@@ -303,6 +303,12 @@ export default function LiveTest() {
                 showAvailability={isRunning}
                 className="mt-4 !px-4 !py-6"
             >
+                {data.status === 'completed' && data.config?.maxPages && data.totalPages < data.config.maxPages && (
+                    <div style={{ padding: '12px 16px', marginBottom: 20, background: 'rgba(245, 158, 11, 0.1)', border: '1px solid rgba(245, 158, 11, 0.2)', borderRadius: 10, color: '#F59E0B', display: 'flex', alignItems: 'center', gap: 10, fontSize: 13, fontWeight: 500 }}>
+                        <Info size={16} /> 
+                        The BFS Crawler fully exhausted all internal links on this domain. It found {data.totalPages} pages, which is less than your requested maximum limit of {data.config.maxPages} pages.
+                    </div>
+                )}
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
                     {/* Pages Discovered */}
                     <motion.div
