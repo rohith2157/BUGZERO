@@ -37,6 +37,13 @@ We recently transitioned AutonomousQA from a "Normal" AI framework (dependent on
 
 [Read the full Algorithmic Architectural Roadmap here!](file:///c:/testproject/documentation/100percent_algo.md)
 
+<div align="center">
+  <h3>AutonomousQA 2.0 Architecture Map</h3>
+  <a href="https://foglamp.dev/scan/autonomous-qa-system-giu7il">
+    <img src="C:/Users/Rohith/.gemini/antigravity-ide/brain/tempmediaStorage/media__1784384428052.png" alt="AutonomousQA 2.0 Architectural Map" width="1000">
+  </a>
+</div>
+
 ---
 
 ## 🤖 The 6 AI Agents

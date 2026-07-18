@@ -126,13 +126,12 @@ class Orchestrator:
         )
         crawler = CrawlerAgent(playwright)
         tester = TesterAgent(playwright)
-        vision = VisionAgent(api_key=settings.gemini_api_key)
+        vision = VisionAgent()
         report_agent = ReportAgent()
-        auth_agent = AuthAgent(playwright, api_key=settings.gemini_api_key)
+        auth_agent = AuthAgent(playwright)
         chaos_agent = ChaosAgent(playwright)
         healing_agent = SelfHealingAgent(
             playwright_tool=playwright,
-            api_key=settings.gemini_api_key,
             gateway_url=settings.gateway_url,
             org_id=request.org_id,
         )

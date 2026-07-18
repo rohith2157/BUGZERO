@@ -50,8 +50,8 @@ def string_similarity(s1: str, s2: str) -> float:
 class SelfHealingAgent:
     """Manages DOM fingerprints and fixes broken selectors on the fly using fuzzy DOM matching."""
 
-    def __init__(self, playwright_tool=None, api_key: str = "", gateway_url: str = "", org_id: str = ""):
-        self._playwright = playwright_tool
+    def __init__(self, playwright_tool, gateway_url: str = "", org_id: str = None):
+        self.tool = playwright_tool
         self.gateway_url = gateway_url
         self.org_id = org_id
         self.healing_events = []  # Track all healing events for this run

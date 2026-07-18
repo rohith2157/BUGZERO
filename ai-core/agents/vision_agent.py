@@ -24,8 +24,8 @@ except ImportError:
 class VisionAgent:
     """Analyzes page screenshots mathematically."""
 
-    def __init__(self, api_key: str = ""):
-        # We ignore api_key now, pure algorithm!
+    def __init__(self):
+        # Pure algorithmic mode
         self._available = HAS_PIL
         if self._available:
             logger.info("VisionAgent: Initialized in Pure Algorithmic Mode (No LLM).")
