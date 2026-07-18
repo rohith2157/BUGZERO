@@ -917,39 +917,60 @@ input[type="range"]::-moz-range-progress {
     display: none !important;
   }
 
-  /* Reset main layout to take full width */
-  main, #root, body {
+  /* Reset main layout to take full width and prevent cut-offs */
+  html, body, #root, main, .app-container, .page-content {
     width: 100% !important;
+    height: auto !important;
+    min-height: auto !important;
+    max-height: none !important;
     margin: 0 !important;
     padding: 0 !important;
+    overflow: visible !important;
     background: #fff !important;
     color: #000 !important;
+    position: static !important;
   }
 
-  /* Clean up glass cards */
+  /* Ensure ALL divs expand to show content without scrolling */
+  div {
+    overflow: visible !important;
+    height: auto !important;
+    max-height: none !important;
+  }
+
+  /* Clean up glass cards to look like professional document sections */
   .glass-card {
-    border: 1px solid #ccc !important;
+    border: 1px solid #ddd !important;
+    border-radius: 8px !important;
     background: #fff !important;
     box-shadow: none !important;
     backdrop-filter: none !important;
     page-break-inside: avoid;
-    margin-bottom: 24px !important;
+    margin-bottom: 30px !important;
+    padding: 20px !important;
     color: #000 !important;
+  }
+
+  /* Defect items */
+  .glass-card > div > div {
+    page-break-inside: avoid;
   }
 
   /* Force important charts/graphics to avoid page breaks */
   canvas, svg, img {
     page-break-inside: avoid;
+    max-width: 100% !important;
   }
 
   /* Ensure text is readable */
   h1, h2, h3, h4, h5, h6 {
     color: #000 !important;
     page-break-after: avoid;
+    page-break-inside: avoid;
   }
   
-  p, span, div {
-    color: #333 !important;
+  p, span, div, pre {
+    color: #111 !important;
   }
 
   /* Override dark mode text */
@@ -957,10 +978,32 @@ input[type="range"]::-moz-range-progress {
     color: #222 !important;
   }
 
-  /* Print specific margins */
+  /* Code blocks and logs */
+  pre {
+    background: #f8f9fa !important;
+    border: 1px solid #eee !important;
+    color: #333 !important;
+    white-space: pre-wrap !important;
+    word-break: break-all !important;
+    page-break-inside: avoid;
+  }
+
+  /* Print specific margins and layout */
   @page {
-    margin: 1.5cm;
-    size: A4;
+    margin: 1.2cm 1.5cm;
+    size: A4 portrait;
+  }
+
+  /* Add a document header for the first page */
+  main::before {
+    content: "AutonomousQA - Official Test Report";
+    display: block;
+    font-size: 24px;
+    font-weight: bold;
+    color: #000;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #000;
+    padding-bottom: 10px;
   }
 }
 @keyframes highlight {

@@ -122,7 +122,7 @@ class PlaywrightTool:
         """
         browser = self._ensure_browser()
         context = self._new_context(browser)
-        context.set_default_timeout(20000)
+        context.set_default_timeout(60000)
 
         # Normalize the base domain for same-origin checks
         base_parsed = urlparse(url)
@@ -180,13 +180,13 @@ class PlaywrightTool:
                                 pass
                             browser = self._ensure_browser()
                             context = self._new_context(browser)
-                            context.set_default_timeout(20000)
+                            context.set_default_timeout(60000)
                             page = context.new_page()
                         else:
                             raise
 
-                    # Use domcontentloaded for JS-heavy sites; commit is too early
-                    response = page.goto(current_url, wait_until="domcontentloaded", timeout=20000)
+                    # Use commit to prevent timeouts on slow resources, we wait for networkidle below anyway
+                    response = page.goto(current_url, wait_until="commit", timeout=60000)
                     if not response:
                         print(f"[Crawler] No response for {current_url}")
                         page.close()
@@ -204,7 +204,7 @@ class PlaywrightTool:
 
                     # Wait for network idle + extra JS rendering time
                     try:
-                        page.wait_for_load_state("networkidle", timeout=8000)
+                        page.wait_for_load_state("networkidle", timeout=60000)
                     except Exception:
                         pass  # Timeout is fine — we got domcontentloaded already
 
@@ -342,7 +342,7 @@ class PlaywrightTool:
         """Test a single page using the persistent browser — fresh context per page."""
         browser = self._ensure_browser()
         context = self._new_context(browser)
-        context.set_default_timeout(15000) # Increased timeout to account for throttling
+        context.set_default_timeout(60000) # Increased timeout to account for throttling
         page = context.new_page()
 
         # Apply Chaos Throttling via CDP if enabled
@@ -370,7 +370,7 @@ class PlaywrightTool:
         }
 
         try:
-            response = page.goto(url, wait_until="domcontentloaded", timeout=20000)
+            response = page.goto(url, wait_until="domcontentloaded", timeout=60000)
             results["status_code"] = response.status if response else 0
             results["title"] = page.title()
 
@@ -691,11 +691,11 @@ class PlaywrightTool:
 
         browser = self._ensure_browser()
         context = self._new_context(browser)
-        context.set_default_timeout(15000)
+        context.set_default_timeout(60000)
         page = context.new_page()
 
         try:
-            page.goto(url, wait_until="domcontentloaded", timeout=20000)
+            page.goto(url, wait_until="domcontentloaded", timeout=60000)
             violations = _axe_scan(page)
             return violations
         except Exception as e:
@@ -722,10 +722,10 @@ class PlaywrightTool:
         """
         browser = self._ensure_browser()
         context = self._new_context(browser)
-        context.set_default_timeout(10000)
+        context.set_default_timeout(60000)
         page = context.new_page()
         try:
-            page.goto(url, wait_until="domcontentloaded", timeout=20000)
+            page.goto(url, wait_until="domcontentloaded", timeout=60000)
             page.wait_for_timeout(500)
             return page, context
         except Exception as e:
@@ -756,11 +756,11 @@ class PlaywrightTool:
         """Take a full-page screenshot and return PNG bytes."""
         browser = self._ensure_browser()
         context = self._new_context(browser)
-        context.set_default_timeout(12000)
+        context.set_default_timeout(60000)
         page = context.new_page()
 
         try:
-            page.goto(url, wait_until="domcontentloaded", timeout=12000)
+            page.goto(url, wait_until="domcontentloaded", timeout=60000)
             # Wait a moment for dynamic content to render
             page.wait_for_timeout(1000)
             screenshot = page.screenshot(full_page=False, type="png")
@@ -784,12 +784,12 @@ class PlaywrightTool:
             self._shared_context = self._new_context(browser)
         page = self._shared_context.new_page()
         try:
-            page.goto(url, wait_until="domcontentloaded", timeout=15000)
-            page.wait_for_selector(username_selector, timeout=10000)
+            page.goto(url, wait_until="domcontentloaded", timeout=60000)
+            page.wait_for_selector(username_selector, timeout=60000)
             page.fill(username_selector, username)
             page.fill(password_selector, password)
             page.click(submit_selector)
-            page.wait_for_load_state("networkidle", timeout=15000)
+            page.wait_for_load_state("networkidle", timeout=60000)
             return True
         except Exception as e:
             print(f"Login error on {url}: {e}")
@@ -805,14 +805,14 @@ class PlaywrightTool:
         context = self._new_context(browser)
         page = context.new_page()
         try:
-            page.goto(url, wait_until="domcontentloaded", timeout=15000)
-            page.wait_for_selector(username_selector, timeout=10000)
+            page.goto(url, wait_until="domcontentloaded", timeout=60000)
+            page.wait_for_selector(username_selector, timeout=60000)
             page.fill(username_selector, username)
             page.fill(password_selector, password)
             if totp_value:
                 pass # A real implementation would handle TOTP prompts on the next screen
             page.click(submit_selector)
-            page.wait_for_load_state("networkidle", timeout=15000)
+            page.wait_for_load_state("networkidle", timeout=60000)
             
             # Save the session state (cookies + localStorage)
             state = context.storage_state()
@@ -832,11 +832,11 @@ class PlaywrightTool:
         context = self._new_context(browser)
         page = context.new_page()
         try:
-            page.goto(url, wait_until="domcontentloaded", timeout=15000)
-            page.wait_for_selector(sso_selector, timeout=10000)
+            page.goto(url, wait_until="domcontentloaded", timeout=60000)
+            page.wait_for_selector(sso_selector, timeout=60000)
             page.click(sso_selector)
             # Wait for SSO flow redirects
-            page.wait_for_load_state("networkidle", timeout=20000)
+            page.wait_for_load_state("networkidle", timeout=60000)
             
             state = context.storage_state()
             self._storage_state = state
