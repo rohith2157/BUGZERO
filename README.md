@@ -860,8 +860,8 @@ BUGZERO/
 │   ├── agents/
 │   │   ├── crawler.py             # BFS crawler agent
 │   │   ├── tester.py              # Page testing agent
-│   │   ├── self_healing_agent.py  # 🆕 Fingerprinting + LLM-powered healing
-│   │   ├── vision_agent.py        # Gemini Vision + visual regression
+│   │   ├── self_healing_agent.py  # 🆕 Fingerprinting + pure algorithmic healing
+│   │   ├── vision_agent.py        # Pillow math + algorithmic visual regression
 │   │   ├── scheduler.py           # PageRank + 4-factor risk scoring
 │   │   ├── auth_agent.py          # SSO/OAuth/MFA navigator
 │   │   ├── chaos_agent.py         # Network/CPU throttling
@@ -872,7 +872,7 @@ BUGZERO/
 │   ├── models/
 │   │   └── schemas.py             # Pydantic models (HealingEvent, VisualRegression, etc.)
 │   ├── orchestrator.py            # Multi-stage pipeline coordinator
-│   ├── config.py                  # Settings (Gemini API key, etc.)
+│   ├── config.py                  # Settings & environment variables
 │   ├── main.py                    # FastAPI entrypoint
 │   └── requirements.txt
 │
