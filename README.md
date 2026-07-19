@@ -104,6 +104,34 @@ Pages sorted by combined risk → highest-risk tested first
 
 ---
 
+## 🕸️ Autonomous Crawling Strategy (Breadth-First Search)
+
+AutonomousQA utilizes a highly optimized **Breadth-First Search (BFS)** spider to autonomously discover and map your application. 
+
+By utilizing a First-In-First-Out (FIFO) queue, the engine maps your site **level-by-level** (wide first, then deep). This ensures that critical top-level pages (like the Homepage, Dashboard, and Checkout) are always discovered and tested first before the engine gets bogged down in deeply nested user profiles or infinite calendar links.
+
+```mermaid
+graph TD
+    classDef l1 fill:#0ea5e9,color:#fff,stroke:none
+    classDef l2 fill:#22c55e,color:#fff,stroke:none
+    classDef l3 fill:#a855f7,color:#fff,stroke:none
+    
+    A["1. Homepage (Level 0)"]:::l1
+    B["2. About (Level 1)"]:::l2
+    C["3. Dashboard (Level 1)"]:::l2
+    D["4. Post 1 (Level 2)"]:::l3
+    E["5. Settings (Level 2)"]:::l3
+
+    A --> B
+    A --> C
+    C --> D
+    C --> E
+```
+
+> 🔗 **Why BFS over DFS?** Read our full [Crawl Strategy Comparison](documentation/CRAWL_STRATEGIES.md) to see how BFS compares against Depth-First Search, Priority Queues, and Concurrent tracking!
+
+---
+
 ## 🏗️ Architecture
 
 ```mermaid

@@ -130,7 +130,8 @@ AVIF images         ✅          ✅         ✅
 
 ## 🕷️ Crawl Depth
 
-Crawl depth controls **how many pages of the website** the AI engine visits and tests.
+Crawl depth controls **how many pages of the website** the AI engine visits and tests. 
+> 🔗 **Learn more about how we crawl:** Read our [Crawl Strategy Comparison](CRAWL_STRATEGIES.md) to understand why we use Breadth-First Search (BFS).
 
 ```
   YOUR WEBSITE STRUCTURE (example)
