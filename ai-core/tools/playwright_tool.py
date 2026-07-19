@@ -370,7 +370,7 @@ class PlaywrightTool:
         }
 
         try:
-            response = page.goto(url, wait_until="domcontentloaded", timeout=60000)
+            response = page.goto(url, wait_until="commit", timeout=60000)
             results["status_code"] = response.status if response else 0
             results["title"] = page.title()
 
@@ -695,7 +695,7 @@ class PlaywrightTool:
         page = context.new_page()
 
         try:
-            page.goto(url, wait_until="domcontentloaded", timeout=60000)
+            page.goto(url, wait_until="commit", timeout=60000)
             violations = _axe_scan(page)
             return violations
         except Exception as e:
@@ -725,7 +725,7 @@ class PlaywrightTool:
         context.set_default_timeout(60000)
         page = context.new_page()
         try:
-            page.goto(url, wait_until="domcontentloaded", timeout=60000)
+            page.goto(url, wait_until="commit", timeout=60000)
             page.wait_for_timeout(500)
             return page, context
         except Exception as e:
@@ -760,7 +760,7 @@ class PlaywrightTool:
         page = context.new_page()
 
         try:
-            page.goto(url, wait_until="domcontentloaded", timeout=60000)
+            page.goto(url, wait_until="commit", timeout=60000)
             # Wait a moment for dynamic content to render
             page.wait_for_timeout(1000)
             screenshot = page.screenshot(full_page=False, type="png")
@@ -784,7 +784,7 @@ class PlaywrightTool:
             self._shared_context = self._new_context(browser)
         page = self._shared_context.new_page()
         try:
-            page.goto(url, wait_until="domcontentloaded", timeout=60000)
+            page.goto(url, wait_until="commit", timeout=60000)
             page.wait_for_selector(username_selector, timeout=60000)
             page.fill(username_selector, username)
             page.fill(password_selector, password)
@@ -805,7 +805,7 @@ class PlaywrightTool:
         context = self._new_context(browser)
         page = context.new_page()
         try:
-            page.goto(url, wait_until="domcontentloaded", timeout=60000)
+            page.goto(url, wait_until="commit", timeout=60000)
             page.wait_for_selector(username_selector, timeout=60000)
             page.fill(username_selector, username)
             page.fill(password_selector, password)
@@ -832,7 +832,7 @@ class PlaywrightTool:
         context = self._new_context(browser)
         page = context.new_page()
         try:
-            page.goto(url, wait_until="domcontentloaded", timeout=60000)
+            page.goto(url, wait_until="commit", timeout=60000)
             page.wait_for_selector(sso_selector, timeout=60000)
             page.click(sso_selector)
             # Wait for SSO flow redirects

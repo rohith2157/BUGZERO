@@ -266,7 +266,7 @@ class Orchestrator:
             #    a) Self-healing (fingerprint + detect broken selectors)
             #    b) Basic tests (TesterAgent)
             #    c) axe-core accessibility (WCAG audit)
-            #    d) Gemini Vision (AI visual bug detection + regression)
+            #    d) Algorithmic Vision (Visual bug detection + regression)
             # ────────────────────────────────────────────────
             logger.info(f"[{run_id}] Stage 3: Testing pages (self-heal + basic + axe-core + vision)")
 
@@ -340,7 +340,7 @@ class Orchestrator:
                         except Exception as e:
                             logger.warning(f"  axe-core failed on {url}: {e}")
 
-                    # ── 3d: Gemini Vision analysis + Regression ──
+                    # ── 3d: Algorithmic Vision analysis + Regression ──
                     if "visual" in config.modules and vision.is_available():
                         try:
                             screenshot_bytes = await playwright.take_screenshot(url)
@@ -355,7 +355,7 @@ class Orchestrator:
                                         severity=vd.get("severity", "minor"),
                                         message=vd.get("message", ""),
                                         fix=vd.get("fix"),
-                                        source="gemini_vision",
+                                        source="algorithmic_vision",
                                         location=vd.get("location"),
                                         confidence=vd.get("confidence", 0.85),
                                     ))
@@ -382,7 +382,7 @@ class Orchestrator:
                                                 severity=change.get("severity", "minor"),
                                                 message=f"Visual Regression: {change.get('description', '')}",
                                                 fix="Verify if layout change is intentional. If so, update the baseline.",
-                                                source="gemini_vision",
+                                                source="algorithmic_vision",
                                                 location=change.get("location"),
                                                 confidence=change.get("confidence", 0.8),
                                             ))

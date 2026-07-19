@@ -239,7 +239,7 @@ class SelfHealingAgent:
 
     async def detect_and_heal(self, page, url: str) -> list[dict]:
         """Compare current page elements against saved fingerprints using fuzzy algorithms."""
-        previous = self.get_previous_fingerprints(url)
+        previous = await self.get_previous_fingerprints(url)
         if not previous:
             return []
 
