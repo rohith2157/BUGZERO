@@ -5,15 +5,32 @@ Stage 5 of AutonomousQA pipeline:
   - Runs axe.run() to scan the entire DOM
   - Returns structured WCAG violations with severity and remediation guidance
 
-No API key needed. No installation needed. Loads axe-core from CDN.
+No API key needed. No installation needed. Fetches axe-core once via Python and
+injects inline — immune to target-site CSP and browser network restrictions.
 """
 
 import logging
+import urllib.request
 
 logger = logging.getLogger(__name__)
 
-# axe-core CDN URL — automatically loads the library into any page
+# axe-core CDN URL — fetched server-side via Python, NOT browser-side
 AXE_CDN_URL = "https://cdnjs.cloudflare.com/ajax/libs/axe-core/4.9.1/axe.min.js"
+
+# ponytail: fetch once, cache in memory for the process lifetime.
+# Ceiling: ~800 KB resident. Upgrade path: write to disk cache if memory matters.
+_axe_js_cache: str | None = None
+
+
+def _get_axe_js() -> str:
+    """Fetch axe-core JS source via Python urllib (bypasses browser CSP entirely)."""
+    global _axe_js_cache
+    if _axe_js_cache is None:
+        logger.info("axe-core: Downloading library from CDN (one-time)...")
+        _axe_js_cache = urllib.request.urlopen(AXE_CDN_URL, timeout=15).read().decode("utf-8")
+        logger.info(f"axe-core: Cached {len(_axe_js_cache)} bytes")
+    return _axe_js_cache
+
 
 # Map axe-core impact levels to our severity system
 IMPACT_TO_SEVERITY = {
@@ -63,11 +80,12 @@ def run_axe_sync(page) -> list[dict]:
     violations = []
 
     try:
-        # Inject axe-core library
-        page.add_script_tag(url=AXE_CDN_URL)
+        # Inject axe-core as inline JS (fetched server-side, immune to browser CSP)
+        axe_js = _get_axe_js()
+        page.add_script_tag(content=axe_js)
 
-        # Wait a moment for the script to load
-        page.wait_for_timeout(1000)
+        # Wait a moment for the script to initialize
+        page.wait_for_timeout(500)
 
         # Run axe.run() — returns full results
         axe_results = page.evaluate("""async () => {
@@ -128,3 +146,4 @@ def run_axe_sync(page) -> list[dict]:
         logger.error(f"axe-core: Scan failed — {e}")
 
     return violations
+

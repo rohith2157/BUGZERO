@@ -69,6 +69,7 @@ class PlaywrightTool:
         """Create a browser context with realistic headers and user-agent to avoid WAF block."""
         context_args = {
             "viewport": {"width": 1280, "height": 720},
+            "bypass_csp": True,  # ponytail: allow script injection (axe-core etc.) on CSP-protected sites
             "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36",
             "locale": "en-US",
             "extra_http_headers": {
