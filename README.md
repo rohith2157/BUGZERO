@@ -21,21 +21,21 @@
 
 ---
 
-## 🌟 The Evolution: From Normal to Extraordinary
+## 🌟 The Evolution: Hybrid NVIDIA Eagle VLM + Pure Algorithmic Engine
 
-We recently transitioned AutonomousQA from a "Normal" AI framework (dependent on expensive LLMs) to an "Extraordinary" **100% Pure Algorithmic Engine**. We ripped out the Gemini Vision and Text LLMs and replaced them with mathematically provable deterministic logic.
+AutonomousQA combines state-of-the-art open-weights Vision-Language Models (**NVIDIA Eagle2-2B** and **LocateAnything-3B**) hosted on Hugging Face ZeroGPU with a **100% Pure Offline Algorithmic Engine** (PIL pixel-math & Levenshtein DOM fuzzy distance).
 
-**Why?** Because a testing framework must be 100% reliable, offline, and free to run.
+**Why?** Because a testing framework must offer top-tier visual intelligence when connected, while remaining 100% reliable, offline, and free when run locally without cloud API keys.
 
-| Feature                     | "Normal" AI Approach (Old)                           | "Extraordinary" Algorithmic Approach (New)                                                                 |
-| :-------------------------- | :--------------------------------------------------- | :--------------------------------------------------------------------------------------------------------- |
-| **Self-Healing**      | Sends DOM to LLM. Slow (4000ms), hallucinates.       | **Fuzzy DOM Scoring**. Uses Levenshtein distance and Pythagorean spatial decay. Heals in 15ms.       |
-| **Visual Regression** | Asks Gemini "Does this look broken?". Expensive.     | **SSIM & Bounding Boxes**. Uses `ImageChops` with Gaussian Blurring to mathematically diff pixels. |
-| **Cost**              | High ($$ per API token on every test run)            | **$0.00 (Completely Free & Offline)**                                                                |
-| **Determinism**       | Probabilistic (May change its mind on the same page) | **100% Deterministic** (Math never lies)                                                             |
-| **Speed**             | Network I/O Bound (Slow API calls)                   | **CPU Bound** (Microsecond execution)                                                                |
+| Feature                     | NVIDIA Eagle VLM (HF Cloud / ZeroGPU)                     | Local Algorithmic Fallback (100% Offline)                                                          |
+| :-------------------------- | :-------------------------------------------------------- | :------------------------------------------------------------------------------------------------- |
+| **Self-Healing**            | **`nvidia/LocateAnything-3B`**. Bounding box UI locator.  | **Fuzzy DOM Scoring**. Uses Levenshtein distance & spatial decay. Heals in 15ms.                  |
+| **Visual Regression**       | **`nvidia/Eagle2-2B`**. Semantic visual bug inspection.   | **SSIM & Bounding Boxes**. Uses `ImageChops` with Gaussian Blurring to diff pixels mathematically.  |
+| **Deployment / Cost**       | **Hugging Face ZeroGPU Space** ([rohith2157/vlm_for_bugzero](https://huggingface.co/spaces/rohith2157/vlm_for_bugzero)) | **$0.00 (Completely Free, Local & Offline)**                                                       |
+| **Determinism**             | Generative Vision-Language Reasoning                      | **100% Deterministic** (Math never lies)                                                           |
+| **Speed**                   | Network / GPU Inbound (Fast ZeroGPU API)                  | **CPU Bound** (Microsecond execution)                                                              |
 
-[Read the full Algorithmic Architectural Roadmap here!](file:///c:/testproject/documentation/100percent_algo.md)
+[Read the Hugging Face Space Demo here!](https://huggingface.co/spaces/rohith2157/vlm_for_bugzero)
 
 <div align="center">
   <h3>AutonomousQA 2.0 Architecture Map</h3>

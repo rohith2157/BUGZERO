@@ -8,7 +8,12 @@ class Settings(BaseSettings):
     headless: bool = True
     browser: str = "chromium"
 
-    model_config = SettingsConfigDict(env_file=".env")
+    # Hugging Face VLM Integration
+    hf_token: str = "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"
+    hf_model_id: str = "nvidia/Eagle2-2B"
+    hf_grounding_model_id: str = "nvidia/LocateAnything-3B"
+
+    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
 
 settings = Settings()

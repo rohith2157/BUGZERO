@@ -21,30 +21,62 @@ except ImportError:
     logger.info("Pillow not installed — Vision analysis disabled")
 
 
+from utils.hf_client import hf_vlm_client
+
+
 class VisionAgent:
-    """Analyzes page screenshots mathematically."""
+    """Analyzes page screenshots using NVIDIA Eagle VLM with local PIL fallback."""
 
     def __init__(self):
-        # Pure algorithmic mode
         self._available = HAS_PIL
-        if self._available:
-            logger.info("VisionAgent: Initialized in Pure Algorithmic Mode (No LLM).")
+        if hf_vlm_client.is_configured():
+            logger.info("VisionAgent: Initialized with Hugging Face VLM (nvidia/Eagle2-2B).")
+        elif self._available:
+            logger.info("VisionAgent: Initialized in Pure Algorithmic Mode (No LLM/VLM token).")
         else:
             logger.warning("VisionAgent: Pillow is required for algorithmic visual regression.")
 
     def is_available(self) -> bool:
-        return self._available
+        return self._available or hf_vlm_client.is_configured()
 
     async def analyze_screenshot(self, screenshot_bytes: bytes, url: str) -> dict:
-        """Single-shot analysis. Since we don't have an LLM to judge 'ugly UX', 
-        we perform basic sanity checks (e.g., is the page blank?)."""
+        """Analyzes screenshot for visual defects via HF VLM or local PIL fallback."""
         
+        # 1. Try Hugging Face VLM (nvidia/Eagle2-2B) if configured
+        if hf_vlm_client.is_configured():
+            vlm_prompt = (
+                "Analyze this web page screenshot for visual defects, layout bugs, overlapping text, "
+                "or broken styling. State if the page is healthy or list any visual defects."
+            )
+            vlm_response = await hf_vlm_client.query_vlm(screenshot_bytes, vlm_prompt)
+            if vlm_response:
+                defects = []
+                score = 100.0
+                if any(word in vlm_response.lower() for word in ["defect", "bug", "overlap", "broken", "error", "blank"]):
+                    score = 70.0
+                    defects.append({
+                        "type": "Visual",
+                        "severity": "major",
+                        "message": f"NVIDIA Eagle2 VLM detected visual issue: {vlm_response[:200]}",
+                        "location": "Global",
+                        "fix": "Inspect CSS styling and responsive layout.",
+                        "source": "hf_nvidia_vlm",
+                        "confidence": 0.9
+                    })
+                return {
+                    "defects": defects,
+                    "page_quality_score": score,
+                    "summary": f"HF VLM Analysis: {vlm_response[:150]}"
+                }
+
+        # 2. Fall back to local PIL algorithmic analysis
         if not self._available:
             return {"defects": [], "page_quality_score": None, "summary": "Pillow not installed"}
 
         try:
             image = Image.open(io.BytesIO(screenshot_bytes)).convert('RGB')
             stat = ImageStat.Stat(image)
+
             
             # Basic sanity check: Is the page almost entirely one color?
             # Standard deviation of colors near 0 means it's a solid block.
