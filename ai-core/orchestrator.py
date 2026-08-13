@@ -292,127 +292,161 @@ class Orchestrator:
                 logger.info(f"[{run_id}] Testing page {i+1}/{len(discovered)}: {url}")
 
                 try:
-                    # ── 3a: Self-Healing — detect broken selectors ──
-                    page_healing_events = []
-                    if "functional" in config.modules and healing_agent.is_available():
-                        try:
-                            browser_page = await playwright.get_page(url)
-                            if browser_page:
-                                healing_results = await healing_agent.detect_and_heal(browser_page, url)
-                                for h in healing_results:
-                                    page_healing_events.append(HealingEventResult(
-                                        original_selector=h["original_selector"],
-                                        healed_selector=h["healed_selector"],
-                                        element_id=h["element_id"],
-                                        confidence=h["confidence"],
-                                    ))
-                                logger.info(f"  Self-healing: {len(healing_results)} selector(s) healed")
-                                await browser_page.close()
-                        except Exception as e:
-                            logger.warning(f"  Self-healing failed on {url}: {e}")
-
-                    # ── 3b: Basic tests (SEO, links, forms, performance) ──
-                    page_result = await tester.test_page(
-                        url,
-                        modules=config.modules,
+                    # ── Combined: basic tests + axe-core + screenshot + fingerprints in ONE navigation ──
+                    do_axe = "accessibility" in config.modules
+                    do_visual = "visual" in config.modules and vision.is_available()
+                    raw = await playwright.test_page_full(
+                        url, run_axe=do_axe, take_screenshot=do_visual,
                     )
-                    page_result.page_type = page_info.get("page_type", "Content")
+
+                    # ── Process basic test results (same logic as TesterAgent) ──
+                    defects = []
+                    for d in raw.get("defects", []):
+                        dtype = d["type"]
+                        m_key = None
+                        if dtype in ["Accessibility", "WCAG"]:
+                            m_key = "accessibility"
+                        elif dtype == "SEO":
+                            m_key = "seo"
+                        elif dtype == "Functional":
+                            m_key = "functional"
+                        if m_key is None or m_key in config.modules:
+                            defects.append(DefectResult(
+                                type=d["type"], severity=d["severity"],
+                                message=d["message"], fix=d.get("fix"),
+                            ))
+
+                    compliance = []
+                    for v in raw.get("accessibility", []):
+                        standard = v.get("standard", "WCAG")
+                        m_key = "compliance" if standard == "GDPR" else "accessibility"
+                        if m_key in config.modules:
+                            compliance.append(ComplianceViolation(
+                                standard=standard, criterion=v["criterion"],
+                                severity=v["severity"], description=v["description"],
+                                remediation=v.get("remediation"),
+                            ))
+
+                    from models.schemas import PerformanceMetric
+                    performance = {}
+                    if "performance" in config.modules:
+                        for name, data in raw.get("performance", {}).items():
+                            performance[name] = PerformanceMetric(
+                                value=data["value"], rating=data.get("rating"),
+                            )
+
+                    # Visual overlap defects from bounding boxes
+                    elements = raw.get("elements", [])
+                    if elements and ("visual" in config.modules or not config.modules):
+                        overlap_defects = vision.check_bounding_box_overlaps(elements)
+                        for d in overlap_defects:
+                            defects.append(DefectResult(
+                                type=d["type"], severity=d["severity"],
+                                message=d["message"], fix=d.get("fix"),
+                            ))
+
+                    # Hygiene score
+                    severity_weights = {"critical": 15, "major": 8, "minor": 3, "warning": 1}
+                    penalty = sum(severity_weights.get(d.severity, 3) for d in defects)
+                    penalty += sum(severity_weights.get(v.severity, 2) for v in compliance)
+                    hygiene_score = max(0, min(100, 100 - penalty))
+
+                    from models.schemas import PageResult
+                    page_result = PageResult(
+                        url=url,
+                        page_type=page_info.get("page_type", "Content"),
+                        hygiene_score=hygiene_score,
+                        defects=defects,
+                        compliance=compliance,
+                        performance=performance,
+                    )
                     page_result.pagerank_score = page_info.get("pagerank_score", 0)
-                    page_result.healing_events = page_healing_events
+                    page_result.healing_events = []
 
-                    # ── 3c: axe-core accessibility scan ──
-                    if "accessibility" in config.modules:
+                    # ── axe-core violations (already collected in combined call) ──
+                    for v in raw.get("axe_violations", []):
+                        page_result.compliance.append(ComplianceViolation(
+                            standard=v.get("standard", "WCAG"),
+                            criterion=v.get("criterion", "General"),
+                            severity=v.get("severity", "minor"),
+                            description=v.get("description", ""),
+                            remediation=v.get("remediation", ""),
+                            rule_id=v.get("rule_id", ""),
+                            help_url=v.get("help_url", ""),
+                            affected_elements=v.get("affected_elements", []),
+                            instance_count=v.get("instance_count"),
+                        ))
+                    if raw.get("axe_violations"):
+                        logger.info(f"  axe-core: {len(raw['axe_violations'])} violation(s)")
+
+                    # ── Vision analysis from screenshot (already captured) ──
+                    screenshot_bytes = raw.get("screenshot_bytes", b"")
+                    if do_visual and screenshot_bytes:
                         try:
-                            axe_violations = await playwright.run_axe(url)
-                            for v in axe_violations:
-                                page_result.compliance.append(ComplianceViolation(
-                                    standard=v.get("standard", "WCAG"),
-                                    criterion=v.get("criterion", "General"),
-                                    severity=v.get("severity", "minor"),
-                                    description=v.get("description", ""),
-                                    remediation=v.get("remediation", ""),
-                                    rule_id=v.get("rule_id", ""),
-                                    help_url=v.get("help_url", ""),
-                                    affected_elements=v.get("affected_elements", []),
-                                    instance_count=v.get("instance_count"),
+                            vision_result = await vision.analyze_screenshot(screenshot_bytes, url)
+                            page_result.vision_quality_score = vision_result.get("page_quality_score")
+
+                            for vd in vision_result.get("defects", []):
+                                page_result.defects.append(DefectResult(
+                                    type=vd.get("type", "Visual"),
+                                    severity=vd.get("severity", "minor"),
+                                    message=vd.get("message", ""),
+                                    fix=vd.get("fix"),
+                                    source="algorithmic_vision",
+                                    location=vd.get("location"),
+                                    confidence=vd.get("confidence", 0.85),
                                 ))
-                            logger.info(f"  axe-core: {len(axe_violations)} violation(s)")
-                        except Exception as e:
-                            logger.warning(f"  axe-core failed on {url}: {e}")
+                            logger.info(f"  Vision: {len(vision_result.get('defects', []))} issue(s), score: {vision_result.get('page_quality_score')}")
 
-                    # ── 3d: Algorithmic Vision analysis + Regression ──
-                    if "visual" in config.modules and vision.is_available():
-                        try:
-                            screenshot_bytes = await playwright.take_screenshot(url)
-                            if screenshot_bytes:
-                                # Single-run visual bug detection
-                                vision_result = await vision.analyze_screenshot(screenshot_bytes, url)
-                                page_result.vision_quality_score = vision_result.get("page_quality_score")
+                            # Visual Regression — compare against baseline
+                            try:
+                                baseline_bytes = await self._fetch_baseline(url, org_id)
+                                if baseline_bytes:
+                                    regression_result = await vision.compare_screenshots(
+                                        baseline_bytes, screenshot_bytes, url
+                                    )
+                                    for change in regression_result.get("changes", []):
+                                        page_result.visual_regression.append(VisualRegressionChange(
+                                            change_type=change.get("change_type", "cosmetic"),
+                                            severity=change.get("severity", "minor"),
+                                            description=change.get("description", ""),
+                                            location=change.get("location"),
+                                            confidence=change.get("confidence", 0.8),
+                                        ))
+                                        page_result.defects.append(DefectResult(
+                                            type="Visual",
+                                            severity=change.get("severity", "minor"),
+                                            message=f"Visual Regression: {change.get('description', '')}",
+                                            fix="Verify if layout change is intentional. If so, update the baseline.",
+                                            source="algorithmic_vision",
+                                            location=change.get("location"),
+                                            confidence=change.get("confidence", 0.8),
+                                        ))
+                                    if regression_result.get("changes"):
+                                        logger.info(f"  Regression: {len(regression_result['changes'])} change(s) vs baseline")
+                                else:
+                                    logger.info(f"  Regression: No baseline for {url} — first run, saving baseline")
+                            except Exception as e:
+                                logger.warning(f"  Regression comparison failed on {url}: {e}")
 
-                                for vd in vision_result.get("defects", []):
-                                    page_result.defects.append(DefectResult(
-                                        type=vd.get("type", "Visual"),
-                                        severity=vd.get("severity", "minor"),
-                                        message=vd.get("message", ""),
-                                        fix=vd.get("fix"),
-                                        source="algorithmic_vision",
-                                        location=vd.get("location"),
-                                        confidence=vd.get("confidence", 0.85),
-                                    ))
-                                logger.info(f"  Vision: {len(vision_result.get('defects', []))} issue(s), score: {vision_result.get('page_quality_score')}")
-
-                                # Visual Regression — compare against baseline
-                                try:
-                                    baseline_bytes = await self._fetch_baseline(url, org_id)
-                                    if baseline_bytes:
-                                        regression_result = await vision.compare_screenshots(
-                                            baseline_bytes, screenshot_bytes, url
-                                        )
-                                        for change in regression_result.get("changes", []):
-                                            page_result.visual_regression.append(VisualRegressionChange(
-                                                change_type=change.get("change_type", "cosmetic"),
-                                                severity=change.get("severity", "minor"),
-                                                description=change.get("description", ""),
-                                                location=change.get("location"),
-                                                confidence=change.get("confidence", 0.8),
-                                            ))
-                                            # Save visual regression changes as visual defects so they are persisted
-                                            page_result.defects.append(DefectResult(
-                                                type="Visual",
-                                                severity=change.get("severity", "minor"),
-                                                message=f"Visual Regression: {change.get('description', '')}",
-                                                fix="Verify if layout change is intentional. If so, update the baseline.",
-                                                source="algorithmic_vision",
-                                                location=change.get("location"),
-                                                confidence=change.get("confidence", 0.8),
-                                            ))
-                                        if regression_result.get("changes"):
-                                            logger.info(f"  Regression: {len(regression_result['changes'])} change(s) vs baseline")
-                                    else:
-                                        logger.info(f"  Regression: No baseline for {url} — first run, saving baseline")
-                                except Exception as e:
-                                    logger.warning(f"  Regression comparison failed on {url}: {e}")
-
-                                # Save current screenshot as new baseline
-                                try:
-                                    await self._save_baseline(url, org_id, screenshot_bytes)
-                                except Exception as e:
-                                    logger.warning(f"  Failed to save baseline for {url}: {e}")
+                            # Save current screenshot as new baseline
+                            try:
+                                await self._save_baseline(url, org_id, screenshot_bytes)
+                            except Exception as e:
+                                logger.warning(f"  Failed to save baseline for {url}: {e}")
 
                         except Exception as e:
                             logger.warning(f"  Vision failed on {url}: {e}")
 
-                    # ── 3e: Post-test fingerprinting for self-healing ──
-                    if healing_agent.is_available():
+                    # ── Self-healing fingerprint storage (uses DOM data already extracted) ──
+                    dom_fingerprints = raw.get("dom_fingerprints", {})
+                    if healing_agent.is_available() and dom_fingerprints:
                         try:
-                            browser_page = await playwright.get_page(url)
-                            if browser_page:
-                                await healing_agent.fingerprint_page(browser_page, url)
+                            await healing_agent.save_fingerprints(url, dom_fingerprints)
                         except Exception as e:
-                            logger.debug(f"  Post-test fingerprinting failed on {url}: {e}")
+                            logger.debug(f"  Fingerprint save failed on {url}: {e}")
 
-                    # Recalculate hygiene score with new defects
-                    severity_weights = {"critical": 15, "major": 8, "minor": 3, "warning": 1}
+                    # Recalculate hygiene score with all defects (axe + vision added)
                     penalty = sum(severity_weights.get(d.severity, 3) for d in page_result.defects)
                     penalty += sum(severity_weights.get(v.severity, 2) for v in page_result.compliance)
                     page_result.hygiene_score = max(0, min(100, 100 - penalty))

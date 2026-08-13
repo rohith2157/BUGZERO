@@ -129,6 +129,20 @@ class SelfHealingAgent:
             logger.warning(f"SelfHealingAgent: Fingerprinting failed on {url}: {e}")
             return {}
 
+    async def save_fingerprints(self, url: str, fingerprints: dict) -> None:
+        """Save pre-extracted DOM fingerprints to the gateway (no page needed)."""
+        if not self.gateway_url or not self.org_id or not fingerprints:
+            return
+        try:
+            async with httpx.AsyncClient(timeout=10.0) as client:
+                await client.post(
+                    f"{self.gateway_url}/api/healing/map",
+                    json={"orgId": self.org_id, "url": url, "mapData": fingerprints},
+                )
+            logger.info(f"SelfHealingAgent: Saved {len(fingerprints)} fingerprints for {url}")
+        except Exception as e:
+            logger.warning(f"SelfHealingAgent: Fingerprint save failed for {url}: {e}")
+
     async def get_previous_fingerprints(self, url: str) -> Optional[dict]:
         """Load previously saved fingerprints for a URL from the PostgreSQL database."""
         if not self.gateway_url or not self.org_id:
