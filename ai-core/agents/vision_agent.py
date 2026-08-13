@@ -10,6 +10,7 @@ import logging
 import io
 import math
 from typing import Optional
+from config import settings
 
 logger = logging.getLogger(__name__)
 
@@ -44,12 +45,16 @@ class VisionAgent:
         
         # 1. Try Hugging Face VLM (nvidia/Eagle2-2B) if configured
         if hf_vlm_client.is_configured():
+            logger.info(f"[VisionAgent] [VLM] Querying HF VLM ({settings.hf_model_id}) for {url}...")
+            print(f"[VisionAgent] [VLM] Querying HF VLM ({settings.hf_model_id}) for {url}...", flush=True)
             vlm_prompt = (
                 "Analyze this web page screenshot for visual defects, layout bugs, overlapping text, "
                 "or broken styling. State if the page is healthy or list any visual defects."
             )
             vlm_response = await hf_vlm_client.query_vlm(screenshot_bytes, vlm_prompt)
             if vlm_response:
+                logger.info(f"[VisionAgent] [VLM] Response received for {url}")
+                print(f"[VisionAgent] [VLM] Response received for {url}", flush=True)
                 defects = []
                 score = 100.0
                 if any(word in vlm_response.lower() for word in ["defect", "bug", "overlap", "broken", "error", "blank"]):
@@ -68,9 +73,17 @@ class VisionAgent:
                     "page_quality_score": score,
                     "summary": f"HF VLM Analysis: {vlm_response[:150]}"
                 }
+            else:
+                logger.warning(f"[VisionAgent] [OFFLINE] HF VLM query skipped/failed -> Falling back to local PIL image math")
+                print(f"[VisionAgent] [OFFLINE] HF VLM query skipped/failed -> Falling back to local PIL image math for {url}", flush=True)
+        else:
+            logger.info(f"[VisionAgent] [OFFLINE] Mode -> Running local PIL image math for {url}")
+            print(f"[VisionAgent] [OFFLINE] Mode -> Running local PIL image math for {url}", flush=True)
+
 
         # 2. Fall back to local PIL algorithmic analysis
         if not self._available:
+
             return {"defects": [], "page_quality_score": None, "summary": "Pillow not installed"}
 
         try:
@@ -167,6 +180,7 @@ class VisionAgent:
     def check_bounding_box_overlaps(self, elements: list[dict]) -> list[dict]:
         """Mathematically checks for overlapping bounding boxes without proper z-index isolation."""
         defects = []
+        seen_messages = set()
         n = len(elements)
         for i in range(n):
             for j in range(i + 1, n):
@@ -186,11 +200,18 @@ class VisionAgent:
                     if e2['x1'] <= e1['x1'] and e2['y1'] <= e1['y1'] and e2['x2'] >= e1['x2'] and e2['y2'] >= e1['y2']:
                         continue
                         
+                    t1 = e1.get('text', '').strip()[:30]
+                    t2 = e2.get('text', '').strip()[:30]
+                    msg_key = f"{e1['tag']}:{t1}|{e2['tag']}:{t2}"
+                    if msg_key in seen_messages:
+                        continue
+                    seen_messages.add(msg_key)
+
                     # If they intersect but don't contain each other, it's a layout collision!
                     defects.append({
                         "type": "Visual",
                         "severity": "major",
-                        "message": f"Overlapping elements detected: {e1['tag']} ({e1.get('text', '')}) overlaps with {e2['tag']} ({e2.get('text', '')})",
+                        "message": f"Overlapping elements detected: {e1['tag']} ({t1}) overlaps with {e2['tag']} ({t2})",
                         "location": f"Coordinates: ({int(e1['x1'])},{int(e1['y1'])})",
                         "fix": "Adjust CSS margins, padding, or flex/grid layout to prevent collision. Ensure proper z-index if intentional.",
                         "source": "algorithmic_vision",
@@ -202,3 +223,4 @@ class VisionAgent:
                         return defects
                         
         return defects
+

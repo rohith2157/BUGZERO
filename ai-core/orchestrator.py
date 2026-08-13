@@ -49,6 +49,17 @@ class Orchestrator:
             return True
         return False
 
+    @staticmethod
+    def normalize_url(raw_url: str) -> str:
+        from urllib.parse import urlparse
+        parsed = urlparse(raw_url)
+        netloc = parsed.netloc.lower()
+        if netloc.startswith("www."):
+            netloc = netloc[4:]
+        path = parsed.path.rstrip("/") or "/"
+        return f"{parsed.scheme}://{netloc}{path}"
+
+
     async def _report_progress(self, event: str, payload: dict) -> None:
         """Fire-and-forget incremental progress update to gateway."""
         try:
@@ -136,8 +147,19 @@ class Orchestrator:
             org_id=request.org_id,
         )
 
+        from utils.hf_client import hf_vlm_client
+        if hf_vlm_client.is_configured():
+            mode_str = f"[Pipeline] 🦅 MODE: Hybrid VLM Active | Model: {settings.hf_model_id} | Space: {settings.hf_space_url}"
+            logger.info(mode_str)
+            print(f"\n{mode_str}\n", flush=True)
+        else:
+            mode_str = "[Pipeline] ⚡ MODE: 100% Offline Algorithmic | Local PIL + Levenshtein matching"
+            logger.info(mode_str)
+            print(f"\n{mode_str}\n", flush=True)
+
         repo_manager = None
         target_url = request.url
+
         repo_name = None
 
         try:
@@ -272,6 +294,7 @@ class Orchestrator:
 
             pages = []
             total_defects = 0
+            tested_norm_urls = set()
 
             # Determine org_id for baseline lookups (default to run_id if not available)
             org_id = getattr(config, "org_id", None) or run_id
@@ -288,8 +311,15 @@ class Orchestrator:
                         total_defects=total_defects,
                     )
 
-                url = page_info["url"]
+                raw_url = page_info["url"]
+                norm_url = self.normalize_url(raw_url)
+                if norm_url in tested_norm_urls:
+                    logger.info(f"[{run_id}] Skipping duplicate query route: {raw_url} (already tested {norm_url})")
+                    continue
+                tested_norm_urls.add(norm_url)
+                url = norm_url
                 logger.info(f"[{run_id}] Testing page {i+1}/{len(discovered)}: {url}")
+
 
                 try:
                     # ── Combined: basic tests + axe-core + screenshot + fingerprints in ONE navigation ──
@@ -345,8 +375,19 @@ class Orchestrator:
                                 message=d["message"], fix=d.get("fix"),
                             ))
 
+                    # Deduplicate defects per page
+                    seen_def_keys = set()
+                    unique_defects = []
+                    for d in defects:
+                        key = (d.type, d.severity, d.message.strip())
+                        if key not in seen_def_keys:
+                            seen_def_keys.add(key)
+                            unique_defects.append(d)
+                    defects = unique_defects
+
                     # Hygiene score
                     severity_weights = {"critical": 15, "major": 8, "minor": 3, "warning": 1}
+
                     penalty = sum(severity_weights.get(d.severity, 3) for d in defects)
                     penalty += sum(severity_weights.get(v.severity, 2) for v in compliance)
                     hygiene_score = max(0, min(100, 100 - penalty))
