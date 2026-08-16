@@ -21,17 +21,20 @@ from models.schemas import (
     ComplianceViolation, HealingEventResult, VisualRegressionChange,
 )
 from agents.crawler import CrawlerAgent
-from agents.tester import TesterAgent
 from agents.scheduler import calculate_pagerank, greedy_sort
 from agents.vision_agent import VisionAgent
 from agents.report_agent import ReportAgent
 from agents.auth_agent import AuthAgent
 from agents.chaos_agent import ChaosAgent
 from agents.self_healing_agent import SelfHealingAgent
+from agents.active_explorer import ActiveExplorerAgent
+
 from tools.playwright_tool import PlaywrightTool
 from tools.axe_tool import run_axe_sync
 from utils.repo_server import RepoManager
+from utils.hf_client import hf_vlm_client
 from config import settings
+
 
 logger = logging.getLogger(__name__)
 
@@ -136,9 +139,10 @@ class Orchestrator:
             browser_type=settings.browser,
         )
         crawler = CrawlerAgent(playwright)
-        tester = TesterAgent(playwright)
         vision = VisionAgent()
+        explorer = ActiveExplorerAgent()
         report_agent = ReportAgent()
+
         auth_agent = AuthAgent(playwright)
         chaos_agent = ChaosAgent(playwright)
         healing_agent = SelfHealingAgent(
@@ -333,13 +337,13 @@ class Orchestrator:
                     defects = []
                     for d in raw.get("defects", []):
                         dtype = d["type"]
-                        m_key = None
-                        if dtype in ["Accessibility", "WCAG"]:
-                            m_key = "accessibility"
-                        elif dtype == "SEO":
-                            m_key = "seo"
-                        elif dtype == "Functional":
-                            m_key = "functional"
+                        m_key = {
+                            "Accessibility": "accessibility",
+                            "WCAG": "accessibility",
+                            "SEO": "seo",
+                            "Functional": "functional",
+                            "Visual": "visual",
+                        }.get(dtype)  # None = unknown type, always include
                         if m_key is None or m_key in config.modules:
                             defects.append(DefectResult(
                                 type=d["type"], severity=d["severity"],
@@ -367,13 +371,26 @@ class Orchestrator:
 
                     # Visual overlap defects from bounding boxes
                     elements = raw.get("elements", [])
+                    screenshot_bytes = raw.get("screenshot_bytes", b"")
                     if elements and ("visual" in config.modules or not config.modules):
                         overlap_defects = vision.check_bounding_box_overlaps(elements)
                         for d in overlap_defects:
+                            # VLM double-check: crop the collision zone and ask Eagle2-2B
+                            # if this looks like a real bug or intentional design.
+                            # Skip VLM check if no screenshot is available.
+                            if screenshot_bytes and hf_vlm_client.is_configured():
+                                el1 = d.get("_el1")
+                                el2 = d.get("_el2")
+                                if el1 and el2:
+                                    is_real = await vision.verify_overlap_with_vlm(screenshot_bytes, el1, el2)
+                                    if not is_real:
+                                        print(f"[VisionAgent] [VLM-SUPPRESS] Intentional overlap suppressed: {d['message'][:80]}", flush=True)
+                                        continue
                             defects.append(DefectResult(
                                 type=d["type"], severity=d["severity"],
                                 message=d["message"], fix=d.get("fix"),
                             ))
+
 
                     # Deduplicate defects per page
                     seen_def_keys = set()

@@ -187,8 +187,15 @@ class VisionAgent:
                 e1 = elements[i]
                 e2 = elements[j]
                 
+                # Skip decorative/non-interactive intentional overlays (pointer-events: none or aria-hidden="true")
+                if e1.get('pointerEvents') == 'none' or e2.get('pointerEvents') == 'none':
+                    continue
+                if e1.get('ariaHidden') or e2.get('ariaHidden'):
+                    continue
+
                 # Check intersection (if they DO NOT intersect, the condition is true, so we invert)
                 if not (e1['x2'] <= e2['x1'] or e1['x1'] >= e2['x2'] or e1['y2'] <= e2['y1'] or e1['y1'] >= e2['y2']):
+
                     
                     # If they are essentially the same element (parent/child sometimes have exact same box), skip
                     if abs(e1['x1'] - e2['x1']) < 5 and abs(e1['y1'] - e2['y1']) < 5 and abs(e1['x2'] - e2['x2']) < 5 and abs(e1['y2'] - e2['y2']) < 5:
@@ -215,7 +222,9 @@ class VisionAgent:
                         "location": f"Coordinates: ({int(e1['x1'])},{int(e1['y1'])})",
                         "fix": "Adjust CSS margins, padding, or flex/grid layout to prevent collision. Ensure proper z-index if intentional.",
                         "source": "algorithmic_vision",
-                        "confidence": 0.8
+                        "confidence": 0.8,
+                        "_el1": e1,  # kept for VLM crop-verify in orchestrator
+                        "_el2": e2,
                     })
                     
                     # Limit to 5 defects to avoid spam
@@ -224,3 +233,59 @@ class VisionAgent:
                         
         return defects
 
+    async def verify_overlap_with_vlm(self, screenshot_bytes: bytes, e1: dict, e2: dict) -> bool:
+        """Crops the collision zone and asks the HF VLM if it looks like a real bug.
+
+        Returns True if the VLM confirms it is an actual bug, False to suppress it.
+        Falls back to True (keep the defect) if VLM is offline or JSON parse fails.
+        ponytail: crop-only call keeps token cost ~10x lower than full screenshot.
+        """
+        if not HAS_PIL or not hf_vlm_client.is_configured():
+            return True  # VLM not available — keep defect
+
+        try:
+            img = Image.open(io.BytesIO(screenshot_bytes)).convert("RGB")
+            pad = 20
+            x1 = max(0, min(e1['x1'], e2['x1']) - pad)
+            y1 = max(0, min(e1['y1'], e2['y1']) - pad)
+            x2 = min(img.width,  max(e1['x2'], e2['x2']) + pad)
+            y2 = min(img.height, max(e1['y2'], e2['y2']) + pad)
+            cropped = img.crop((x1, y1, x2, y2))
+
+            buf = io.BytesIO()
+            cropped.save(buf, format="PNG")
+            crop_bytes = buf.getvalue()
+
+            t1 = e1.get('text', '').strip()[:40] or e1['tag']
+            t2 = e2.get('text', '').strip()[:40] or e2['tag']
+            prompt = (
+                f"A bounding box scanner detected an overlap between:\n"
+                f"  Element A: <{e1['tag']}> \"{t1}\"\n"
+                f"  Element B: <{e2['tag']}> \"{t2}\"\n\n"
+                "Look at this cropped UI image carefully.\n"
+                "Is this a real visual bug (text on top of text, buttons blocking each other, "
+                "content unreadable), or intentional design (timeline marker, decorative overlay, "
+                "background icon, progress indicator)?\n\n"
+                "Respond ONLY in this exact JSON: "
+                "{\"is_actual_bug\": true/false, \"confidence_score\": 0.0-1.0, \"reasoning\": \"one sentence\"}"
+            )
+
+            response = await hf_vlm_client.query_vlm(crop_bytes, prompt)
+            if not response:
+                return True  # VLM offline — keep defect
+
+            # Extract JSON from response (VLM may wrap it in prose)
+            import re, json
+            match = re.search(r'\{[^{}]+\}', response, re.DOTALL)
+            if match:
+                verdict = json.loads(match.group())
+                is_bug = verdict.get("is_actual_bug", True)
+                reasoning = verdict.get("reasoning", "")
+                logger.info(f"[VisionAgent] [VLM-VERIFY] is_bug={is_bug} | {reasoning}")
+                print(f"[VisionAgent] [VLM-VERIFY] is_bug={is_bug} | {reasoning}", flush=True)
+                return bool(is_bug)
+
+        except Exception as e:
+            logger.debug(f"[VisionAgent] VLM overlap verify failed: {e}")
+
+        return True  # Default: keep defect if anything fails

@@ -186,8 +186,14 @@ class PlaywrightTool:
                         else:
                             raise
 
-                    # Use commit to prevent timeouts on slow resources, we wait for networkidle below anyway
-                    response = page.goto(current_url, wait_until="commit", timeout=60000)
+                    # Use commit to prevent timeouts on slow resources or streaming SPA pages
+                    response = page.goto(current_url, wait_until="commit", timeout=30000)
+                    try:
+                        page.wait_for_load_state("domcontentloaded", timeout=5000)
+                    except Exception:
+                        pass
+                    page.wait_for_timeout(1000)
+
                     if not response:
                         print(f"[Crawler] No response for {current_url}")
                         page.close()
@@ -339,331 +345,8 @@ class PlaywrightTool:
     async def crawl(self, url: str, max_pages: int = 50, max_depth: int = 999, on_page=None) -> list[dict]:
         return await _run_sync(self._crawl_sync, url, max_pages, max_depth, on_page)
 
-    def _test_page_sync(self, url: str) -> dict:
-        """Test a single page using the persistent browser — fresh context per page."""
-        browser = self._ensure_browser()
-        context = self._new_context(browser)
-        context.set_default_timeout(60000) # Increased timeout to account for throttling
-        page = context.new_page()
 
-        # Apply Chaos Throttling via CDP if enabled
-        try:
-            if getattr(self, '_network_profile', None) or getattr(self, '_cpu_throttling', None):
-                client = context.new_cdp_session(page)
-                if getattr(self, '_cpu_throttling', None):
-                    client.send('Emulation.setCPUThrottlingRate', {'rate': self._cpu_throttling})
-                if getattr(self, '_network_profile', None):
-                    profiles = {
-                        "Slow 3G": {"offline": False, "downloadThroughput": int(500 * 1024 / 8), "uploadThroughput": int(500 * 1024 / 8), "latency": int(400 * 1.5)},
-                        "Fast 3G": {"offline": False, "downloadThroughput": int(1.5 * 1024 * 1024 / 8), "uploadThroughput": int(750 * 1024 / 8), "latency": int(40 * 1.5)},
-                    }
-                    if self._network_profile in profiles:
-                        client.send('Network.enable')
-                        client.send('Network.emulateNetworkConditions', profiles[self._network_profile])
-        except Exception as e:
-            print(f"Chaos injection failed: {e}")
-
-        results = {
-            "url": url,
-            "defects": [],
-            "performance": {},
-            "accessibility": [],
-        }
-
-        try:
-            response = page.goto(url, wait_until="commit", timeout=60000)
-            results["status_code"] = response.status if response else 0
-            results["title"] = page.title()
-
-            # Check images for alt text
-            missing_alt = page.evaluate("""() => {
-                const imgs = document.querySelectorAll('img');
-                let missing = 0;
-                imgs.forEach(img => { if (!img.alt) missing++; });
-                return missing;
-            }""")
-
-            if missing_alt > 0:
-                results["defects"].append({
-                    "type": "Accessibility",
-                    "severity": "major",
-                    "message": f"Missing alt text on {missing_alt} image(s)",
-                    "fix": "Add descriptive alt attributes to all <img> elements",
-                })
-
-            # Check heading hierarchy
-            heading_issues = page.evaluate("""() => {
-                const headings = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
-                const levels = Array.from(headings).map(h => parseInt(h.tagName[1]));
-                let issues = 0;
-                const h1Count = levels.filter(l => l === 1).length;
-                if (h1Count === 0) issues++;
-                if (h1Count > 1) issues++;
-                for (let i = 1; i < levels.length; i++) {
-                    if (levels[i] - levels[i-1] > 1) issues++;
-                }
-                return { issues, h1Count };
-            }""")
-
-            if heading_issues["h1Count"] == 0:
-                results["defects"].append({
-                    "type": "SEO",
-                    "severity": "major",
-                    "message": "Page is missing an H1 heading tag",
-                    "fix": "Add a single H1 tag as the main page heading",
-                })
-            elif heading_issues["h1Count"] > 1:
-                results["defects"].append({
-                    "type": "SEO",
-                    "severity": "minor",
-                    "message": f"Multiple H1 tags found ({heading_issues['h1Count']})",
-                    "fix": "Use a single H1 for the main heading, use H2+ for others",
-                })
-
-            # Check meta description
-            meta = page.evaluate("""() => {
-                const desc = document.querySelector('meta[name="description"]');
-                return desc ? desc.content : null;
-            }""")
-
-            if not meta:
-                results["defects"].append({
-                    "type": "SEO",
-                    "severity": "minor",
-                    "message": "Missing meta description tag",
-                    "fix": "Add a <meta name='description'> tag with page summary",
-                })
-
-            # Check form labels
-            unlabeled_inputs = page.evaluate("""() => {
-                const inputs = document.querySelectorAll('input, select, textarea');
-                let unlabeled = 0;
-                inputs.forEach(input => {
-                    if (input.type === 'hidden' || input.type === 'submit') return;
-                    const id = input.id;
-                    const label = id ? document.querySelector(`label[for="${id}"]`) : null;
-                    const ariaLabel = input.getAttribute('aria-label');
-                    const ariaLabelledBy = input.getAttribute('aria-labelledby');
-                    if (!label && !ariaLabel && !ariaLabelledBy) unlabeled++;
-                });
-                return unlabeled;
-            }""")
-
-            if unlabeled_inputs > 0:
-                results["defects"].append({
-                    "type": "Accessibility",
-                    "severity": "critical",
-                    "message": f"Form inputs missing labels — {unlabeled_inputs} instance(s)",
-                    "fix": "Add <label> elements with for attributes to each input field",
-                })
-
-            # Check color contrast (basic)
-            low_contrast = page.evaluate("""() => {
-                const elements = document.querySelectorAll('p, span, a, li, td, th, label, button');
-                let issues = 0;
-                elements.forEach(el => {
-                    const style = getComputedStyle(el);
-                    const color = style.color;
-                    const bg = style.backgroundColor;
-                    if (color === bg) issues++;
-                });
-                return issues;
-            }""")
-
-            if low_contrast > 0:
-                results["defects"].append({
-                    "type": "WCAG",
-                    "severity": "major",
-                    "message": f"Potential color contrast issues on {low_contrast} element(s)",
-                    "fix": "Ensure text has at least 4.5:1 contrast ratio against background",
-                })
-
-            # Performance metrics — collect all 4 Core Web Vitals
-            # Step 1: Inject PerformanceObserver for LCP, CLS, and FID before anything
-            # We use page.evaluate with a promise-based approach + setTimeout fallback
-            perf = page.evaluate("""() => {
-                const nav = performance.getEntriesByType('navigation')[0];
-                const t = performance.timing;
-                return {
-                    ttfb: nav ? nav.responseStart - nav.requestStart : (t.responseStart - t.requestStart),
-                    dom_load: t.domContentLoadedEventEnd - t.navigationStart,
-                    full_load: t.loadEventEnd - t.navigationStart,
-                };
-            }""")
-
-            if perf.get("ttfb", 0) > 0:
-                results["performance"]["TTFB"] = {
-                    "value": round(perf["ttfb"], 1),
-                    "rating": "good" if perf["ttfb"] < 800 else "needs-improvement" if perf["ttfb"] < 1800 else "poor",
-                }
-
-            # LCP — use PerformanceObserver entries if available, otherwise estimate from full_load
-            lcp_val = page.evaluate("""() => {
-                try {
-                    const entries = performance.getEntriesByType('largest-contentful-paint');
-                    if (entries && entries.length > 0) {
-                        return entries[entries.length - 1].startTime / 1000;
-                    }
-                } catch(e) {}
-                return null;
-            }""")
-            if lcp_val is None and perf.get("full_load", 0) > 0:
-                lcp_val = perf["full_load"] / 1000
-            if lcp_val is not None and lcp_val > 0:
-                lcp_val = round(lcp_val, 2)
-                results["performance"]["LCP"] = {
-                    "value": lcp_val,
-                    "rating": "good" if lcp_val < 2.5 else "needs-improvement" if lcp_val < 4 else "poor",
-                }
-
-            # CLS — measure layout shift from PerformanceObserver entries
-            cls_val = page.evaluate("""() => {
-                try {
-                    const entries = performance.getEntriesByType('layout-shift');
-                    if (entries && entries.length > 0) {
-                        let cls = 0;
-                        for (const entry of entries) {
-                            if (!entry.hadRecentInput) cls += entry.value;
-                        }
-                        return cls;
-                    }
-                } catch(e) {}
-                return null;
-            }""")
-            # If PerformanceObserver entries aren't available, inject an observer and wait briefly
-            if cls_val is None:
-                cls_val = page.evaluate("""() => {
-                    return new Promise((resolve) => {
-                        let cls = 0;
-                        try {
-                            const observer = new PerformanceObserver((list) => {
-                                for (const entry of list.getEntries()) {
-                                    if (!entry.hadRecentInput) cls += entry.value;
-                                }
-                            });
-                            observer.observe({type: 'layout-shift', buffered: true});
-                            setTimeout(() => { observer.disconnect(); resolve(cls); }, 1500);
-                        } catch(e) { resolve(0); }
-                    });
-                }""")
-            if cls_val is not None:
-                cls_val = round(cls_val, 4)
-                results["performance"]["CLS"] = {
-                    "value": cls_val,
-                    "rating": "good" if cls_val <= 0.1 else "needs-improvement" if cls_val <= 0.25 else "poor",
-                }
-
-            # FID — cannot be measured without real user interaction, so we measure TBT as proxy
-            # TBT (Total Blocking Time) correlates strongly with FID
-            fid_val = page.evaluate("""() => {
-                try {
-                    const entries = performance.getEntriesByType('longtask');
-                    if (entries && entries.length > 0) {
-                        let tbt = 0;
-                        for (const entry of entries) {
-                            const blocking = entry.duration - 50;
-                            if (blocking > 0) tbt += blocking;
-                        }
-                        return tbt;
-                    }
-                } catch(e) {}
-                return null;
-            }""")
-            # If longtask entries not available, inject observer
-            if fid_val is None:
-                fid_val = page.evaluate("""() => {
-                    return new Promise((resolve) => {
-                        let tbt = 0;
-                        try {
-                            const observer = new PerformanceObserver((list) => {
-                                for (const entry of list.getEntries()) {
-                                    const blocking = entry.duration - 50;
-                                    if (blocking > 0) tbt += blocking;
-                                }
-                            });
-                            observer.observe({type: 'longtask', buffered: true});
-                            setTimeout(() => { observer.disconnect(); resolve(tbt); }, 1500);
-                        } catch(e) { resolve(0); }
-                    });
-                }""")
-            if fid_val is not None:
-                fid_val = round(fid_val, 1)
-                results["performance"]["FID"] = {
-                    "value": fid_val,
-                    "rating": "good" if fid_val <= 100 else "needs-improvement" if fid_val <= 300 else "poor",
-                }
-
-            # GDPR cookie consent check
-            has_cookie_banner = page.evaluate("""() => {
-                const text = document.body.innerText.toLowerCase();
-                return text.includes('cookie') && (text.includes('consent') || text.includes('accept') || text.includes('privacy'));
-            }""")
-
-            if not has_cookie_banner:
-                results["accessibility"].append({
-                    "standard": "GDPR",
-                    "criterion": "Cookie Consent",
-                    "severity": "warning",
-                    "description": "No cookie consent mechanism detected",
-                    "remediation": "Implement a cookie consent banner for GDPR compliance",
-                })
-
-            # Privacy policy link check
-            has_privacy = page.evaluate("""() => {
-                const links = Array.from(document.querySelectorAll('a'));
-                return links.some(a => a.textContent.toLowerCase().includes('privacy'));
-            }""")
-
-            if not has_privacy:
-                results["accessibility"].append({
-                    "standard": "GDPR",
-                    "criterion": "Privacy Policy",
-                    "severity": "minor",
-                    "description": "No privacy policy link found on page",
-                    "remediation": "Add a visible link to your privacy policy",
-                })
-
-            # Extract bounding boxes for VisionAgent overlap check
-            elements = page.evaluate("""() => {
-                const els = Array.from(document.querySelectorAll('button, a, input, select, textarea, h1, h2, h3, h4, h5, h6, p, span, div.card, .button, [role="button"], [role="link"]'));
-                const rects = [];
-                for (const el of els) {
-                    const rect = el.getBoundingClientRect();
-                    if (rect.width > 0 && rect.height > 0 && rect.top >= 0 && rect.left >= 0) {
-                        const style = window.getComputedStyle(el);
-                        rects.push({
-                            tag: el.tagName.toLowerCase(),
-                            selector: el.id ? '#' + el.id : (el.className ? '.' + el.className.split(' ').slice(0, 2).join('.') : el.tagName),
-                            x1: rect.left,
-                            y1: rect.top,
-                            x2: rect.right,
-                            y2: rect.bottom,
-                            zIndex: style.zIndex === 'auto' ? 0 : (parseInt(style.zIndex, 10) || 0),
-                            text: (el.innerText || '').substring(0, 30)
-                        });
-                    }
-                }
-                return rects;
-            }""")
-            results["elements"] = elements
-
-        except Exception as e:
-            results["defects"].append({
-                "type": "Functional",
-                "severity": "critical",
-                "message": f"Page load failed: {str(e)}",
-                "fix": "Verify the URL is accessible and the server is running",
-            })
-        finally:
-            try:
-                context.close()
-            except Exception:
-                pass
-
-        return results
-
-    async def test_page(self, url: str) -> dict:
-        return await _run_sync(self._test_page_sync, url)
+    # ponytail: combined method — 1 navigation instead of 5.
 
     # ponytail: combined method — 1 navigation instead of 5.
     # Ceiling: all stages share a single page load, so a slow page blocks everything.
@@ -711,9 +394,16 @@ class PlaywrightTool:
         }
 
         try:
-            response = page.goto(url, wait_until="commit", timeout=60000)
+            response = page.goto(url, wait_until="commit", timeout=30000)
+            try:
+                page.wait_for_load_state("domcontentloaded", timeout=5000)
+            except Exception:
+                pass
+            # Wait for SPA frameworks (React/Next.js/Vue) to hydrate the DOM
+            page.wait_for_timeout(1500)
             results["status_code"] = response.status if response else 0
             results["title"] = page.title()
+
 
             # ── Basic tests (same logic as _test_page_sync) ──
 
