@@ -97,6 +97,20 @@ Instead of opening multiple browser tabs and reloading the page 5 times, Autonom
 
 ---
 
+## 📚 Deep-Dive Technical Documentation Hub
+
+For granular architectural breakdowns, mathematical proofs, and live audit datasets, explore our dedicated specifications in [`/documentation`](file:///c:/testproject/documentation/):
+
+| Specification Document | Focus Area | What You'll Learn |
+|---|---|---|
+| 🧭 [**01: Pipeline & Journey Engine**](file:///c:/testproject/documentation/01_PIPELINE_AND_JOURNEY_ENGINE.md) | Stateful User Journeys & Assertion Engine | Deep dive into `JourneyAgent`, E-Commerce subtotal math formula ($\text{Total} = \sum P_i Q_i - D + T$), runtime JS exception trapping, and single-navigation architecture. |
+| 🧪 [**02: Real-World Benchmarks & Matrix**](file:///c:/testproject/documentation/02_REAL_WORLD_BENCHMARKS_AND_AUDIT.md) | Empirical 5-Site Live Audit Dataset | Full breakdown of live tests on Swiggy Instamart, Hacker News, BFL AI, Phycraft Tech, and GitHub; why scores range from 41 to 97 in real-world QA. |
+| 🏛️ [**03: Master Benchmark Compendium**](file:///c:/testproject/documentation/03_TITAN_LIGHTHOUSE_BENCHMARK_MASTER.md) | Google Lighthouse vs AutonomousQA Suite | Complete consolidation of the 70,000-line TITAN benchmark suite, dual-tier vision tensor mathematics, and head-to-head comparison metrics. |
+| 🧮 [**Self-Healing & SSIM Pixel Math**](file:///c:/testproject/documentation/100percent_algo.md) | 100% Deterministic Fallback Math | Levenshtein DOM text distance, spatial Pythagorean decay scoring, and Gaussian blurred image difference subtraction. |
+| 🔄 [**End-to-End System Workflow**](file:///c:/testproject/documentation/SYSTEM_WORKFLOW.md) | Complete Platform Workflow | Full lifecycle walkthrough from URL intake, PageRank graph prioritization, to Jira/GitHub defect syncing. |
+
+---
+
 <div align="center">
 
 ### 🧮 Self-Healing Tests — The Fuzzy Algorithmic Engine

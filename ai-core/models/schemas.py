@@ -74,6 +74,34 @@ class VisualRegressionChange(BaseModel):
     confidence: float = 0.85
 
 
+class BusinessAssertion(BaseModel):
+    name: str
+    status: str                  # "passed", "failed", "warning"
+    expected: str
+    actual: str
+    error_message: Optional[str] = None
+
+
+class JourneyStep(BaseModel):
+    step_number: int
+    title: str
+    action_taken: str
+    status: str                  # "passed", "failed"
+    duration_ms: float = 0.0
+    screenshot_url: Optional[str] = None
+    assertions: list[BusinessAssertion] = []
+
+
+class UserJourneyResult(BaseModel):
+    journey_name: str
+    archetype: str               # "E-Commerce", "Auth", "Search", "Form"
+    status: str                  # "passed", "failed"
+    total_steps: int = 0
+    passed_steps: int = 0
+    steps: list[JourneyStep] = []
+    summary: Optional[str] = None
+
+
 class PageResult(BaseModel):
     url: str
     page_type: Optional[str] = None
@@ -85,6 +113,7 @@ class PageResult(BaseModel):
     performance: dict[str, PerformanceMetric] = {}
     healing_events: list[HealingEventResult] = []  # Self-healing audit trail
     visual_regression: list[VisualRegressionChange] = []  # Visual regression diffs
+    user_journeys: list[UserJourneyResult] = []  # God-Tier: Stateful multi-step journeys
 
 
 # Stage 6: Site-wide report models

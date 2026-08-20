@@ -99,6 +99,12 @@ export default function Report() {
                     confidence: d.confidence || 1.0,
                 })),
                 heatmapData,
+                userJourneys: (testRun.pages || []).flatMap(p => 
+                    (p.userJourneys || p.user_journeys || []).map(j => ({
+                        ...j,
+                        pageUrl: safePath(p.url),
+                    }))
+                ),
                 // Extract vision defects (from gemini_vision source)
                 visionDefects: (testRun.defects || []).filter(d => d.source === 'gemini_vision').map(d => ({
                     id: d.id,
@@ -574,6 +580,123 @@ export default function Report() {
                                 ))}
                             </tbody>
                         </table>
+                    </div>
+                </motion.div>
+            )}
+
+            {/* Autonomous User Journeys & Business Logic Flows */}
+            {reportData.userJourneys && reportData.userJourneys.length > 0 && (
+                <motion.div variants={item} className="glass-card" style={{ padding: '24px', marginBottom: 24 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                            <div style={{
+                                width: 32, height: 32, borderRadius: 8,
+                                background: 'rgba(99, 102, 241, 0.12)',
+                                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            }}>
+                                <ExternalLink size={16} style={{ color: '#818CF8' }} />
+                            </div>
+                            <div>
+                                <h3 style={{ fontSize: 16, fontWeight: 700, margin: 0, color: 'var(--text-primary)' }}>
+                                    Autonomous User Journeys & Business Logic ({reportData.userJourneys.length})
+                                </h3>
+                                <div style={{ fontSize: 12, color: 'var(--text-tertiary)' }}>
+                                    Synthesized stateful flows & mathematical business assertions
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                        {reportData.userJourneys.map((journey, jIdx) => (
+                            <div
+                                key={jIdx}
+                                style={{
+                                    padding: '18px',
+                                    borderRadius: 10,
+                                    background: 'var(--color-bg-card)',
+                                    border: '1px solid rgba(255,255,255,0.06)',
+                                }}
+                            >
+                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12, flexWrap: 'wrap', gap: 8 }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                        <span style={{
+                                            fontSize: 11, fontWeight: 700, padding: '3px 8px', borderRadius: 4,
+                                            background: journey.status === 'passed' ? 'rgba(16, 185, 129, 0.15)' : 'rgba(239, 68, 68, 0.15)',
+                                            color: journey.status === 'passed' ? '#10B981' : '#EF4444',
+                                        }}>
+                                            {journey.archetype || 'Interactive'}
+                                        </span>
+                                        <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' }}>
+                                            {journey.journey_name || journey.journeyName}
+                                        </span>
+                                    </div>
+                                    <span style={{ fontSize: 12, color: 'var(--text-tertiary)', fontFamily: "'Geist Mono', monospace" }}>
+                                        {journey.pageUrl}
+                                    </span>
+                                </div>
+
+                                {journey.summary && (
+                                    <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 14 }}>
+                                        {journey.summary}
+                                    </div>
+                                )}
+
+                                {/* Step-by-Step Flow */}
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: 10, paddingLeft: 12, borderLeft: '2px solid rgba(255,255,255,0.08)' }}>
+                                    {(journey.steps || []).map((step, sIdx) => (
+                                        <div key={sIdx} style={{ position: 'relative' }}>
+                                            <div style={{
+                                                position: 'absolute', left: -21, top: 4, width: 16, height: 16, borderRadius: '50%',
+                                                background: step.status === 'passed' ? '#10B981' : '#F59E0B',
+                                                display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, fontWeight: 800, color: '#000'
+                                            }}>
+                                                {step.step_number || sIdx + 1}
+                                            </div>
+                                            <div style={{ paddingLeft: 8 }}>
+                                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                                    <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)' }}>
+                                                        {step.title}
+                                                    </span>
+                                                    <span style={{ fontSize: 11, color: 'var(--text-tertiary)', fontFamily: "'Geist Mono', monospace" }}>
+                                                        {step.duration_ms || step.durationMs || 0}ms
+                                                    </span>
+                                                </div>
+                                                <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 2 }}>
+                                                    {step.action_taken || step.actionTaken}
+                                                </div>
+
+                                                {/* Assertions */}
+                                                {(step.assertions || []).map((ast, aIdx) => (
+                                                    <div
+                                                        key={aIdx}
+                                                        style={{
+                                                            marginTop: 6,
+                                                            padding: '6px 10px',
+                                                            borderRadius: 6,
+                                                            background: ast.status === 'passed' ? 'rgba(16, 185, 129, 0.06)' : 'rgba(239, 68, 68, 0.08)',
+                                                            border: `1px solid ${ast.status === 'passed' ? 'rgba(16, 185, 129, 0.15)' : 'rgba(239, 68, 68, 0.2)'}`,
+                                                            fontSize: 11,
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            justifyContent: 'space-between',
+                                                            gap: 8,
+                                                        }}
+                                                    >
+                                                        <span style={{ color: ast.status === 'passed' ? '#10B981' : '#EF4444', fontWeight: 600 }}>
+                                                            {ast.status === 'passed' ? '✓' : '✗'} {ast.name}: {ast.actual}
+                                                        </span>
+                                                        <span style={{ color: 'var(--text-tertiary)', fontSize: 10 }}>
+                                                            Expected: {ast.expected}
+                                                        </span>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        ))}
                     </div>
                 </motion.div>
             )}

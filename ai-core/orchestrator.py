@@ -409,7 +409,31 @@ class Orchestrator:
                     penalty += sum(severity_weights.get(v.severity, 2) for v in compliance)
                     hygiene_score = max(0, min(100, 100 - penalty))
 
-                    from models.schemas import PageResult
+                    from models.schemas import PageResult, UserJourneyResult, JourneyStep, BusinessAssertion
+                    journeys = []
+                    for j in raw.get("user_journeys", []):
+                        steps = []
+                        for s in j.get("steps", []):
+                            assertions = [BusinessAssertion(**a) for a in s.get("assertions", [])]
+                            steps.append(JourneyStep(
+                                step_number=s.get("step_number", 1),
+                                title=s.get("title", ""),
+                                action_taken=s.get("action_taken", ""),
+                                status=s.get("status", "passed"),
+                                duration_ms=s.get("duration_ms", 0.0),
+                                screenshot_url=s.get("screenshot_url"),
+                                assertions=assertions,
+                            ))
+                        journeys.append(UserJourneyResult(
+                            journey_name=j.get("journey_name", "User Journey"),
+                            archetype=j.get("archetype", "Interactive"),
+                            status=j.get("status", "passed"),
+                            total_steps=j.get("total_steps", len(steps)),
+                            passed_steps=j.get("passed_steps", len(steps)),
+                            steps=steps,
+                            summary=j.get("summary"),
+                        ))
+
                     page_result = PageResult(
                         url=url,
                         page_type=page_info.get("page_type", "Content"),
@@ -417,6 +441,7 @@ class Orchestrator:
                         defects=defects,
                         compliance=compliance,
                         performance=performance,
+                        user_journeys=journeys,
                     )
                     page_result.pagerank_score = page_info.get("pagerank_score", 0)
                     page_result.healing_events = []

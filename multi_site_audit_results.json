@@ -19,15 +19,60 @@
         {
           "url": "https://phycraft.tech/",
           "page_type": "Dashboard",
-          "hygiene_score": 77,
+          "hygiene_score": 26,
           "pagerank_score": 1.3537,
-          "vision_quality_score": null,
+          "vision_quality_score": 100.0,
           "defects": [
+            {
+              "type": "Visual",
+              "severity": "major",
+              "message": "Overlapping elements detected: <span> (element) overlaps with <span> (EVENTS THIS WEEK)",
+              "fix": "Adjust CSS margins, padding, or flex/grid layout to prevent collision. Ensure proper z-index if intentional.",
+              "confidence": null,
+              "source": null,
+              "location": null
+            },
+            {
+              "type": "Visual",
+              "severity": "major",
+              "message": "Overlapping elements detected: <span> (@lena replied on Orbits) overlaps with <span> (EVENTS THIS WEEK)",
+              "fix": "Adjust CSS margins, padding, or flex/grid layout to prevent collision. Ensure proper z-index if intentional.",
+              "confidence": null,
+              "source": null,
+              "location": null
+            },
+            {
+              "type": "Visual",
+              "severity": "major",
+              "message": "Overlapping elements detected: <span> (@lena replied on Orbits) overlaps with <span> (PEOPLE BUILDING)",
+              "fix": "Adjust CSS margins, padding, or flex/grid layout to prevent collision. Ensure proper z-index if intentional.",
+              "confidence": null,
+              "source": null,
+              "location": null
+            },
+            {
+              "type": "Visual",
+              "severity": "major",
+              "message": "Overlapping elements detected: <span> (1h) overlaps with <span> (NEW TOPICS)",
+              "fix": "Adjust CSS margins, padding, or flex/grid layout to prevent collision. Ensure proper z-index if intentional.",
+              "confidence": null,
+              "source": null,
+              "location": null
+            },
             {
               "type": "Accessibility",
               "severity": "major",
-              "message": "[color-contrast] Ensures the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds (<p class=\"text-xs text-faint\"><span class=\"font-me...)",
-              "fix": "Fix any of the following:\n  Element has insufficient color contrast of 4.08 (foreground color: #64748b, background color: #eaeef3, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1",
+              "message": "[color-contrast] Ensures the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds (<span class=\"ml-auto font-mono text-[10px] text-fa...)",
+              "fix": "Fix any of the following:\n  Element has insufficient color contrast of 3.51 (foreground color: #71717a, background color: #1c1c21, font size: 7.5pt (10px), font weight: normal). Expected contrast ratio of 4.5:1",
+              "confidence": null,
+              "source": "axe_core",
+              "location": null
+            },
+            {
+              "type": "Accessibility",
+              "severity": "major",
+              "message": "[scrollable-region-focusable] Ensure elements that have scrollable content are accessible by keyboard (<div class=\"flex flex-col gap-1 overflow-y-auto ma...)",
+              "fix": "Fix any of the following:\n  Element should have focusable content\n  Element should be focusable",
               "confidence": null,
               "source": "axe_core",
               "location": null
@@ -61,11 +106,26 @@
               "criterion": "1.4.3",
               "severity": "major",
               "description": "Ensures the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
-              "remediation": "Fix any of the following:\n  Element has insufficient color contrast of 4.08 (foreground color: #64748b, background color: #eaeef3, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1",
+              "remediation": "Fix any of the following:\n  Element has insufficient color contrast of 3.51 (foreground color: #71717a, background color: #1c1c21, font size: 7.5pt (10px), font weight: normal). Expected contrast ratio of 4.5:1",
               "rule_id": "color-contrast",
               "help_url": "https://dequeuniversity.com/rules/axe/4.9/color-contrast?application=axeAPI",
               "affected_elements": [
-                "<p class=\"text-xs text-faint\"><span class=\"font-medium text-muted\">PhyCraft</span> \u2014 every number measured by Rapier2D and mathjs. Nothing on screen is drawn.</p>"
+                "<span class=\"ml-auto font-mono text-[10px] text-faint\">last 2h</span>",
+                "<span class=\"ml-auto text-[10px] text-faint font-mono shrink-0\">2m</span>",
+                "<span class=\"ml-auto text-[10px] text-faint font-mono shrink-0\">6m</span>"
+              ],
+              "instance_count": 5
+            },
+            {
+              "standard": "WCAG",
+              "criterion": "General",
+              "severity": "minor",
+              "description": "Ensures the order of headings is semantically correct",
+              "remediation": "Fix any of the following:\n  Heading order invalid",
+              "rule_id": "heading-order",
+              "help_url": "https://dequeuniversity.com/rules/axe/4.9/heading-order?application=axeAPI",
+              "affected_elements": [
+                "<h5 class=\"text-xs font-semibold text-foreground-strong truncate\">Orbital slingshot</h5>"
               ],
               "instance_count": 1
             },
@@ -81,68 +141,141 @@
                 "<nav class=\"hidden items-center gap-0.5 lg:flex\">"
               ],
               "instance_count": 1
+            },
+            {
+              "standard": "WCAG",
+              "criterion": "2.1.1",
+              "severity": "major",
+              "description": "Ensure elements that have scrollable content are accessible by keyboard",
+              "remediation": "Fix any of the following:\n  Element should have focusable content\n  Element should be focusable",
+              "rule_id": "scrollable-region-focusable",
+              "help_url": "https://dequeuniversity.com/rules/axe/4.9/scrollable-region-focusable?application=axeAPI",
+              "affected_elements": [
+                "<div class=\"flex flex-col gap-1 overflow-y-auto max-h-[160px] pr-1\">"
+              ],
+              "instance_count": 1
             }
           ],
           "performance": {
             "TTFB": {
-              "value": 481.8,
-              "rating": "good"
-            },
-            "LCP": {
-              "value": 3.67,
-              "rating": "needs-improvement"
+              "value": 3548.4,
+              "rating": "poor"
             },
             "CLS": {
               "value": 0.0,
               "rating": "good"
             },
             "FID": {
-              "value": 34.0,
-              "rating": "good"
+              "value": 136.0,
+              "rating": "needs-improvement"
             }
           },
           "healing_events": [],
-          "visual_regression": []
+          "visual_regression": [],
+          "user_journeys": [
+            {
+              "journey_name": "Interactive UI Exploration & CTA Flow",
+              "archetype": "Interactive",
+              "status": "passed",
+              "total_steps": 1,
+              "passed_steps": 1,
+              "steps": [
+                {
+                  "step_number": 1,
+                  "title": "Primary CTA Exploration & DOM Stability",
+                  "action_taken": "Simulated user interaction on primary interactive component",
+                  "status": "passed",
+                  "duration_ms": 0.0,
+                  "screenshot_url": null,
+                  "assertions": [
+                    {
+                      "name": "CTA Action & Exception Immunity",
+                      "status": "passed",
+                      "expected": "Interaction executes without uncaught runtime errors",
+                      "actual": "DOM stable post-action",
+                      "error_message": null
+                    }
+                  ]
+                }
+              ],
+              "summary": "Explored primary interactive user flow and verified DOM stability."
+            }
+          ]
         }
       ],
-      "overall_score": 79.0,
-      "total_defects": 1,
+      "overall_score": 64.3,
+      "total_defects": 6,
       "report": {
         "target_url": "https://phycraft.tech/",
         "total_pages_tested": 1,
-        "overall_score": 79.0,
-        "grade": "B",
+        "overall_score": 64.3,
+        "grade": "C",
         "wcag_compliance_pct": 0.0,
-        "total_defects": 1,
-        "total_compliance_violations": 4,
+        "total_defects": 6,
+        "total_compliance_violations": 6,
         "defects_by_severity": {
           "critical": 0,
-          "major": 2,
-          "minor": 2,
+          "major": 8,
+          "minor": 3,
           "warning": 1
         },
-        "wcag_violations": 2,
+        "wcag_violations": 4,
         "gdpr_violations": 2,
         "page_scores": [
           {
             "url": "https://phycraft.tech/",
             "page_type": "Dashboard",
-            "hygiene_score": 77.0,
-            "accessibility_score": 81.0,
-            "visual_score": null,
-            "health_score": 79.0,
-            "defect_count": 1,
-            "compliance_violation_count": 4,
+            "hygiene_score": 26.0,
+            "accessibility_score": 67.0,
+            "visual_score": 100.0,
+            "health_score": 64.3,
+            "defect_count": 6,
+            "compliance_violation_count": 6,
             "pagerank_score": 1.3537
           }
         ],
         "top_issues": [
           {
             "page": "https://phycraft.tech/",
+            "type": "Visual",
+            "severity": "major",
+            "message": "Overlapping elements detected: <span> (element) overlaps with <span> (EVENTS THIS WEEK)",
+            "fix": "Adjust CSS margins, padding, or flex/grid layout to prevent collision. Ensure proper z-index if intentional."
+          },
+          {
+            "page": "https://phycraft.tech/",
+            "type": "Visual",
+            "severity": "major",
+            "message": "Overlapping elements detected: <span> (@lena replied on Orbits) overlaps with <span> (EVENTS THIS WEEK)",
+            "fix": "Adjust CSS margins, padding, or flex/grid layout to prevent collision. Ensure proper z-index if intentional."
+          },
+          {
+            "page": "https://phycraft.tech/",
+            "type": "Visual",
+            "severity": "major",
+            "message": "Overlapping elements detected: <span> (@lena replied on Orbits) overlaps with <span> (PEOPLE BUILDING)",
+            "fix": "Adjust CSS margins, padding, or flex/grid layout to prevent collision. Ensure proper z-index if intentional."
+          },
+          {
+            "page": "https://phycraft.tech/",
+            "type": "Visual",
+            "severity": "major",
+            "message": "Overlapping elements detected: <span> (1h) overlaps with <span> (NEW TOPICS)",
+            "fix": "Adjust CSS margins, padding, or flex/grid layout to prevent collision. Ensure proper z-index if intentional."
+          },
+          {
+            "page": "https://phycraft.tech/",
             "type": "Accessibility",
             "severity": "major",
-            "message": "[color-contrast] Ensures the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds (<p class=\"text-xs text-faint\"><span class=\"font-me...)",
-            "fix": "Fix any of the following:\n  Element has insufficient color contrast of 4.08 (foreground color: #64748b, background color: #eaeef3, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+            "message": "[color-contrast] Ensures the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds (<span class=\"ml-auto font-mono text-[10px] text-fa...)",
+            "fix": "Fix any of the following:\n  Element has insufficient color contrast of 3.51 (foreground color: #71717a, background color: #1c1c21, font size: 7.5pt (10px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "page": "https://phycraft.tech/",
+            "type": "Accessibility",
+            "severity": "major",
+            "message": "[scrollable-region-focusable] Ensure elements that have scrollable content are accessible by keyboard (<div class=\"flex flex-col gap-1 overflow-y-auto ma...)",
+            "fix": "Fix any of the following:\n  Element should have focusable content\n  Element should be focusable"
           }
         ]
       }
@@ -169,74 +302,10 @@
         {
           "url": "https://bfl.ai/research",
           "page_type": "Dashboard",
-          "hygiene_score": 24,
+          "hygiene_score": 96,
           "pagerank_score": 1.08,
-          "vision_quality_score": null,
-          "defects": [
-            {
-              "type": "Visual",
-              "severity": "major",
-              "message": "Overlapping elements detected: <a> (FLUX.2 Max\n\nView model details) overlaps with <h2> (Research)",
-              "fix": "Adjust CSS margins, padding, or flex/grid layout to prevent collision. Ensure proper z-index if intentional.",
-              "confidence": null,
-              "source": null,
-              "location": null
-            },
-            {
-              "type": "Visual",
-              "severity": "major",
-              "message": "Overlapping elements detected: <p> (FLUX.2 Max) overlaps with <h2> (Research)",
-              "fix": "Adjust CSS margins, padding, or flex/grid layout to prevent collision. Ensure proper z-index if intentional.",
-              "confidence": null,
-              "source": null,
-              "location": null
-            },
-            {
-              "type": "Visual",
-              "severity": "major",
-              "message": "Overlapping elements detected: <a> (FLUX.2\n\nView model details) overlaps with <h2> (Research)",
-              "fix": "Adjust CSS margins, padding, or flex/grid layout to prevent collision. Ensure proper z-index if intentional.",
-              "confidence": null,
-              "source": null,
-              "location": null
-            },
-            {
-              "type": "Visual",
-              "severity": "major",
-              "message": "Overlapping elements detected: <a> (FLUX.2\n\nView model details) overlaps with <p> (Explore our research articles)",
-              "fix": "Adjust CSS margins, padding, or flex/grid layout to prevent collision. Ensure proper z-index if intentional.",
-              "confidence": null,
-              "source": null,
-              "location": null
-            },
-            {
-              "type": "Visual",
-              "severity": "major",
-              "message": "Overlapping elements detected: <p> (View model details) overlaps with <p> (Explore our research articles)",
-              "fix": "Adjust CSS margins, padding, or flex/grid layout to prevent collision. Ensure proper z-index if intentional.",
-              "confidence": null,
-              "source": null,
-              "location": null
-            },
-            {
-              "type": "Accessibility",
-              "severity": "major",
-              "message": "[aria-hidden-focus] Ensures aria-hidden elements are not focusable nor contain focusable elements (<span aria-hidden=\"true\" tabindex=\"0\" style=\"posit...)",
-              "fix": "Fix all of the following:\n  Focusable content should have tabindex=\"-1\" or be removed from the DOM",
-              "confidence": null,
-              "source": "axe_core",
-              "location": null
-            },
-            {
-              "type": "Accessibility",
-              "severity": "major",
-              "message": "[color-contrast] Ensures the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds (<p class=\"text-[0.875rem] leading-none tracking-[0...)",
-              "fix": "Fix any of the following:\n  Element has insufficient color contrast of 3.56 (foreground color: #838987, background color: #ffffff, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1",
-              "confidence": null,
-              "source": "axe_core",
-              "location": null
-            }
-          ],
+          "vision_quality_score": 100.0,
+          "defects": [],
           "compliance": [
             {
               "standard": "GDPR",
@@ -248,34 +317,6 @@
               "help_url": null,
               "affected_elements": [],
               "instance_count": null
-            },
-            {
-              "standard": "WCAG",
-              "criterion": "4.1.2",
-              "severity": "major",
-              "description": "Ensures aria-hidden elements are not focusable nor contain focusable elements",
-              "remediation": "Fix all of the following:\n  Focusable content should have tabindex=\"-1\" or be removed from the DOM",
-              "rule_id": "aria-hidden-focus",
-              "help_url": "https://dequeuniversity.com/rules/axe/4.9/aria-hidden-focus?application=axeAPI",
-              "affected_elements": [
-                "<span aria-hidden=\"true\" tabindex=\"0\" style=\"position: absolute; border: 0px; width: 1px; height: 1px; padding: 0px; margin: -1px; overflow: hidden; clip: rect(0px, 0px, 0px, 0px); white-space: nowrap; overflow-wrap: normal;\"></span>"
-              ],
-              "instance_count": 1
-            },
-            {
-              "standard": "WCAG",
-              "criterion": "1.4.3",
-              "severity": "major",
-              "description": "Ensures the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
-              "remediation": "Fix any of the following:\n  Element has insufficient color contrast of 3.56 (foreground color: #838987, background color: #ffffff, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1",
-              "rule_id": "color-contrast",
-              "help_url": "https://dequeuniversity.com/rules/axe/4.9/color-contrast?application=axeAPI",
-              "affected_elements": [
-                "<p class=\"text-[0.875rem] leading-none tracking-[0.01em] text-white-4\">View model details</p>",
-                "<p class=\"text-[0.875rem] leading-none tracking-[0.01em] text-white-4\">View model details</p>",
-                "<p class=\"text-[0.875rem] leading-none tracking-[0.01em] text-white-4\">View model details</p>"
-              ],
-              "instance_count": 5
             },
             {
               "standard": "WCAG",
@@ -293,108 +334,87 @@
           ],
           "performance": {
             "TTFB": {
-              "value": 406.5,
-              "rating": "good"
+              "value": 1311.2,
+              "rating": "needs-improvement"
             },
             "LCP": {
-              "value": 2.23,
-              "rating": "good"
+              "value": 2.68,
+              "rating": "needs-improvement"
             },
             "CLS": {
               "value": 0.0058,
               "rating": "good"
             },
             "FID": {
-              "value": 110.0,
+              "value": 139.0,
               "rating": "needs-improvement"
             }
           },
           "healing_events": [],
-          "visual_regression": []
+          "visual_regression": [],
+          "user_journeys": [
+            {
+              "journey_name": "Interactive UI Exploration & CTA Flow",
+              "archetype": "Interactive",
+              "status": "passed",
+              "total_steps": 1,
+              "passed_steps": 1,
+              "steps": [
+                {
+                  "step_number": 1,
+                  "title": "Primary CTA Exploration & DOM Stability",
+                  "action_taken": "Simulated user interaction on primary interactive component",
+                  "status": "passed",
+                  "duration_ms": 0.0,
+                  "screenshot_url": null,
+                  "assertions": [
+                    {
+                      "name": "CTA Action & Exception Immunity",
+                      "status": "passed",
+                      "expected": "Interaction executes without uncaught runtime errors",
+                      "actual": "DOM stable post-action",
+                      "error_message": null
+                    }
+                  ]
+                }
+              ],
+              "summary": "Explored primary interactive user flow and verified DOM stability."
+            }
+          ]
         }
       ],
-      "overall_score": 49.5,
-      "total_defects": 7,
+      "overall_score": 97.0,
+      "total_defects": 0,
       "report": {
         "target_url": "https://bfl.ai/research",
         "total_pages_tested": 1,
-        "overall_score": 49.5,
-        "grade": "D",
+        "overall_score": 97.0,
+        "grade": "A+",
         "wcag_compliance_pct": 0.0,
-        "total_defects": 7,
-        "total_compliance_violations": 4,
+        "total_defects": 0,
+        "total_compliance_violations": 2,
         "defects_by_severity": {
           "critical": 0,
-          "major": 9,
+          "major": 0,
           "minor": 1,
           "warning": 1
         },
-        "wcag_violations": 3,
+        "wcag_violations": 1,
         "gdpr_violations": 1,
         "page_scores": [
           {
             "url": "https://bfl.ai/research",
             "page_type": "Dashboard",
-            "hygiene_score": 24.0,
-            "accessibility_score": 75.0,
-            "visual_score": null,
-            "health_score": 49.5,
-            "defect_count": 7,
-            "compliance_violation_count": 4,
+            "hygiene_score": 96.0,
+            "accessibility_score": 95.0,
+            "visual_score": 100.0,
+            "health_score": 97.0,
+            "defect_count": 0,
+            "compliance_violation_count": 2,
             "pagerank_score": 1.08
           }
         ],
-        "top_issues": [
-          {
-            "page": "https://bfl.ai/research",
-            "type": "Visual",
-            "severity": "major",
-            "message": "Overlapping elements detected: <a> (FLUX.2 Max\n\nView model details) overlaps with <h2> (Research)",
-            "fix": "Adjust CSS margins, padding, or flex/grid layout to prevent collision. Ensure proper z-index if intentional."
-          },
-          {
-            "page": "https://bfl.ai/research",
-            "type": "Visual",
-            "severity": "major",
-            "message": "Overlapping elements detected: <p> (FLUX.2 Max) overlaps with <h2> (Research)",
-            "fix": "Adjust CSS margins, padding, or flex/grid layout to prevent collision. Ensure proper z-index if intentional."
-          },
-          {
-            "page": "https://bfl.ai/research",
-            "type": "Visual",
-            "severity": "major",
-            "message": "Overlapping elements detected: <a> (FLUX.2\n\nView model details) overlaps with <h2> (Research)",
-            "fix": "Adjust CSS margins, padding, or flex/grid layout to prevent collision. Ensure proper z-index if intentional."
-          },
-          {
-            "page": "https://bfl.ai/research",
-            "type": "Visual",
-            "severity": "major",
-            "message": "Overlapping elements detected: <a> (FLUX.2\n\nView model details) overlaps with <p> (Explore our research articles)",
-            "fix": "Adjust CSS margins, padding, or flex/grid layout to prevent collision. Ensure proper z-index if intentional."
-          },
-          {
-            "page": "https://bfl.ai/research",
-            "type": "Visual",
-            "severity": "major",
-            "message": "Overlapping elements detected: <p> (View model details) overlaps with <p> (Explore our research articles)",
-            "fix": "Adjust CSS margins, padding, or flex/grid layout to prevent collision. Ensure proper z-index if intentional."
-          },
-          {
-            "page": "https://bfl.ai/research",
-            "type": "Accessibility",
-            "severity": "major",
-            "message": "[aria-hidden-focus] Ensures aria-hidden elements are not focusable nor contain focusable elements (<span aria-hidden=\"true\" tabindex=\"0\" style=\"posit...)",
-            "fix": "Fix all of the following:\n  Focusable content should have tabindex=\"-1\" or be removed from the DOM"
-          },
-          {
-            "page": "https://bfl.ai/research",
-            "type": "Accessibility",
-            "severity": "major",
-            "message": "[color-contrast] Ensures the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds (<p class=\"text-[0.875rem] leading-none tracking-[0...)",
-            "fix": "Fix any of the following:\n  Element has insufficient color contrast of 3.56 (foreground color: #838987, background color: #ffffff, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1"
-          }
-        ]
+        "top_issues": []
       }
     },
     "error": null
@@ -421,7 +441,7 @@
           "page_type": "Dashboard",
           "hygiene_score": 0,
           "pagerank_score": 1.08,
-          "vision_quality_score": null,
+          "vision_quality_score": 100.0,
           "defects": [
             {
               "type": "Accessibility",
@@ -436,7 +456,7 @@
               "type": "Accessibility",
               "severity": "major",
               "message": "[color-contrast] Ensures the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds (<div class=\"sc-gEvEer iMXnZG\">Search for an area o...)",
-              "fix": "Fix any of the following:\n  Element has insufficient color contrast of 3.24 (foreground color: #8d8f92, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1; Fix any of the following:\n  Element has insufficient color contrast of 3.24 (foreground color: #8d8f92, background color: #ffffff, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1",
+              "fix": "Fix any of the following:\n  Element has insufficient color contrast of 3.24 (foreground color: #8d8f92, background color: #ffffff, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1; Fix any of the following:\n  Element has insufficient color contrast of 3.24 (foreground color: #8d8f92, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1",
               "confidence": null,
               "source": "axe_core",
               "location": null
@@ -488,7 +508,7 @@
               "criterion": "1.4.3",
               "severity": "major",
               "description": "Ensures the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
-              "remediation": "Fix any of the following:\n  Element has insufficient color contrast of 3.24 (foreground color: #8d8f92, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1; Fix any of the following:\n  Element has insufficient color contrast of 3.24 (foreground color: #8d8f92, background color: #ffffff, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1",
+              "remediation": "Fix any of the following:\n  Element has insufficient color contrast of 3.24 (foreground color: #8d8f92, background color: #ffffff, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1; Fix any of the following:\n  Element has insufficient color contrast of 3.24 (foreground color: #8d8f92, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1",
               "rule_id": "color-contrast",
               "help_url": "https://dequeuniversity.com/rules/axe/4.9/color-contrast?application=axeAPI",
               "affected_elements": [
@@ -558,29 +578,58 @@
           ],
           "performance": {
             "TTFB": {
-              "value": 529.7,
+              "value": 750.1,
               "rating": "good"
             },
             "CLS": {
-              "value": 0.0153,
+              "value": 0.0073,
               "rating": "good"
             },
             "FID": {
-              "value": 164.0,
-              "rating": "needs-improvement"
+              "value": 728.0,
+              "rating": "poor"
             }
           },
           "healing_events": [],
-          "visual_regression": []
+          "visual_regression": [],
+          "user_journeys": [
+            {
+              "journey_name": "Interactive UI Exploration & CTA Flow",
+              "archetype": "Interactive",
+              "status": "passed",
+              "total_steps": 1,
+              "passed_steps": 1,
+              "steps": [
+                {
+                  "step_number": 1,
+                  "title": "Primary CTA Exploration & DOM Stability",
+                  "action_taken": "Simulated user interaction on primary interactive component",
+                  "status": "passed",
+                  "duration_ms": 0.0,
+                  "screenshot_url": null,
+                  "assertions": [
+                    {
+                      "name": "CTA Action & Exception Immunity",
+                      "status": "passed",
+                      "expected": "Interaction executes without uncaught runtime errors",
+                      "actual": "DOM stable post-action",
+                      "error_message": null
+                    }
+                  ]
+                }
+              ],
+              "summary": "Explored primary interactive user flow and verified DOM stability."
+            }
+          ]
         }
       ],
-      "overall_score": 13.0,
+      "overall_score": 42.0,
       "total_defects": 5,
       "report": {
         "target_url": "https://www.swiggy.com/instamart",
         "total_pages_tested": 1,
-        "overall_score": 13.0,
-        "grade": "F",
+        "overall_score": 42.0,
+        "grade": "D-",
         "wcag_compliance_pct": 0.0,
         "total_defects": 5,
         "total_compliance_violations": 6,
@@ -598,8 +647,8 @@
             "page_type": "Dashboard",
             "hygiene_score": 0.0,
             "accessibility_score": 26.0,
-            "visual_score": null,
-            "health_score": 13.0,
+            "visual_score": 100.0,
+            "health_score": 42.0,
             "defect_count": 5,
             "compliance_violation_count": 6,
             "pagerank_score": 1.08
@@ -632,7 +681,7 @@
             "type": "Accessibility",
             "severity": "major",
             "message": "[color-contrast] Ensures the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds (<div class=\"sc-gEvEer iMXnZG\">Search for an area o...)",
-            "fix": "Fix any of the following:\n  Element has insufficient color contrast of 3.24 (foreground color: #8d8f92, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1; Fix any of the following:\n  Element has insufficient color contrast of 3.24 (foreground color: #8d8f92, background color: #ffffff, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1"
+            "fix": "Fix any of the following:\n  Element has insufficient color contrast of 3.24 (foreground color: #8d8f92, background color: #ffffff, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1; Fix any of the following:\n  Element has insufficient color contrast of 3.24 (foreground color: #8d8f92, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
           },
           {
             "page": "https://swiggy.com/instamart",
@@ -668,7 +717,7 @@
           "page_type": "Dashboard",
           "hygiene_score": 0,
           "pagerank_score": 1.08,
-          "vision_quality_score": null,
+          "vision_quality_score": 100.0,
           "defects": [
             {
               "type": "Accessibility",
@@ -828,11 +877,11 @@
           ],
           "performance": {
             "TTFB": {
-              "value": 309.2,
+              "value": 282.6,
               "rating": "good"
             },
             "LCP": {
-              "value": 1.55,
+              "value": 1.47,
               "rating": "good"
             },
             "CLS": {
@@ -845,16 +894,45 @@
             }
           },
           "healing_events": [],
-          "visual_regression": []
+          "visual_regression": [],
+          "user_journeys": [
+            {
+              "journey_name": "Interactive UI Exploration & CTA Flow",
+              "archetype": "Interactive",
+              "status": "passed",
+              "total_steps": 1,
+              "passed_steps": 1,
+              "steps": [
+                {
+                  "step_number": 1,
+                  "title": "Primary CTA Exploration & DOM Stability",
+                  "action_taken": "Simulated user interaction on primary interactive component",
+                  "status": "passed",
+                  "duration_ms": 0.0,
+                  "screenshot_url": null,
+                  "assertions": [
+                    {
+                      "name": "CTA Action & Exception Immunity",
+                      "status": "passed",
+                      "expected": "Interaction executes without uncaught runtime errors",
+                      "actual": "DOM stable post-action",
+                      "error_message": null
+                    }
+                  ]
+                }
+              ],
+              "summary": "Explored primary interactive user flow and verified DOM stability."
+            }
+          ]
         }
       ],
-      "overall_score": 11.5,
+      "overall_score": 41.0,
       "total_defects": 4,
       "report": {
         "target_url": "https://news.ycombinator.com/",
         "total_pages_tested": 1,
-        "overall_score": 11.5,
-        "grade": "F",
+        "overall_score": 41.0,
+        "grade": "D-",
         "wcag_compliance_pct": 0.0,
         "total_defects": 4,
         "total_compliance_violations": 9,
@@ -872,8 +950,8 @@
             "page_type": "Dashboard",
             "hygiene_score": 0.0,
             "accessibility_score": 23.0,
-            "visual_score": null,
-            "health_score": 11.5,
+            "visual_score": 100.0,
+            "health_score": 41.0,
             "defect_count": 4,
             "compliance_violation_count": 9,
             "pagerank_score": 1.08
@@ -935,7 +1013,7 @@
           "page_type": "Dashboard",
           "hygiene_score": 57,
           "pagerank_score": 1.1578,
-          "vision_quality_score": null,
+          "vision_quality_score": 100.0,
           "defects": [
             {
               "type": "Visual",
@@ -1000,11 +1078,11 @@
           ],
           "performance": {
             "TTFB": {
-              "value": 175.2,
+              "value": 67.7,
               "rating": "good"
             },
             "LCP": {
-              "value": 1.5,
+              "value": 2.27,
               "rating": "good"
             },
             "CLS": {
@@ -1012,21 +1090,50 @@
               "rating": "good"
             },
             "FID": {
-              "value": 1570.0,
+              "value": 892.0,
               "rating": "poor"
             }
           },
           "healing_events": [],
-          "visual_regression": []
+          "visual_regression": [],
+          "user_journeys": [
+            {
+              "journey_name": "Interactive UI Exploration & CTA Flow",
+              "archetype": "Interactive",
+              "status": "passed",
+              "total_steps": 1,
+              "passed_steps": 1,
+              "steps": [
+                {
+                  "step_number": 1,
+                  "title": "Primary CTA Exploration & DOM Stability",
+                  "action_taken": "Simulated user interaction on primary interactive component",
+                  "status": "passed",
+                  "duration_ms": 0.0,
+                  "screenshot_url": null,
+                  "assertions": [
+                    {
+                      "name": "CTA Action & Exception Immunity",
+                      "status": "passed",
+                      "expected": "Interaction executes without uncaught runtime errors",
+                      "actual": "DOM stable post-action",
+                      "error_message": null
+                    }
+                  ]
+                }
+              ],
+              "summary": "Explored primary interactive user flow and verified DOM stability."
+            }
+          ]
         }
       ],
-      "overall_score": 76.5,
+      "overall_score": 84.3,
       "total_defects": 5,
       "report": {
         "target_url": "https://github.com/",
         "total_pages_tested": 1,
-        "overall_score": 76.5,
-        "grade": "B",
+        "overall_score": 84.3,
+        "grade": "B+",
         "wcag_compliance_pct": 0.0,
         "total_defects": 5,
         "total_compliance_violations": 1,
@@ -1044,8 +1151,8 @@
             "page_type": "Dashboard",
             "hygiene_score": 57.0,
             "accessibility_score": 96.0,
-            "visual_score": null,
-            "health_score": 76.5,
+            "visual_score": 100.0,
+            "health_score": 84.3,
             "defect_count": 5,
             "compliance_violation_count": 1,
             "pagerank_score": 1.1578
