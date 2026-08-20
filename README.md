@@ -50,7 +50,7 @@ AutonomousQA combines state-of-the-art open-weights Vision-Language Models (**NV
 
 ```mermaid
 flowchart TD
-    A[Target URL / Web App] --> B[Stage 1: BFS Crawler]
+    A[Target URL / Web App] --> B[Stage 1: BFS Crawler & Archetype Discovery]
     B --> C[Stage 2: Graph & PageRank Scheduler]
     C --> D[Stage 3: Single-Navigation Multi-Audit Engine]
   
@@ -60,6 +60,7 @@ flowchart TD
         D3[Chromium PerformanceObserver API]
         D4[Bounding Box Collision Math]
         D5[Hybrid NVIDIA Eagle2 VLM / Pillow Vision]
+        D6[Stateful JourneyAgent & Math Asserter]
     end
   
     D1 --> E[Stage 4: Aggregation & Hygiene Scoring]
@@ -67,6 +68,7 @@ flowchart TD
     D3 --> E
     D4 --> E
     D5 --> E
+    D6 --> E
     E --> F[Compliance Report, Defect Cards & Self-Healing Matrix]
 ```
 
@@ -83,12 +85,13 @@ flowchart TD
 * **Risk Prioritization Matrix:** Calculates total test priority by blending PageRank with page type critical weights (e.g. `Auth` = +15%, `Checkout/Form` = +12%) and historical regression recidivism.
 
 #### ⚡ Stage 3: Single-Navigation Multi-Audit Engine
-Instead of opening multiple browser tabs and reloading the page 5 times, AutonomousQA performs **all 5 audits simultaneously on a single page navigation**:
+Instead of opening multiple browser tabs and reloading the page 6 times, AutonomousQA performs **all 6 audits simultaneously on a single page navigation**:
 1. **Axe-Core 4.9.0 Engine:** Audits against WCAG 2.1 AA/AAA rules, contrast minimums, aria attributes, missing form labels, and focus trap vulnerabilities.
 2. **Runtime JS & Network Error Interceptor:** Actively traps `window.onerror`, unhandled promise rejections, `console.error` logs, and 4xx/5xx failing backend API requests.
 3. **Chromium Navigation Timing:** Captures Core Web Vitals (TTFB, LCP, CLS, FID/TBT) using native `PerformanceObserver` telemetry.
 4. **Visual Collision Math:** Extracts exact bounding boxes via `getBoundingClientRect()` and detects un-styled layout collisions and overlapping interactive elements.
 5. **Hybrid NVIDIA Eagle VLM:** Uses private ZeroGPU cloud vision to semantically inspect UI components or falls back to local Gaussian blurred SSIM pixel subtraction.
+6. **Stateful User Journey & Business Logic Engine:** Autonomously executes multi-step workflows (e.g. Search $\to$ Add to Cart $\to$ Badge Mutation $\to$ Cart Drawer) and mathematically asserts business arithmetic ($\text{Total} = \sum P_i Q_i - D + T$).
 
 #### 🎯 Stage 4: Hygiene Scoring & Actionable Defect Generation
 * **Penalty-Weighted Calculation:** Aggregates findings and scores the page hygiene from 0 to 100 based on severity penalties (`Critical` = -15, `Major` = -8, `Minor` = -3, `Warning` = -1).
@@ -921,31 +924,36 @@ BUGZERO/
 │
 ├── ai-core/                       # Python FastAPI AI Engine
 │   ├── agents/
-│   │   ├── crawler.py             # BFS crawler agent
+│   │   ├── journey_agent.py       # 🧭 Stateful User Journey Synthesizer (E-Commerce/Auth)
+│   │   ├── assertion_engine.py    # 🧮 Deterministic Cart Math & State Mutation Asserter
+│   │   ├── crawler.py             # BFS crawler agent & archetype classifier
 │   │   ├── tester.py              # Page testing agent
-│   │   ├── self_healing_agent.py  # 🆕 Fingerprinting + pure algorithmic healing
-│   │   ├── vision_agent.py        # Pillow math + algorithmic visual regression
+│   │   ├── self_healing_agent.py  # Fingerprinting + pure algorithmic healing
+│   │   ├── vision_agent.py        # NVIDIA Eagle2 VLM + Pillow math visual regression
 │   │   ├── scheduler.py           # PageRank + 4-factor risk scoring
 │   │   ├── auth_agent.py          # SSO/OAuth/MFA navigator
 │   │   ├── chaos_agent.py         # Network/CPU throttling
 │   │   └── report_agent.py        # Site report generator
 │   ├── tools/
-│   │   ├── playwright_tool.py     # Browser automation + screenshots + DOM access
+│   │   ├── playwright_tool.py     # Playwright + Axe-Core 4.9.0 + Runtime JS & 5xx Traps
 │   │   └── axe_tool.py            # axe-core WCAG 2.1 scanner
 │   ├── models/
-│   │   └── schemas.py             # Pydantic models (HealingEvent, VisualRegression, etc.)
-│   ├── orchestrator.py            # Multi-stage pipeline coordinator
+│   │   └── schemas.py             # Pydantic models (UserJourneyResult, DefectResult, etc.)
+│   ├── orchestrator.py            # 4-Stage Multi-Audit Pipeline Coordinator
 │   ├── config.py                  # Settings & environment variables
-│   ├── main.py                    # FastAPI entrypoint
+│   ├── main.py                    # FastAPI entrypoint (Port 8000)
 │   └── requirements.txt
 │
-├── documentation/                 # 📚 All project documentation
-│   ├── AUTONOMOUSQA_DOCUMENTATION.docx
-│   ├── AutonomousQA_Full_Roadmap.docx
-│   ├── BROWSERS_AND_CRAWL_DEPTHS.md
-│   └── SYSTEM_WORKFLOW.md
+├── documentation/                 # 📚 Authoritative Project Specifications
+│   ├── 01_PIPELINE_AND_JOURNEY_ENGINE.md         # 🧭 4-Stage Pipeline, JourneyAgent, Cart Math
+│   ├── 02_REAL_WORLD_BENCHMARKS_AND_AUDIT.md    # 🧪 5-Site Live Audit Dataset (Swiggy, HN, GitHub)
+│   ├── 03_TITAN_LIGHTHOUSE_BENCHMARK_MASTER.md  # 🏛️ 70k-Line Master TITAN Compendium & VLM Math
+│   ├── 100percent_algo.md                       # 🧮 Levenshtein & Pythagorean Self-Healing Math
+│   └── SYSTEM_WORKFLOW.md                       # 🔄 End-to-End System & Data Flow Spec
 │
-├── docker-compose.yml             # PostgreSQL + Redis + Neo4j
+├── benchmarks/                    # 📊 Benchmark Scripts & Runner Tools
+│   └── README.md                  # Benchmark execution guide
+├── docker-compose.yml             # PostgreSQL + Redis + Neo4j (Optional infrastructure)
 ├── package.json                   # Root workspace scripts
 ├── CONTRIBUTING.md                # Contribution guidelines
 ├── CODE_OF_CONDUCT.md             # Community standards
