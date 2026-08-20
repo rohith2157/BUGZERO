@@ -1,0 +1,1095 @@
+[
+  {
+    "site": {
+      "name": "Phycraft Tech",
+      "url": "https://phycraft.tech/"
+    },
+    "data": {
+      "run_id": "audit_phycraft_tech",
+      "url": "https://phycraft.tech/",
+      "repo_name": null,
+      "repo_url": null,
+      "branch": null,
+      "commit_sha": null,
+      "commit_sha_short": null,
+      "commit_message": null,
+      "commit_author": null,
+      "status": "completed",
+      "pages": [
+        {
+          "url": "https://phycraft.tech/",
+          "page_type": "Dashboard",
+          "hygiene_score": 77,
+          "pagerank_score": 1.3537,
+          "vision_quality_score": null,
+          "defects": [
+            {
+              "type": "Accessibility",
+              "severity": "major",
+              "message": "[color-contrast] Ensures the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds (<p class=\"text-xs text-faint\"><span class=\"font-me...)",
+              "fix": "Fix any of the following:\n  Element has insufficient color contrast of 4.08 (foreground color: #64748b, background color: #eaeef3, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1",
+              "confidence": null,
+              "source": "axe_core",
+              "location": null
+            }
+          ],
+          "compliance": [
+            {
+              "standard": "GDPR",
+              "criterion": "Cookie Consent",
+              "severity": "warning",
+              "description": "No cookie consent mechanism detected",
+              "remediation": "Implement a cookie consent banner for GDPR compliance",
+              "rule_id": null,
+              "help_url": null,
+              "affected_elements": [],
+              "instance_count": null
+            },
+            {
+              "standard": "GDPR",
+              "criterion": "Privacy Policy",
+              "severity": "minor",
+              "description": "No privacy policy link found on page",
+              "remediation": "Add a visible link to your privacy policy",
+              "rule_id": null,
+              "help_url": null,
+              "affected_elements": [],
+              "instance_count": null
+            },
+            {
+              "standard": "WCAG",
+              "criterion": "1.4.3",
+              "severity": "major",
+              "description": "Ensures the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+              "remediation": "Fix any of the following:\n  Element has insufficient color contrast of 4.08 (foreground color: #64748b, background color: #eaeef3, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1",
+              "rule_id": "color-contrast",
+              "help_url": "https://dequeuniversity.com/rules/axe/4.9/color-contrast?application=axeAPI",
+              "affected_elements": [
+                "<p class=\"text-xs text-faint\"><span class=\"font-medium text-muted\">PhyCraft</span> \u2014 every number measured by Rapier2D and mathjs. Nothing on screen is drawn.</p>"
+              ],
+              "instance_count": 1
+            },
+            {
+              "standard": "WCAG",
+              "criterion": "General",
+              "severity": "minor",
+              "description": "Landmarks should have a unique role or role/label/title (i.e. accessible name) combination",
+              "remediation": "Fix any of the following:\n  The landmark must have a unique aria-label, aria-labelledby, or title to make landmarks distinguishable",
+              "rule_id": "landmark-unique",
+              "help_url": "https://dequeuniversity.com/rules/axe/4.9/landmark-unique?application=axeAPI",
+              "affected_elements": [
+                "<nav class=\"hidden items-center gap-0.5 lg:flex\">"
+              ],
+              "instance_count": 1
+            }
+          ],
+          "performance": {
+            "TTFB": {
+              "value": 481.8,
+              "rating": "good"
+            },
+            "LCP": {
+              "value": 3.67,
+              "rating": "needs-improvement"
+            },
+            "CLS": {
+              "value": 0.0,
+              "rating": "good"
+            },
+            "FID": {
+              "value": 34.0,
+              "rating": "good"
+            }
+          },
+          "healing_events": [],
+          "visual_regression": []
+        }
+      ],
+      "overall_score": 79.0,
+      "total_defects": 1,
+      "report": {
+        "target_url": "https://phycraft.tech/",
+        "total_pages_tested": 1,
+        "overall_score": 79.0,
+        "grade": "B",
+        "wcag_compliance_pct": 0.0,
+        "total_defects": 1,
+        "total_compliance_violations": 4,
+        "defects_by_severity": {
+          "critical": 0,
+          "major": 2,
+          "minor": 2,
+          "warning": 1
+        },
+        "wcag_violations": 2,
+        "gdpr_violations": 2,
+        "page_scores": [
+          {
+            "url": "https://phycraft.tech/",
+            "page_type": "Dashboard",
+            "hygiene_score": 77.0,
+            "accessibility_score": 81.0,
+            "visual_score": null,
+            "health_score": 79.0,
+            "defect_count": 1,
+            "compliance_violation_count": 4,
+            "pagerank_score": 1.3537
+          }
+        ],
+        "top_issues": [
+          {
+            "page": "https://phycraft.tech/",
+            "type": "Accessibility",
+            "severity": "major",
+            "message": "[color-contrast] Ensures the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds (<p class=\"text-xs text-faint\"><span class=\"font-me...)",
+            "fix": "Fix any of the following:\n  Element has insufficient color contrast of 4.08 (foreground color: #64748b, background color: #eaeef3, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          }
+        ]
+      }
+    },
+    "error": null
+  },
+  {
+    "site": {
+      "name": "BFL AI Research",
+      "url": "https://bfl.ai/research"
+    },
+    "data": {
+      "run_id": "audit_bfl_ai_research",
+      "url": "https://bfl.ai/research",
+      "repo_name": null,
+      "repo_url": null,
+      "branch": null,
+      "commit_sha": null,
+      "commit_sha_short": null,
+      "commit_message": null,
+      "commit_author": null,
+      "status": "completed",
+      "pages": [
+        {
+          "url": "https://bfl.ai/research",
+          "page_type": "Dashboard",
+          "hygiene_score": 24,
+          "pagerank_score": 1.08,
+          "vision_quality_score": null,
+          "defects": [
+            {
+              "type": "Visual",
+              "severity": "major",
+              "message": "Overlapping elements detected: <a> (FLUX.2 Max\n\nView model details) overlaps with <h2> (Research)",
+              "fix": "Adjust CSS margins, padding, or flex/grid layout to prevent collision. Ensure proper z-index if intentional.",
+              "confidence": null,
+              "source": null,
+              "location": null
+            },
+            {
+              "type": "Visual",
+              "severity": "major",
+              "message": "Overlapping elements detected: <p> (FLUX.2 Max) overlaps with <h2> (Research)",
+              "fix": "Adjust CSS margins, padding, or flex/grid layout to prevent collision. Ensure proper z-index if intentional.",
+              "confidence": null,
+              "source": null,
+              "location": null
+            },
+            {
+              "type": "Visual",
+              "severity": "major",
+              "message": "Overlapping elements detected: <a> (FLUX.2\n\nView model details) overlaps with <h2> (Research)",
+              "fix": "Adjust CSS margins, padding, or flex/grid layout to prevent collision. Ensure proper z-index if intentional.",
+              "confidence": null,
+              "source": null,
+              "location": null
+            },
+            {
+              "type": "Visual",
+              "severity": "major",
+              "message": "Overlapping elements detected: <a> (FLUX.2\n\nView model details) overlaps with <p> (Explore our research articles)",
+              "fix": "Adjust CSS margins, padding, or flex/grid layout to prevent collision. Ensure proper z-index if intentional.",
+              "confidence": null,
+              "source": null,
+              "location": null
+            },
+            {
+              "type": "Visual",
+              "severity": "major",
+              "message": "Overlapping elements detected: <p> (View model details) overlaps with <p> (Explore our research articles)",
+              "fix": "Adjust CSS margins, padding, or flex/grid layout to prevent collision. Ensure proper z-index if intentional.",
+              "confidence": null,
+              "source": null,
+              "location": null
+            },
+            {
+              "type": "Accessibility",
+              "severity": "major",
+              "message": "[aria-hidden-focus] Ensures aria-hidden elements are not focusable nor contain focusable elements (<span aria-hidden=\"true\" tabindex=\"0\" style=\"posit...)",
+              "fix": "Fix all of the following:\n  Focusable content should have tabindex=\"-1\" or be removed from the DOM",
+              "confidence": null,
+              "source": "axe_core",
+              "location": null
+            },
+            {
+              "type": "Accessibility",
+              "severity": "major",
+              "message": "[color-contrast] Ensures the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds (<p class=\"text-[0.875rem] leading-none tracking-[0...)",
+              "fix": "Fix any of the following:\n  Element has insufficient color contrast of 3.56 (foreground color: #838987, background color: #ffffff, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1",
+              "confidence": null,
+              "source": "axe_core",
+              "location": null
+            }
+          ],
+          "compliance": [
+            {
+              "standard": "GDPR",
+              "criterion": "Cookie Consent",
+              "severity": "warning",
+              "description": "No cookie consent mechanism detected",
+              "remediation": "Implement a cookie consent banner for GDPR compliance",
+              "rule_id": null,
+              "help_url": null,
+              "affected_elements": [],
+              "instance_count": null
+            },
+            {
+              "standard": "WCAG",
+              "criterion": "4.1.2",
+              "severity": "major",
+              "description": "Ensures aria-hidden elements are not focusable nor contain focusable elements",
+              "remediation": "Fix all of the following:\n  Focusable content should have tabindex=\"-1\" or be removed from the DOM",
+              "rule_id": "aria-hidden-focus",
+              "help_url": "https://dequeuniversity.com/rules/axe/4.9/aria-hidden-focus?application=axeAPI",
+              "affected_elements": [
+                "<span aria-hidden=\"true\" tabindex=\"0\" style=\"position: absolute; border: 0px; width: 1px; height: 1px; padding: 0px; margin: -1px; overflow: hidden; clip: rect(0px, 0px, 0px, 0px); white-space: nowrap; overflow-wrap: normal;\"></span>"
+              ],
+              "instance_count": 1
+            },
+            {
+              "standard": "WCAG",
+              "criterion": "1.4.3",
+              "severity": "major",
+              "description": "Ensures the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+              "remediation": "Fix any of the following:\n  Element has insufficient color contrast of 3.56 (foreground color: #838987, background color: #ffffff, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1",
+              "rule_id": "color-contrast",
+              "help_url": "https://dequeuniversity.com/rules/axe/4.9/color-contrast?application=axeAPI",
+              "affected_elements": [
+                "<p class=\"text-[0.875rem] leading-none tracking-[0.01em] text-white-4\">View model details</p>",
+                "<p class=\"text-[0.875rem] leading-none tracking-[0.01em] text-white-4\">View model details</p>",
+                "<p class=\"text-[0.875rem] leading-none tracking-[0.01em] text-white-4\">View model details</p>"
+              ],
+              "instance_count": 5
+            },
+            {
+              "standard": "WCAG",
+              "criterion": "General",
+              "severity": "minor",
+              "description": "Ensure that the page, or at least one of its frames contains a level-one heading",
+              "remediation": "Fix all of the following:\n  Page must have a level-one heading",
+              "rule_id": "page-has-heading-one",
+              "help_url": "https://dequeuniversity.com/rules/axe/4.9/page-has-heading-one?application=axeAPI",
+              "affected_elements": [
+                "<html lang=\"en\">"
+              ],
+              "instance_count": 1
+            }
+          ],
+          "performance": {
+            "TTFB": {
+              "value": 406.5,
+              "rating": "good"
+            },
+            "LCP": {
+              "value": 2.23,
+              "rating": "good"
+            },
+            "CLS": {
+              "value": 0.0058,
+              "rating": "good"
+            },
+            "FID": {
+              "value": 110.0,
+              "rating": "needs-improvement"
+            }
+          },
+          "healing_events": [],
+          "visual_regression": []
+        }
+      ],
+      "overall_score": 49.5,
+      "total_defects": 7,
+      "report": {
+        "target_url": "https://bfl.ai/research",
+        "total_pages_tested": 1,
+        "overall_score": 49.5,
+        "grade": "D",
+        "wcag_compliance_pct": 0.0,
+        "total_defects": 7,
+        "total_compliance_violations": 4,
+        "defects_by_severity": {
+          "critical": 0,
+          "major": 9,
+          "minor": 1,
+          "warning": 1
+        },
+        "wcag_violations": 3,
+        "gdpr_violations": 1,
+        "page_scores": [
+          {
+            "url": "https://bfl.ai/research",
+            "page_type": "Dashboard",
+            "hygiene_score": 24.0,
+            "accessibility_score": 75.0,
+            "visual_score": null,
+            "health_score": 49.5,
+            "defect_count": 7,
+            "compliance_violation_count": 4,
+            "pagerank_score": 1.08
+          }
+        ],
+        "top_issues": [
+          {
+            "page": "https://bfl.ai/research",
+            "type": "Visual",
+            "severity": "major",
+            "message": "Overlapping elements detected: <a> (FLUX.2 Max\n\nView model details) overlaps with <h2> (Research)",
+            "fix": "Adjust CSS margins, padding, or flex/grid layout to prevent collision. Ensure proper z-index if intentional."
+          },
+          {
+            "page": "https://bfl.ai/research",
+            "type": "Visual",
+            "severity": "major",
+            "message": "Overlapping elements detected: <p> (FLUX.2 Max) overlaps with <h2> (Research)",
+            "fix": "Adjust CSS margins, padding, or flex/grid layout to prevent collision. Ensure proper z-index if intentional."
+          },
+          {
+            "page": "https://bfl.ai/research",
+            "type": "Visual",
+            "severity": "major",
+            "message": "Overlapping elements detected: <a> (FLUX.2\n\nView model details) overlaps with <h2> (Research)",
+            "fix": "Adjust CSS margins, padding, or flex/grid layout to prevent collision. Ensure proper z-index if intentional."
+          },
+          {
+            "page": "https://bfl.ai/research",
+            "type": "Visual",
+            "severity": "major",
+            "message": "Overlapping elements detected: <a> (FLUX.2\n\nView model details) overlaps with <p> (Explore our research articles)",
+            "fix": "Adjust CSS margins, padding, or flex/grid layout to prevent collision. Ensure proper z-index if intentional."
+          },
+          {
+            "page": "https://bfl.ai/research",
+            "type": "Visual",
+            "severity": "major",
+            "message": "Overlapping elements detected: <p> (View model details) overlaps with <p> (Explore our research articles)",
+            "fix": "Adjust CSS margins, padding, or flex/grid layout to prevent collision. Ensure proper z-index if intentional."
+          },
+          {
+            "page": "https://bfl.ai/research",
+            "type": "Accessibility",
+            "severity": "major",
+            "message": "[aria-hidden-focus] Ensures aria-hidden elements are not focusable nor contain focusable elements (<span aria-hidden=\"true\" tabindex=\"0\" style=\"posit...)",
+            "fix": "Fix all of the following:\n  Focusable content should have tabindex=\"-1\" or be removed from the DOM"
+          },
+          {
+            "page": "https://bfl.ai/research",
+            "type": "Accessibility",
+            "severity": "major",
+            "message": "[color-contrast] Ensures the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds (<p class=\"text-[0.875rem] leading-none tracking-[0...)",
+            "fix": "Fix any of the following:\n  Element has insufficient color contrast of 3.56 (foreground color: #838987, background color: #ffffff, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1"
+          }
+        ]
+      }
+    },
+    "error": null
+  },
+  {
+    "site": {
+      "name": "Swiggy Instamart",
+      "url": "https://www.swiggy.com/instamart"
+    },
+    "data": {
+      "run_id": "audit_swiggy_instamart",
+      "url": "https://www.swiggy.com/instamart",
+      "repo_name": null,
+      "repo_url": null,
+      "branch": null,
+      "commit_sha": null,
+      "commit_sha_short": null,
+      "commit_message": null,
+      "commit_author": null,
+      "status": "completed",
+      "pages": [
+        {
+          "url": "https://swiggy.com/instamart",
+          "page_type": "Dashboard",
+          "hygiene_score": 0,
+          "pagerank_score": 1.08,
+          "vision_quality_score": null,
+          "defects": [
+            {
+              "type": "Accessibility",
+              "severity": "major",
+              "message": "[aria-dialog-name] Ensures every ARIA dialog and alertdialog node has an accessible name (<div role=\"dialog\" aria-modal=\"true\" class=\"_4-yUW...)",
+              "fix": "Fix any of the following:\n  aria-label attribute does not exist or is empty\n  aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty\n  Element has no title attribute",
+              "confidence": null,
+              "source": "axe_core",
+              "location": null
+            },
+            {
+              "type": "Accessibility",
+              "severity": "major",
+              "message": "[color-contrast] Ensures the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds (<div class=\"sc-gEvEer iMXnZG\">Search for an area o...)",
+              "fix": "Fix any of the following:\n  Element has insufficient color contrast of 3.24 (foreground color: #8d8f92, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1; Fix any of the following:\n  Element has insufficient color contrast of 3.24 (foreground color: #8d8f92, background color: #ffffff, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1",
+              "confidence": null,
+              "source": "axe_core",
+              "location": null
+            },
+            {
+              "type": "Accessibility",
+              "severity": "critical",
+              "message": "[image-alt] Ensures <img> elements have alternate text or a role of none or presentation (<img src=\"https://instamart-media-assets.swiggy.co...)",
+              "fix": "Fix any of the following:\n  Element does not have an alt attribute\n  aria-label attribute does not exist or is empty\n  aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty\n  Element has no title attribute\n  Element's default semantics were not overridden with role=\"none\" or role=\"presentation\"",
+              "confidence": null,
+              "source": "axe_core",
+              "location": null
+            },
+            {
+              "type": "Accessibility",
+              "severity": "major",
+              "message": "[link-name] Ensures links have discernible text (<a href=\"https://play.google.com/store/apps/detail...)",
+              "fix": "Fix all of the following:\n  Element is in tab order and does not have accessible text\n\nFix any of the following:\n  Element does not have text that is visible to screen readers\n  aria-label attribute does not exist or is empty\n  aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty\n  Element has no title attribute",
+              "confidence": null,
+              "source": "axe_core",
+              "location": null
+            },
+            {
+              "type": "Accessibility",
+              "severity": "critical",
+              "message": "[meta-viewport] Ensures <meta name=\"viewport\"> does not disable text scaling and zooming (<meta name=\"viewport\" content=\"height=device-heigh...)",
+              "fix": "Fix any of the following:\n  user-scalable=no on <meta> tag disables zooming on mobile devices",
+              "confidence": null,
+              "source": "axe_core",
+              "location": null
+            }
+          ],
+          "compliance": [
+            {
+              "standard": "WCAG",
+              "criterion": "General",
+              "severity": "major",
+              "description": "Ensures every ARIA dialog and alertdialog node has an accessible name",
+              "remediation": "Fix any of the following:\n  aria-label attribute does not exist or is empty\n  aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty\n  Element has no title attribute",
+              "rule_id": "aria-dialog-name",
+              "help_url": "https://dequeuniversity.com/rules/axe/4.9/aria-dialog-name?application=axeAPI",
+              "affected_elements": [
+                "<div role=\"dialog\" aria-modal=\"true\" class=\"_4-yUW\" style=\"--transition-duration: undefineds;\">"
+              ],
+              "instance_count": 1
+            },
+            {
+              "standard": "WCAG",
+              "criterion": "1.4.3",
+              "severity": "major",
+              "description": "Ensures the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+              "remediation": "Fix any of the following:\n  Element has insufficient color contrast of 3.24 (foreground color: #8d8f92, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1; Fix any of the following:\n  Element has insufficient color contrast of 3.24 (foreground color: #8d8f92, background color: #ffffff, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1",
+              "rule_id": "color-contrast",
+              "help_url": "https://dequeuniversity.com/rules/axe/4.9/color-contrast?application=axeAPI",
+              "affected_elements": [
+                "<div class=\"sc-gEvEer iMXnZG\">Search for an area or address</div>",
+                "<div class=\"sc-gEvEer eAyJli\">OR</div>"
+              ],
+              "instance_count": 2
+            },
+            {
+              "standard": "WCAG",
+              "criterion": "1.1.1",
+              "severity": "critical",
+              "description": "Ensures <img> elements have alternate text or a role of none or presentation",
+              "remediation": "Fix any of the following:\n  Element does not have an alt attribute\n  aria-label attribute does not exist or is empty\n  aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty\n  Element has no title attribute\n  Element's default semantics were not overridden with role=\"none\" or role=\"presentation\"",
+              "rule_id": "image-alt",
+              "help_url": "https://dequeuniversity.com/rules/axe/4.9/image-alt?application=axeAPI",
+              "affected_elements": [
+                "<img src=\"https://instamart-media-assets.swiggy.com/swiggy/image/upload/fl_lossy,f_auto,q_auto,w_640/MERCHANDISING_BANNERS/IMAGES/MERCH/2026/6/2/c2321949-4bfa-40e6-a599-468fdcc49e57_1863.png\" style=\"width: 100%; height: 100%; object-fit: cover; background: transparent;\">",
+                "<img src=\"https://instamart-media-assets.swiggy.com/swiggy/image/upload/fl_lossy,f_auto,q_auto,w_640/MERCHANDISING_BANNERS/IMAGES/MERCH/2026/6/2/d1789296-46c1-4a9a-aaec-9c91bc028f3e_PO...png\" style=\"width: 100%; height: 100%; object-fit: cover; background: transparent;\">",
+                "<img src=\"https://instamart-media-assets.swiggy.com/swiggy/image/upload/fl_lossy,f_auto,q_auto,w_640/MERCHANDISING_BANNERS/IMAGES/MERCH/2026/6/2/8296552c-726c-4ac2-9424-e366b81f50b2_P0banner320x215Resolutions.png\" style=\"width: 100%; height: 100%; object-fit: cover; background: transparent;\">"
+              ],
+              "instance_count": 5
+            },
+            {
+              "standard": "WCAG",
+              "criterion": "2.4.4",
+              "severity": "major",
+              "description": "Ensures links have discernible text",
+              "remediation": "Fix all of the following:\n  Element is in tab order and does not have accessible text\n\nFix any of the following:\n  Element does not have text that is visible to screen readers\n  aria-label attribute does not exist or is empty\n  aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty\n  Element has no title attribute",
+              "rule_id": "link-name",
+              "help_url": "https://dequeuniversity.com/rules/axe/4.9/link-name?application=axeAPI",
+              "affected_elements": [
+                "<a href=\"https://play.google.com/store/apps/details?id=in.swiggy.android.instamart\" class=\"_27Gi9\" data-testid=\"app-header-link-android\" rel=\"noreferrer\" target=\"_blank\">",
+                "<a href=\"https://apps.apple.com/us/app/instamart-groceries-more/id6738619733\" class=\"_27Gi9\" data-testid=\"app-header-link-ios\" rel=\"noreferrer\" target=\"_blank\">",
+                "<a href=\"https://www.swiggy.com\" rel=\"noreferrer\" target=\"_blank\"><img src=\"https://instamart-media-assets.swiggy.com/swiggy/image/upload/fl_lossy,f_auto,q_auto,h_96/Logos/Swiggy-Logo.png\" fit=\"contain\" style=\"width: 100%; height: 48px; object-fit: contain; background: transparent;\"></a>"
+              ],
+              "instance_count": 5
+            },
+            {
+              "standard": "WCAG",
+              "criterion": "1.4.4",
+              "severity": "critical",
+              "description": "Ensures <meta name=\"viewport\"> does not disable text scaling and zooming",
+              "remediation": "Fix any of the following:\n  user-scalable=no on <meta> tag disables zooming on mobile devices",
+              "rule_id": "meta-viewport",
+              "help_url": "https://dequeuniversity.com/rules/axe/4.9/meta-viewport?application=axeAPI",
+              "affected_elements": [
+                "<meta name=\"viewport\" content=\"height=device-height,width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no\">"
+              ],
+              "instance_count": 1
+            },
+            {
+              "standard": "WCAG",
+              "criterion": "General",
+              "severity": "minor",
+              "description": "Ensures all page content is contained by landmarks",
+              "remediation": "Fix any of the following:\n  Some page content is not contained by landmarks",
+              "rule_id": "region",
+              "help_url": "https://dequeuniversity.com/rules/axe/4.9/region?application=axeAPI",
+              "affected_elements": [
+                "<div class=\"G5ieZ\"><img src=\"https://instamart-media-assets.swiggy.com/swiggy/image/upload/fl_lossy,f_auto,q_auto//InstamartAssets/DWeb%20Changes/Instamart%20log.png\" alt=\"Instamart Logo\" width=\"132\"></div>",
+                "<div class=\"sc-gEvEer hnrkSF o0rPe\" data-testid=\"DEFAULT_ADDRESS_TITLE\">Add your location</div>",
+                "<div data-testid=\"DEFAULT_ADDRESS_SUBTEXT\" class=\"sc-gEvEer eTWEyV pvwrb\">"
+              ],
+              "instance_count": 5
+            }
+          ],
+          "performance": {
+            "TTFB": {
+              "value": 529.7,
+              "rating": "good"
+            },
+            "CLS": {
+              "value": 0.0153,
+              "rating": "good"
+            },
+            "FID": {
+              "value": 164.0,
+              "rating": "needs-improvement"
+            }
+          },
+          "healing_events": [],
+          "visual_regression": []
+        }
+      ],
+      "overall_score": 13.0,
+      "total_defects": 5,
+      "report": {
+        "target_url": "https://www.swiggy.com/instamart",
+        "total_pages_tested": 1,
+        "overall_score": 13.0,
+        "grade": "F",
+        "wcag_compliance_pct": 0.0,
+        "total_defects": 5,
+        "total_compliance_violations": 6,
+        "defects_by_severity": {
+          "critical": 4,
+          "major": 6,
+          "minor": 1,
+          "warning": 0
+        },
+        "wcag_violations": 6,
+        "gdpr_violations": 0,
+        "page_scores": [
+          {
+            "url": "https://swiggy.com/instamart",
+            "page_type": "Dashboard",
+            "hygiene_score": 0.0,
+            "accessibility_score": 26.0,
+            "visual_score": null,
+            "health_score": 13.0,
+            "defect_count": 5,
+            "compliance_violation_count": 6,
+            "pagerank_score": 1.08
+          }
+        ],
+        "top_issues": [
+          {
+            "page": "https://swiggy.com/instamart",
+            "type": "Accessibility",
+            "severity": "critical",
+            "message": "[image-alt] Ensures <img> elements have alternate text or a role of none or presentation (<img src=\"https://instamart-media-assets.swiggy.co...)",
+            "fix": "Fix any of the following:\n  Element does not have an alt attribute\n  aria-label attribute does not exist or is empty\n  aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty\n  Element has no title attribute\n  Element's default semantics were not overridden with role=\"none\" or role=\"presentation\""
+          },
+          {
+            "page": "https://swiggy.com/instamart",
+            "type": "Accessibility",
+            "severity": "critical",
+            "message": "[meta-viewport] Ensures <meta name=\"viewport\"> does not disable text scaling and zooming (<meta name=\"viewport\" content=\"height=device-heigh...)",
+            "fix": "Fix any of the following:\n  user-scalable=no on <meta> tag disables zooming on mobile devices"
+          },
+          {
+            "page": "https://swiggy.com/instamart",
+            "type": "Accessibility",
+            "severity": "major",
+            "message": "[aria-dialog-name] Ensures every ARIA dialog and alertdialog node has an accessible name (<div role=\"dialog\" aria-modal=\"true\" class=\"_4-yUW...)",
+            "fix": "Fix any of the following:\n  aria-label attribute does not exist or is empty\n  aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty\n  Element has no title attribute"
+          },
+          {
+            "page": "https://swiggy.com/instamart",
+            "type": "Accessibility",
+            "severity": "major",
+            "message": "[color-contrast] Ensures the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds (<div class=\"sc-gEvEer iMXnZG\">Search for an area o...)",
+            "fix": "Fix any of the following:\n  Element has insufficient color contrast of 3.24 (foreground color: #8d8f92, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1; Fix any of the following:\n  Element has insufficient color contrast of 3.24 (foreground color: #8d8f92, background color: #ffffff, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "page": "https://swiggy.com/instamart",
+            "type": "Accessibility",
+            "severity": "major",
+            "message": "[link-name] Ensures links have discernible text (<a href=\"https://play.google.com/store/apps/detail...)",
+            "fix": "Fix all of the following:\n  Element is in tab order and does not have accessible text\n\nFix any of the following:\n  Element does not have text that is visible to screen readers\n  aria-label attribute does not exist or is empty\n  aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty\n  Element has no title attribute"
+          }
+        ]
+      }
+    },
+    "error": null
+  },
+  {
+    "site": {
+      "name": "Hacker News",
+      "url": "https://news.ycombinator.com/"
+    },
+    "data": {
+      "run_id": "audit_hacker_news",
+      "url": "https://news.ycombinator.com/",
+      "repo_name": null,
+      "repo_url": null,
+      "branch": null,
+      "commit_sha": null,
+      "commit_sha_short": null,
+      "commit_message": null,
+      "commit_author": null,
+      "status": "completed",
+      "pages": [
+        {
+          "url": "https://news.ycombinator.com/",
+          "page_type": "Dashboard",
+          "hygiene_score": 0,
+          "pagerank_score": 1.08,
+          "vision_quality_score": null,
+          "defects": [
+            {
+              "type": "Accessibility",
+              "severity": "major",
+              "message": "[color-contrast] Ensures the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds (<span class=\"rank\">1.</span>...)",
+              "fix": "Fix any of the following:\n  Element has insufficient color contrast of 3.54 (foreground color: #828282, background color: #f6f6ef, font size: 8.0pt (10.6667px), font weight: normal). Expected contrast ratio of 4.5:1; Fix any of the following:\n  Element has insufficient color contrast of 3.54 (foreground color: #828282, background color: #f6f6ef, font size: 10.0pt (13.3333px), font weight: normal). Expected contrast ratio of 4.5:1; Fix any of the following:\n  Element has insufficient color contrast of 3.54 (foreground color: #828282, background color: #f6f6ef, font size: 7.0pt (9.33333px), font weight: normal). Expected contrast ratio of 4.5:1",
+              "confidence": null,
+              "source": "axe_core",
+              "location": null
+            },
+            {
+              "type": "Accessibility",
+              "severity": "critical",
+              "message": "[image-alt] Ensures <img> elements have alternate text or a role of none or presentation (<img src=\"y18.svg\" width=\"18\" height=\"18\" style=\"b...)",
+              "fix": "Fix any of the following:\n  Element does not have an alt attribute\n  aria-label attribute does not exist or is empty\n  aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty\n  Element has no title attribute\n  Element's default semantics were not overridden with role=\"none\" or role=\"presentation\"",
+              "confidence": null,
+              "source": "axe_core",
+              "location": null
+            },
+            {
+              "type": "Accessibility",
+              "severity": "critical",
+              "message": "[label] Ensures every form element has a label (<input type=\"text\" name=\"q\" size=\"17\" autocorrect=...)",
+              "fix": "Fix any of the following:\n  Form element does not have an implicit (wrapped) <label>\n  Form element does not have an explicit <label>\n  aria-label attribute does not exist or is empty\n  aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty\n  Element has no title attribute\n  Element has no placeholder attribute\n  Element's default semantics were not overridden with role=\"none\" or role=\"presentation\"",
+              "confidence": null,
+              "source": "axe_core",
+              "location": null
+            },
+            {
+              "type": "Accessibility",
+              "severity": "major",
+              "message": "[link-name] Ensures links have discernible text (<a href=\"https://news.ycombinator.com\"><img src=\"y...)",
+              "fix": "Fix all of the following:\n  Element is in tab order and does not have accessible text\n\nFix any of the following:\n  Element does not have text that is visible to screen readers\n  aria-label attribute does not exist or is empty\n  aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty\n  Element has no title attribute",
+              "confidence": null,
+              "source": "axe_core",
+              "location": null
+            }
+          ],
+          "compliance": [
+            {
+              "standard": "GDPR",
+              "criterion": "Cookie Consent",
+              "severity": "warning",
+              "description": "No cookie consent mechanism detected",
+              "remediation": "Implement a cookie consent banner for GDPR compliance",
+              "rule_id": null,
+              "help_url": null,
+              "affected_elements": [],
+              "instance_count": null
+            },
+            {
+              "standard": "GDPR",
+              "criterion": "Privacy Policy",
+              "severity": "minor",
+              "description": "No privacy policy link found on page",
+              "remediation": "Add a visible link to your privacy policy",
+              "rule_id": null,
+              "help_url": null,
+              "affected_elements": [],
+              "instance_count": null
+            },
+            {
+              "standard": "WCAG",
+              "criterion": "1.4.3",
+              "severity": "major",
+              "description": "Ensures the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+              "remediation": "Fix any of the following:\n  Element has insufficient color contrast of 3.54 (foreground color: #828282, background color: #f6f6ef, font size: 8.0pt (10.6667px), font weight: normal). Expected contrast ratio of 4.5:1; Fix any of the following:\n  Element has insufficient color contrast of 3.54 (foreground color: #828282, background color: #f6f6ef, font size: 10.0pt (13.3333px), font weight: normal). Expected contrast ratio of 4.5:1; Fix any of the following:\n  Element has insufficient color contrast of 3.54 (foreground color: #828282, background color: #f6f6ef, font size: 7.0pt (9.33333px), font weight: normal). Expected contrast ratio of 4.5:1",
+              "rule_id": "color-contrast",
+              "help_url": "https://dequeuniversity.com/rules/axe/4.9/color-contrast?application=axeAPI",
+              "affected_elements": [
+                "<span class=\"rank\">1.</span>",
+                "<span class=\"sitestr\">dontpastetheai.com</span>",
+                "<span class=\"subline\">"
+              ],
+              "instance_count": 5
+            },
+            {
+              "standard": "WCAG",
+              "criterion": "1.1.1",
+              "severity": "critical",
+              "description": "Ensures <img> elements have alternate text or a role of none or presentation",
+              "remediation": "Fix any of the following:\n  Element does not have an alt attribute\n  aria-label attribute does not exist or is empty\n  aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty\n  Element has no title attribute\n  Element's default semantics were not overridden with role=\"none\" or role=\"presentation\"",
+              "rule_id": "image-alt",
+              "help_url": "https://dequeuniversity.com/rules/axe/4.9/image-alt?application=axeAPI",
+              "affected_elements": [
+                "<img src=\"y18.svg\" width=\"18\" height=\"18\" style=\"border:1px white solid; display:block\">",
+                "<img src=\"s.gif\" height=\"1\" width=\"14\">",
+                "<img src=\"s.gif\" height=\"10\" width=\"0\">"
+              ],
+              "instance_count": 3
+            },
+            {
+              "standard": "WCAG",
+              "criterion": "4.1.2",
+              "severity": "critical",
+              "description": "Ensures every form element has a label",
+              "remediation": "Fix any of the following:\n  Form element does not have an implicit (wrapped) <label>\n  Form element does not have an explicit <label>\n  aria-label attribute does not exist or is empty\n  aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty\n  Element has no title attribute\n  Element has no placeholder attribute\n  Element's default semantics were not overridden with role=\"none\" or role=\"presentation\"",
+              "rule_id": "label",
+              "help_url": "https://dequeuniversity.com/rules/axe/4.9/label?application=axeAPI",
+              "affected_elements": [
+                "<input type=\"text\" name=\"q\" size=\"17\" autocorrect=\"off\" spellcheck=\"false\" autocapitalize=\"off\" autocomplete=\"off\">"
+              ],
+              "instance_count": 1
+            },
+            {
+              "standard": "WCAG",
+              "criterion": "General",
+              "severity": "minor",
+              "description": "Ensures the document has a main landmark",
+              "remediation": "Fix all of the following:\n  Document does not have a main landmark",
+              "rule_id": "landmark-one-main",
+              "help_url": "https://dequeuniversity.com/rules/axe/4.9/landmark-one-main?application=axeAPI",
+              "affected_elements": [
+                "<html lang=\"en\" op=\"news\">"
+              ],
+              "instance_count": 1
+            },
+            {
+              "standard": "WCAG",
+              "criterion": "2.4.4",
+              "severity": "major",
+              "description": "Ensures links have discernible text",
+              "remediation": "Fix all of the following:\n  Element is in tab order and does not have accessible text\n\nFix any of the following:\n  Element does not have text that is visible to screen readers\n  aria-label attribute does not exist or is empty\n  aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty\n  Element has no title attribute",
+              "rule_id": "link-name",
+              "help_url": "https://dequeuniversity.com/rules/axe/4.9/link-name?application=axeAPI",
+              "affected_elements": [
+                "<a href=\"https://news.ycombinator.com\"><img src=\"y18.svg\" width=\"18\" height=\"18\" style=\"border:1px white solid; display:block\"></a>"
+              ],
+              "instance_count": 1
+            },
+            {
+              "standard": "WCAG",
+              "criterion": "General",
+              "severity": "minor",
+              "description": "Ensure that the page, or at least one of its frames contains a level-one heading",
+              "remediation": "Fix all of the following:\n  Page must have a level-one heading",
+              "rule_id": "page-has-heading-one",
+              "help_url": "https://dequeuniversity.com/rules/axe/4.9/page-has-heading-one?application=axeAPI",
+              "affected_elements": [
+                "<html lang=\"en\" op=\"news\">"
+              ],
+              "instance_count": 1
+            },
+            {
+              "standard": "WCAG",
+              "criterion": "General",
+              "severity": "minor",
+              "description": "Ensures all page content is contained by landmarks",
+              "remediation": "Fix any of the following:\n  Some page content is not contained by landmarks",
+              "rule_id": "region",
+              "help_url": "https://dequeuniversity.com/rules/axe/4.9/region?application=axeAPI",
+              "affected_elements": [
+                "<center>"
+              ],
+              "instance_count": 1
+            }
+          ],
+          "performance": {
+            "TTFB": {
+              "value": 309.2,
+              "rating": "good"
+            },
+            "LCP": {
+              "value": 1.55,
+              "rating": "good"
+            },
+            "CLS": {
+              "value": 0.0,
+              "rating": "good"
+            },
+            "FID": {
+              "value": 0.0,
+              "rating": "good"
+            }
+          },
+          "healing_events": [],
+          "visual_regression": []
+        }
+      ],
+      "overall_score": 11.5,
+      "total_defects": 4,
+      "report": {
+        "target_url": "https://news.ycombinator.com/",
+        "total_pages_tested": 1,
+        "overall_score": 11.5,
+        "grade": "F",
+        "wcag_compliance_pct": 0.0,
+        "total_defects": 4,
+        "total_compliance_violations": 9,
+        "defects_by_severity": {
+          "critical": 4,
+          "major": 4,
+          "minor": 4,
+          "warning": 1
+        },
+        "wcag_violations": 7,
+        "gdpr_violations": 2,
+        "page_scores": [
+          {
+            "url": "https://news.ycombinator.com/",
+            "page_type": "Dashboard",
+            "hygiene_score": 0.0,
+            "accessibility_score": 23.0,
+            "visual_score": null,
+            "health_score": 11.5,
+            "defect_count": 4,
+            "compliance_violation_count": 9,
+            "pagerank_score": 1.08
+          }
+        ],
+        "top_issues": [
+          {
+            "page": "https://news.ycombinator.com/",
+            "type": "Accessibility",
+            "severity": "critical",
+            "message": "[image-alt] Ensures <img> elements have alternate text or a role of none or presentation (<img src=\"y18.svg\" width=\"18\" height=\"18\" style=\"b...)",
+            "fix": "Fix any of the following:\n  Element does not have an alt attribute\n  aria-label attribute does not exist or is empty\n  aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty\n  Element has no title attribute\n  Element's default semantics were not overridden with role=\"none\" or role=\"presentation\""
+          },
+          {
+            "page": "https://news.ycombinator.com/",
+            "type": "Accessibility",
+            "severity": "critical",
+            "message": "[label] Ensures every form element has a label (<input type=\"text\" name=\"q\" size=\"17\" autocorrect=...)",
+            "fix": "Fix any of the following:\n  Form element does not have an implicit (wrapped) <label>\n  Form element does not have an explicit <label>\n  aria-label attribute does not exist or is empty\n  aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty\n  Element has no title attribute\n  Element has no placeholder attribute\n  Element's default semantics were not overridden with role=\"none\" or role=\"presentation\""
+          },
+          {
+            "page": "https://news.ycombinator.com/",
+            "type": "Accessibility",
+            "severity": "major",
+            "message": "[color-contrast] Ensures the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds (<span class=\"rank\">1.</span>...)",
+            "fix": "Fix any of the following:\n  Element has insufficient color contrast of 3.54 (foreground color: #828282, background color: #f6f6ef, font size: 8.0pt (10.6667px), font weight: normal). Expected contrast ratio of 4.5:1; Fix any of the following:\n  Element has insufficient color contrast of 3.54 (foreground color: #828282, background color: #f6f6ef, font size: 10.0pt (13.3333px), font weight: normal). Expected contrast ratio of 4.5:1; Fix any of the following:\n  Element has insufficient color contrast of 3.54 (foreground color: #828282, background color: #f6f6ef, font size: 7.0pt (9.33333px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "page": "https://news.ycombinator.com/",
+            "type": "Accessibility",
+            "severity": "major",
+            "message": "[link-name] Ensures links have discernible text (<a href=\"https://news.ycombinator.com\"><img src=\"y...)",
+            "fix": "Fix all of the following:\n  Element is in tab order and does not have accessible text\n\nFix any of the following:\n  Element does not have text that is visible to screen readers\n  aria-label attribute does not exist or is empty\n  aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty\n  Element has no title attribute"
+          }
+        ]
+      }
+    },
+    "error": null
+  },
+  {
+    "site": {
+      "name": "GitHub",
+      "url": "https://github.com/"
+    },
+    "data": {
+      "run_id": "audit_github",
+      "url": "https://github.com/",
+      "repo_name": null,
+      "repo_url": null,
+      "branch": null,
+      "commit_sha": null,
+      "commit_sha_short": null,
+      "commit_message": null,
+      "commit_author": null,
+      "status": "completed",
+      "pages": [
+        {
+          "url": "https://github.com/",
+          "page_type": "Dashboard",
+          "hygiene_score": 57,
+          "pagerank_score": 1.1578,
+          "vision_quality_score": null,
+          "defects": [
+            {
+              "type": "Visual",
+              "severity": "major",
+              "message": "Overlapping elements detected: <a> (element) overlaps with <h1> (The future of building happens)",
+              "fix": "Adjust CSS margins, padding, or flex/grid layout to prevent collision. Ensure proper z-index if intentional.",
+              "confidence": null,
+              "source": null,
+              "location": null
+            },
+            {
+              "type": "Visual",
+              "severity": "major",
+              "message": "Overlapping elements detected: <span> (element) overlaps with <h1> (The future of building happens)",
+              "fix": "Adjust CSS margins, padding, or flex/grid layout to prevent collision. Ensure proper z-index if intentional.",
+              "confidence": null,
+              "source": null,
+              "location": null
+            },
+            {
+              "type": "Visual",
+              "severity": "major",
+              "message": "Overlapping elements detected: <a> (element) overlaps with <p> (Tools and trends evolve, but c)",
+              "fix": "Adjust CSS margins, padding, or flex/grid layout to prevent collision. Ensure proper z-index if intentional.",
+              "confidence": null,
+              "source": null,
+              "location": null
+            },
+            {
+              "type": "Visual",
+              "severity": "major",
+              "message": "Overlapping elements detected: <span> (element) overlaps with <p> (Tools and trends evolve, but c)",
+              "fix": "Adjust CSS margins, padding, or flex/grid layout to prevent collision. Ensure proper z-index if intentional.",
+              "confidence": null,
+              "source": null,
+              "location": null
+            },
+            {
+              "type": "Visual",
+              "severity": "major",
+              "message": "Overlapping elements detected: <a> (element) overlaps with <button> (Sign up for GitHub)",
+              "fix": "Adjust CSS margins, padding, or flex/grid layout to prevent collision. Ensure proper z-index if intentional.",
+              "confidence": null,
+              "source": null,
+              "location": null
+            }
+          ],
+          "compliance": [
+            {
+              "standard": "WCAG",
+              "criterion": "General",
+              "severity": "minor",
+              "description": "Landmarks should have a unique role or role/label/title (i.e. accessible name) combination",
+              "remediation": "Fix any of the following:\n  The landmark must have a unique aria-label, aria-labelledby, or title to make landmarks distinguishable",
+              "rule_id": "landmark-unique",
+              "help_url": "https://dequeuniversity.com/rules/axe/4.9/landmark-unique?application=axeAPI",
+              "affected_elements": [
+                "<form accept-charset=\"UTF-8\" aria-label=\"Sign up for GitHub\" action=\"/signup\" method=\"get\">"
+              ],
+              "instance_count": 1
+            }
+          ],
+          "performance": {
+            "TTFB": {
+              "value": 175.2,
+              "rating": "good"
+            },
+            "LCP": {
+              "value": 1.5,
+              "rating": "good"
+            },
+            "CLS": {
+              "value": 0.0541,
+              "rating": "good"
+            },
+            "FID": {
+              "value": 1570.0,
+              "rating": "poor"
+            }
+          },
+          "healing_events": [],
+          "visual_regression": []
+        }
+      ],
+      "overall_score": 76.5,
+      "total_defects": 5,
+      "report": {
+        "target_url": "https://github.com/",
+        "total_pages_tested": 1,
+        "overall_score": 76.5,
+        "grade": "B",
+        "wcag_compliance_pct": 0.0,
+        "total_defects": 5,
+        "total_compliance_violations": 1,
+        "defects_by_severity": {
+          "critical": 0,
+          "major": 5,
+          "minor": 1,
+          "warning": 0
+        },
+        "wcag_violations": 1,
+        "gdpr_violations": 0,
+        "page_scores": [
+          {
+            "url": "https://github.com/",
+            "page_type": "Dashboard",
+            "hygiene_score": 57.0,
+            "accessibility_score": 96.0,
+            "visual_score": null,
+            "health_score": 76.5,
+            "defect_count": 5,
+            "compliance_violation_count": 1,
+            "pagerank_score": 1.1578
+          }
+        ],
+        "top_issues": [
+          {
+            "page": "https://github.com/",
+            "type": "Visual",
+            "severity": "major",
+            "message": "Overlapping elements detected: <a> (element) overlaps with <h1> (The future of building happens)",
+            "fix": "Adjust CSS margins, padding, or flex/grid layout to prevent collision. Ensure proper z-index if intentional."
+          },
+          {
+            "page": "https://github.com/",
+            "type": "Visual",
+            "severity": "major",
+            "message": "Overlapping elements detected: <span> (element) overlaps with <h1> (The future of building happens)",
+            "fix": "Adjust CSS margins, padding, or flex/grid layout to prevent collision. Ensure proper z-index if intentional."
+          },
+          {
+            "page": "https://github.com/",
+            "type": "Visual",
+            "severity": "major",
+            "message": "Overlapping elements detected: <a> (element) overlaps with <p> (Tools and trends evolve, but c)",
+            "fix": "Adjust CSS margins, padding, or flex/grid layout to prevent collision. Ensure proper z-index if intentional."
+          },
+          {
+            "page": "https://github.com/",
+            "type": "Visual",
+            "severity": "major",
+            "message": "Overlapping elements detected: <span> (element) overlaps with <p> (Tools and trends evolve, but c)",
+            "fix": "Adjust CSS margins, padding, or flex/grid layout to prevent collision. Ensure proper z-index if intentional."
+          },
+          {
+            "page": "https://github.com/",
+            "type": "Visual",
+            "severity": "major",
+            "message": "Overlapping elements detected: <a> (element) overlaps with <button> (Sign up for GitHub)",
+            "fix": "Adjust CSS margins, padding, or flex/grid layout to prevent collision. Ensure proper z-index if intentional."
+          }
+        ]
+      }
+    },
+    "error": null
+  }
+]

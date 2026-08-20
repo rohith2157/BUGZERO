@@ -193,9 +193,16 @@ class VisionAgent:
                 if e1.get('ariaHidden') or e2.get('ariaHidden'):
                     continue
 
+                # ponytail: Skip intentional CSS stacking layers (different z-index with absolute/fixed positioning)
+                p1 = e1.get('position', 'static')
+                p2 = e2.get('position', 'static')
+                z1 = e1.get('zIndex', 0)
+                z2 = e2.get('zIndex', 0)
+                if (p1 in ['absolute', 'fixed', 'sticky'] or p2 in ['absolute', 'fixed', 'sticky']) and z1 != z2:
+                    continue
+
                 # Check intersection (if they DO NOT intersect, the condition is true, so we invert)
                 if not (e1['x2'] <= e2['x1'] or e1['x1'] >= e2['x2'] or e1['y2'] <= e2['y1'] or e1['y1'] >= e2['y2']):
-
                     
                     # If they are essentially the same element (parent/child sometimes have exact same box), skip
                     if abs(e1['x1'] - e2['x1']) < 5 and abs(e1['y1'] - e2['y1']) < 5 and abs(e1['x2'] - e2['x2']) < 5 and abs(e1['y2'] - e2['y2']) < 5:
@@ -209,6 +216,15 @@ class VisionAgent:
                         
                     t1 = e1.get('text', '').strip()[:30]
                     t2 = e2.get('text', '').strip()[:30]
+
+                    # ponytail: Skip if both elements have no readable text (empty layout containers)
+                    if not t1 and not t2:
+                        continue
+                    # Skip if one is an anchor/button wrapping a span child with identical text prefix
+                    if (e1['tag'] in ['a', 'button'] and e2['tag'] == 'span') or (e2['tag'] in ['a', 'button'] and e1['tag'] == 'span'):
+                        if t1 in t2 or t2 in t1:
+                            continue
+
                     msg_key = f"{e1['tag']}:{t1}|{e2['tag']}:{t2}"
                     if msg_key in seen_messages:
                         continue
@@ -218,7 +234,7 @@ class VisionAgent:
                     defects.append({
                         "type": "Visual",
                         "severity": "major",
-                        "message": f"Overlapping elements detected: {e1['tag']} ({t1}) overlaps with {e2['tag']} ({t2})",
+                        "message": f"Overlapping elements detected: <{e1['tag']}> ({t1 or 'element'}) overlaps with <{e2['tag']}> ({t2 or 'element'})",
                         "location": f"Coordinates: ({int(e1['x1'])},{int(e1['y1'])})",
                         "fix": "Adjust CSS margins, padding, or flex/grid layout to prevent collision. Ensure proper z-index if intentional.",
                         "source": "algorithmic_vision",

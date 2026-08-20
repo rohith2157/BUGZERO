@@ -52,9 +52,14 @@ def calculate_pagerank(pages: list[dict], alpha: float = 0.85) -> dict[str, floa
     try:
         scores = nx.pagerank(G, alpha=alpha)
     except nx.PowerIterationFailedConvergence:
-        # Fallback if convergence fails — use degree centrality
         logger.warning("PageRank convergence failed, falling back to degree centrality")
         scores = nx.degree_centrality(G)
+    except Exception as e:
+        logger.warning(f"PageRank computation failed ({e}), falling back to degree centrality")
+        try:
+            scores = nx.degree_centrality(G)
+        except Exception:
+            scores = {p["url"]: 1.0 / max(len(pages), 1) for p in pages}
 
     return scores
 

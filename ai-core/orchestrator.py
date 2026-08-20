@@ -153,11 +153,11 @@ class Orchestrator:
 
         from utils.hf_client import hf_vlm_client
         if hf_vlm_client.is_configured():
-            mode_str = f"[Pipeline] 🦅 MODE: Hybrid VLM Active | Model: {settings.hf_model_id} | Space: {settings.hf_space_url}"
+            mode_str = f"[Pipeline] [VLM] MODE: Hybrid VLM Active | Model: {settings.hf_model_id} | Space: {settings.hf_space_url}"
             logger.info(mode_str)
             print(f"\n{mode_str}\n", flush=True)
         else:
-            mode_str = "[Pipeline] ⚡ MODE: 100% Offline Algorithmic | Local PIL + Levenshtein matching"
+            mode_str = "[Pipeline] [OFFLINE] MODE: 100% Offline Algorithmic | Local PIL + Levenshtein matching"
             logger.info(mode_str)
             print(f"\n{mode_str}\n", flush=True)
 
@@ -423,7 +423,7 @@ class Orchestrator:
 
                     # ── axe-core violations (already collected in combined call) ──
                     for v in raw.get("axe_violations", []):
-                        page_result.compliance.append(ComplianceViolation(
+                        comp_item = ComplianceViolation(
                             standard=v.get("standard", "WCAG"),
                             criterion=v.get("criterion", "General"),
                             severity=v.get("severity", "minor"),
@@ -433,7 +433,18 @@ class Orchestrator:
                             help_url=v.get("help_url", ""),
                             affected_elements=v.get("affected_elements", []),
                             instance_count=v.get("instance_count"),
-                        ))
+                        )
+                        page_result.compliance.append(comp_item)
+                        # ponytail: promote verified major/critical axe-core bugs directly to defects
+                        if v.get("severity") in ["critical", "major"] and "accessibility" in config.modules:
+                            elem_hint = f" ({v['affected_elements'][0][:50]}...)" if v.get("affected_elements") else ""
+                            page_result.defects.append(DefectResult(
+                                type="Accessibility",
+                                severity=v.get("severity", "major"),
+                                message=f"[{v.get('rule_id', 'WCAG')}] {v.get('description', '')}{elem_hint}",
+                                fix=v.get("remediation", "Follow WCAG guidelines"),
+                                source="axe_core"
+                            ))
                     if raw.get("axe_violations"):
                         logger.info(f"  axe-core: {len(raw['axe_violations'])} violation(s)")
 

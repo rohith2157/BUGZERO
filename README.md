@@ -46,7 +46,56 @@ AutonomousQA combines state-of-the-art open-weights Vision-Language Models (**NV
 
 ---
 
-## 🤖 The 6 AI Agents
+## 🏗️ 2. "What is What": Complete Pipeline Architecture
+
+```mermaid
+flowchart TD
+    A[Target URL / Web App] --> B[Stage 1: BFS Crawler]
+    B --> C[Stage 2: Graph & PageRank Scheduler]
+    C --> D[Stage 3: Single-Navigation Multi-Audit Engine]
+  
+    subgraph D [Stage 3: Multi-Audit Execution on Single Page Load]
+        D1[Axe-Core 4.9.0 WCAG Engine]
+        D2[Runtime JS Crash & Console Error Trap]
+        D3[Chromium PerformanceObserver API]
+        D4[Bounding Box Collision Math]
+        D5[Hybrid NVIDIA Eagle2 VLM / Pillow Vision]
+    end
+  
+    D1 --> E[Stage 4: Aggregation & Hygiene Scoring]
+    D2 --> E
+    D3 --> E
+    D4 --> E
+    D5 --> E
+    E --> F[Compliance Report, Defect Cards & Self-Healing Matrix]
+```
+
+### 🔍 Deep-Dive: The 4-Stage Autonomous Testing Pipeline
+
+#### 🌐 Stage 1: Breadth-First Search (BFS) Crawler & Discovery
+* **Domain-Bounded Crawling:** Automatically crawls internal links while blocking third-party domains (e.g. Google Analytics, social media widgets).
+* **DOM Classification:** Identifies page archetypes (`Dashboard`, `Form`, `Auth`, `Content`, `E-Commerce`) by inspecting DOM landmarks, `<input>` types, and routing structure.
+* **SPA Hydration Tolerance:** Waits for JavaScript frameworks (React, Next.js, Vue, Angular) to finish DOM reconciliation before extracting interactive links.
+
+#### 📊 Stage 2: Graph Topology & Risk-Weighted PageRank Scheduler
+* **NetworkX DiGraph Construction:** Builds a directional graph of the web application's topology.
+* **PageRank Scoring:** Computes eigenvector centrality to determine which pages carry the highest structural traffic importance.
+* **Risk Prioritization Matrix:** Calculates total test priority by blending PageRank with page type critical weights (e.g. `Auth` = +15%, `Checkout/Form` = +12%) and historical regression recidivism.
+
+#### ⚡ Stage 3: Single-Navigation Multi-Audit Engine
+Instead of opening multiple browser tabs and reloading the page 5 times, AutonomousQA performs **all 5 audits simultaneously on a single page navigation**:
+1. **Axe-Core 4.9.0 Engine:** Audits against WCAG 2.1 AA/AAA rules, contrast minimums, aria attributes, missing form labels, and focus trap vulnerabilities.
+2. **Runtime JS & Network Error Interceptor:** Actively traps `window.onerror`, unhandled promise rejections, `console.error` logs, and 4xx/5xx failing backend API requests.
+3. **Chromium Navigation Timing:** Captures Core Web Vitals (TTFB, LCP, CLS, FID/TBT) using native `PerformanceObserver` telemetry.
+4. **Visual Collision Math:** Extracts exact bounding boxes via `getBoundingClientRect()` and detects un-styled layout collisions and overlapping interactive elements.
+5. **Hybrid NVIDIA Eagle VLM:** Uses private ZeroGPU cloud vision to semantically inspect UI components or falls back to local Gaussian blurred SSIM pixel subtraction.
+
+#### 🎯 Stage 4: Hygiene Scoring & Actionable Defect Generation
+* **Penalty-Weighted Calculation:** Aggregates findings and scores the page hygiene from 0 to 100 based on severity penalties (`Critical` = -15, `Major` = -8, `Minor` = -3, `Warning` = -1).
+* **Actionable Remediation Cards:** Produces verified defect objects containing the exact CSS selector, offending HTML code snippet, WCAG standard reference, and developer remediation fix.
+* **Self-Healing Fingerprints:** Records multi-variable element snapshots (`tagName`, Levenshtein text distance, spatial coordinates) to dynamically heal broken selectors in future test runs.
+
+---
 
 <div align="center">
 

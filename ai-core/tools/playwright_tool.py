@@ -383,6 +383,27 @@ class PlaywrightTool:
         except Exception as e:
             print(f"Chaos injection failed: {e}")
 
+        # ── Functional & Runtime Error Monitors ──
+        js_errors = []
+        api_errors = []
+        failed_assets = []
+
+        def on_page_error(err):
+            js_errors.append(str(err))
+
+        def on_console_msg(msg):
+            if msg.type == "error":
+                text = msg.text
+                if not text.startswith("[HMR]") and "favicon.ico" not in text:
+                    js_errors.append(f"Console error: {text[:200]}")
+
+        def on_response(res):
+            status = res.status
+            if status >= 500:
+                api_errors.append(f"HTTP {status} on {res.url[:120]}")
+            elif status == 404 and not res.url.endswith((".ico", ".map")) and not res.url.startswith("data:"):
+                failed_assets.append(f"HTTP 404 Not Found on {res.url[:120]}")
+
         results = {
             "url": url,
             "defects": [],
@@ -404,93 +425,68 @@ class PlaywrightTool:
             results["status_code"] = response.status if response else 0
             results["title"] = page.title()
 
-
-            # ── Basic tests (same logic as _test_page_sync) ──
-
-            missing_alt = page.evaluate("""() => {
-                const imgs = document.querySelectorAll('img');
-                let missing = 0;
-                imgs.forEach(img => { if (!img.alt) missing++; });
-                return missing;
-            }""")
-            if missing_alt > 0:
+            # ── Functional Test: Page Load & HTTP Status ──
+            if response and response.status >= 400:
                 results["defects"].append({
-                    "type": "Accessibility", "severity": "major",
-                    "message": f"Missing alt text on {missing_alt} image(s)",
-                    "fix": "Add descriptive alt attributes to all <img> elements",
+                    "type": "Functional", "severity": "critical",
+                    "message": f"Page failed to load: HTTP {response.status} Error ({response.status_text or 'Failed'})",
+                    "fix": "Check server routing, backend availability, and URL path.",
                 })
 
-            heading_issues = page.evaluate("""() => {
-                const headings = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
-                const levels = Array.from(headings).map(h => parseInt(h.tagName[1]));
-                let issues = 0;
-                const h1Count = levels.filter(l => l === 1).length;
-                if (h1Count === 0) issues++;
-                if (h1Count > 1) issues++;
-                for (let i = 1; i < levels.length; i++) {
-                    if (levels[i] - levels[i-1] > 1) issues++;
-                }
-                return { issues, h1Count };
-            }""")
-            if heading_issues["h1Count"] == 0:
-                results["defects"].append({
-                    "type": "SEO", "severity": "major",
-                    "message": "Page is missing an H1 heading tag",
-                    "fix": "Add a single H1 tag as the main page heading",
-                })
-            elif heading_issues["h1Count"] > 1:
-                results["defects"].append({
-                    "type": "SEO", "severity": "minor",
-                    "message": f"Multiple H1 tags found ({heading_issues['h1Count']})",
-                    "fix": "Use a single H1 for the main heading, use H2+ for others",
-                })
+            # ── Active UI Exploration & Fuzzing (Safe Click & Input Test) ──
+            try:
+                inputs = page.query_selector_all('input[type="text"], input[type="email"], input[type="search"], textarea')
+                for inp in inputs[:2]:
+                    try:
+                        if inp.is_visible():
+                            inp.fill("QA_TEST_PAYLOAD", timeout=1000)
+                    except Exception:
+                        pass
 
-            meta = page.evaluate("""() => {
-                const desc = document.querySelector('meta[name="description"]');
-                return desc ? desc.content : null;
-            }""")
-            if not meta:
-                results["defects"].append({
-                    "type": "SEO", "severity": "minor",
-                    "message": "Missing meta description tag",
-                    "fix": "Add a <meta name='description'> tag with page summary",
-                })
+                buttons = page.query_selector_all('button:not([disabled]), [role="button"]')
+                for btn in buttons[:2]:
+                    try:
+                        if btn.is_visible():
+                            btn.click(timeout=1000)
+                            page.wait_for_timeout(300)
+                    except Exception:
+                        pass
+            except Exception:
+                pass
 
-            unlabeled_inputs = page.evaluate("""() => {
-                const inputs = document.querySelectorAll('input, select, textarea');
-                let unlabeled = 0;
-                inputs.forEach(input => {
-                    if (input.type === 'hidden' || input.type === 'submit') return;
-                    const id = input.id;
-                    const label = id ? document.querySelector(`label[for="${id}"]`) : null;
-                    const ariaLabel = input.getAttribute('aria-label');
-                    const ariaLabelledBy = input.getAttribute('aria-labelledby');
-                    if (!label && !ariaLabel && !ariaLabelledBy) unlabeled++;
-                });
-                return unlabeled;
-            }""")
-            if unlabeled_inputs > 0:
-                results["defects"].append({
-                    "type": "Accessibility", "severity": "critical",
-                    "message": f"Form inputs missing labels — {unlabeled_inputs} instance(s)",
-                    "fix": "Add <label> elements with for attributes to each input field",
-                })
+            # ── Functional Test: JavaScript Runtime Exceptions & Console Errors ──
+            seen_js = set()
+            for err in js_errors:
+                short_err = err.strip()[:180]
+                if short_err not in seen_js:
+                    seen_js.add(short_err)
+                    results["defects"].append({
+                        "type": "Functional", "severity": "critical",
+                        "message": f"JavaScript Runtime Exception / Console Error: {short_err}",
+                        "fix": "Inspect frontend stack trace and add error boundary or null-safe property access.",
+                    })
 
-            low_contrast = page.evaluate("""() => {
-                const elements = document.querySelectorAll('p, span, a, li, td, th, label, button');
-                let issues = 0;
-                elements.forEach(el => {
-                    const style = getComputedStyle(el);
-                    if (style.color === style.backgroundColor) issues++;
-                });
-                return issues;
-            }""")
-            if low_contrast > 0:
-                results["defects"].append({
-                    "type": "WCAG", "severity": "major",
-                    "message": f"Potential color contrast issues on {low_contrast} element(s)",
-                    "fix": "Ensure text has at least 4.5:1 contrast ratio against background",
-                })
+            # ── Functional Test: Backend API 5xx Crashes ──
+            seen_api = set()
+            for err in api_errors:
+                if err not in seen_api:
+                    seen_api.add(err)
+                    results["defects"].append({
+                        "type": "Functional", "severity": "critical",
+                        "message": f"Backend API / Server Error: {err}",
+                        "fix": "Inspect backend server logs and handle unhandled exceptions on the API endpoint.",
+                    })
+
+            # ── Functional Test: Broken 404 Resources ──
+            seen_assets = set()
+            for err in failed_assets[:3]:
+                if err not in seen_assets:
+                    seen_assets.add(err)
+                    results["defects"].append({
+                        "type": "Functional", "severity": "major",
+                        "message": f"Broken Resource / 404 Endpoint: {err}",
+                        "fix": "Fix missing asset path or broken API route.",
+                    })
 
             # Performance metrics
             perf = page.evaluate("""() => {
@@ -622,6 +618,9 @@ class PlaywrightTool:
                             selector: el.id ? '#' + el.id : (el.className ? '.' + el.className.split(' ').slice(0, 2).join('.') : el.tagName),
                             x1: rect.left, y1: rect.top, x2: rect.right, y2: rect.bottom,
                             zIndex: style.zIndex === 'auto' ? 0 : (parseInt(style.zIndex, 10) || 0),
+                            position: style.position || 'static',
+                            pointerEvents: style.pointerEvents || 'auto',
+                            ariaHidden: el.getAttribute('aria-hidden') === 'true' || el.getAttribute('role') === 'none' || el.getAttribute('role') === 'presentation',
                             text: (el.innerText || '').substring(0, 30)
                         });
                     }
