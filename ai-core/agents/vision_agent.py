@@ -1,8 +1,9 @@
-"""Vision Agent — Pure Algorithmic Visual Regression.
+"""Vision Agent — SIMD-Accelerated Visual Regression.
 
 Stage 4 of AutonomousQA pipeline:
   - Takes screenshots of each page (from Playwright)
-  - Performs pure mathematical visual regression (SSIM/MSE style) against a baseline
+  - Performs SIMD-vectorized visual regression (SSIM/MSE) against a baseline
+  - Falls back to scalar Pillow if NumPy unavailable
   - No LLMs used. 100% deterministic and offline.
 """
 
@@ -23,6 +24,16 @@ except ImportError:
 
 
 from utils.hf_client import hf_vlm_client
+
+# SIMD engine layer — Tier 1/2 acceleration with Tier 3 Pillow fallback
+try:
+    from utils.simd_vision_engine import compute_simd_full, SIMD_TIER
+    from utils.simd_collision_engine import detect_simd_collisions
+    HAS_SIMD = True
+    logger.info(f"VisionAgent: SIMD engines loaded (tier: {SIMD_TIER})")
+except ImportError:
+    HAS_SIMD = False
+    logger.info("VisionAgent: SIMD engines unavailable — using Pillow scalar fallback")
 
 
 class VisionAgent:
@@ -121,7 +132,7 @@ class VisionAgent:
             return {"defects": [], "page_quality_score": None, "summary": f"Error: {e}"}
 
     async def compare_screenshots(self, baseline_bytes: bytes, current_bytes: bytes, url: str) -> dict:
-        """Pure mathematical visual regression comparing two images."""
+        """Visual regression comparing two images. Uses SIMD engine when available."""
         if not self._available:
             return {"changes": [], "regression_score": 100.0, "summary": "Pillow not installed"}
             
@@ -132,33 +143,56 @@ class VisionAgent:
                 "summary": "100% Exact Byte Match"
             }
 
+        # --- SIMD Tier 1/2 path (vectorized NumPy AVX2) ---
+        if HAS_SIMD:
+            try:
+                result = compute_simd_full(baseline_bytes, current_bytes)
+                drift = result['drift_percentage']
+                regression_score = result['regression_score']
+                ssim_score = result['ssim']
+
+                changes = []
+                if drift > 0.5:
+                    changes.append({
+                        "change_type": "functional",
+                        "severity": "major" if drift > 5.0 else "minor",
+                        "description": f"SIMD Visual Regression: {drift:.2f}% pixel variance (SSIM: {ssim_score:.4f})",
+                        "location": "Global",
+                        "confidence": 1.0
+                    })
+
+                return {
+                    "changes": changes,
+                    "regression_score": round(regression_score, 2),
+                    "ssim": ssim_score,
+                    "summary": f"SIMD Diff ({result['simd_tier']}): {drift:.2f}% difference, SSIM={ssim_score}"
+                }
+            except Exception as e:
+                logger.warning(f"VisionAgent: SIMD diff failed, falling back to Pillow: {e}")
+
+        # --- Tier 3 fallback: scalar Pillow ---
         try:
             img1 = Image.open(io.BytesIO(baseline_bytes)).convert('RGB')
             img2 = Image.open(io.BytesIO(current_bytes)).convert('RGB')
             
-            # Ensure same size for diffing
             if img1.size != img2.size:
-                # Resize img2 to match img1 for a best-effort diff
                 img2 = img2.resize(img1.size)
 
-            # Apply slight blur to ignore minor anti-aliasing text shifts
             blur_radius = 1
             img1_blurred = img1.filter(ImageFilter.GaussianBlur(blur_radius))
             img2_blurred = img2.filter(ImageFilter.GaussianBlur(blur_radius))
             
-            # Calculate absolute difference
             diff = ImageChops.difference(img1_blurred, img2_blurred)
             stat = ImageStat.Stat(diff)
             
-            # Sum of absolute pixel differences across RGB divided by total possible difference
             total_diff = sum(stat.sum)
             max_diff = img1.size[0] * img1.size[1] * 255 * 3
             
             difference_percentage = (total_diff / max_diff) * 100.0
-            regression_score = max(0.0, 100.0 - (difference_percentage * 5)) # Multiply penalty by 5 for sensitivity
+            regression_score = max(0.0, 100.0 - (difference_percentage * 5))
             
             changes = []
-            if difference_percentage > 0.5: # 0.5% threshold for noise
+            if difference_percentage > 0.5:
                 changes.append({
                     "change_type": "functional",
                     "severity": "major" if difference_percentage > 5.0 else "minor",
@@ -170,7 +204,7 @@ class VisionAgent:
             return {
                 "changes": changes,
                 "regression_score": round(regression_score, 2),
-                "summary": f"Algorithmic Diff: {difference_percentage:.2f}% difference"
+                "summary": f"Pillow Scalar Diff: {difference_percentage:.2f}% difference"
             }
 
         except Exception as e:
@@ -178,7 +212,15 @@ class VisionAgent:
             return {"changes": [], "regression_score": None, "summary": f"Error: {e}"}
 
     def check_bounding_box_overlaps(self, elements: list[dict]) -> list[dict]:
-        """Mathematically checks for overlapping bounding boxes without proper z-index isolation."""
+        """Checks for overlapping bounding boxes. Uses SIMD matrix broadcast when available."""
+        # --- SIMD path: vectorized matrix broadcast ---
+        if HAS_SIMD:
+            try:
+                return detect_simd_collisions(elements)
+            except Exception as e:
+                logger.warning(f"VisionAgent: SIMD collision failed, falling back to scalar: {e}")
+
+        # --- Scalar fallback ---
         defects = []
         seen_messages = set()
         n = len(elements)

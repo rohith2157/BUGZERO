@@ -56,11 +56,11 @@ flowchart TD
   
     subgraph D [Stage 3: Multi-Audit Execution on Single Page Load]
         D1[Axe-Core 4.9.0 WCAG Engine]
-        D2[Runtime JS Crash & Console Error Trap]
+        D2[Runtime JS Crash & Network 4xx/5xx Trap]
         D3[Chromium PerformanceObserver API]
-        D4[Bounding Box Collision Math]
-        D5[Hybrid NVIDIA Eagle2 VLM / Pillow Vision]
-        D6[Stateful JourneyAgent & Math Asserter]
+        D4[⚡ SIMD 2D AABB Collision Engine]
+        D5[⚡ SIMD Vectorized SSIM & Pixel Drift]
+        D6[Stateful JourneyAgent & Business Logic Engine]
     end
   
     D1 --> E[Stage 4: Aggregation & Hygiene Scoring]
@@ -198,145 +198,147 @@ graph TD
 
 ---
 
-## 🏗️ Architecture
+## 🏗️ System Architecture & 5-Tier Topology
+
+BugZero uses a **5-Tier Distributed Architecture** featuring a hardware-accelerated vector computing core in `ai-core/utils/` that executes native AVX2 SIMD operations for visual diffing, structural similarity (SSIM), layout collision geometry, and DOM feature embeddings.
 
 ```mermaid
-graph TD;
-    Frontend["🖥️ Frontend\n(React + Vite)\nPort 5173"] --> API["⚙️ API Gateway\n(Express.js)\nPort 3000"];
-    API --> AI["🤖 AI Core\n(Python FastAPI)\nPort 8000"];
-  
-    API --> DB[("🐘 PostgreSQL\n(Data Storage)")]
-    API --> Redis[("🔴 Redis\n(Cache/Queues)")]
-    API --> Neo[("🕸️ Neo4j\n(Graph Mappings)")]
-  
-    AI --> PW["🌐 Playwright\n(Browser Engine)"]
-    AI --> Axe["♿ axe-core\n(A11y Tests)"]
-    AI --> Pillow["🖼️ Pillow\n(Visual Math)"]
+flowchart TD
+    %% Styling Definitions
+    classDef clientLayer fill:#0f172a,stroke:#38bdf8,stroke-width:2px,color:#f8fafc;
+    classDef gatewayLayer fill:#1e1b4b,stroke:#818cf8,stroke-width:2px,color:#f8fafc;
+    classDef orchestratorLayer fill:#14532d,stroke:#4ade80,stroke-width:2px,color:#f8fafc;
+    classDef simdLayer fill:#701a75,stroke:#f472b6,stroke-width:2px,color:#fdf2f8;
+    classDef hardwareLayer fill:#78350f,stroke:#fbbf24,stroke-width:2px,color:#fffbeb;
 
-    style Frontend fill:#1E293B,stroke:#3B82F6,stroke-width:2px,color:#fff
-    style API fill:#1E293B,stroke:#10B981,stroke-width:2px,color:#fff
-    style AI fill:#1E293B,stroke:#8B5CF6,stroke-width:2px,color:#fff
-    style DB fill:#0F172A,stroke:#64748B,color:#fff
-    style Redis fill:#0F172A,stroke:#64748B,color:#fff
-    style Neo fill:#0F172A,stroke:#64748B,color:#fff
-    style PW fill:#0F172A,stroke:#64748B,color:#fff
-    style Axe fill:#0F172A,stroke:#64748B,color:#fff
-    style Pillow fill:#0F172A,stroke:#F59E0B,color:#fff
+    subgraph Tier1["🖥️ Tier 1: Client Presentation (React 19 + Vite 7)"]
+        UI_DASH["📊 Executive QA Dashboard"]
+        UI_BLUEPRINT["📐 2D Cartesian Blueprint Studio (X-Ray)"]
+        UI_JOURNEY["🧭 Autonomous Journey Studio (8 Flows)"]
+        UI_WS["⚡ WebSocket Client Hook (`useWebSocket.js`)"]
+    end
+    class Tier1,UI_DASH,UI_BLUEPRINT,UI_JOURNEY,UI_WS clientLayer;
+
+    subgraph Tier2["🌐 Tier 2: Gateway & Event Streaming (Node.js API)"]
+        GW_ROUTER["🔀 REST Test Router (`/api/tests`)"]
+        GW_WS["📡 Real-Time WebSocket Server (`ws://:5000`)"]
+        GW_STORAGE["💾 Baseline Snapshot Store (`/baselines`)"]
+    end
+    class Tier2,GW_ROUTER,GW_WS,GW_STORAGE gatewayLayer;
+
+    subgraph Tier3["🧠 Tier 3: AI-Core Autonomous QA Orchestration (Python 3.13)"]
+        ORCH["👑 Autonomous Orchestrator (`orchestrator.py`)"]
+        PW["🎭 Playwright Crawler + axe-core 4.9.0 + Runtime Traps"]
+        SWARM["🤖 Agent Swarm (VisionAgent, SelfHealingAgent, JourneyAgent)"]
+    end
+    class Tier3,ORCH,PW,SWARM orchestratorLayer;
+
+    subgraph Tier4["⚡ Tier 4: SIMD Hardware Acceleration Layer (`ai-core/utils/`)"]
+        SIMD_V["⚡ `simd_vision_engine.py` (AVX2 SSIM & Pixel Drift)"]
+        SIMD_C["📐 `simd_collision_engine.py` (AABB Matrix Broadcast)"]
+        SIMD_F["🧬 `simd_feature_engine.py` (8D Cosine Similarity)"]
+    end
+    class Tier4,SIMD_V,SIMD_C,SIMD_F simdLayer;
+
+    subgraph Tier5["⚙️ Tier 5: Hardware Acceleration Subsystem"]
+        HW_AVX2["🚀 AVX2 / FMA3 (256-bit Vector Registers)"]
+        HW_BLAS["🧵 OpenBLAS 0.3.31 (24 Parallel CPU Threads)"]
+        HW_FALLBACK["🛡️ 3-Tier Fallback (AVX2 ➔ Vectorized NumPy ➔ Pillow Scalar)"]
+    end
+    class Tier5,HW_AVX2,HW_BLAS,HW_FALLBACK hardwareLayer;
+
+    UI_WS <==>|Bi-directional WS Stream| GW_WS
+    UI_DASH -->|Trigger Test| GW_ROUTER
+    GW_ROUTER -->|Spawn Process| ORCH
+    ORCH --> PW
+    PW --> SWARM
+    SWARM ==>|Contiguous float32 Buffers| Tier4
+    Tier4 -.-> Tier5
 ```
 
-| Service               | Technology                                   | Purpose                                                               |
-| :-------------------- | :------------------------------------------- | :-------------------------------------------------------------------- |
-| **Frontend**    | React 19, Vite 7, Framer Motion, Recharts    | Interactive dashboard & real-time monitoring                          |
-| **API Gateway** | Express.js, Prisma ORM, Socket.io, JWT       | REST API, authentication, WebSocket relay                             |
-| **AI Core**     | Python FastAPI, Playwright, axe-core, Pillow | Autonomous crawling, testing, healing, and visual regression          |
-| **PostgreSQL**  | v16                                          | Persistent storage (users, tests, defects, healing events, baselines) |
-| **Redis**       | v7                                           | Caching, session management, job queues                               |
-| **Neo4j**       | v5                                           | Graph-based page relationship mapping                                 |
+> 📖 **Full Architectural Blueprint:** For complete zero-copy memory diagrams, YMM register layouts, and sequence diagrams, see [results/ARCHITECTURE_SYSTEM_DIAGRAM.md](file:///c:/testproject/results/ARCHITECTURE_SYSTEM_DIAGRAM.md).
+
+| Service / Subsystem | Technology Stack | Hardware Role & Purpose |
+| :--- | :--- | :--- |
+| **Frontend Studio** | React 19, Vite 7, Tailwind, Canvas | Interactive QA dashboard, 2D Cartesian X-Ray blueprinting, user journeys. |
+| **API Gateway** | Express.js, Prisma ORM, Socket.io | REST endpoints, WebSocket relay, baseline screenshot caching. |
+| **AI-Core Orchestrator** | Python 3.13, Playwright, axe-core 4.9.0 | Autonomous crawling, runtime error trapping, multi-agent dispatching. |
+| **SIMD Vision Engine** | NumPy 2.4.6, AVX2, OpenBLAS | Structural Similarity Index (SSIM) and pixel drift math in 256-bit registers. |
+| **SIMD Collision Engine** | NumPy Broadcast Matrix | $N \times N$ AABB bounding box collision checks with adaptive scalar routing. |
+| **SIMD Feature Engine** | Contiguous float32 Matrix | 8D vector dot-product cosine similarity for instant self-healing locators. |
 
 ---
 
-## ⚙️ System Workflow
+## ⚙️ System Workflow & Execution Pipeline
 
-Here's exactly what happens under the hood when you click **"Launch Test"**.
+Here is what happens under the hood when a test run is launched:
 
 ```mermaid
 sequenceDiagram
+    autonumber
     participant U as 👤 User
-    participant F as 🖥️ Frontend (React)
-    participant G as ⚙️ Gateway (Node.js)
-    participant DB as 🐘 Database (Postgres)
-    participant W as ⚡ WebSocket Server
-    participant A as 🤖 AI Core (Python)
-    participant Vis as 🖼️ Algo Vision (Pillow)
+    participant F as 🖥️ Frontend Studio
+    participant G as 🌐 API Gateway
+    participant O as 👑 AI-Core Orchestrator
+    participant PW as 🎭 Playwright & Axe-Core
+    participant SIMD as ⚡ SIMD Hardware Engines
+    participant WS as 📡 WebSocket Server
 
-    U->>F: Clicks "Launch Test" (URL/Repo, Config)
+    U->>F: Clicks "Launch Test" (URL, Depth)
     F->>G: POST /api/tests { url, config }
-    G->>DB: Create test_run status="queued"
-    G-->>F: Return UUID
-    F->>W: Join room {testRun.id} (Live UI)
-    G->>A: Trigger pipeline (POST /api/test/run) via proxy
-  
-    note over A: STAGE 0: REPO CLONE & BOOT (Repo Mode Only)
-    opt Repo mode
-        A->>A: Clone repo, detect framework, start dev server
-    end
-  
-    note over A: STAGE 1: BFS CRAWL 🕷️
-    A->>A: Playwright BFS — discover all pages + links
-    A->>G: POST /api/tests/progress (crawl_complete)
-    G->>W: emit 'crawl:complete' (Updates UI Pages Total)
-  
-    note over A: STAGE 2: RISK SCORING 📊
-    A->>G: GET /api/tests/history/lookup (defect history)
-    G-->>A: Return defect counts + previous scores
-    A->>A: PageRank + type boost + defect history + change detection
-    A->>A: Greedy sort — most critical pages first
-    A->>G: POST /api/tests/progress (pagerank_complete)
-    G->>W: emit 'pagerank:complete' (Shows priority order)
-  
-    note over A: STAGE 3: TEST LOOP 🔬
-    loop For each page (risk priority order)
-        A->>A: 3a: Self-Healing — fuzzy DOM math matching
-        A->>A: 3b: Basic tests (SEO, forms, perf, links)
-        A->>A: 3c: Inject axe-core → full WCAG 2.1 audit
-        A->>G: GET /api/baselines (fetch baseline screenshot)
-        A->>Vis: Send current + baseline for Pillow Math SSIM diff
-        Vis-->>A: Return mathematical drift % + bounding boxes
-        A->>G: POST /api/baselines (save new baseline)
-        A->>A: 3e: Fingerprint page for future self-healing
-        A->>G: POST /api/tests/progress (page_complete)
-        G->>DB: Save metrics, defects, compliance, healing events
-        G->>W: emit 'page:complete' & 'defect:found' & 'heal:success'
-    end
-  
-    note over A: STAGE 4: REPORT GENERATION 📋
-    A->>A: Aggregate scores → calculate grade (A+ to F)
-    A->>A: WCAG compliance % + top issues
-    A-->>G: Return Final TestResult + SiteReport
-    G->>DB: Save report, grade, WCAG compliance %
-    G->>W: emit 'report:complete' & 'test:finished'
-    W-->>F: Display "Test Completed" & enable reports
+    G-->>F: Return Test Run UUID
+    F->>WS: Connect WebSocket (ws://:5000)
+    G->>O: Spawn In-Process Orchestration Pipeline
+
+    note over O,PW: STAGE 1: INGESTION & CRAWL
+    O->>PW: Launch Headless Browser (BFS Spider)
+    PW->>PW: Run axe-core 4.9.0, trap pageerror & 4xx/5xx network failures
+    PW-->>O: Return Page Screenshots, DOM Coordinate Buffers & Axe Violations
+
+    note over O,SIMD: STAGE 2: SIMD HARDWARE ANALYSIS
+    O->>SIMD: `compute_simd_full(baseline, current)`
+    SIMD->>SIMD: Single-Pass PNG Decode + AVX2 SSIM & Drift Calculation
+    SIMD-->>O: Return SSIM (e.g. 0.8273) + Pixel Drift %
+    
+    O->>SIMD: `detect_simd_collisions(DOM boxes)`
+    SIMD->>SIMD: Evaluate AABB matrix + Filter z-index contexts
+    SIMD-->>O: Return Verified Layout Collision Defects
+
+    note over O,F: STAGE 3: RESULT ASSEMBLY & REPORTING
+    O->>G: Persist Aggregated Report JSON
+    G->>WS: Emit 'test:finished' with Full Matrix
+    WS-->>F: Stream Telemetry & Render Interactive Blueprint Cards
 ```
 
-### Full Data Flow
+### End-to-End Data Pipeline Flowchart
 
 ```mermaid
 flowchart LR
-    Start(["User Request"]) --> Gateway["API Gateway"]
-    Gateway --> Auth{"JWT Valid?"}
-    Auth -- No --> Deny(["401 Unauthorized"])
-    Auth -- Yes --> Route["tests route"]
-  
-    Route --> InitDB[("DB: test run created")]
-    Route --> EventQueue(("Trigger Pipeline"))
-  
-    EventQueue --> AICore["AI Core Orchestrator"]
-    AICore --> PW["Playwright Tool"]
-  
-    PW --> Crawler["Crawler Agent (BFS)"]
-    Crawler --> Pages{"Discovered Pages + Links"}
-  
-    Pages --> History["Fetch Defect History"]
-    History --> PR["Scheduler (PageRank + 4-Factor Risk)"]
-    PR --> Sort["Greedy Sort (Priority)"]
-    Sort --> WS1{{"WS: crawl:complete + pagerank:complete"}}
-  
-    Sort --> Loop["Test Loop (each page)"]
-    Loop --> Heal["Self-Healing Agent"]
-    Loop --> Basic["Tester Agent (SEO/Perf/Forms)"]
-    Loop --> Axe["axe-core Tool (WCAG 2.1)"]
-    Loop --> Vision["Vision Agent (Pillow Math + Regression)"]
-  
-    Heal --> Results["Page Results"]
-    Basic --> Results
-    Axe --> Results
-    Vision --> Results
-    Results --> WS2{{"WS: page:complete & defect:found & heal:success"}}
-  
-    WS2 --> Report["Report Agent"]
-    Report --> Grade["Score + Grade (A+ to F)"]
-    Grade --> FinDB[("Save report + baselines to Postgres")]
-    FinDB --> WS3{{"WS: report:complete & test:finished"}}
+    Start(["Target URL / Input"]) --> Gateway["API Gateway (Express)"]
+    Gateway --> Route["/api/tests/run"]
+    Route --> AICore["👑 AI-Core Orchestrator"]
+    
+    AICore --> PW["🎭 Headless Playwright Controller"]
+    PW --> Crawler["🕷️ BFS Discovery Crawler"]
+    Crawler --> Pages{"Discovered Pages Graph"}
+    
+    Pages --> Scheduler["📊 PageRank & Risk Scheduler"]
+    Scheduler --> Loop["🔬 Single-Navigation Audit Loop"]
+    
+    Loop --> Axe["♿ axe-core 4.9.0 (WCAG AA/AAA)"]
+    Loop --> Traps["🚨 Runtime Error & 4xx/5xx Trap"]
+    Loop --> SIMDV["⚡ SIMD Vision (SSIM & Drift Math)"]
+    Loop --> SIMDC["📐 SIMD 2D AABB Collision Matrix"]
+    Loop --> Heal["🩹 Self-Healing Feature Vectors"]
+    
+    Axe --> Results["Aggregated Findings"]
+    Traps --> Results
+    SIMDV --> Results
+    SIMDC --> Results
+    Heal --> Results
+    
+    Results --> WSStream{{"📡 WebSocket Stream (ws://:5000)"}}
+    WSStream --> UI["🖥️ Frontend Report & Blueprint Studio"]
 ```
 
 ---
