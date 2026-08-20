@@ -112,4 +112,10 @@ export const settings = {
     activity: () => request('/settings/activity'),
 };
 
-export default { auth, tests, playbooks, settings };
+// Baselines
+export const baselines = {
+    get: (url) => request(`/baselines?url=${encodeURIComponent(url)}`),
+    save: (data) => request('/baselines', { method: 'POST', body: JSON.stringify(data) }),
+};
+
+export default { auth, tests, playbooks, settings, baselines };
