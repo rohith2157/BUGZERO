@@ -8,8 +8,8 @@ class Settings(BaseSettings):
     headless: bool = True
     browser: str = "chromium"
 
-    # Hugging Face VLM Integration
-    hf_token: str = "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"
+    # Hugging Face VLM Integration (Loaded from .env / OS env)
+    hf_token: str = ""
     hf_space_url: str = "https://rohith2157-vlm-for-bugzero.hf.space"
     hf_model_id: str = "nvidia/Eagle2-2B"
     hf_grounding_model_id: str = "nvidia/LocateAnything-3B"
