@@ -4,18 +4,24 @@ import prisma from '../db.js';
 import { authenticate } from '../middleware/auth.js';
 import { validate } from '../middleware/validate.js';
 import { body } from 'express-validator';
+import { ensureUserOrg } from './auth.js';
 
 const router = Router();
 
 // GET /api/settings/team — Get team members
 router.get('/team', authenticate, async (req, res) => {
     try {
-        if (!req.user.orgId) {
+        let orgId = req.user.orgId;
+        if (!orgId) {
+            orgId = await ensureUserOrg(req.user.id);
+            req.user.orgId = orgId;
+        }
+        if (!orgId) {
             return res.json({ members: [] });
         }
 
         const members = await prisma.user.findMany({
-            where: { orgId: req.user.orgId },
+            where: { orgId },
             select: { id: true, name: true, email: true, role: true, avatar: true, createdAt: true, updatedAt: true },
             orderBy: { createdAt: 'asc' },
         });

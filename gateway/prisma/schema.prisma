@@ -107,6 +107,9 @@ model TestRun {
   complianceResults ComplianceResult[]
   performanceMetrics PerformanceMetric[]
   healingEvents HealingEvent[]
+  pullRequests  PullRequestFix[]
+  timeTravelSteps TimeTravelStep[]
+  chaosReport   Json?
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 
@@ -266,4 +269,41 @@ model ScreenshotBaseline {
 
   @@unique([url, orgId])
   @@map("screenshot_baselines")
+}
+
+model PullRequestFix {
+  id          String   @id @default(uuid())
+  prUrl       String?
+  prNumber    Int?
+  branchName  String
+  repoName    String
+  title       String
+  body        String?
+  patchDiff   String   @db.Text
+  status      String   @default("opened")
+  defectId    String?
+  runId       String
+  run         TestRun  @relation(fields: [runId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("pull_request_fixes")
+}
+
+model TimeTravelStep {
+  id             String   @id @default(uuid())
+  stepIndex      Int
+  action         String
+  selector       String?
+  pageUrl        String
+  screenshotUrl  String?  @db.Text
+  domSnapshot    String?  @db.Text
+  consoleLogs    Json?
+  networkSummary Json?
+  latencyMs      Int?
+  runId          String
+  run            TestRun  @relation(fields: [runId], references: [id], onDelete: Cascade)
+  createdAt      DateTime @default(now())
+
+  @@map("time_travel_steps")
 }

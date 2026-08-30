@@ -42,10 +42,25 @@ router.post('/map', async (req, res) => {
             return res.status(400).json({ error: 'orgId, url, and mapData are required' });
         }
 
+        let targetOrgId = orgId;
+        const orgExists = await prisma.organization.findUnique({ where: { id: targetOrgId } });
+        if (!orgExists) {
+            // If the orgId passed does not exist in DB, find any existing org or create a default
+            const defaultOrg = await prisma.organization.findFirst();
+            if (defaultOrg) {
+                targetOrgId = defaultOrg.id;
+            } else {
+                const createdOrg = await prisma.organization.create({
+                    data: { name: 'Default Organization', plan: 'free', apiQuota: 5 }
+                });
+                targetOrgId = createdOrg.id;
+            }
+        }
+
         const healingMap = await prisma.healingMap.upsert({
             where: {
                 orgId_url: {
-                    orgId,
+                    orgId: targetOrgId,
                     url
                 }
             },
@@ -53,7 +68,7 @@ router.post('/map', async (req, res) => {
                 mapData
             },
             create: {
-                orgId,
+                orgId: targetOrgId,
                 url,
                 mapData
             }

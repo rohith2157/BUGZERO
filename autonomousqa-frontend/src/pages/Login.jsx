@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { Mail, Lock, User, Building2, ArrowRight, FlaskConical, Eye, EyeOff, Github } from 'lucide-react';
-import { auth as authApi } from '../lib/api';
+import { auth as authApi, API_BASE } from '../lib/api';
 import { useAuthStore } from '../store/authStore';
 import TextBlockAnimation from '../components/ui/text-block-animation';
 
@@ -22,11 +22,9 @@ export default function Login() {
     const params = new URLSearchParams(window.location.search);
     const token = params.get('token');
     if (!token) return;
+    localStorage.setItem('aq_token', token);
     // Fetch real user data so githubAccessToken is properly populated
-    fetch('http://localhost:3000/api/auth/me', {
-      headers: { Authorization: `Bearer ${token}` }
-    })
-      .then(res => res.json())
+    authApi.me()
       .then(data => {
         if (data.user) {
           setAuth(data.user, token, data.user.githubAccessToken);
@@ -339,7 +337,7 @@ export default function Login() {
 
             <motion.button
               onClick={() => {
-                window.location.href = 'http://localhost:3000/api/auth/github';
+                window.location.href = `${API_BASE}/auth/github`;
               }}
               whileHover={{ scale: 1.02, y: -1 }}
               whileTap={{ scale: 0.98 }}

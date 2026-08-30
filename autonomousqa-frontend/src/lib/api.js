@@ -1,6 +1,4 @@
-// API client for BugZero Gateway
-
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+export const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
 
 function getToken() {
     try {
@@ -89,6 +87,10 @@ export const tests = {
     compliance: (id) => request(`/tests/${encodeURIComponent(id)}/compliance`),
     performance: (id) => request(`/tests/${encodeURIComponent(id)}/performance`),
     healing: (id) => request(`/tests/${encodeURIComponent(id)}/healing`),
+    autofix: (id, data) => request(`/tests/${encodeURIComponent(id)}/autofix`, { method: 'POST', body: JSON.stringify(data) }),
+    timetravel: (id) => request(`/tests/${encodeURIComponent(id)}/timetravel`),
+    chaos: (id) => request(`/tests/${encodeURIComponent(id)}/chaos`),
+    exportPlaywrightUrl: (id) => `${API_BASE}/tests/${encodeURIComponent(id)}/export/playwright`,
 };
 
 // Playbooks

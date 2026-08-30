@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { User, X, Camera, Mail, Shield, Sparkles } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
+import { settings as settingsApi } from '../../lib/api';
 
 export const DialogBox = () => {
     const { user, updateUser } = useAuthStore();
@@ -47,9 +48,15 @@ export const DialogBox = () => {
 
     const handleSave = async () => {
         setSaving(true);
-        // Simulate a brief save delay for feedback
-        await new Promise((r) => setTimeout(r, 400));
-        updateUser({ name: name.trim() || user?.name });
+        const trimmed = name.trim();
+        if (trimmed && trimmed !== user?.name) {
+            try {
+                await settingsApi.updateProfile({ name: trimmed });
+            } catch (err) {
+                console.error('Failed to persist profile update:', err);
+            }
+        }
+        updateUser({ name: trimmed || user?.name });
         setSaving(false);
         setSaved(true);
         setTimeout(() => setOpen(false), 600);

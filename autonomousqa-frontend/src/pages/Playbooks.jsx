@@ -17,6 +17,7 @@ const item = { hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0, transiti
 
 export default function Playbooks() {
     const [showModal, setShowModal] = useState(false);
+    const [editingPlaybook, setEditingPlaybook] = useState(null);
     const [playbooks, setPlaybooks] = useState([]);
     const [loading, setLoading] = useState(true);
     const [newPlaybook, setNewPlaybook] = useState({ name: '', domain: '', authType: 'Form-based Login' });
@@ -27,7 +28,7 @@ export default function Playbooks() {
     // Escape key closes modal
     useEffect(() => {
         if (!showModal) return;
-        const handler = (e) => { if (e.key === 'Escape') setShowModal(false); };
+        const handler = (e) => { if (e.key === 'Escape') { setShowModal(false); setEditingPlaybook(null); } };
         document.addEventListener('keydown', handler);
         return () => document.removeEventListener('keydown', handler);
     }, [showModal]);
@@ -46,16 +47,21 @@ export default function Playbooks() {
         }).catch(() => { }).finally(() => setLoading(false));
     };
 
-    const handleCreate = async () => {
+    const handleSave = async () => {
         if (!newPlaybook.name || !newPlaybook.domain) return;
         setSaving(true);
         try {
-            await playbooksApi.create({ name: newPlaybook.name, domain: newPlaybook.domain, authType: newPlaybook.authType });
+            if (editingPlaybook) {
+                await playbooksApi.update(editingPlaybook.id, { name: newPlaybook.name, domain: newPlaybook.domain, authType: newPlaybook.authType });
+            } else {
+                await playbooksApi.create({ name: newPlaybook.name, domain: newPlaybook.domain, authType: newPlaybook.authType });
+            }
             setShowModal(false);
+            setEditingPlaybook(null);
             setNewPlaybook({ name: '', domain: '', authType: 'Form-based Login' });
             fetchPlaybooks();
         } catch (err) {
-            console.error('Create playbook failed:', err);
+            console.error('Save playbook failed:', err);
         } finally {
             setSaving(false);
         }
@@ -167,6 +173,12 @@ export default function Playbooks() {
                                 <div style={{ display: 'flex', gap: 6 }}>
                                     <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}
                                         aria-label="Edit playbook"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            setEditingPlaybook(pb);
+                                            setNewPlaybook({ name: pb.name, domain: pb.domain, authType: pb.type });
+                                            setShowModal(true);
+                                        }}
                                         style={{
                                             width: 30, height: 30, borderRadius: 'var(--radius-sm)',
                                             background: 'var(--color-bg-elevated)', border: '1px solid var(--border-subtle)',
@@ -211,7 +223,7 @@ export default function Playbooks() {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        onClick={() => setShowModal(false)}
+                        onClick={() => { setShowModal(false); setEditingPlaybook(null); }}
                         style={{
                             position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)',
                             display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 60,
@@ -232,9 +244,11 @@ export default function Playbooks() {
                             }}
                         >
                             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
-                                <h3 style={{ fontSize: 18, fontWeight: 700 }}>New Auth Playbook</h3>
+                                <h3 style={{ fontSize: 18, fontWeight: 700 }}>
+                                    {editingPlaybook ? 'Edit Auth Playbook' : 'New Auth Playbook'}
+                                </h3>
                                 <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}
-                                    onClick={() => setShowModal(false)}
+                                    onClick={() => { setShowModal(false); setEditingPlaybook(null); }}
                                     aria-label="Close modal"
                                     style={{ width: 32, height: 32, borderRadius: 'var(--radius-md)', background: 'var(--color-bg-elevated)', border: '1px solid var(--border-subtle)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-secondary)', cursor: 'pointer' }}
                                 >
@@ -280,10 +294,10 @@ export default function Playbooks() {
                                     border: 'none', borderRadius: 'var(--radius-md)',
                                     cursor: 'pointer', boxShadow: 'var(--shadow-glow-gold)',
                                 }}
-                                onClick={handleCreate}
+                                onClick={handleSave}
                                 disabled={saving || !newPlaybook.name || !newPlaybook.domain}
                             >
-                                {saving ? 'Creating...' : 'Create Playbook'}
+                                {saving ? (editingPlaybook ? 'Saving...' : 'Creating...') : (editingPlaybook ? 'Save Changes' : 'Create Playbook')}
                             </motion.button>
                         </motion.div>
                     </motion.div>

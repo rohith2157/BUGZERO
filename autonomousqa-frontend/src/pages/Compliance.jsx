@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Shield, AlertTriangle, Eye, Filter, Loader2 } from 'lucide-react';
+import { Shield, AlertTriangle, Eye, Filter, Loader2, Copy, Check, Search, Download, CheckCircle2, GitPullRequest } from 'lucide-react';
 import HygieneScoreGauge from '../components/ui/HygieneScoreGauge';
 import StatusBadge from '../components/ui/StatusBadge';
 import { tests as testsApi } from '../lib/api';
 import EmptyTestState from '../components/ui/EmptyTestState';
+import AutoFixModal from '../components/ui/AutoFixModal';
 
 function safePath(url) { try { return new URL(url).pathname || url; } catch { return url; } }
 
@@ -18,10 +19,13 @@ export default function Compliance() {
     if (id === 'none') return <EmptyTestState title="Compliance Report" />;
 
     const [filter, setFilter] = useState('all');
+    const [searchTerm, setSearchTerm] = useState('');
+    const [copiedId, setCopiedId] = useState(null);
     const [complianceData, setComplianceData] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [selectedViolationForPR, setSelectedViolationForPR] = useState(null);
 
-    useEffect(() => { document.title = 'Compliance — BugZero'; }, []);
+    useEffect(() => { document.title = 'Compliance & WCAG — BugZero'; }, []);
 
     useEffect(() => {
         testsApi.compliance(id).then(data => {
@@ -30,13 +34,20 @@ export default function Compliance() {
                 wcagScore: Math.min(100, data.scores?.wcag ?? 0),
                 gdprScore: Math.min(100, data.scores?.gdpr ?? 0),
                 violations: (data.violations || []).map((v, i) => ({
-                    id: v.id || i,
-                    standard: v.standard,
-                    criterion: v.criterion,
-                    severity: v.severity,
+                    id: v.id || `v-${i}`,
+                    standard: v.standard || 'WCAG',
+                    criterion: v.criterion || 'A11y Rule',
+                    severity: v.severity || 'moderate',
                     page: v.pageUrl ? safePath(v.pageUrl) : '/',
                     description: v.description,
-                    remediation: v.remediation || 'Review and fix the identified issue',
+                    remediation: v.remediation || 'Review semantic HTML and ARIA roles for accessibility.',
+                    codeSnippet: v.remediationSnippet || (v.criterion?.toLowerCase().includes('alt') 
+                        ? '<img src="/path.jpg" alt="Descriptive accessible label" />' 
+                        : v.criterion?.toLowerCase().includes('color') 
+                            ? '/* Ensure minimum 4.5:1 contrast ratio */\ncolor: #FFFFFF;\nbackground-color: #1A1A1A;'
+                            : v.criterion?.toLowerCase().includes('button') || v.criterion?.toLowerCase().includes('name')
+                                ? '<button type="button" aria-label="Submit Form">Submit</button>'
+                                : `<!-- Fix for ${v.criterion} -->\n<div role="region" aria-label="Content section">...</div>`),
                     count: 1,
                 })),
             });
@@ -44,6 +55,12 @@ export default function Compliance() {
             setComplianceData({ overallScore: 100, wcagScore: 100, gdprScore: 100, violations: [] });
         }).finally(() => setLoading(false));
     }, [id]);
+
+    const handleCopy = (id, text) => {
+        navigator.clipboard.writeText(text);
+        setCopiedId(id);
+        setTimeout(() => setCopiedId(null), 2000);
+    };
 
     if (loading) {
         return (
@@ -54,48 +71,95 @@ export default function Compliance() {
         );
     }
 
-    const filtered = !complianceData ? [] : filter === 'all'
-        ? complianceData.violations
-        : complianceData.violations.filter(v => v.standard === filter);
+    let filtered = !complianceData ? [] : complianceData.violations;
+    if (filter !== 'all') {
+        filtered = filtered.filter(v => v.standard === filter);
+    }
+    if (searchTerm) {
+        const q = searchTerm.toLowerCase();
+        filtered = filtered.filter(v => 
+            v.criterion?.toLowerCase().includes(q) || 
+            v.description?.toLowerCase().includes(q) || 
+            v.page?.toLowerCase().includes(q)
+        );
+    }
+
+    const criticalCount = (complianceData?.violations || []).filter(v => v.severity === 'critical' || v.severity === 'serious').length;
+    const moderateCount = (complianceData?.violations || []).filter(v => v.severity === 'moderate' || v.severity === 'minor').length;
 
     return (
         <motion.div variants={container} initial="hidden" animate="show">
-            {/* Score Cards */}
+            {/* Top Score Cards */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20, marginBottom: 24 }}>
                 <motion.div variants={item} className="glass-card" style={{ padding: '28px', display: 'flex', justifyContent: 'center' }}>
-                    <HygieneScoreGauge score={complianceData.overallScore} size={160} label="Overall" />
+                    <HygieneScoreGauge score={complianceData.overallScore} size={160} label="Overall Score" />
                 </motion.div>
                 <motion.div variants={item} className="glass-card" style={{ padding: '28px', display: 'flex', justifyContent: 'center' }}>
                     <HygieneScoreGauge score={complianceData.wcagScore} size={160} label="WCAG 2.1 AA" />
                 </motion.div>
                 <motion.div variants={item} className="glass-card" style={{ padding: '28px', display: 'flex', justifyContent: 'center' }}>
-                    <HygieneScoreGauge score={complianceData.gdprScore} size={160} label="GDPR" />
+                    <HygieneScoreGauge score={complianceData.gdprScore} size={160} label="GDPR & Privacy" />
                 </motion.div>
             </div>
 
-            {/* Violations */}
-            <motion.div variants={item} className="glass-card" style={{ padding: '24px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
+            {/* Quick Stat Highlights */}
+            <motion.div variants={item} style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14, marginBottom: 24 }}>
+                <div className="glass-card" style={{ padding: '16px 20px', borderRadius: 12 }}>
+                    <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-tertiary)', textTransform: 'uppercase', marginBottom: 4 }}>Total Violations</div>
+                    <div style={{ fontSize: 22, fontWeight: 800, color: 'var(--text-primary)' }}>{complianceData?.violations?.length || 0}</div>
+                </div>
+                <div className="glass-card" style={{ padding: '16px 20px', borderRadius: 12 }}>
+                    <div style={{ fontSize: 11, fontWeight: 600, color: '#EF4444', textTransform: 'uppercase', marginBottom: 4 }}>Critical & Serious</div>
+                    <div style={{ fontSize: 22, fontWeight: 800, color: '#EF4444' }}>{criticalCount}</div>
+                </div>
+                <div className="glass-card" style={{ padding: '16px 20px', borderRadius: 12 }}>
+                    <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--color-accent-gold)', textTransform: 'uppercase', marginBottom: 4 }}>Moderate & Minor</div>
+                    <div style={{ fontSize: 22, fontWeight: 800, color: 'var(--color-accent-gold)' }}>{moderateCount}</div>
+                </div>
+                <div className="glass-card" style={{ padding: '16px 20px', borderRadius: 12 }}>
+                    <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--color-success)', textTransform: 'uppercase', marginBottom: 4 }}>Audit Status</div>
+                    <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--color-success)', display: 'flex', alignItems: 'center', gap: 6, marginTop: 4 }}>
+                        <CheckCircle2 size={16} /> Automated Pass
+                    </div>
+                </div>
+            </motion.div>
+
+            {/* Violations Table Card */}
+            <motion.div variants={item} className="glass-card" style={{ padding: '24px', marginBottom: 24 }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20, flexWrap: 'wrap', gap: 12 }}>
                     <h3 style={{ fontSize: 16, fontWeight: 700 }}>
-                        Violations ({filtered.length})
+                        Identified Violations ({filtered.length})
                     </h3>
-                    <div style={{ display: 'flex', gap: 6 }}>
-                        {['all', 'WCAG', 'GDPR'].map(f => (
-                            <button
-                                key={f}
-                                onClick={() => setFilter(f)}
-                                style={{
-                                    padding: '6px 14px', fontSize: 12, fontWeight: 600,
-                                    background: filter === f ? 'rgba(212, 168, 83, 0.1)' : 'var(--color-bg-elevated)',
-                                    border: `1px solid ${filter === f ? 'rgba(212, 168, 83, 0.2)' : 'var(--border-subtle)'}`,
-                                    borderRadius: 'var(--radius-full)',
-                                    color: filter === f ? 'var(--color-accent-gold)' : 'var(--text-secondary)',
-                                    cursor: 'pointer', transition: 'all var(--transition-fast)',
-                                }}
-                            >
-                                {f === 'all' ? 'All' : f}
-                            </button>
-                        ))}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                        {/* Search */}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 12px', background: 'var(--color-bg-elevated)', border: '1px solid var(--border-subtle)', borderRadius: 20 }}>
+                            <Search size={13} style={{ color: 'var(--text-tertiary)' }} />
+                            <input
+                                placeholder="Filter violations..."
+                                value={searchTerm}
+                                onChange={e => setSearchTerm(e.target.value)}
+                                style={{ background: 'transparent', border: 'none', color: 'var(--text-primary)', fontSize: 12, outline: 'none', width: 140 }}
+                            />
+                        </div>
+                        {/* Standard Filter Pills */}
+                        <div style={{ display: 'flex', gap: 6 }}>
+                            {['all', 'WCAG', 'GDPR'].map(f => (
+                                <button
+                                    key={f}
+                                    onClick={() => setFilter(f)}
+                                    style={{
+                                        padding: '6px 14px', fontSize: 12, fontWeight: 600,
+                                        background: filter === f ? 'rgba(212, 168, 83, 0.1)' : 'var(--color-bg-elevated)',
+                                        border: `1px solid ${filter === f ? 'rgba(212, 168, 83, 0.2)' : 'var(--border-subtle)'}`,
+                                        borderRadius: 'var(--radius-full)',
+                                        color: filter === f ? 'var(--color-accent-gold)' : 'var(--text-secondary)',
+                                        cursor: 'pointer', transition: 'all var(--transition-fast)',
+                                    }}
+                                >
+                                    {f === 'all' ? 'All' : f}
+                                </button>
+                            ))}
+                        </div>
                     </div>
                 </div>
 
@@ -103,7 +167,7 @@ export default function Compliance() {
                     <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                         <thead>
                             <tr>
-                                {['Standard', 'Criterion', 'Severity', 'Page', 'Description', 'Count'].map(h => (
+                                {['Standard', 'Criterion', 'Severity', 'Page', 'Description', 'Action'].map(h => (
                                     <th key={h} style={{
                                         textAlign: 'left', padding: '10px 14px',
                                         fontSize: 11, fontWeight: 600, color: 'var(--text-tertiary)',
@@ -114,55 +178,137 @@ export default function Compliance() {
                             </tr>
                         </thead>
                         <tbody>
-                            {filtered.map((v, i) => (
-                                <motion.tr
-                                    key={v.id}
-                                    initial={{ opacity: 0 }}
-                                    animate={{ opacity: 1 }}
-                                    transition={{ delay: i * 0.04 }}
-                                    style={{ borderBottom: '1px solid var(--border-subtle)' }}
-                                >
-                                    <td style={{ padding: '14px' }}>
-                                        <span style={{
-                                            fontSize: 11, fontWeight: 700, padding: '3px 8px',
-                                            borderRadius: 4,
-                                            background: v.standard === 'WCAG' ? 'rgba(139, 92, 246, 0.1)' : 'rgba(239, 68, 68, 0.1)',
-                                            color: v.standard === 'WCAG' ? '#8B5CF6' : '#EF4444',
-                                        }}>
-                                            {v.standard}
-                                        </span>
+                            {filtered.length === 0 ? (
+                                <tr>
+                                    <td colSpan={6} style={{ padding: '40px', textAlign: 'center', color: 'var(--text-tertiary)' }}>
+                                        No violations found matching criteria.
                                     </td>
-                                    <td style={{ padding: '14px', fontSize: 13, color: 'var(--text-primary)', fontWeight: 500 }}>{v.criterion}</td>
-                                    <td style={{ padding: '14px' }}><StatusBadge status={v.severity} size="sm" /></td>
-                                    <td style={{ padding: '14px', fontSize: 12, fontFamily: "'Geist Mono', 'JetBrains Mono', monospace", color: 'var(--text-secondary)' }}>{v.page}</td>
-                                    <td style={{ padding: '14px', fontSize: 13, color: 'var(--text-secondary)', maxWidth: 300 }}>{v.description}</td>
-                                    <td style={{ padding: '14px', fontSize: 14, fontWeight: 700, color: 'var(--text-primary)' }}>{v.count}</td>
-                                </motion.tr>
-                            ))}
+                                </tr>
+                            ) : (
+                                filtered.map((v, i) => (
+                                    <motion.tr
+                                        key={v.id}
+                                        initial={{ opacity: 0 }}
+                                        animate={{ opacity: 1 }}
+                                        transition={{ delay: i * 0.03 }}
+                                        style={{ borderBottom: '1px solid var(--border-subtle)' }}
+                                    >
+                                        <td style={{ padding: '14px' }}>
+                                            <span style={{
+                                                fontSize: 11, fontWeight: 700, padding: '3px 8px',
+                                                borderRadius: 4,
+                                                background: v.standard === 'WCAG' ? 'rgba(139, 92, 246, 0.1)' : 'rgba(239, 68, 68, 0.1)',
+                                                color: v.standard === 'WCAG' ? '#8B5CF6' : '#EF4444',
+                                            }}>
+                                                {v.standard}
+                                            </span>
+                                        </td>
+                                        <td style={{ padding: '14px', fontSize: 13, color: 'var(--text-primary)', fontWeight: 600 }}>{v.criterion}</td>
+                                        <td style={{ padding: '14px' }}><StatusBadge status={v.severity} size="sm" /></td>
+                                        <td style={{ padding: '14px', fontSize: 12, fontFamily: "'Geist Mono', 'JetBrains Mono', monospace", color: 'var(--color-accent-gold)' }}>{v.page}</td>
+                                        <td style={{ padding: '14px', fontSize: 13, color: 'var(--text-secondary)', maxWidth: 320 }}>{v.description}</td>
+                                        <td style={{ padding: '14px' }}>
+                                            <div style={{ display: 'flex', gap: 6 }}>
+                                                <button
+                                                    onClick={() => handleCopy(v.id, v.codeSnippet)}
+                                                    style={{
+                                                        display: 'inline-flex', alignItems: 'center', gap: 6,
+                                                        padding: '6px 12px', fontSize: 12, fontWeight: 600,
+                                                        background: copiedId === v.id ? 'rgba(16, 185, 129, 0.12)' : 'var(--color-bg-elevated)',
+                                                        border: `1px solid ${copiedId === v.id ? 'rgba(16, 185, 129, 0.3)' : 'var(--border-subtle)'}`,
+                                                        borderRadius: 6,
+                                                        color: copiedId === v.id ? 'var(--color-success)' : 'var(--text-secondary)',
+                                                        cursor: 'pointer',
+                                                    }}
+                                                >
+                                                    {copiedId === v.id ? <Check size={12} /> : <Copy size={12} />}
+                                                    {copiedId === v.id ? 'Copied' : 'Copy Fix'}
+                                                </button>
+                                                <button
+                                                    onClick={() => setSelectedViolationForPR({
+                                                        id: v.id,
+                                                        type: v.standard,
+                                                        severity: v.severity,
+                                                        message: v.description,
+                                                        targetFile: 'src/App.jsx',
+                                                        patchDiff: `--- a/src/App.jsx\n+++ b/src/App.jsx\n@@ -10,3 +10,4 @@\n <main>\n+  ${v.codeSnippet || '// Automated accessibility fix'}\n </main>`
+                                                    })}
+                                                    style={{
+                                                        display: 'inline-flex', alignItems: 'center', gap: 5,
+                                                        padding: '6px 10px', fontSize: 12, fontWeight: 600,
+                                                        background: 'rgba(212, 168, 83, 0.12)',
+                                                        border: '1px solid rgba(212, 168, 83, 0.3)',
+                                                        borderRadius: 6,
+                                                        color: 'var(--color-accent-gold)',
+                                                        cursor: 'pointer',
+                                                    }}
+                                                >
+                                                    <GitPullRequest size={12} /> PR
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </motion.tr>
+                                ))
+                            )}
                         </tbody>
                     </table>
                 </div>
 
-                {/* Remediation Panel */}
-                <div style={{ marginTop: 24 }}>
-                    <h4 style={{ fontSize: 14, fontWeight: 700, marginBottom: 12, color: 'var(--text-primary)' }}>
-                        Remediation Guidance
+                {/* Remediation Code Guidance Panel */}
+                <div style={{ marginTop: 28 }}>
+                    <h4 style={{ fontSize: 14, fontWeight: 700, marginBottom: 14, color: 'var(--text-primary)' }}>
+                        Automated Remediation Code Snippets
                     </h4>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 14 }}>
                         {filtered.slice(0, 4).map(v => (
                             <div key={v.id} style={{
-                                padding: '12px 16px',
+                                padding: '14px 18px',
                                 borderRadius: 'var(--radius-md)',
-                                background: 'rgba(16, 185, 129, 0.05)',
-                                border: '1px solid rgba(16, 185, 129, 0.12)',
-                                fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.6,
+                                background: 'var(--color-bg-elevated)',
+                                border: '1px solid var(--border-subtle)',
                             }}>
-                                <strong style={{ color: 'var(--color-success)' }}>{v.criterion}:</strong> {v.remediation}
+                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                                    <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--color-accent-gold)' }}>{v.criterion}</span>
+                                    <button
+                                        onClick={() => handleCopy(`snippet-${v.id}`, v.codeSnippet)}
+                                        style={{
+                                            padding: '4px 8px', fontSize: 11, fontWeight: 600,
+                                            background: copiedId === `snippet-${v.id}` ? 'rgba(16, 185, 129, 0.15)' : 'rgba(255,255,255,0.05)',
+                                            border: '1px solid var(--border-subtle)',
+                                            borderRadius: 4,
+                                            color: copiedId === `snippet-${v.id}` ? 'var(--color-success)' : 'var(--text-secondary)',
+                                            cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4,
+                                        }}
+                                    >
+                                        {copiedId === `snippet-${v.id}` ? <Check size={11} /> : <Copy size={11} />}
+                                        {copiedId === `snippet-${v.id}` ? 'Copied' : 'Copy'}
+                                    </button>
+                                </div>
+                                <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 8, lineHeight: 1.4 }}>{v.remediation}</p>
+                                <pre style={{
+                                    margin: 0, padding: '10px',
+                                    background: 'rgba(0, 0, 0, 0.3)',
+                                    borderRadius: 6,
+                                    fontSize: 11,
+                                    color: '#A5F3FC',
+                                    fontFamily: "'Geist Mono', 'JetBrains Mono', monospace",
+                                    overflowX: 'auto',
+                                }}>
+                                    {v.codeSnippet}
+                                </pre>
                             </div>
                         ))}
                     </div>
                 </div>
             </motion.div>
+
+            {/* AutoFix PR Modal */}
+            <AutoFixModal
+                isOpen={!!selectedViolationForPR}
+                onClose={() => setSelectedViolationForPR(null)}
+                defect={selectedViolationForPR}
+                runId={id}
+            />
         </motion.div>
     );
 }

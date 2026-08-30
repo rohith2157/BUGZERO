@@ -52,6 +52,8 @@ export default function History() {
         runs.sort((a, b) => (b.score || 0) - (a.score || 0));
     } else if (sortBy === 'defects') {
         runs.sort((a, b) => b.defects - a.defects);
+    } else if (sortBy === 'date') {
+        runs.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
     }
 
     if (loading) {

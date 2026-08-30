@@ -22,6 +22,7 @@ import Prism from '../components/ui/Prism';
 import { StripeGradientShader } from '../components/ui/stripe-like-gradient-shader';
 import { TheInfiniteGrid } from '../components/ui/the-infinite-grid';
 import { CinematicFooter } from '../components/ui/motion-footer';
+import InteractiveEngineLab from '../components/ui/InteractiveEngineLab';
 
 const features = [
     { icon: Zap, title: 'Self-Healing Tests', desc: 'DOM fingerprinting + LLM healing. Tests auto-repair when UI changes.', accent: 'var(--color-accent-gold)' },
@@ -514,6 +515,9 @@ export default function Landing() {
                     ))}
                 </motion.div>
             </section>
+
+            {/* Interactive Engine Sandbox & Simulation Lab */}
+            <InteractiveEngineLab />
 
             <section className="relative z-10 mb-16 mt-4" style={{ maxWidth: 1000, margin: '0 auto', padding: '0 24px' }}>
                 <div 

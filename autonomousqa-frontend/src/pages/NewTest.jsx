@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Globe, Settings2, Play, ChevronDown, Shield, Layers, MonitorSmartphone, Gauge, Github, GitBranch } from 'lucide-react';
+import { Globe, Settings2, Play, ChevronDown, Shield, Layers, MonitorSmartphone, Gauge, Github, GitBranch, ShieldAlert, Clock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Slider } from '../components/ui/slider';
-import { tests as testsApi, playbooks as playbooksApi } from '../lib/api';
+import { tests as testsApi, playbooks as playbooksApi, API_BASE } from '../lib/api';
 import { useAuthStore } from '../store/authStore';
 
 const browsers = ['Chromium', 'Firefox', 'WebKit'];
@@ -36,7 +36,7 @@ export default function NewTest() {
             const token = localStorage.getItem('aq_token');
             if (!token) return setLoadingRepos(false);
             
-            fetch('http://localhost:3000/api/auth/github/repos', {
+            fetch(`${API_BASE}/auth/github/repos`, {
                 headers: { Authorization: `Bearer ${token}` }
             })
             .then(res => {
@@ -54,28 +54,33 @@ export default function NewTest() {
             .catch(err => console.error('Failed to fetch repos:', err))
             .finally(() => setLoadingRepos(false));
         }
-    }, [testMode]);
+    }, [testMode, repositories]);
 
     useEffect(() => {
         if (!repoUrl) {
             setRepoBranches([]);
             return;
         }
-        const repo = repositories.find(r => r.url === repoUrl);
-        if (!repo || !repo.name) return;
-
         setLoadingBranches(true);
         const token = localStorage.getItem('aq_token');
-        fetch(`http://localhost:3000/api/auth/github/repos/${repo.name}/branches`, {
+        if (!token) {
+            setLoadingBranches(false);
+            return;
+        }
+
+        const selectedRepo = repositories.find(r => r.url === repoUrl || r.clone_url === repoUrl || r.full_name === repoUrl);
+        const repoFullName = selectedRepo?.full_name || repoUrl;
+
+        fetch(`${API_BASE}/auth/github/branches?repo=${encodeURIComponent(repoFullName)}`, {
             headers: { Authorization: `Bearer ${token}` }
         })
         .then(res => res.json())
         .then(data => {
             if (data.branches) {
                 setRepoBranches(data.branches);
-                if (data.branches.length > 0 && !data.branches.includes(repoBranch)) {
-                    setRepoBranch(repo.default_branch || data.branches[0]);
-                }
+                if (data.branches.includes('main')) setRepoBranch('main');
+                else if (data.branches.includes('master')) setRepoBranch('master');
+                else if (data.branches.length > 0) setRepoBranch(data.branches[0]);
             }
         })
         .catch(err => console.error('Failed to fetch branches:', err))
@@ -91,6 +96,7 @@ export default function NewTest() {
     const [features, setFeatures] = useState({
         functional: true, accessibility: true, performance: true,
         seo: true, visual: false, compliance: true,
+        chaos: true, timetravel: true,
     });
 
     const toggleFeature = (key) => setFeatures(prev => ({ ...prev, [key]: !prev[key] }));
@@ -157,6 +163,8 @@ export default function NewTest() {
         { key: 'seo', icon: Globe, label: 'SEO Analysis', desc: 'Meta tags, heading structure, alt text', hex: '#fbbf24' },
         { key: 'visual', icon: MonitorSmartphone, label: 'Visual Regression', desc: 'Screenshot comparison with AI diff', hex: '#a78bfa' },
         { key: 'compliance', icon: Shield, label: 'GDPR Compliance', desc: 'Cookie consent, data exposure checks', hex: '#fb7185' },
+        { key: 'chaos', icon: ShieldAlert, label: 'Chaos & Resilience Fuzzing', desc: 'Adversarial payloads, double submit & fault recovery', hex: '#ef4444' },
+        { key: 'timetravel', icon: Clock, label: 'Time-Travel & Spec Export', desc: 'Deterministic state machine replay & .spec.ts export', hex: '#d4a853' },
     ];
 
     return (
@@ -273,7 +281,7 @@ export default function NewTest() {
                                         onClick={(e) => {
                                             e.preventDefault();
                                             const token = localStorage.getItem('aq_token');
-                                            window.location.href = `http://localhost:3000/api/auth/github?token=${token}`;
+                                            window.location.href = `${API_BASE}/auth/github?token=${token}`;
                                         }}
                                         style={{
                                             padding: '10px 24px', fontSize: 13, fontWeight: 600,

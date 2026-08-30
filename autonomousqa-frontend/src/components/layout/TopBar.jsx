@@ -5,6 +5,7 @@ import { useState, useRef, useEffect } from 'react';
 import { useAuthStore } from '../../store/authStore';
 import { AnimatedThemeToggle } from '../ui/animated-theme-toggle';
 import { DialogBox } from '../ui/dialog-box';
+import CommandPalette from '../ui/CommandPalette';
 
 const routeTitles = {
     '/dashboard': 'Dashboard',
@@ -12,6 +13,9 @@ const routeTitles = {
     '/playbooks': 'Auth Playbooks',
     '/history': 'Test History',
     '/settings': 'Settings',
+    '/algorithms': 'Algorithms & Architecture',
+    '/use-cases': 'Enterprise Use Cases',
+    '/inspiration': 'Research & Inspiration',
 };
 
 function getTitle(pathname) {
@@ -30,7 +34,20 @@ export default function TopBar() {
     const title = getTitle(location.pathname);
     const { user, logout } = useAuthStore();
     const [profileOpen, setProfileOpen] = useState(false);
+    const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
     const dropdownRef = useRef(null);
+
+    // Global keyboard shortcut for Command Palette
+    useEffect(() => {
+        const handleGlobalKeyDown = (e) => {
+            if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+                e.preventDefault();
+                setCommandPaletteOpen(prev => !prev);
+            }
+        };
+        window.addEventListener('keydown', handleGlobalKeyDown);
+        return () => window.removeEventListener('keydown', handleGlobalKeyDown);
+    }, []);
 
     // Close dropdown when clicking outside
     useEffect(() => {
@@ -49,68 +66,73 @@ export default function TopBar() {
     };
 
     return (
-        <motion.header
-            initial={{ y: -10, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            style={{
-                height: 56,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                padding: '0 28px',
-                background: 'var(--glass-navbar)',
-                backdropFilter: 'blur(20px)',
-                borderBottom: '1px solid var(--border-subtle)',
-                position: 'sticky',
-                top: 0,
-                zIndex: 30,
-                transition: 'background 0.3s ease',
-            }}
-        >
-            {/* Page Title */}
-            <div>
-                <h1 style={{
-                    fontSize: 16,
-                    fontWeight: 700,
-                    letterSpacing: '-0.02em',
-                    color: 'var(--text-primary)',
-                }}>
-                    {title}
-                </h1>
-            </div>
-
-            {/* Right Actions */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                {/* Search */}
-                <div style={{
+        <>
+            <CommandPalette isOpen={commandPaletteOpen} onClose={() => setCommandPaletteOpen(false)} />
+            <motion.header
+                initial={{ y: -10, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                style={{
+                    height: 56,
                     display: 'flex',
                     alignItems: 'center',
-                    gap: 8,
-                    padding: '7px 14px',
-                    background: 'var(--glass-subtle)',
-                    border: '1px solid var(--border-subtle)',
-                    borderRadius: 'var(--radius-full)',
-                    color: 'var(--text-tertiary)',
-                    fontSize: 13,
-                    minWidth: 180,
-                    cursor: 'pointer',
-                    transition: 'all 0.15s ease',
-                }}>
-                    <Search size={14} />
-                    <span>Search...</span>
-                    <span style={{
-                        marginLeft: 'auto',
-                        fontSize: 10,
-                        padding: '2px 6px',
-                        background: 'var(--glass-subtle-hover)',
-                        borderRadius: 4,
-                        fontFamily: "'Geist Mono', 'JetBrains Mono', monospace",
-                        color: 'var(--text-tertiary)',
-                    }}>⌘K</span>
+                    justifyContent: 'space-between',
+                    padding: '0 28px',
+                    background: 'var(--glass-navbar)',
+                    backdropFilter: 'blur(20px)',
+                    borderBottom: '1px solid var(--border-subtle)',
+                    position: 'sticky',
+                    top: 0,
+                    zIndex: 30,
+                    transition: 'background 0.3s ease',
+                }}
+            >
+                {/* Page Title */}
+                <div>
+                    <h1 style={{
+                        fontSize: 16,
+                        fontWeight: 700,
+                        letterSpacing: '-0.02em',
+                        color: 'var(--text-primary)',
+                    }}>
+                        {title}
+                    </h1>
                 </div>
 
-                {/* Dark mode toggle */}
-                <AnimatedThemeToggle />
+                {/* Right Actions */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    {/* Search */}
+                    <div
+                        onClick={() => setCommandPaletteOpen(true)}
+                        style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 8,
+                            padding: '7px 14px',
+                            background: 'var(--glass-subtle)',
+                            border: '1px solid var(--border-subtle)',
+                            borderRadius: 'var(--radius-full)',
+                            color: 'var(--text-tertiary)',
+                            fontSize: 13,
+                            minWidth: 180,
+                            cursor: 'pointer',
+                            transition: 'all 0.15s ease',
+                        }}
+                    >
+                        <Search size={14} />
+                        <span>Search...</span>
+                        <span style={{
+                            marginLeft: 'auto',
+                            fontSize: 10,
+                            padding: '2px 6px',
+                            background: 'var(--glass-subtle-hover)',
+                            borderRadius: 4,
+                            fontFamily: "'Geist Mono', 'JetBrains Mono', monospace",
+                            color: 'var(--text-tertiary)',
+                        }}>⌘K</span>
+                    </div>
+
+                    {/* Dark mode toggle */}
+                    <AnimatedThemeToggle />
 
                 {/* Notifications */}
                 <motion.button
@@ -253,5 +275,6 @@ export default function TopBar() {
                 </div>
             </div>
         </motion.header>
+        </>
     );
 }

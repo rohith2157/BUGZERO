@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { User, Users, Key, Bell, CreditCard, Pencil, Trash2, Plus, Copy, Eye, EyeOff, Loader2, Activity, Github, CheckCircle2 } from 'lucide-react';
 import StatusBadge from '../components/ui/StatusBadge';
 import { LoginActivity } from '../components/ui/login-activity';
-import { settings as settingsApi, auth as authApi, tests as testsApi } from '../lib/api';
+import { settings as settingsApi, auth as authApi, tests as testsApi, API_BASE } from '../lib/api';
 import { generateGitHubTag } from '../lib/githubRanking';
 import { useAuthStore } from '../store/authStore';
 
@@ -52,8 +52,8 @@ export default function Settings() {
 
         setLoadingRepos(true);
         Promise.all([
-            fetch('http://localhost:3000/api/auth/github/profile', { headers }).then(res => res.json()),
-            fetch('http://localhost:3000/api/auth/github/repos', { headers }).then(res => res.json()),
+            fetch(`${API_BASE}/auth/github/profile`, { headers }).then(res => res.json()),
+            fetch(`${API_BASE}/auth/github/repos`, { headers }).then(res => res.json()),
             testsApi.list({ limit: 1000 }).catch(() => ({ testRuns: [] }))
         ])
         .then(([profileData, reposData, testsData]) => {
@@ -134,8 +134,10 @@ export default function Settings() {
                 .catch(() => {})
                 .finally(() => setLoadingActivity(false));
 
-            import('socket.io-client').then(({ default: io }) => {
-                socketConnection = io('http://localhost:3000');
+            import('socket.io-client').then((mod) => {
+                const io = mod.io || mod.default || mod;
+                const wsUrl = import.meta.env.VITE_WS_URL || API_BASE.replace(/\/api\/?$/, '');
+                socketConnection = io(wsUrl);
                 socketConnection.on('connect', () => {
                     socketConnection.emit('join:activity');
                 });
@@ -146,7 +148,7 @@ export default function Settings() {
                         return next;
                     });
                 });
-            });
+            }).catch(() => {});
         }
 
         return () => {
@@ -302,11 +304,11 @@ export default function Settings() {
                                 </button>
                             </div>
                         ) : (
-                            <button
-                                onClick={() => {
-                                    const token = localStorage.getItem('aq_token');
-                                    window.location.href = `http://localhost:3000/api/auth/github?token=${token}&redirect=/settings`;
-                                }}
+                                <button
+                                    onClick={() => {
+                                        const token = localStorage.getItem('aq_token');
+                                        window.location.href = `${API_BASE}/auth/github?token=${token}&redirect=/settings`;
+                                    }}
                                 style={{
                                     padding: '8px 16px', fontSize: 13, fontWeight: 600,
                                     background: 'var(--color-bg-elevated)', border: '1px solid var(--border-subtle)',

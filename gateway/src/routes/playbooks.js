@@ -2,16 +2,22 @@ import { Router } from 'express';
 import prisma from '../db.js';
 import { authenticate } from '../middleware/auth.js';
 import { validate, playbookRules, uuidParam } from '../middleware/validate.js';
+import { ensureUserOrg } from './auth.js';
 
 const router = Router();
 
 // GET /api/playbooks — List all playbooks for user's org
 router.get('/', authenticate, async (req, res) => {
   try {
-    if (!req.user.orgId) {
+    let orgId = req.user.orgId;
+    if (!orgId) {
+      orgId = await ensureUserOrg(req.user.id);
+      req.user.orgId = orgId;
+    }
+    if (!orgId) {
       return res.json({ playbooks: [] });
     }
-    const where = { orgId: req.user.orgId };
+    const where = { orgId };
     const playbooks = await prisma.authPlaybook.findMany({
       where,
       orderBy: { updatedAt: 'desc' },
@@ -28,7 +34,13 @@ router.post('/', authenticate, playbookRules, validate, async (req, res) => {
   try {
     const { name, domain, authType, config } = req.body;
 
-    if (!req.user.orgId) {
+    let orgId = req.user.orgId;
+    if (!orgId) {
+      orgId = await ensureUserOrg(req.user.id);
+      req.user.orgId = orgId;
+    }
+
+    if (!orgId) {
       return res.status(400).json({ error: 'Organization required to create playbooks' });
     }
 
@@ -38,7 +50,7 @@ router.post('/', authenticate, playbookRules, validate, async (req, res) => {
         domain,
         authType,
         config: config || {},
-        orgId: req.user.orgId,
+        orgId,
       },
     });
 

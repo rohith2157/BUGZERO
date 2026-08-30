@@ -1,12 +1,15 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Download, FileJson, FileText, FileSpreadsheet, ChevronDown, ExternalLink, Loader2, Eye, RefreshCw, Wrench, CheckCircle2, Terminal, Layers, Compass, Zap, ShieldCheck, Play, ArrowRight, Copy, Check, ChevronRight } from 'lucide-react';
+import { Download, FileJson, FileText, FileSpreadsheet, ChevronDown, ExternalLink, Loader2, Eye, RefreshCw, Wrench, CheckCircle2, Terminal, Layers, Compass, Zap, ShieldCheck, Play, ArrowRight, Copy, Check, ChevronRight, GitPullRequest } from 'lucide-react';
 import HygieneScoreGauge from '../components/ui/HygieneScoreGauge';
 import StatusBadge from '../components/ui/StatusBadge';
 import { severityConfig, defectTypeColors } from '../data/mockData';
 import { tests as testsApi, baselines as baselinesApi } from '../lib/api';
 import EmptyTestState from '../components/ui/EmptyTestState';
+import AutoFixModal from '../components/ui/AutoFixModal';
+import TimeTravelReplayer from '../components/ui/TimeTravelReplayer';
+import ChaosResilienceCard from '../components/ui/ChaosResilienceCard';
 
 import { BarChart, Bar, BarYAxis, Grid, ChartTooltip } from '../components/ui/bar-chart';
 import DatabaseWithRestApi from '../components/ui/database-with-rest-api';
@@ -28,6 +31,7 @@ export default function Report() {
     const [viewMode, setViewMode] = useState('visual');
     const [screenshots, setScreenshots] = useState({});
     const [renderMode, setRenderMode] = useState('live'); // 'live' | 'skeleton'
+    const [selectedDefectForPR, setSelectedDefectForPR] = useState(null);
 
     useEffect(() => { document.title = 'Test Report — BugZero'; }, []);
 
@@ -915,9 +919,33 @@ export default function Report() {
                                         border: '1px solid rgba(16, 185, 129, 0.15)',
                                         borderRadius: 'var(--radius-sm)',
                                         lineHeight: 1.5,
-                                        wordBreak: 'break-word'
+                                        wordBreak: 'break-word',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'space-between',
+                                        gap: 10,
+                                        flexWrap: 'wrap'
                                     }}>
-                                        💡 <strong>Fix:</strong> {defect.fix}
+                                        <div>💡 <strong>Fix:</strong> {defect.fix}</div>
+                                        <button
+                                            onClick={() => setSelectedDefectForPR(defect)}
+                                            style={{
+                                                padding: '4px 10px',
+                                                fontSize: 11,
+                                                fontWeight: 700,
+                                                background: 'rgba(212, 168, 83, 0.12)',
+                                                border: '1px solid rgba(212, 168, 83, 0.3)',
+                                                borderRadius: 6,
+                                                color: 'var(--color-accent-gold)',
+                                                cursor: 'pointer',
+                                                display: 'inline-flex',
+                                                alignItems: 'center',
+                                                gap: 5,
+                                            }}
+                                            className="no-print"
+                                        >
+                                            <GitPullRequest size={12} /> Auto-Fix PR
+                                        </button>
                                     </div>
                                 </motion.div>
                             );
@@ -925,6 +953,24 @@ export default function Report() {
                     )}
                 </div>
             </motion.div>
+
+            {/* Time-Travel Deterministic Session Replayer */}
+            <motion.div variants={item} style={{ marginBottom: 24 }}>
+                <TimeTravelReplayer runId={id} testUrl={reportData.url} />
+            </motion.div>
+
+            {/* Chaos & Resilience Fuzzing Audit */}
+            <motion.div variants={item} style={{ marginBottom: 24 }}>
+                <ChaosResilienceCard runId={id} />
+            </motion.div>
+
+            {/* AutoFix Modal */}
+            <AutoFixModal
+                isOpen={!!selectedDefectForPR}
+                onClose={() => setSelectedDefectForPR(null)}
+                defect={selectedDefectForPR}
+                runId={id}
+            />
 
             {/* System Logs (For in-depth details and PDF export) */}
             {reportData.rawLogs && reportData.rawLogs.length > 0 && (

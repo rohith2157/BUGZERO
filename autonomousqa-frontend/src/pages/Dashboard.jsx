@@ -21,11 +21,12 @@ export default function Dashboard() {
     const [hygieneHistory, setHygieneHistory] = useState([]);
     const [recentRuns, setRecentRuns] = useState([]);
     const [quickUrl, setQuickUrl] = useState('');
+    const [statusFilter, setStatusFilter] = useState('all');
 
     useEffect(() => { document.title = 'Dashboard — BugZero'; }, []);
 
-    useEffect(() => {
-        // Fetch real test runs from API, fall back to mock
+    const fetchDashboardData = () => {
+        // Fetch real test runs from API
         testsApi.list({ limit: 100 }).then((data) => {
             if (data.testRuns && data.testRuns.length > 0) {
                 const runs = data.testRuns.map((r) => ({
@@ -44,7 +45,7 @@ export default function Dashboard() {
                     commitSha: r.commitSha,
                     commitShaShort: r.commitShaShort,
                 }));
-                setRecentRuns(runs.slice(0, 8));
+                setRecentRuns(runs);
 
                 // Compute KPIs from real data
                 const totalRuns = data.total || runs.length;
@@ -87,33 +88,21 @@ export default function Dashboard() {
                     setHygieneHistory([]);
                 }
             } else {
-                loadEmpty();
+                setRecentRuns([]);
+                setKpiData({ totalRuns: 0, avgHygieneScore: 0, totalDefects: 0, complianceScore: 0, complianceChange: null, runsChange: null, hygieneChange: null, defectsChange: null });
+                setHygieneHistory([]);
             }
         }).catch(() => {
-            loadEmpty();
-        });
-
-        function loadEmpty() {
             setRecentRuns([]);
             setKpiData({ totalRuns: 0, avgHygieneScore: 0, totalDefects: 0, complianceScore: 0, complianceChange: null, runsChange: null, hygieneChange: null, defectsChange: null });
             setHygieneHistory([]);
-        }
+        });
+    };
 
-        function loadMockHistory() {
-            const history = mockHistory.map((h, index) => {
-                const d = new Date(2026, 0, index + 1);
-                const year = d.getFullYear();
-                const month = String(d.getMonth() + 1).padStart(2, '0');
-                const day = String(d.getDate()).padStart(2, '0');
-                return {
-                    date: `${year}-${month}-${day}`,
-                    score: h.score,
-                    realDate: h.date,
-                };
-            });
-            setHygieneHistory(history);
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+    useEffect(() => {
+        fetchDashboardData();
+        const timer = setInterval(fetchDashboardData, 10000);
+        return () => clearInterval(timer);
     }, []);
 
     // Convert hygieneHistory to Date objects for the visx chart
@@ -208,7 +197,7 @@ export default function Dashboard() {
                         <motion.button
                             whileHover={{ scale: 1.04 }}
                             whileTap={{ scale: 0.96 }}
-                            onClick={() => navigate('/tests/new')}
+                            onClick={() => navigate('/tests/new', quickUrl ? { state: { url: quickUrl } } : undefined)}
                             style={{
                                 padding: '12px 24px', fontWeight: 600, fontSize: 14,
                                 background: 'var(--gradient-primary)', color: '#fff',
@@ -274,8 +263,30 @@ export default function Dashboard() {
 
             {/* Recent Test Runs Table */}
             <motion.div variants={item} className="glass-card" style={{ padding: '24px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
-                    <h2 style={{ fontSize: 16, fontWeight: 700 }}>Recent Test Runs</h2>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20, flexWrap: 'wrap', gap: 12 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                        <h2 style={{ fontSize: 16, fontWeight: 700, margin: 0 }}>Recent Test Runs</h2>
+                        {/* Status Filter Pills */}
+                        <div style={{ display: 'flex', gap: 6 }}>
+                            {['all', 'completed', 'running', 'failed'].map(s => (
+                                <button
+                                    key={s}
+                                    onClick={() => setStatusFilter(s)}
+                                    style={{
+                                        padding: '4px 10px', fontSize: 11, fontWeight: 600,
+                                        background: statusFilter === s ? 'rgba(212, 168, 83, 0.12)' : 'var(--color-bg-elevated)',
+                                        border: `1px solid ${statusFilter === s ? 'rgba(212, 168, 83, 0.25)' : 'var(--border-subtle)'}`,
+                                        borderRadius: 'var(--radius-full)',
+                                        color: statusFilter === s ? 'var(--color-accent-gold)' : 'var(--text-secondary)',
+                                        cursor: 'pointer', textTransform: 'capitalize',
+                                        transition: 'all 0.15s',
+                                    }}
+                                >
+                                    {s}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
                     <button
                         onClick={() => navigate('/history')}
                         style={{
@@ -303,7 +314,10 @@ export default function Dashboard() {
                             </tr>
                         </thead>
                         <tbody>
-                            {recentRuns.map((run, i) => (
+                            {recentRuns
+                                .filter(r => statusFilter === 'all' || r.status === statusFilter)
+                                .slice(0, 8)
+                                .map((run, i) => (
                                 <motion.tr
                                     key={run.id}
                                     initial={{ opacity: 0, x: -10 }}
@@ -340,10 +354,10 @@ export default function Dashboard() {
                                     <td style={{ padding: '14px', fontSize: 13, color: 'var(--text-tertiary)' }}>{run.date}</td>
                                 </motion.tr>
                             ))}
-                            {recentRuns.length === 0 && (
+                            {recentRuns.filter(r => statusFilter === 'all' || r.status === statusFilter).length === 0 && (
                                 <tr>
                                     <td colSpan={7} style={{ textAlign: 'center', padding: '40px 0', color: 'var(--text-tertiary)', fontSize: 13 }}>
-                                        No test runs yet. Start your first test above!
+                                        No matching test runs.
                                     </td>
                                 </tr>
                             )}
@@ -351,6 +365,6 @@ export default function Dashboard() {
                     </table>
                 </div>
             </motion.div>
-        </motion.div >
+        </motion.div>
     );
 }

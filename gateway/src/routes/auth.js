@@ -17,6 +17,21 @@ function generateToken(user) {
   );
 }
 
+export async function ensureUserOrg(userId, preferredName) {
+  const user = await prisma.user.findUnique({ where: { id: userId }, select: { id: true, name: true, orgId: true } });
+  if (!user) return null;
+  if (user.orgId) return user.orgId;
+  const orgName = preferredName || (user.name ? `${user.name}'s Workspace` : 'Personal Workspace');
+  const org = await prisma.organization.create({
+    data: { name: orgName, plan: 'free', apiQuota: 5 },
+  });
+  await prisma.user.update({
+    where: { id: userId },
+    data: { orgId: org.id, role: 'owner' },
+  });
+  return org.id;
+}
+
 // POST /api/auth/register
 router.post('/register', registerRules, validate, async (req, res) => {
   try {
@@ -30,17 +45,15 @@ router.post('/register', registerRules, validate, async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 12);
 
-    // Create org if name provided
-    let orgId = null;
-    if (orgName) {
-      const org = await prisma.organization.create({
-        data: { name: orgName, plan: 'free', apiQuota: 5 },
-      });
-      orgId = org.id;
-    }
+    // Create org
+    const targetOrgName = orgName || `${name}'s Workspace`;
+    const org = await prisma.organization.create({
+      data: { name: targetOrgName, plan: 'free', apiQuota: 5 },
+    });
+    const orgId = org.id;
 
     const user = await prisma.user.create({
-      data: { email, password: hashedPassword, name, orgId, role: orgId ? 'owner' : 'developer' },
+      data: { email, password: hashedPassword, name, orgId, role: 'owner' },
     });
 
     const token = generateToken(user);
@@ -111,12 +124,16 @@ router.post('/refresh', authenticate, async (req, res) => {
 // GET /api/auth/me
 router.get('/me', authenticate, async (req, res) => {
   try {
-    const user = await prisma.user.findUnique({
+    let user = await prisma.user.findUnique({
       where: { id: req.user.id },
       select: { id: true, email: true, name: true, avatar: true, role: true, orgId: true, createdAt: true, githubAccessToken: true },
     });
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
+    }
+    if (!user.orgId) {
+      const orgId = await ensureUserOrg(user.id, user.name);
+      user = { ...user, orgId };
     }
     res.json({ user });
   } catch (err) {
@@ -190,6 +207,11 @@ router.post('/firebase', async (req, res) => {
           githubAccessToken: githubAccessToken || null,
         },
       });
+    }
+
+    if (!user.orgId) {
+      const orgId = await ensureUserOrg(user.id, user.name);
+      user = { ...user, orgId };
     }
 
     await prisma.userActivity.create({
@@ -303,15 +325,20 @@ router.get('/github/callback', async (req, res) => {
             email,
             name: githubUser.name || githubUser.login,
             provider: 'github',
-            role: 'developer',
+            role: 'owner',
             githubAccessToken: accessToken
           }
         });
       } else {
-        await prisma.user.update({
+        user = await prisma.user.update({
           where: { id: user.id },
           data: { githubAccessToken: accessToken }
         });
+      }
+
+      if (!user.orgId) {
+        const orgId = await ensureUserOrg(user.id, user.name);
+        user = { ...user, orgId };
       }
       
       const jwtToken = generateToken(user);

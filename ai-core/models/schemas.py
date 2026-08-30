@@ -5,6 +5,8 @@ from typing import Optional
 
 
 class TestConfig(BaseModel):
+    model_config = {"extra": "allow"}
+
     type: str = "url"
     github_token: Optional[str] = None
     branch: Optional[str] = None
@@ -22,6 +24,7 @@ class TestConfig(BaseModel):
     auth_enabled: bool = False
     auth_username: Optional[str] = None
     auth_password: Optional[str] = None
+    auth_config: Optional[dict] = None
     chaos_mode: bool = False
 
 
