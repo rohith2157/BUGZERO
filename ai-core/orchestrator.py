@@ -30,6 +30,7 @@ from agents.self_healing_agent import SelfHealingAgent
 from agents.active_explorer import ActiveExplorerAgent
 from agents.test_synthesizer import TestSynthesizerAgent
 from agents.api_fuzzer import ApiFuzzerAgent
+from agents.goal_explorer import GoalExplorerAgent
 
 from tools.playwright_tool import PlaywrightTool
 from tools.axe_tool import run_axe_sync
@@ -147,6 +148,7 @@ class Orchestrator:
         test_synthesizer = TestSynthesizerAgent()
         repograph = RepoGraph()
         api_fuzzer = ApiFuzzerAgent()
+        goal_explorer = GoalExplorerAgent()
         report_agent = ReportAgent()
 
         auth_agent = AuthAgent(playwright)
@@ -568,6 +570,15 @@ class Orchestrator:
                             ))
                     except Exception as fuzz_err:
                         logger.debug(f"API fuzzing error on {url}: {fuzz_err}")
+
+                    # ponytail: track goal-driven exploration telemetry (UI-TARS / WebGUM)
+                    affordances = raw.get("affordances", {})
+                    if affordances:
+                        logger.info(
+                            f"  GoalExplorer: Discovered affordances (search={affordances.get('has_search')}, "
+                            f"tabs={len(affordances.get('interactive_tabs', []))}, "
+                            f"buttons={len(affordances.get('action_buttons', []))})"
+                        )
 
                     # Recalculate hygiene score with all defects (axe + vision + API fuzz added)
                     penalty = sum(severity_weights.get(d.severity, 3) for d in page_result.defects)

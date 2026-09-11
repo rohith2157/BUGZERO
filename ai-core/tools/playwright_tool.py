@@ -617,6 +617,21 @@ class PlaywrightTool:
                     })
             except Exception as e:
                 pass
+
+            # ponytail: goal-driven semantic exploration engine (UI-TARS / WebGUM)
+            try:
+                from agents.goal_explorer import GoalExplorerAgent
+                goal_explorer = GoalExplorerAgent()
+                affordances = goal_explorer.extract_affordances_sync(page)
+                results["affordances"] = affordances
+                planned_goals = goal_explorer.plan_goals(affordances, url)
+                for goal in planned_goals[:2]:
+                    if not any(uj.get("journey_name") == goal.get("title") for uj in user_journeys):
+                        journey = goal_explorer.execute_goal_sync(page, goal)
+                        user_journeys.append(journey)
+            except Exception as ge_err:
+                pass
+
             results["user_journeys"] = user_journeys
 
             # ── Functional Test: JavaScript Runtime Exceptions & Console Errors ──
