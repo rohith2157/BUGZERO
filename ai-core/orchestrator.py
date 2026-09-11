@@ -29,6 +29,7 @@ from agents.chaos_agent import ChaosAgent
 from agents.self_healing_agent import SelfHealingAgent
 from agents.active_explorer import ActiveExplorerAgent
 from agents.test_synthesizer import TestSynthesizerAgent
+from agents.api_fuzzer import ApiFuzzerAgent
 
 from tools.playwright_tool import PlaywrightTool
 from tools.axe_tool import run_axe_sync
@@ -145,6 +146,7 @@ class Orchestrator:
         explorer = ActiveExplorerAgent()
         test_synthesizer = TestSynthesizerAgent()
         repograph = RepoGraph()
+        api_fuzzer = ApiFuzzerAgent()
         report_agent = ReportAgent()
 
         auth_agent = AuthAgent(playwright)
@@ -544,7 +546,30 @@ class Orchestrator:
                         except Exception as e:
                             logger.debug(f"  Fingerprint save failed on {url}: {e}")
 
-                    # Recalculate hygiene score with all defects (axe + vision added)
+                    # ponytail: autonomous API contract schema inference & mutation fuzzing (RESTler)
+                    for req in raw.get("intercepted_requests", []):
+                        api_fuzzer.record_request(
+                            method=req.get("method", "GET"),
+                            url=req.get("url", ""),
+                            headers=req.get("headers", {}),
+                            post_data=req.get("post_data")
+                        )
+                    try:
+                        fuzz_defects = await api_fuzzer.fuzz_all(max_endpoints=2)
+                        for fd in fuzz_defects:
+                            page_result.defects.append(DefectResult(
+                                type=fd["type"],
+                                severity=fd["severity"],
+                                message=fd["message"],
+                                fix=fd.get("fix"),
+                                source=fd.get("source"),
+                                fuzzing_payload=fd.get("fuzzing_payload"),
+                                confidence=fd.get("confidence", 1.0)
+                            ))
+                    except Exception as fuzz_err:
+                        logger.debug(f"API fuzzing error on {url}: {fuzz_err}")
+
+                    # Recalculate hygiene score with all defects (axe + vision + API fuzz added)
                     penalty = sum(severity_weights.get(d.severity, 3) for d in page_result.defects)
                     penalty += sum(severity_weights.get(v.severity, 2) for v in page_result.compliance)
                     page_result.hygiene_score = max(0, min(100, 100 - penalty))

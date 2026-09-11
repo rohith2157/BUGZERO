@@ -405,6 +405,24 @@ class PlaywrightTool:
             elif status == 404 and not res.url.endswith((".ico", ".map")) and not res.url.startswith("data:"):
                 failed_assets.append(f"HTTP 404 Not Found on {res.url[:120]}")
 
+        page.on("pageerror", on_page_error)
+        page.on("console", on_console_msg)
+        page.on("response", on_response)
+
+        intercepted_requests = []
+        def on_request(req):
+            try:
+                if req.method in ("POST", "PUT", "PATCH", "DELETE"):
+                    intercepted_requests.append({
+                        "method": req.method,
+                        "url": req.url,
+                        "headers": dict(req.headers),
+                        "post_data": req.post_data
+                    })
+            except Exception:
+                pass
+        page.on("request", on_request)
+
         results = {
             "url": url,
             "defects": [],
@@ -413,6 +431,7 @@ class PlaywrightTool:
             "axe_violations": [],
             "screenshot_bytes": b"",
             "dom_fingerprints": {},
+            "intercepted_requests": intercepted_requests,
         }
 
         try:
