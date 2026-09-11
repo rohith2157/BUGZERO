@@ -1,1132 +1,292 @@
 <div align="center">
 
-# 🚀 BUGZERO (AutonomousQA v3.1 — God-Mode)
+# 🚀 BUGZERO
+### AutonomousQA: Next-Generation Autonomous Web Quality Engineering Platform
+**Zero-Touch • Zero-Script • 100% Deterministic • \$0 API Token Cost**
 
----
+[![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
+[![Node.js 20+](https://img.shields.io/badge/node-20+-green.svg)](https://nodejs.org/)
+[![Playwright](https://img.shields.io/badge/engine-Playwright%201.40+-orange.svg)](https://playwright.dev/)
+[![Axe-Core 4.9.0](https://img.shields.io/badge/accessibility-axe--core%204.9.0-purple.svg)](https://github.com/dequelabs/axe-core)
+[![SIMD AVX2](https://img.shields.io/badge/acceleration-AVX2%20%2F%20OpenBLAS-red.svg)](documentation/SIMD_ACCELERATION_SPEC.md)
+[![ZeroGPU VLM](https://img.shields.io/badge/HuggingFace-ZeroGPU%20Eagle2--2B-yellow.svg)](https://huggingface.co/spaces/rohith2157/vlm_for_bugzero)
+[![License: MIT](https://img.shields.io/badge/License-MIT-emerald.svg)](LICENSE)
 
-## 🧠 What is AutonomousQA?
-
-<div align="center">
-  <img src="assets/illustrations/01-zero-touch.png" alt="The Zero-Touch Promise" width="800">
-  <br>
-  <em>The Zero-Touch Promise: Point it at a URL, and it delivers a complete test report.</em>
-</div>
 <br>
 
-**AutonomousQA** is an AI-driven testing platform that autonomously crawls, analyzes, and tests any web application. Point it at a URL — it discovers every page, runs accessibility audits, performance checks, visual regression analysis, and functional tests — then reports defects with full evidence. **No scripts. No config. No babysitting.**
+<img src="assets/illustrations/01-zero-touch.png" alt="The Zero-Touch Promise" width="850">
 
-> 💡 **The Problem:** Writing and maintaining test scripts is slow, expensive, and fragile. Traditional QA can't keep pace with rapid development cycles, and critical bugs slip through because manual testing doesn't scale.
+<br>
+<em>AutonomousQA deploys specialized autonomous agents that explore web applications, execute stateful user journeys, fuzz API contracts, localize code bugs to exact file lines, and synthesize executable Playwright tests.</em>
 
-> ✨ **The Solution:** AutonomousQA deploys 6 specialized AI agents that behave like expert QA engineers — they explore your app intelligently, heal their own broken selectors, find issues humans miss, and deliver actionable reports in real time.
-
----
-
-## 🌟 The Evolution: Hybrid NVIDIA Eagle VLM + Pure Algorithmic Engine
-
-AutonomousQA combines state-of-the-art open-weights Vision-Language Models (**NVIDIA Eagle2-2B** and **LocateAnything-3B**) hosted on Hugging Face ZeroGPU with a **100% Pure Offline Algorithmic Engine** (PIL pixel-math & Levenshtein DOM fuzzy distance).
-
-**Why?** Because a testing framework must offer top-tier visual intelligence when connected, while remaining 100% reliable, offline, and free when run locally without cloud API keys.
-
-| Feature                     | NVIDIA Eagle VLM (HF Cloud / ZeroGPU)                     | Local Algorithmic Fallback (100% Offline)                                                          |
-| :-------------------------- | :-------------------------------------------------------- | :------------------------------------------------------------------------------------------------- |
-| **Self-Healing**            | **`nvidia/LocateAnything-3B`**. Bounding box UI locator.  | **Fuzzy DOM Scoring**. Uses Levenshtein distance & spatial decay. Heals in 15ms.                  |
-| **Visual Regression**       | **`nvidia/Eagle2-2B`**. Semantic visual bug inspection.   | **SSIM & Bounding Boxes**. Uses `ImageChops` with Gaussian Blurring to diff pixels mathematically.  |
-| **Deployment / Cost**       | **Hugging Face ZeroGPU Space** ([rohith2157/vlm_for_bugzero](https://huggingface.co/spaces/rohith2157/vlm_for_bugzero)) | **$0.00 (Completely Free, Local & Offline)**                                                       |
-| **Determinism**             | Generative Vision-Language Reasoning                      | **100% Deterministic** (Math never lies)                                                           |
-| **Speed**                   | Network / GPU Inbound (Fast ZeroGPU API)                  | **CPU Bound** (Microsecond execution)                                                              |
-
-[Read the Hugging Face Space Demo here!](https://huggingface.co/spaces/rohith2157/vlm_for_bugzero)
-
-<div align="center">
-  <h3>AutonomousQA 2.0 Architecture Map</h3>
-  <a href="https://foglamp.dev/scan/autonomous-qa-system-giu7il">
-    <img src="C:/Users/Rohith/.gemini/antigravity-ide/brain/tempmediaStorage/media__1784384428052.png" alt="AutonomousQA 2.0 Architectural Map" width="1000">
-  </a>
 </div>
 
 ---
 
-## 🏗️ 2. "What is What": Complete Pipeline Architecture
+## 💡 What is AutonomousQA?
+
+Writing and maintaining end-to-end test scripts is slow, brittle, and expensive. As UIs evolve, traditional test automation suites break constantly, while manual QA fails to scale across rapid CI/CD deployment cycles.
+
+**AutonomousQA (BUGZERO)** transforms quality assurance into an **active, autonomous engineering system**. Point it at a production URL or a GitHub repository — it automatically:
+- **Crawls & Maps:** Discovers pages using Breadth-First Search (BFS) and classifies application archetypes (E-Commerce, Auth, Search, Forms).
+- **Prioritizes:** Constructs a directional topology graph and computes eigenvector PageRank to prioritize high-risk user routes.
+- **Single-Navigation Multi-Audit:** Runs accessibility audits (Axe-Core 4.9.0), Core Web Vitals, runtime JS crash trapping, and SIMD visual collision checks in a single page lifecycle.
+- **Explores & Asserts:** Synthesizes stateful user journeys (e.g. Search $\to$ Add to Cart $\to$ Subtotal Math) and verifies arithmetic truth without hardcoded scripts.
+- **Synthesizes Tests & Localizes Faults:** Auto-generates standalone Playwright `.spec.ts` reproduction scripts and maps runtime defects directly to repository source lines (`file:line`).
+
+---
+
+## ⚡ AutonomousQA vs. Google Lighthouse vs. Scripted QA
+
+| Dimension | Manual / Scripted QA (Playwright / Cypress) | Google Lighthouse / Axe CLI | **AutonomousQA (BUGZERO)** |
+| :--- | :--- | :--- | :--- |
+| **Setup Cost** | Weeks writing fragile CSS/XPath selectors | Instant single-page audit | **Instant Zero-Config (Single URL or Repo)** |
+| **Interaction Model** | Fixed, hardcoded test paths | Passive static DOM observer (No clicks) | **Active Agentic Explorer (Clicks, Tabs, Forms)** |
+| **Stateful Journeys** | Manually scripted per user story | None (Cannot traverse e-commerce flows) | **Autonomous Multi-Step Synthesis & Cart Math** |
+| **Visual Regressions** | Brittle pixel diffing (anti-aliasing noise) | None | **SIMD AVX2 SSIM + NVIDIA Eagle2-2B ZeroGPU** |
+| **Crash Trapping** | Manual error assertions required | Ignored during test runs | **Traps Unhandled JS Errors & 5xx API Failures** |
+| **Fault Localization** | Developer must manually debug logs | None | **RepoGraph AST Symbol Graph (`file:line`)** |
+| **Output Deliverable** | Pass/Fail assertion log | Static PDF / JSON report | **Executable Playwright `.spec.ts` + Git PR Fixes** |
+| **Operational Cost** | High engineering maintenance debt | Free but limited | **\$0.00 Local Computation (Offline Deterministic)** |
+
+---
+
+## 🔬 Next-Gen Research Capabilities
+
+AutonomousQA integrates breakthrough software engineering and programming languages research:
+
+```
+┌────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│                                   AUTONOMOUS QA 5-STAGE PIPELINE                                       │
+└────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+                                                    │
+                 ┌──────────────────────────────────┴──────────────────────────────────┐
+                 ▼                                                                     ▼
+     [Pre-Stage 0: KISS Sorcar]                                             [Stage 1: Dynamic Crawl]
+Ephemeral Git Worktree Isolation & Port Allocation                       Crawl with Graph Pagerank Scoring
+                 │                                                                     │
+                 ▼                                                                     ▼
+     [Stage 2: Goal-Driven Exploration (UI-TARS)]                          [Stage 3: Multi-Vector Scan]
+DOM Affordance Clustering & Semantic Goal Synthesis                      Single-Pass Context Re-use
+                 │                                                                     │
+                 ├─────────────────────────────────┬───────────────────────────────────┤
+                 ▼                                 ▼                                   ▼
+        [Axe-Core 4.9.0]                [SIMD AVX2 Vision]                   [API Mutation Fuzzer]
+     WCAG 2.2 AA Compliance           Zero-Collision Overlaps               RESTler Contract Fuzzing
+                 │                                 │                                   │
+                 └─────────────────────────────────┼───────────────────────────────────┘
+                                                   ▼
+                                  [Fault Localization: RepoGraph]
+                                AST Source Symbol Graph (File:Line)
+                                                   │
+                                                   ▼
+                                [Test Synthesizer: USEagent 2026]
+                           Executable Playwright .spec.ts Generation
+```
+
+### 1. 🧪 Automated Playwright `.spec.ts` Synthesizer (*USEagent — ICSE 2026*)
+- When a defect is discovered, AutonomousQA automatically writes an executable TypeScript test file using `@playwright/test`.
+- Test scripts are self-contained with exact selectors, viewport settings, actions, and assertions saved directly into `benchmarks/generated_tests/`.
+
+### 2. 🧭 RepoGraph AST Fault Localization (*RepoGraph — ICLR 2025*)
+- Parses your application's source repository using Python's native `ast` parser and regex grammar analyzers.
+- Indexes functions, classes, and React components, mapping runtime browser exceptions and accessibility violations directly to `file_path:line_number (symbol)`.
+
+### 3. 🛡️ Ephemeral Git Worktrees & Dynamic Port Sandboxing (*KISS Sorcar — UC Berkeley 2026*)
+- Tests repositories without touching uncommitted changes or risking branch collisions during concurrent CI checks.
+- Uses `git worktree add --detach` combined with kernel-level socket port probing (`0.0.0.0:0`) for collision-free parallel execution.
+
+### 4. ⚡ Autonomous API Contract Mutation Fuzzer (*RESTler — IEEE S&P*)
+- Intercepts live browser network requests (POST, PUT, PATCH), infers runtime JSON request schemas, and dispatches 7 high-yield mutation vectors (boundary integers, buffer overflows, type confusion, null injection).
+- Detects and flags unhandled HTTP 5xx server crashes with reproducible payloads.
+
+### 5. 🎯 Goal-Driven Semantic Affordance Explorer (*UI-TARS — ByteDance 2025 / WebGUM — Google*)
+- Dynamically clusters DOM affordances (search catalogs, filters, navigation tabs, actionable buttons) without costly LLM tokens.
+- Synthesizes goal-oriented user journeys and verifies state mutation responsiveness.
+
+---
+
+## 🏗️ System Architecture & 4-Stage Multi-Audit Engine
 
 ```mermaid
 flowchart TD
-    A[Target URL / Web App] --> B[Stage 1: BFS Crawler & Archetype Discovery]
-    B --> C[Stage 2: Graph & PageRank Scheduler]
+    A[Target URL / Git Repo] --> B[Stage 1: BFS Crawler & Archetype Discovery]
+    B --> C[Stage 2: Graph Topology & Risk-Weighted PageRank]
     C --> D[Stage 3: Single-Navigation Multi-Audit Engine]
   
-    subgraph D [Stage 3: Multi-Audit Execution on Single Page Load]
+    subgraph D [Stage 3: Single-Navigation Multi-Audit Execution]
         D1[Axe-Core 4.9.0 WCAG Engine]
-        D2[Runtime JS Crash & Network 4xx/5xx Trap]
-        D3[Chromium PerformanceObserver API]
-        D4[⚡ SIMD 2D AABB Collision Engine]
-        D5[⚡ SIMD Vectorized SSIM & Pixel Drift]
-        D6[Stateful JourneyAgent & Business Logic Engine]
+        D2[Runtime JS Exception & Network 5xx Interceptor]
+        D3[Chromium PerformanceObserver Core Web Vitals]
+        D4[⚡ SIMD 2D AABB Bounding Box Collision Matrix]
+        D5[⚡ SIMD Vectorized SSIM & Gaussian Pixel Drift]
+        D6[Stateful JourneyAgent & E-Commerce Cart Math]
+        D7[RESTler API Mutation Fuzzer]
     end
   
-    D1 --> E[Stage 4: Aggregation & Hygiene Scoring]
+    D1 --> E[Stage 4: Hygiene Scoring & Defect Aggregation]
     D2 --> E
     D3 --> E
     D4 --> E
     D5 --> E
     D6 --> E
-    E --> F[Compliance Report, Defect Cards & Self-Healing Matrix]
+    D7 --> E
+    E --> F[RepoGraph AST Source Pointer & Playwright .spec.ts Exporter]
 ```
 
-### 🔍 Deep-Dive: The 4-Stage Autonomous Testing Pipeline
+### Single-Pass Navigation Efficiency
+Traditional scanners reload a webpage 5 to 6 times to run separate accessibility, performance, visual, and SEO checks. AutonomousQA executes **all 7 audit vectors during a single browser page lifecycle**, eliminating 80%+ of redundant network and rendering overhead.
 
-#### 🌐 Stage 1: Breadth-First Search (BFS) Crawler & Discovery
-* **Domain-Bounded Crawling:** Automatically crawls internal links while blocking third-party domains (e.g. Google Analytics, social media widgets).
-* **DOM Classification:** Identifies page archetypes (`Dashboard`, `Form`, `Auth`, `Content`, `E-Commerce`) by inspecting DOM landmarks, `<input>` types, and routing structure.
-* **SPA Hydration Tolerance:** Waits for JavaScript frameworks (React, Next.js, Vue, Angular) to finish DOM reconciliation before extracting interactive links.
-
-#### 📊 Stage 2: Graph Topology & Risk-Weighted PageRank Scheduler
-* **NetworkX DiGraph Construction:** Builds a directional graph of the web application's topology.
-* **PageRank Scoring:** Computes eigenvector centrality to determine which pages carry the highest structural traffic importance.
-* **Risk Prioritization Matrix:** Calculates total test priority by blending PageRank with page type critical weights (e.g. `Auth` = +15%, `Checkout/Form` = +12%) and historical regression recidivism.
-
-#### ⚡ Stage 3: Single-Navigation Multi-Audit Engine
-Instead of opening multiple browser tabs and reloading the page 6 times, AutonomousQA performs **all 6 audits simultaneously on a single page navigation**:
-1. **Axe-Core 4.9.0 Engine:** Audits against WCAG 2.1 AA/AAA rules, contrast minimums, aria attributes, missing form labels, and focus trap vulnerabilities.
-2. **Runtime JS & Network Error Interceptor:** Actively traps `window.onerror`, unhandled promise rejections, `console.error` logs, and 4xx/5xx failing backend API requests.
-3. **Chromium Navigation Timing:** Captures Core Web Vitals (TTFB, LCP, CLS, FID/TBT) using native `PerformanceObserver` telemetry.
-4. **Visual Collision Math:** Extracts exact bounding boxes via `getBoundingClientRect()` and detects un-styled layout collisions and overlapping interactive elements.
-5. **Hybrid NVIDIA Eagle VLM:** Uses private ZeroGPU cloud vision to semantically inspect UI components or falls back to local Gaussian blurred SSIM pixel subtraction.
-6. **Stateful User Journey & Business Logic Engine:** Autonomously executes multi-step workflows (e.g. Search $\to$ Add to Cart $\to$ Badge Mutation $\to$ Cart Drawer) and mathematically asserts business arithmetic ($\text{Total} = \sum P_i Q_i - D + T$).
-
-#### 🎯 Stage 4: Hygiene Scoring & Actionable Defect Generation
-* **Penalty-Weighted Calculation:** Aggregates findings and scores the page hygiene from 0 to 100 based on severity penalties (`Critical` = -15, `Major` = -8, `Minor` = -3, `Warning` = -1).
-* **Actionable Remediation Cards:** Produces verified defect objects containing the exact CSS selector, offending HTML code snippet, WCAG standard reference, and developer remediation fix.
-* **Self-Healing Fingerprints:** Records multi-variable element snapshots (`tagName`, Levenshtein text distance, spatial coordinates) to dynamically heal broken selectors in future test runs.
+### Dual-Tier Visual Regression
+1. **Tier 1 (NVIDIA Eagle2-2B ZeroGPU)**: Cloud-hosted Vision-Language Model semantically verifies complex visual layouts and filters intentional styling from real defects.
+2. **Tier 2 (AVX2 SIMD & Local PIL)**: 100% offline fallback computing Gaussian-blurred Structural Similarity (SSIM) and pairwise Axis-Aligned Bounding Box (AABB) collisions in `<2ms`.
 
 ---
 
-## 📚 Deep-Dive Technical Documentation Hub
-
-For granular architectural breakdowns, mathematical proofs, and live audit datasets, explore our dedicated specifications in [`/documentation`](file:///c:/testproject/documentation/):
-
-| Specification Document | Focus Area | What You'll Learn |
-|---|---|---|
-| 🧭 [**01: Pipeline & Journey Engine**](file:///c:/testproject/documentation/01_PIPELINE_AND_JOURNEY_ENGINE.md) | Stateful User Journeys & Assertion Engine | Deep dive into `JourneyAgent`, E-Commerce subtotal math formula ($\text{Total} = \sum P_i Q_i - D + T$), runtime JS exception trapping, and single-navigation architecture. |
-| 🧪 [**02: Real-World Benchmarks & Matrix**](file:///c:/testproject/documentation/02_REAL_WORLD_BENCHMARKS_AND_AUDIT.md) | Empirical 5-Site Live Audit Dataset | Full breakdown of live tests on Swiggy Instamart, Hacker News, BFL AI, Phycraft Tech, and GitHub; why scores range from 41 to 97 in real-world QA. |
-| 🏛️ [**03: Master Benchmark Compendium**](file:///c:/testproject/documentation/03_TITAN_LIGHTHOUSE_BENCHMARK_MASTER.md) | Google Lighthouse vs AutonomousQA Suite | Complete consolidation of the 70,000-line TITAN benchmark suite, dual-tier vision tensor mathematics, and head-to-head comparison metrics. |
-| 🧮 [**Self-Healing & SSIM Pixel Math**](file:///c:/testproject/documentation/100percent_algo.md) | 100% Deterministic Fallback Math | Levenshtein DOM text distance, spatial Pythagorean decay scoring, and Gaussian blurred image difference subtraction. |
-| 🔄 [**End-to-End System Workflow**](file:///c:/testproject/documentation/SYSTEM_WORKFLOW.md) | Complete Platform Workflow | Full lifecycle walkthrough from URL intake, PageRank graph prioritization, to Jira/GitHub defect syncing. |
-
----
-
-<div align="center">
-
-### 🧮 Self-Healing Tests — The Fuzzy Algorithmic Engine
-
-We completely removed Large Language Models (LLMs) from the healing process to guarantee 100% mathematical determinism. When a UI element changes its class, ID, or text, a traditional test script fails. Our algorithmic engine heals it instantly using a multi-variable heuristic scoring system.
-
-**1. The Historical Fingerprint**
-Before any test, the system saves a lightweight JSON fingerprint of all interactive elements:
-- `tagName` (e.g., `button`)
-- `textContent` (e.g., "Submit Order")
-- `attributes` (e.g., classes, IDs, names)
-- `metrics` (2D spatial coordinates via `getBoundingClientRect()`)
-
-**2. The Mathematical Scoring Matrix**
-When a selector breaks, the engine scans the current DOM and calculates a score `S(E, F)` for every element `E` against the historical fingerprint `F`:
-- **Tag Match**: Exact match grants +20 points.
-- **Text Similarity (Levenshtein Distance)**: We calculate the minimum number of single-character edits required to change the old text into the new text. This catches subtle changes (like "Log in" to "Login"). Grants up to +35 points.
-- **Attribute Intersection**: We split CSS classes into sets and calculate the overlap. Grants up to +25 points.
-- **Spatial Proximity (Pythagorean Decay)**: If the text and classes are heavily obfuscated, spatial location is the ultimate fallback. We calculate the Pythagorean distance between the old element and the new element. We apply an exponential decay function so elements perfectly in place get max points (+20), and elements further away rapidly lose points.
-
-If the highest-scoring element exceeds a strict threshold (e.g., > 55/100), the system dynamically generates a new CSS selector, clicks the button, and records a `HealingEvent` in the database.
+## 📂 Project Directory Structure
 
 ```text
-  OLD: #checkout-form > button.btn-primary     ← BROKEN ❌      
-  NEW: .checkout-container > .cta-button        ← HEALED ✅      
-  ALGO SCORE: 88.5/100 (Levenshtein text match + perfect spatial match)              
-```
-
-### 👁️ Visual Regression — SSIM and Pixel Math
-
-Just like self-healing, we ripped out the "Vision LLMs" and replaced them with raw pixel mathematics using Python's `Pillow` library.
-
-**The Problem with MSE (Mean Squared Error)**
-Traditional visual regression compares absolute pixel differences. If a browser updates its font anti-aliasing engine, every text pixel shifts by a microscopic hex value. MSE will fail the test, causing a nightmare of "false positive" noise for QA teams.
-
-**Our Solution: Blurred Image Subtraction**
-1. **Gaussian Blurring:** We apply a low-radius Gaussian blur to both the baseline and current screenshots. This intentionally destroys 1-pixel micro-variations (like anti-aliasing) while preserving macro-structures (buttons, layout, spacing).
-2. **Difference Subtraction:** Using `Pillow.ImageChops.difference()`, we mathematically subtract the pixel values of the baseline from the current image. The resulting image is completely black where the UI matches, and highlighted where it differs.
-3. **Statistical Variance:** We calculate the sum of all pixel values in the difference image. By dividing this by the maximum possible difference (Width × Height × 255 × 3 channels), we obtain a precise "Drift Percentage".
-
-If the Drift Percentage exceeds a predefined noise threshold (e.g., 0.5%), the test fails with a functional visual regression. No AI hallucination, just pure structural validation.
-
-### Risk Prioritization — 4-Factor Model
-
-```
-Stage 2: Fetch defect history from last 10 completed runs
-  ↓
-Risk Score = PageRank (link graph) + Type Boost (auth=+0.15, form=+0.12)
-           + Defect History (up to +0.20 for recidivist pages)
-           + Change Detection (up to +0.15 for score regressions)
-  ↓
-Pages sorted by combined risk → highest-risk tested first
-```
-
----
-
-## 🕸️ Autonomous Crawling Strategy (Breadth-First Search)
-
-AutonomousQA utilizes a highly optimized **Breadth-First Search (BFS)** spider to autonomously discover and map your application. 
-
-By utilizing a First-In-First-Out (FIFO) queue, the engine maps your site **level-by-level** (wide first, then deep). This ensures that critical top-level pages (like the Homepage, Dashboard, and Checkout) are always discovered and tested first before the engine gets bogged down in deeply nested user profiles or infinite calendar links.
-
-```mermaid
-graph TD
-    classDef l1 fill:#0ea5e9,color:#fff,stroke:none
-    classDef l2 fill:#22c55e,color:#fff,stroke:none
-    classDef l3 fill:#a855f7,color:#fff,stroke:none
-    
-    A["1. Homepage (Level 0)"]:::l1
-    B["2. About (Level 1)"]:::l2
-    C["3. Dashboard (Level 1)"]:::l2
-    D["4. Post 1 (Level 2)"]:::l3
-    E["5. Settings (Level 2)"]:::l3
-
-    A --> B
-    A --> C
-    C --> D
-    C --> E
-```
-
-> 🔗 **Why BFS over DFS?** Read our full [Crawl Strategy Comparison](documentation/CRAWL_STRATEGIES.md) to see how BFS compares against Depth-First Search, Priority Queues, and Concurrent tracking!
-
----
-
-## 🏗️ System Architecture & 5-Tier Topology
-
-BugZero uses a **5-Tier Distributed Architecture** featuring a hardware-accelerated vector computing core in `ai-core/utils/` that executes native AVX2 SIMD operations for visual diffing, structural similarity (SSIM), layout collision geometry, and DOM feature embeddings.
-
-```mermaid
-flowchart TD
-    %% Styling Definitions
-    classDef clientLayer fill:#0f172a,stroke:#38bdf8,stroke-width:2px,color:#f8fafc;
-    classDef gatewayLayer fill:#1e1b4b,stroke:#818cf8,stroke-width:2px,color:#f8fafc;
-    classDef orchestratorLayer fill:#14532d,stroke:#4ade80,stroke-width:2px,color:#f8fafc;
-    classDef simdLayer fill:#701a75,stroke:#f472b6,stroke-width:2px,color:#fdf2f8;
-    classDef hardwareLayer fill:#78350f,stroke:#fbbf24,stroke-width:2px,color:#fffbeb;
-
-    subgraph Tier1["🖥️ Tier 1: Client Presentation (React 19 + Vite 7)"]
-        UI_DASH["📊 Executive QA Dashboard"]
-        UI_BLUEPRINT["📐 2D Cartesian Blueprint Studio (X-Ray)"]
-        UI_JOURNEY["🧭 Autonomous Journey Studio (8 Flows)"]
-        UI_WS["⚡ WebSocket Client Hook (`useWebSocket.js`)"]
-    end
-    class Tier1,UI_DASH,UI_BLUEPRINT,UI_JOURNEY,UI_WS clientLayer;
-
-    subgraph Tier2["🌐 Tier 2: Gateway & Event Streaming (Node.js API)"]
-        GW_ROUTER["🔀 REST Test Router (`/api/tests`)"]
-        GW_WS["📡 Real-Time WebSocket Server (`ws://:5000`)"]
-        GW_STORAGE["💾 Baseline Snapshot Store (`/baselines`)"]
-    end
-    class Tier2,GW_ROUTER,GW_WS,GW_STORAGE gatewayLayer;
-
-    subgraph Tier3["🧠 Tier 3: AI-Core Autonomous QA Orchestration (Python 3.13)"]
-        ORCH["👑 Autonomous Orchestrator (`orchestrator.py`)"]
-        PW["🎭 Playwright Crawler + axe-core 4.9.0 + Runtime Traps"]
-        SWARM["🤖 Agent Swarm (VisionAgent, SelfHealingAgent, JourneyAgent)"]
-    end
-    class Tier3,ORCH,PW,SWARM orchestratorLayer;
-
-    subgraph Tier4["⚡ Tier 4: SIMD Hardware Acceleration Layer (`ai-core/utils/`)"]
-        SIMD_V["⚡ `simd_vision_engine.py` (AVX2 SSIM & Pixel Drift)"]
-        SIMD_C["📐 `simd_collision_engine.py` (AABB Matrix Broadcast)"]
-        SIMD_F["🧬 `simd_feature_engine.py` (8D Cosine Similarity)"]
-    end
-    class Tier4,SIMD_V,SIMD_C,SIMD_F simdLayer;
-
-    subgraph Tier5["⚙️ Tier 5: Hardware Acceleration Subsystem"]
-        HW_AVX2["🚀 AVX2 / FMA3 (256-bit Vector Registers)"]
-        HW_BLAS["🧵 OpenBLAS 0.3.31 (24 Parallel CPU Threads)"]
-        HW_FALLBACK["🛡️ 3-Tier Fallback (AVX2 ➔ Vectorized NumPy ➔ Pillow Scalar)"]
-    end
-    class Tier5,HW_AVX2,HW_BLAS,HW_FALLBACK hardwareLayer;
-
-    UI_WS <==>|Bi-directional WS Stream| GW_WS
-    UI_DASH -->|Trigger Test| GW_ROUTER
-    GW_ROUTER -->|Spawn Process| ORCH
-    ORCH --> PW
-    PW --> SWARM
-    SWARM ==>|Contiguous float32 Buffers| Tier4
-    Tier4 -.-> Tier5
-```
-
-> 📖 **Full Architectural Blueprint:** For complete zero-copy memory diagrams, YMM register layouts, and sequence diagrams, see [results/ARCHITECTURE_SYSTEM_DIAGRAM.md](file:///c:/testproject/results/ARCHITECTURE_SYSTEM_DIAGRAM.md).
-
-| Service / Subsystem | Technology Stack | Hardware Role & Purpose |
-| :--- | :--- | :--- |
-| **Frontend Studio** | React 19, Vite 7, Tailwind, Canvas | Interactive QA dashboard, 2D Cartesian X-Ray blueprinting, user journeys. |
-| **API Gateway** | Express.js, Prisma ORM, Socket.io | REST endpoints, WebSocket relay, baseline screenshot caching. |
-| **AI-Core Orchestrator** | Python 3.13, Playwright, axe-core 4.9.0 | Autonomous crawling, runtime error trapping, multi-agent dispatching. |
-| **SIMD Vision Engine** | NumPy 2.4.6, AVX2, OpenBLAS | Structural Similarity Index (SSIM) and pixel drift math in 256-bit registers. |
-| **SIMD Collision Engine** | NumPy Broadcast Matrix | $N \times N$ AABB bounding box collision checks with adaptive scalar routing. |
-| **SIMD Feature Engine** | Contiguous float32 Matrix | 8D vector dot-product cosine similarity for instant self-healing locators. |
-
----
-
-## ⚙️ System Workflow & Execution Pipeline
-
-Here is what happens under the hood when a test run is launched:
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant U as 👤 User
-    participant F as 🖥️ Frontend Studio
-    participant G as 🌐 API Gateway
-    participant O as 👑 AI-Core Orchestrator
-    participant PW as 🎭 Playwright & Axe-Core
-    participant SIMD as ⚡ SIMD Hardware Engines
-    participant WS as 📡 WebSocket Server
-
-    U->>F: Clicks "Launch Test" (URL, Depth)
-    F->>G: POST /api/tests { url, config }
-    G-->>F: Return Test Run UUID
-    F->>WS: Connect WebSocket (ws://:5000)
-    G->>O: Spawn In-Process Orchestration Pipeline
-
-    note over O,PW: STAGE 1: INGESTION & CRAWL
-    O->>PW: Launch Headless Browser (BFS Spider)
-    PW->>PW: Run axe-core 4.9.0, trap pageerror & 4xx/5xx network failures
-    PW-->>O: Return Page Screenshots, DOM Coordinate Buffers & Axe Violations
-
-    note over O,SIMD: STAGE 2: SIMD HARDWARE ANALYSIS
-    O->>SIMD: `compute_simd_full(baseline, current)`
-    SIMD->>SIMD: Single-Pass PNG Decode + AVX2 SSIM & Drift Calculation
-    SIMD-->>O: Return SSIM (e.g. 0.8273) + Pixel Drift %
-    
-    O->>SIMD: `detect_simd_collisions(DOM boxes)`
-    SIMD->>SIMD: Evaluate AABB matrix + Filter z-index contexts
-    SIMD-->>O: Return Verified Layout Collision Defects
-
-    note over O,F: STAGE 3: RESULT ASSEMBLY & REPORTING
-    O->>G: Persist Aggregated Report JSON
-    G->>WS: Emit 'test:finished' with Full Matrix
-    WS-->>F: Stream Telemetry & Render Interactive Blueprint Cards
-```
-
-### End-to-End Data Pipeline Flowchart
-
-```mermaid
-flowchart LR
-    Start(["Target URL / Input"]) --> Gateway["API Gateway (Express)"]
-    Gateway --> Route["/api/tests/run"]
-    Route --> AICore["👑 AI-Core Orchestrator"]
-    
-    AICore --> PW["🎭 Headless Playwright Controller"]
-    PW --> Crawler["🕷️ BFS Discovery Crawler"]
-    Crawler --> Pages{"Discovered Pages Graph"}
-    
-    Pages --> Scheduler["📊 PageRank & Risk Scheduler"]
-    Scheduler --> Loop["🔬 Single-Navigation Audit Loop"]
-    
-    Loop --> Axe["♿ axe-core 4.9.0 (WCAG AA/AAA)"]
-    Loop --> Traps["🚨 Runtime Error & 4xx/5xx Trap"]
-    Loop --> SIMDV["⚡ SIMD Vision (SSIM & Drift Math)"]
-    Loop --> SIMDC["📐 SIMD 2D AABB Collision Matrix"]
-    Loop --> Heal["🩹 Self-Healing Feature Vectors"]
-    
-    Axe --> Results["Aggregated Findings"]
-    Traps --> Results
-    SIMDV --> Results
-    SIMDC --> Results
-    Heal --> Results
-    
-    Results --> WSStream{{"📡 WebSocket Stream (ws://:5000)"}}
-    WSStream --> UI["🖥️ Frontend Report & Blueprint Studio"]
+BUGZERO/
+├── autonomousqa-frontend/         # React 18 + Vite Frontend Dashboard
+│   ├── src/
+│   │   ├── pages/                 # Dashboard, LiveTest, Report, NewTest, Compliance
+│   │   ├── components/            # UI components & interactive X-Ray blueprint
+│   │   └── hooks/                 # WebSocket streaming telemetry hooks
+│   └── vite.config.js             # Vite development server
+│
+├── gateway/                       # Express.js API Gateway & WebSocket Server
+│   ├── src/
+│   │   ├── routes/                # Tests, Auth, Playbooks, Baselines, Settings
+│   │   └── services/              # Test orchestration & real-time WebSocket broker
+│   └── prisma/
+│       └── schema.prisma          # Database schema (SQLite / PostgreSQL)
+│
+├── ai-core/                       # Python 3.11+ Autonomous AI Engine
+│   ├── agents/
+│   │   ├── test_synthesizer.py    # 🧪 Playwright .spec.ts synthesizer (USEagent)
+│   │   ├── goal_explorer.py       # 🎯 Goal-driven affordance explorer (UI-TARS)
+│   │   ├── api_fuzzer.py          # ⚡ RESTler mutation contract fuzzer
+│   │   ├── journey_agent.py       # 🧭 Stateful user journeys & cart math
+│   │   ├── vision_agent.py        # 👁️ Dual-tier visual regression engine
+│   │   ├── crawler.py             # 🕷️ BFS crawler & page archetype classifier
+│   │   ├── scheduler.py           # 📊 PageRank & 4-factor risk scheduler
+│   │   ├── auth_agent.py          # 🔐 Automated login & form navigator
+│   │   ├── chaos_agent.py         # 🌪️ Network & CPU latency injection
+│   │   └── pr_bot.py              # 🤖 Automated GitHub PR auto-fix generator
+│   ├── tools/
+│   │   ├── playwright_tool.py     # Single-navigation Playwright harness
+│   │   └── axe_tool.py            # axe-core 4.9.0 WCAG scanner
+│   ├── utils/
+│   │   ├── repograph.py           # 🧭 RepoGraph AST fault localizer (ICLR 2025)
+│   │   ├── repo_server.py         # 🛡️ Ephemeral worktree sandboxing (KISS Sorcar)
+│   │   ├── simd_vision_engine.py  # ⚡ AVX2 vectorized SSIM math
+│   │   └── simd_collision_engine.py # 📐 SIMD 2D AABB bounding box collision
+│   ├── orchestrator.py            # Master 4-stage pipeline orchestrator
+│   └── main.py                    # FastAPI service entrypoint (Port 8000)
+│
+├── documentation/                 # 📚 Authoritative Technical Documentation
+│   ├── 01_PIPELINE_AND_JOURNEY_ENGINE.md
+│   ├── 02_REAL_WORLD_BENCHMARKS_AND_AUDIT.md
+│   ├── 03_TITAN_LIGHTHOUSE_BENCHMARK_MASTER.md
+│   ├── SIMD_ACCELERATION_SPEC.md
+│   ├── SYSTEM_WORKFLOW.md
+│   └── github_engine_design.md
+│
+├── benchmarks/                    # 🧪 Benchmarks & Generated Tests
+│   ├── generated_tests/           # Synthesized Playwright .spec.ts test suites
+│   ├── research/                  # Research implementation compendium & papers
+│   └── reports/                   # Performance & Lighthouse audit logs
+│
+└── docker-compose.yml             # Optional containerized database infrastructure
 ```
 
 ---
 
-## 🔍 Tech Stack Deep-Dive
+## 🚀 Quick Start Guide
 
-AutonomousQA operates like a highly advanced human QA engineer. Here's how the core technologies work together:
-
-### 1. Playwright (The "Eyes and Hands")
-
-- **What it is:** A browser automation tool that launches real headless Chromium browsers.
-- **Why we use it:** Unlike basic HTTP fetchers, Playwright executes JavaScript, renders React/Vue apps, paints CSS, and evaluates the actual Document Object Model (DOM) exactly as a human sees it.
-- **How it works:** Python scripts inject evaluation code directly into the active browser page to measure Core Web Vitals (LCP, CLS, FID), check for accessibility violations, and perform visual heuristics.
-
-### 2. Autonomous Crawling (The "Explorer")
-
-<div align="center">
-  <img src="assets/illustrations/05-crawling.png" alt="Autonomous Crawling (BFS)" width="800">
-  <br>
-  <em>BFS Crawler: Discovering and mapping all pages level-by-level.</em>
-</div>
-<br>
-
-- **What it is:** A Breadth-First Search (BFS) spider that maps the application.
-- **How it works:** Starting from a seed URL, the crawler scans the DOM for valid `<a>` href links belonging to the same domain. It places these in a queue and visits them sequentially up to the configured `max_depth` and `max_pages`. This requires zero configuration from the user.
-
-#### 🧭 Crawl Strategy Comparison
-
-There are several approaches to crawl a website. Here's how they differ and why we chose BFS:
-
-```
-  EXAMPLE SITE MAP                      
-                                         
-            🏠 Homepage                  
-           /     |     \                 
-        📄About 📄Blog  📄Dash          
-                 |        |    \         
-              📄Post1  📄Settings 📄Analytics
-                          |              
-                       📄Profile
-```
-
----
-
-**① BFS — Breadth-First Search  ✅ WHAT WE USE**
-
-```
-  Visit order:  Level by level (wide first, then deep)
-
-  Step 1 →  🏠 Homepage
-  Step 2 →  📄 About        (Level 1)
-  Step 3 →  📄 Blog         (Level 1)
-  Step 4 →  📄 Dashboard    (Level 1)
-  Step 5 →  📄 Post1        (Level 2)
-  Step 6 →  📄 Settings     (Level 2)
-  Step 7 →  📄 Analytics    (Level 2)
-  Step 8 →  📄 Profile      (Level 3)
-
-  ┌─────────────────────────────────────────────────┐
-  │  Uses: FIFO Queue (First In, First Out)         │
-  │                                                 │
-  │  Queue: [Homepage]                              │
-  │         → visit Homepage → enqueue children     │
-  │  Queue: [About, Blog, Dashboard]                │
-  │         → visit About → visit Blog → ...        │
-  │  Queue: [Post1, Settings, Analytics]            │
-  │         → visit all Level 2 ...                 │
-  │                                                 │
-  │  ✅ Finds important top-level pages FIRST       │
-  │  ✅ Natural depth control (shallow/standard)    │
-  │  ✅ Guaranteed shortest path to every page      │
-  │  ⚠️ Sequential — one page at a time            │
-  └─────────────────────────────────────────────────┘
-```
-
----
-
-**② DFS — Depth-First Search**
-
-```
-  Visit order:  Dive deep into one branch, then backtrack
-
-  Step 1 →  🏠 Homepage
-  Step 2 →  📄 About        ← dead end, backtrack
-  Step 3 →  📄 Blog
-  Step 4 →  📄 Post1        ← dead end, backtrack
-  Step 5 →  📄 Dashboard
-  Step 6 →  📄 Settings
-  Step 7 →  📄 Profile      ← deep! finally backtrack
-  Step 8 →  📄 Analytics
-
-  ┌─────────────────────────────────────────────────┐
-  │  Uses: LIFO Stack (Last In, First Out)          │
-  │                                                 │
-  │  Stack: [Homepage]                              │
-  │         → visit Homepage → push children        │
-  │  Stack: [About, Blog, Dashboard]                │
-  │         → pop Dashboard → push its children     │
-  │  Stack: [About, Blog, Settings, Analytics]      │
-  │                                                 │
-  │  ✅ Low memory usage                            │
-  │  ✅ Good for finding deep-nested pages          │
-  │  ❌ Can get lost in deep rabbit holes           │
-  │  ❌ Misses breadth of site if max_pages hit     │
-  └─────────────────────────────────────────────────┘
-```
-
----
-
-**③ Priority Queue — Best-First Search**
-
-```
-  Visit order:  Highest-priority (most "interesting") pages first
-
-  Step 1 →  🏠 Homepage        (score: 100)
-  Step 2 →  📄 Dashboard       (score: 90  — has forms!)
-  Step 3 →  📄 Settings        (score: 85  — user inputs)
-  Step 4 →  📄 Profile         (score: 80  — auth page)
-  Step 5 →  📄 Blog            (score: 40  — static content)
-  Step 6 →  📄 About           (score: 30  — low risk)
-  Step 7 →  📄 Post1           (score: 20)
-  Step 8 →  📄 Analytics       (score: 15)
-
-  ┌─────────────────────────────────────────────────┐
-  │  Uses: Priority Queue (highest score first)     │
-  │                                                 │
-  │  Each URL gets a score based on:                │
-  │  • Has forms/inputs        → +40 points        │
-  │  • Login/auth page         → +30 points        │
-  │  • Dynamic route (/dashboard) → +20 points     │
-  │  • Static content (/blog)  → +5 points         │
-  │                                                 │
-  │  ✅ Tests bug-prone pages first                 │
-  │  ✅ Best use of limited max_pages budget        │
-  │  ⚠️ Needs heuristic scoring logic              │
-  │  ⚠️ More complex implementation                │
-  └─────────────────────────────────────────────────┘
-```
-
----
-
-**④ Concurrent BFS — Parallel Breadth-First**
-
-```
-  Visit order:  Same as BFS, but multiple pages at once
-
-  Step 1   →  🏠 Homepage
-  Step 2-4 →  📄 About + 📄 Blog + 📄 Dashboard   ← parallel!
-  Step 5-7 →  📄 Post1 + 📄 Settings + 📄 Analytics ← parallel!
-  Step 8   →  📄 Profile
-
-  ┌─────────────────────────────────────────────────┐
-  │  Uses: FIFO Queue + Semaphore (N workers)       │
-  │                                                 │
-  │  Worker 1: About ──→ Post1 ──→ Profile          │
-  │  Worker 2: Blog ───→ Settings                   │
-  │  Worker 3: Dashboard → Analytics                │
-  │                                                 │
-  │  ✅ 3-5x faster than sequential BFS             │
-  │  ✅ Same level-by-level coverage as BFS         │
-  │  ✅ Semaphore prevents server overload          │
-  │  ⚠️ Needs careful concurrency management       │
-  │  ⚠️ Higher memory (multiple browser pages)     │
-  └─────────────────────────────────────────────────┘
-```
-
----
-
-#### 📊 Strategy Comparison Matrix
-
-```
-                    BFS ✅        DFS          PRIORITY      CONCURRENT
-                    (Current)                  QUEUE         BFS
-  ─────────────────────────────────────────────────────────────────────
-  Data Structure    FIFO Queue    LIFO Stack   Heap/PQ       Queue+Sema
-  Visit Order       Level-by-     Branch-by-   Score-based   Level-by-
-                    level         branch                     level
-  Speed             ██░░░░        ██░░░░       ██░░░░        █████░
-                    Moderate      Moderate     Moderate      Fast
-  Coverage          █████░        ███░░░       ████░░        █████░
-                    Excellent     Poor breadth Smart focus   Excellent
-  Memory            ███░░░        █░░░░░       ███░░░        ████░░
-                    Moderate      Very Low     Moderate      Higher
-  Complexity        █░░░░░        █░░░░░       ████░░        ███░░░
-                    Simple        Simple       Complex       Moderate
-  Depth Control     ✅ Natural    ❌ Hard       ⚠️ Manual     ✅ Natural
-  Best For          General       Deep-page    Limited       Large
-                    crawling      hunting      page budgets  site audits
-  ─────────────────────────────────────────────────────────────────────
-```
-
-> 🟢 **Current Implementation:** BugZero uses **BFS (Breadth-First Search)** with an `asyncio.Queue`. This ensures top-level pages (homepage, navigation links, dashboards) are tested first, matching our Shallow → Standard → Deep crawl depth model perfectly.
-
-### 3. The DOM (Document Object Model) Analysis
-
-<div align="center">
-  <img src="assets/illustrations/06-dom-analysis.png" alt="The DOM Analysis" width="800">
-  <br>
-  <em>DOM Analysis: Inspecting the exact structure and accessibility of the page.</em>
-</div>
-<br>
-
-The DOM is the tree-like structure the browser builds from HTML. Our AI uses the DOM as its primary source of truth to detect defects:
-
-- **Accessibility:** Scans the DOM tree for `<img>` tags missing `alt` attributes, or `<input>` fields detached from `<label>` elements.
-- **SEO & Structure:** Evaluates the heading hierarchy (e.g., checking for exactly one `<h1>` node).
-- **UI Integrity:** Uses `getComputedStyle(element)` to ask the browser engine the exact painted color of text vs background to calculate real mathematical contrast ratios.
-
-### 4. Self-Healing Agent (The "Mechanic") 🆕
-
-<div align="center">
-  <img src="assets/illustrations/02-self-healing.png" alt="Self-Healing Selectors" width="800">
-  <br>
-  <em>Self-Healing: Using LLMs to dynamically stitch broken UI selectors back together.</em>
-</div>
-<br>
-
-An AI-powered selector repair system that keeps tests running when UI changes.
-
-```mermaid
-flowchart TD
-    subgraph "Stage 3a — Before Each Page Test"
-        A["🌐 Navigate to page"] --> B["📋 Load saved fingerprints\nfrom previous run"]
-        B --> C{"Any interactive\nelements changed?"}
-        C -- No --> D["✅ All selectors healthy"]
-        C -- Yes --> E["🔍 identify broken\nselectors in DOM"]
-        E --> F["🤖 Send to Gemini LLM:\nold fingerprint + current DOM"]
-        F --> G["💡 Gemini proposes\nnew CSS selector"]
-        G --> H{"Validate selector\non live page?"}
-        H -- Fails --> I["⚠️ Log as unhealed"]
-        H -- Works --> J["✅ Accept healed selector\nconfidence: 0.95"]
-        J --> K["💾 Save HealingEvent to DB\noriginal → healed + confidence"]
-        K --> L["📡 WebSocket: heal:success"]
-    end
-  
-    subgraph "Stage 3e — After Each Page Test"
-        M["🔍 fingerprint_page()"] --> N["📸 Capture all buttons,\nlinks, inputs, forms"]
-        N --> O["💾 Store fingerprints\nfor next run"]
-    end
-
-    style A fill:#1E293B,stroke:#3B82F6,color:#fff
-    style F fill:#1E293B,stroke:#F59E0B,color:#fff
-    style J fill:#0F172A,stroke:#10B981,color:#fff
-    style K fill:#0F172A,stroke:#A78BFA,color:#fff
-```
-
-**How it works internally:**
-
-```
-  ┌─────────────────────────────────────────────────────────────────┐
-  │  FINGERPRINT STRUCTURE (per interactive element)                │
-  │─────────────────────────────────────────────────────────────────│
-  │                                                                 │
-  │  {                                                              │
-  │    "element_id": "btn_submit_3",                                │
-  │    "tagName": "button",                                         │
-  │    "textContent": "Submit Order",                               │
-  │    "ariaLabel": "Submit your order",                            │
-  │    "className": "btn-primary cta-main",                         │
-  │    "position": { "x": 450, "y": 720 },                         │
-  │    "nearbyText": ["Order Summary", "$49.99", "Free Shipping"],  │
-  │    "selector": "#checkout-form > button.btn-primary"            │
-  │  }                                                              │
-  │                                                                 │
-  │  When UI changes:                                               │
-  │  ─────────────────                                              │
-  │  OLD: #checkout-form > button.btn-primary     ← BROKEN ❌      │
-  │  NEW: .checkout-container > .cta-button        ← HEALED ✅      │
-  │  CONFIDENCE: 0.92 (high — text + position matched)              │
-  │                                                                 │
-  └─────────────────────────────────────────────────────────────────┘
-```
-
-### 5. Visual Regression Engine (The "Designer's Eye") 🆕
-
-<div align="center">
-  <img src="assets/illustrations/03-visual-regression.png" alt="Visual Regression AI" width="800">
-  <br>
-  <em>Visual Regression: Ignoring cosmetic noise while catching critical functional UI changes using Pillow Math.</em>
-</div>
-<br>
-
-A 100% deterministic pixel-math comparison system that detects meaningful UI changes without LLMs.
-
-```mermaid
-flowchart TD
-    subgraph "Run 1 — Establish Baseline"
-        A1["📸 Take screenshot"] --> A3["💾 Save screenshot as\nbaseline in DB"]
-    end
-
-    subgraph "Run 2+ — Compare Against Baseline"
-        B1["📸 Take new screenshot"] --> B2["📦 Fetch baseline\nfrom DB"]
-        B2 --> B3["🖼️ Pillow: Gaussian\nBlur both images"]
-        B3 --> B4["➖ Pillow: ImageChops\ndifference subtraction"]
-        B4 --> B5{"Calculate total\nPixel Drift %"}
-        B5 -- "Drift < 0.5%" --> B6["🟡 Cosmetic\n(informational noise)"]
-        B5 -- "Drift > 0.5%" --> B7["🔴 Functional\n(actionable regression)"]
-        B6 --> B8["📊 Report drift\npercentage"]
-        B7 --> B8
-        B3 --> B9["💾 Update baseline\nfor next run"]
-    end
-
-    style B3 fill:#1E293B,stroke:#F59E0B,color:#fff
-    style B4 fill:#1E293B,stroke:#22D3EE,color:#fff
-    style B6 fill:#0F172A,stroke:#FBBF24,color:#fff
-    style B7 fill:#0F172A,stroke:#EF4444,color:#fff
-```
-
-**Visual diff classification examples:**
-
-```
-  ┌────────────────────────────────────────────────────────────────┐
-  │  PILLOW MATH — REGRESSION CLASSIFICATION                        │
-  │────────────────────────────────────────────────────────────────│
-  │                                                                │
-  │  🟡 COSMETIC (informational — no action needed)               │
-  │  ──────────────────────────────────────────────                │
-  │  • Font anti-aliasing engine changes in browser               │
-  │  • 1-pixel micro-variations from rendering jitter             │
-  │  • Sub-pixel rounding differences across OS                   │
-  │  (Drift is caught by blur threshold < 0.5%)                   │
-  │                                                                │
-  │  🔴 FUNCTIONAL (actionable — must fix)                        │
-  │  ──────────────────────────────────────────────                │
-  │  • Submit button missing from checkout form                   │
-  │  • Navigation menu items overlapping on mobile                │
-  │  • Login form fields not visible (zero height)                │
-  │  • Price display structurally shifted                         │
-  │  (Drift exceeds blur threshold > 0.5%)                        │
-  │                                                                │
-  │  Drift Metric: Exact % difference calculation                 │
-  │                                                                │
-  └────────────────────────────────────────────────────────────────┘
-```
-
-### 6. Risk Prioritization (The "Strategist") 🆕
-
-<div align="center">
-  <img src="assets/illustrations/04-risk-priority.png" alt="Risk Prioritization" width="800">
-  <br>
-  <em>Risk Prioritization: Weighing forms and defect history to test high-risk pages first.</em>
-</div>
-<br>
-
-A multi-factor scoring system that determines which pages to test first.
-
-```mermaid
-flowchart LR
-    subgraph "Factor 1: PageRank"
-        PR["🕸️ Link Graph\n(networkx)"] --> PRS["Score: 0.00 – 0.30"]
-    end
-    subgraph "Factor 2: Type Boost"
-        TB["📋 Page Classification"] --> TBS["auth: +0.15\nform: +0.12\ndash: +0.08\nother: +0.03"]
-    end
-    subgraph "Factor 3: Defect History"
-        DH["📜 Last 10 runs\ndefect counts"] --> DHS["0 defects: +0.00\n5 defects: +0.06\n10+ defects: +0.20"]
-    end
-    subgraph "Factor 4: Change Detection"
-        CD["📉 Score dropped\nvs previous run"] --> CDS["No change: +0.00\nDropped <70: +0.09\nDropped <50: +0.15"]
-    end
-
-    PRS --> SUM["⚡ Combined\nRisk Score"]
-    TBS --> SUM
-    DHS --> SUM
-    CDS --> SUM
-    SUM --> SORT["📊 Greedy Sort\nHighest risk first"]
-
-    style SUM fill:#1E293B,stroke:#F59E0B,stroke-width:3px,color:#fff
-    style SORT fill:#0F172A,stroke:#10B981,color:#fff
-```
-
-**Example risk scoring output:**
-
-```
-  ┌──────────────────────────────────────────────────────────────────────┐
-  │  RISK PRIORITY ORDER (top 5 pages)                                  │
-  │──────────────────────────────────────────────────────────────────────│
-  │                                                                      │
-  │  #  PAGE           SCORE   BREAKDOWN                                │
-  │  ── ──────────────  ─────   ────────────────────────────────────     │
-  │  1. /login          0.412   PR:0.062 + type:0.15 + hist:0.200 + chg:0.000  │
-  │  2. /checkout       0.355   PR:0.085 + type:0.12 + hist:0.100 + chg:0.050  │
-  │  3. /settings       0.285   PR:0.045 + type:0.12 + hist:0.060 + chg:0.060  │
-  │  4. /dashboard      0.238   PR:0.100 + type:0.08 + hist:0.028 + chg:0.030  │
-  │  5. /about          0.067   PR:0.034 + type:0.03 + hist:0.003 + chg:0.000  │
-  │                                                                      │
-  │  ✅ /login tested first (highest combined risk)                     │
-  │  ✅ /about tested last (lowest risk — static content)               │
-  │                                                                      │
-  └──────────────────────────────────────────────────────────────────────┘
-```
-
-### 7. WebSockets / Socket.io (The "Live Broadcaster")
-
-- **Why we use it:** Full autonomous testing can take 5-20 minutes. Polling is inefficient. WebSockets keep a permanent two-way "phone line" open between the browser and the server.
-- **How it works:**
-  1. The React frontend subscribes to a specific `testRunId` room.
-  2. The Python AI finishes testing a single page and POSTs the result to the Express Gateway.
-  3. The Gateway saves the page to PostgreSQL and instantly broadcasts that data packet over the active WebSocket.
-  4. The React UI instantly receives the data and animates it onto the screen without a page refresh.
-
----
-
-## 🗄️ Database Schema
-
-```mermaid
-erDiagram
-    User ||--o{ TestRun : "launches"
-    User ||--o| NotificationPreference : "has"
-    User ||--o{ ApiKey : "owns"
-    User ||--o{ UserActivity : "generates"
-    Organization ||--o{ User : "has members"
-    Organization ||--o{ AuthPlaybook : "stores"
-    TestRun ||--o{ Page : "discovers"
-    TestRun ||--o{ Defect : "finds"
-    TestRun ||--o{ HealingEvent : "heals"
-    Page ||--o{ Defect : "contains"
-    Page ||--o{ ComplianceResult : "audits"
-    Page ||--o{ PerformanceMetric : "measures"
-    Page ||--o{ HealingEvent : "healed on"
-
-    User {
-        string id PK
-        string email UK
-        string name
-        string role
-    }
-    TestRun {
-        string id PK
-        string url
-        string status
-        float overallScore
-        string grade
-    }
-    Page {
-        string id PK
-        string url
-        float hygieneScore
-        float visionQualityScore
-        string pageType
-    }
-    Defect {
-        string id PK
-        string type
-        string severity
-        string message
-        float confidence
-        string source
-    }
-    HealingEvent {
-        string id PK
-        string elementId
-        string originalSelector
-        string healedSelector
-        float confidence
-    }
-    ScreenshotBaseline {
-        string id PK
-        string url UK
-        text screenshotB64
-    }
-    ComplianceResult {
-        string id PK
-        string standard
-        string level
-        int violations
-    }
-    PerformanceMetric {
-        string id PK
-        string name
-        float value
-        string rating
-    }
-```
-
----
-
-## 🚀 Quick Start
-
-### 📋 Prerequisites
-
-- **Node.js** 20+
+### Prerequisites
+- **Node.js** 20+ and **npm**
 - **Python** 3.11+
-- **Docker & Docker Compose** (Latest)
+- **Git**
 
-### 1️⃣ Clone the repository
-
+### 1️⃣ Clone the Repository
 ```bash
 git clone https://github.com/rohith2157/BUGZERO.git
 cd BUGZERO
 ```
 
-### 2️⃣ Start infrastructure
-
-```bash
-docker-compose up -d
-```
-
-### 3️⃣ Setup API Gateway
-
+### 2️⃣ Start API Gateway (Port 3000)
 ```bash
 cd gateway
 npm install
-cp .env.example .env          # configure your environment
-npx prisma generate
 npx prisma db push
-node prisma/seed.js            # seed demo data
+node prisma/seed.js
 npm run dev
 ```
 
-### 4️⃣ Setup AI Core
-
+### 3️⃣ Start AI Core (Port 8000)
 ```bash
-cd ai-core
+cd ../ai-core
 python -m venv venv
-# Linux/macOS: source venv/bin/activate
-# Windows:     venv\Scripts\activate
+
+# Windows:
+venv\Scripts\activate
+# Linux / macOS:
+# source venv/bin/activate
+
 pip install -r requirements.txt
 playwright install chromium
-cp .env.example .env
 python main.py
 ```
 
-### 5️⃣ Setup Frontend
-
+### 4️⃣ Start Frontend Studio (Port 5173)
 ```bash
-cd autonomousqa-frontend
+cd ../autonomousqa-frontend
 npm install
 npm run dev
 ```
 
-### 6️⃣ Open the app
-
-| Service                 | URL                                                     |
-| :---------------------- | :------------------------------------------------------ |
-| **Frontend**      | [http://localhost:5173](http://localhost:5173)           |
-| **API Gateway**   | [http://localhost:3000](http://localhost:3000)           |
-| **AI Core Docs**  | [http://localhost:8000/docs](http://localhost:8000/docs) |
-| **Neo4j Browser** | [http://localhost:7474](http://localhost:7474)           |
-| **Prisma Studio** | Run`cd gateway && npx prisma studio`                  |
-
-> 🔑 **Default Login:**
-> Email: `rohith@autonomousqa.io` | Password: `password123`
+### 5️⃣ Access the Application
+Open **[http://localhost:5173](http://localhost:5173)** in your browser.
+- **Default Login**: `rohith@autonomousqa.io` | **Password**: `password123`
 
 ---
 
-## 📂 Project Structure
+## 📡 Live Telemetry & API Reference
 
-```text
-BUGZERO/
-├── autonomousqa-frontend/         # React + Vite frontend
-│   ├── src/
-│   │   ├── components/            # Reusable UI components
-│   │   │   └── ui/                # Design system primitives
-│   │   ├── pages/                 # Route-level page components
-│   │   │   ├── Landing.jsx        # Marketing landing page
-│   │   │   ├── UseCases.jsx       # 6 AI Agents deep-dive
-│   │   │   ├── Dashboard.jsx      # Test history & analytics
-│   │   │   ├── NewTest.jsx        # Test configuration launcher
-│   │   │   ├── LiveTest.jsx       # Real-time test monitoring + self-healing log
-│   │   │   ├── Report.jsx         # Full test report + visual regression section
-│   │   │   ├── Compliance.jsx     # WCAG compliance details
-│   │   │   └── Performance.jsx    # Core Web Vitals dashboard
-│   │   ├── hooks/                 # Custom React hooks (WebSocket, etc.)
-│   │   ├── lib/                   # API client & utilities
-│   │   ├── store/                 # Zustand state management
-│   │   └── data/                  # Mock data (development fallback)
-│   ├── index.html
-│   └── vite.config.js
-│
-├── gateway/                       # Express.js API Gateway
-│   ├── src/
-│   │   ├── routes/
-│   │   │   ├── tests.js           # Test CRUD + progress + healing events + history
-│   │   │   ├── baselines.js       # 🆕 Visual regression baseline CRUD
-│   │   │   ├── auth.js            # JWT authentication
-│   │   │   ├── playbooks.js       # Test playbook management
-│   │   │   └── settings.js        # User/team/API key settings
-│   │   ├── middleware/            # Auth, validation, rate limiting
-│   │   └── services/              # Business logic & WebSocket
-│   ├── prisma/
-│   │   ├── schema.prisma          # Database schema (13 models)
-│   │   └── seed.js                # Seed data script
-│   └── .env.example
-│
-├── ai-core/                       # Python FastAPI AI Engine
-│   ├── agents/
-│   │   ├── journey_agent.py       # 🧭 Stateful User Journey Synthesizer (E-Commerce/Auth)
-│   │   ├── assertion_engine.py    # 🧮 Deterministic Cart Math & State Mutation Asserter
-│   │   ├── crawler.py             # BFS crawler agent & archetype classifier
-│   │   ├── tester.py              # Page testing agent
-│   │   ├── self_healing_agent.py  # Fingerprinting + pure algorithmic healing
-│   │   ├── vision_agent.py        # NVIDIA Eagle2 VLM + Pillow math visual regression
-│   │   ├── scheduler.py           # PageRank + 4-factor risk scoring
-│   │   ├── auth_agent.py          # SSO/OAuth/MFA navigator
-│   │   ├── chaos_agent.py         # Network/CPU throttling
-│   │   └── report_agent.py        # Site report generator
-│   ├── tools/
-│   │   ├── playwright_tool.py     # Playwright + Axe-Core 4.9.0 + Runtime JS & 5xx Traps
-│   │   └── axe_tool.py            # axe-core WCAG 2.1 scanner
-│   ├── models/
-│   │   └── schemas.py             # Pydantic models (UserJourneyResult, DefectResult, etc.)
-│   ├── orchestrator.py            # 4-Stage Multi-Audit Pipeline Coordinator
-│   ├── config.py                  # Settings & environment variables
-│   ├── main.py                    # FastAPI entrypoint (Port 8000)
-│   └── requirements.txt
-│
-├── documentation/                 # 📚 Authoritative Project Specifications
-│   ├── 01_PIPELINE_AND_JOURNEY_ENGINE.md         # 🧭 4-Stage Pipeline, JourneyAgent, Cart Math
-│   ├── 02_REAL_WORLD_BENCHMARKS_AND_AUDIT.md    # 🧪 5-Site Live Audit Dataset (Swiggy, HN, GitHub)
-│   ├── 03_TITAN_LIGHTHOUSE_BENCHMARK_MASTER.md  # 🏛️ 70k-Line Master TITAN Compendium & VLM Math
-│   ├── 100percent_algo.md                       # 🧮 Levenshtein & Pythagorean Self-Healing Math
-│   └── SYSTEM_WORKFLOW.md                       # 🔄 End-to-End System & Data Flow Spec
-│
-├── benchmarks/                    # 📊 Benchmark Scripts & Runner Tools
-│   └── README.md                  # Benchmark execution guide
-├── docker-compose.yml             # PostgreSQL + Redis + Neo4j (Optional infrastructure)
-├── package.json                   # Root workspace scripts
-├── CONTRIBUTING.md                # Contribution guidelines
-├── CODE_OF_CONDUCT.md             # Community standards
-├── SECURITY.md                    # Security policy
-└── LICENSE                        # MIT License
-```
+### Core Endpoints
+- `POST /api/tests`: Launch autonomous test run (`{ url: "https://example.com", config: { depth: "standard" } }`).
+- `GET /api/tests/:id`: Fetch real-time run status, page hygiene scores, and defect breakdowns.
+- `GET /api/tests/:id/pages`: View granular page metrics (Core Web Vitals, Axe violations, visual drift).
+- `GET /api/auth/github`: Initiate GitHub OAuth integration for repository-mode testing.
+
+### Real-Time WebSocket Events (`ws://localhost:3000`)
+- `test:started`: Pipeline initialized with target parameters.
+- `page:discovered`: New internal URL queued by the BFS spider.
+- `page:complete`: Single-navigation audit finished for a page.
+- `defect:found`: Defect emitted with selector, WCAG rule, and synthesized Playwright `.spec.ts`.
+- `test:complete`: Full test suite completed with overall compliance score and summary grade.
 
 ---
 
-## 📡 API Reference
+## 📚 Technical Documentation Hub
 
-<details>
-<summary><strong>🔐 Authentication</strong></summary>
+For detailed engineering specs, mathematical formulas, and empirical research papers, explore [`documentation/`](documentation/):
 
-| Method   | Endpoint               | Description              |
-| :------- | :--------------------- | :----------------------- |
-| `POST` | `/api/auth/register` | Register a new user      |
-| `POST` | `/api/auth/login`    | Login — returns JWT     |
-| `GET`  | `/api/auth/me`       | Get current user profile |
-| `POST` | `/api/auth/refresh`  | Refresh access token     |
-
-</details>
-
-<details>
-<summary><strong>🧪 Test Runs</strong></summary>
-
-| Method     | Endpoint                       | Description                               |
-| :--------- | :----------------------------- | :---------------------------------------- |
-| `POST`   | `/api/tests`                 | Start a new autonomous test run           |
-| `GET`    | `/api/tests`                 | List all test runs                        |
-| `GET`    | `/api/tests/:id`             | Get test run details                      |
-| `DELETE` | `/api/tests/:id`             | Cancel a running test                     |
-| `GET`    | `/api/tests/:id/pages`       | Get page-level results                    |
-| `GET`    | `/api/tests/:id/compliance`  | Compliance report                         |
-| `GET`    | `/api/tests/:id/performance` | Performance report                        |
-| `GET`    | `/api/tests/:id/healing`     | 🆕 Self-healing events for a run          |
-| `GET`    | `/api/tests/history/lookup`  | 🆕 Defect history for risk prioritization |
-
-</details>
-
-<details>
-<summary><strong>📸 Visual Regression Baselines</strong></summary>
-
-| Method   | Endpoint                       | Description                            |
-| :------- | :----------------------------- | :------------------------------------- |
-| `GET`  | `/api/baselines?url=&orgId=` | 🆕 Fetch baseline screenshot for a URL |
-| `POST` | `/api/baselines`             | 🆕 Save/update baseline screenshot     |
-
-</details>
-
-<details>
-<summary><strong>📋 Playbooks</strong></summary>
-
-| Method     | Endpoint               | Description          |
-| :--------- | :--------------------- | :------------------- |
-| `GET`    | `/api/playbooks`     | List saved playbooks |
-| `POST`   | `/api/playbooks`     | Create a playbook    |
-| `PUT`    | `/api/playbooks/:id` | Update a playbook    |
-| `DELETE` | `/api/playbooks/:id` | Delete a playbook    |
-
-</details>
-
-<details>
-<summary><strong>⚙️ Settings</strong></summary>
-
-| Method     | Endpoint                       | Description          |
-| :--------- | :----------------------------- | :------------------- |
-| `GET`    | `/api/settings/team`         | Get team members     |
-| `PUT`    | `/api/settings/profile`      | Update user profile  |
-| `GET`    | `/api/settings/api-keys`     | List API keys        |
-| `POST`   | `/api/settings/api-keys`     | Generate new API key |
-| `DELETE` | `/api/settings/api-keys/:id` | Revoke an API key    |
-
-</details>
-
-### WebSocket Events
-
-| Event               | Direction        | Description                     |
-| :------------------ | :--------------- | :------------------------------ |
-| `test:started`    | Server → Client | Test run initiated              |
-| `page:discovered` | Server → Client | New page found during crawl     |
-| `page:complete`   | Server → Client | Page testing finished           |
-| `defect:found`    | Server → Client | Defect detected in real time    |
-| `heal:success`    | Server → Client | 🆕 Self-healing selector repair |
-| `test:complete`   | Server → Client | Full test run finished          |
-| `test:cancel`     | Client → Server | Request to cancel a test        |
+- 🧭 **[Pipeline & Journey Engine](documentation/01_PIPELINE_AND_JOURNEY_ENGINE.md)**: Single-navigation context reuse and cart arithmetic.
+- 🧪 **[5-Website Live Audit Matrix](documentation/02_REAL_WORLD_BENCHMARKS_AND_AUDIT.md)**: Empirical test results on GitHub, Hacker News, Swiggy, and BFL AI.
+- 🏛️ **[Lighthouse vs. AutonomousQA Benchmark](documentation/03_TITAN_LIGHTHOUSE_BENCHMARK_MASTER.md)**: Head-to-head comparison and 70k-line telemetry breakdown.
+- ⚡ **[SIMD AVX2 Hardware Acceleration Spec](documentation/SIMD_ACCELERATION_SPEC.md)**: 256-bit vector registers for SSIM and AABB collision geometry.
+- 🔄 **[End-to-End System Workflow](documentation/SYSTEM_WORKFLOW.md)**: Full lifecycle manual and architectural specifications.
+- 🔬 **[Next-Gen Research Compendium](benchmarks/research/NEXT_GEN_RESEARCH_IMPLEMENTATION.md)**: Implementation details for USEagent, RepoGraph, KISS Sorcar, RESTler, and UI-TARS.
 
 ---
 
-## 🗄️ Database Schema
+## 🛡️ License & Contributing
 
-The platform uses **13 Prisma models** across PostgreSQL:
-
-| Model                      | Purpose                                                                |
-| :------------------------- | :--------------------------------------------------------------------- |
-| `User`                   | Authentication & profile                                               |
-| `Organization`           | Team management                                                        |
-| `TestRun`                | Test execution records                                                 |
-| `Page`                   | Discovered pages with scores                                           |
-| `Defect`                 | Detected bugs with severity                                            |
-| `ComplianceResult`       | WCAG/GDPR violations                                                   |
-| `PerformanceMetric`      | Core Web Vitals per page                                               |
-| `HealingEvent`           | 🆕 Self-healing audit trail (original → healed selector + confidence) |
-| `ScreenshotBaseline`     | 🆕 Visual regression baseline screenshots per URL                      |
-| `AuthPlaybook`           | Saved authentication strategies                                        |
-| `ApiKey`                 | API key management                                                     |
-| `NotificationPreference` | Notification settings                                                  |
-| `UserActivity`           | Activity tracking                                                      |
-
----
-
-## 🗺️ Roadmap
-
-- [X] Autonomous web crawler with Playwright
-- [X] Accessibility auditing (axe-core WCAG 2.1 AA)
-- [X] Real-time dashboard with WebSocket
-- [X] JWT authentication & team management
-- [X] Playbook save/replay system
-- [X] Core Web Vitals performance monitoring
-- [X] Gemini Vision AI visual bug detection
-- [X] 🆕 Self-healing tests with semantic fingerprinting
-- [X] 🆕 Visual regression AI with baseline comparison
-- [X] 🆕 Risk prioritization with defect history + change detection
-- [X] 🆕 Self-healing audit trail (DB + frontend UI)
-- [ ] Natural language test generation (LangChain + OpenAI)
-- [ ] CI/CD pipeline integration (GitHub Actions, Jenkins)
-- [ ] PDF/HTML report export
-- [ ] Multi-browser support (Firefox, WebKit)
-- [ ] Scheduled recurring test runs
-- [ ] Slack / Teams notification integration
-
----
-
-## 🤝 Contributing
-
-We love contributions! Whether it's fixing a typo or building a new AI agent, every bit helps.
-
-1. **Fork** the repository
-2. **Create** your feature branch (`git checkout -b feat/amazing-feature`)
-3. **Commit** your changes (`git commit -m 'feat: add amazing feature'`)
-4. **Push** to the branch (`git push origin feat/amazing-feature`)
-5. **Open** a Pull Request
-
-Please read our [Contributing Guide](./CONTRIBUTING.md) and [Code of Conduct](./CODE_OF_CONDUCT.md) before getting started.
-
----
-
-## 🛡️ Security
-
-Found a vulnerability? Please report it responsibly. See our [Security Policy](./SECURITY.md) for details.
-
----
-
-## 📄 License
-
-This project is licensed under the **MIT License** — see the [LICENSE](./LICENSE) file for details.
-
----
-
-## 🙏 Acknowledgments
-
-- **[Playwright](https://playwright.dev/)** — Browser automation
-- **[axe-core](https://github.com/dequelabs/axe-core)** — Accessibility testing engine
-- **[Google Gemini](https://ai.google.dev/)** — Vision AI & LLM reasoning
-- **[Prisma](https://www.prisma.io/)** — Next-generation ORM
-- **[Framer Motion](https://www.framer.com/motion/)** — Animation library
-- **[networkx](https://networkx.org/)** — PageRank graph analysis
-
----
+- **License**: MIT License — see [LICENSE](LICENSE) for details.
+- **Contributions**: Pull requests are welcome! Please consult [CONTRIBUTING.md](CONTRIBUTING.md) and [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).
 
 <div align="center">
-  <p><strong>Built with ❤️ by <a href="https://github.com/rohith2157">Rohith</a></strong></p>
-  <p><sub>If AutonomousQA helped you, consider giving it a ⭐</sub></p>
+  <p><strong>Developed with precision by the BUGZERO Engineering Team</strong></p>
 </div>
