@@ -34,6 +34,7 @@ from tools.playwright_tool import PlaywrightTool
 from tools.axe_tool import run_axe_sync
 from utils.repo_server import RepoManager
 from utils.hf_client import hf_vlm_client
+from utils.repograph import RepoGraph
 from config import settings
 
 
@@ -143,6 +144,7 @@ class Orchestrator:
         vision = VisionAgent()
         explorer = ActiveExplorerAgent()
         test_synthesizer = TestSynthesizerAgent()
+        repograph = RepoGraph()
         report_agent = ReportAgent()
 
         auth_agent = AuthAgent(playwright)
@@ -557,6 +559,15 @@ class Orchestrator:
                                 )
                             except Exception as synth_err:
                                 logger.debug(f"Spec synthesis failed: {synth_err}")
+
+                        # ponytail: localize defect to repo source file and line via RepoGraph (ICLR 2025)
+                        if not d.source_code_location:
+                            try:
+                                loc = repograph.localize_fault(d.message, url=url)
+                                if loc:
+                                    d.source_code_location = f"{loc['file_path']}:{loc['line_number']} ({loc['entity_name']})"
+                            except Exception:
+                                pass
 
                     for j in page_result.user_journeys:
                         try:
