@@ -43,6 +43,9 @@ class DefectResult(BaseModel):
     confidence: Optional[float] = None
     source: Optional[str] = None          # "manual", "gemini_vision", "axe_core"
     location: Optional[str] = None        # Where on the page (for vision defects)
+    reproducer_spec: Optional[str] = None # Relative path to auto-generated Playwright .spec.ts
+    source_code_location: Optional[str] = None # RepoGraph AST line: e.g. "src/components/Cart.tsx:42"
+    fuzzing_payload: Optional[str] = None      # Injected API/form mutation payload
 
 
 class ComplianceViolation(BaseModel):

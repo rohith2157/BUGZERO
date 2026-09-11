@@ -28,6 +28,7 @@ from agents.auth_agent import AuthAgent
 from agents.chaos_agent import ChaosAgent
 from agents.self_healing_agent import SelfHealingAgent
 from agents.active_explorer import ActiveExplorerAgent
+from agents.test_synthesizer import TestSynthesizerAgent
 
 from tools.playwright_tool import PlaywrightTool
 from tools.axe_tool import run_axe_sync
@@ -141,6 +142,7 @@ class Orchestrator:
         crawler = CrawlerAgent(playwright)
         vision = VisionAgent()
         explorer = ActiveExplorerAgent()
+        test_synthesizer = TestSynthesizerAgent()
         report_agent = ReportAgent()
 
         auth_agent = AuthAgent(playwright)
@@ -544,6 +546,23 @@ class Orchestrator:
                     penalty = sum(severity_weights.get(d.severity, 3) for d in page_result.defects)
                     penalty += sum(severity_weights.get(v.severity, 2) for v in page_result.compliance)
                     page_result.hygiene_score = max(0, min(100, 100 - penalty))
+
+                    # ponytail: auto-synthesize Playwright reproducer .spec.ts for defects (USEagent ICSE 2026)
+                    for d in page_result.defects:
+                        if not d.reproducer_spec:
+                            try:
+                                d.reproducer_spec = test_synthesizer.synthesize_defect_test(
+                                    defect=d.model_dump(),
+                                    url=url
+                                )
+                            except Exception as synth_err:
+                                logger.debug(f"Spec synthesis failed: {synth_err}")
+
+                    for j in page_result.user_journeys:
+                        try:
+                            test_synthesizer.synthesize_journey_test(j.model_dump(), url)
+                        except Exception:
+                            pass
 
                     pages.append(page_result)
                     total_defects += len(page_result.defects)
