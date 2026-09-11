@@ -18,7 +18,10 @@ class RepoManager:
         self.temp_dir = tempfile.mkdtemp(prefix="bugzero_repo_")
         self.server_process = None
         self.local_url = None
-        # Commit metadata — populated after clone()
+        # Ephemeral worktree isolation (KISS Sorcar 2026)
+        self.is_worktree: bool = False
+        self.base_repo_path: str | None = None
+        # Commit metadata — populated after clone() or create_worktree()
         self.commit_sha: str | None = None
         self.commit_sha_short: str | None = None
         self.commit_message: str | None = None
@@ -61,6 +64,40 @@ class RepoManager:
             return True
         except subprocess.CalledProcessError as e:
             logger.error(f"Failed to clone repo: {e.stderr}")
+            return False
+
+    def create_worktree(self, base_repo_path: str, branch: str | None = None) -> bool:
+        """Creates an ephemeral Git worktree sandbox sharing local Git objects (KISS Sorcar 2026).
+
+        Provides zero-copy, isolated branch testing without re-downloading Git history.
+        # ponytail: worktree shares local .git objects for 10x faster branch sandboxing, upgrade path: Linux container namespaces
+        """
+        logger.info(f"Creating ephemeral Git worktree at {self.temp_dir} from {base_repo_path}...")
+        try:
+            # Clean directory first since git worktree add expects a new target path
+            if os.path.exists(self.temp_dir):
+                shutil.rmtree(self.temp_dir, ignore_errors=True)
+
+            cmd = ["git", "worktree", "add", "-d", "--checkout", self.temp_dir]
+            if branch:
+                cmd.append(branch)
+            else:
+                cmd.append("HEAD")
+
+            subprocess.run(
+                cmd,
+                cwd=base_repo_path,
+                capture_output=True,
+                text=True,
+                check=True
+            )
+            self.is_worktree = True
+            self.base_repo_path = base_repo_path
+            logger.info("Ephemeral worktree created successfully.")
+            self._capture_commit_metadata()
+            return True
+        except subprocess.CalledProcessError as e:
+            logger.error(f"Failed to create git worktree: {e.stderr}")
             return False
 
     def _capture_commit_metadata(self) -> None:
@@ -308,14 +345,35 @@ ul{{list-style:none;padding:0}}li{{padding:4px 0;font-size:15px}}</style>
         return await self._start_static_server(port, serve_dir)
 
     def cleanup(self):
-        """Terminates the server and cleans up the temp directory."""
+        """Terminates the server and cleans up the temp directory / worktree."""
         if self.server_process:
             logger.info("Terminating local server...")
             try:
                 self.server_process.terminate()
             except Exception as e:
                 logger.error(f"Error terminating server: {e}")
-                
+
+        # If ephemeral worktree, remove it via git worktree remove
+        if self.is_worktree and self.base_repo_path:
+            try:
+                logger.info(f"Removing git worktree at {self.temp_dir}...")
+                subprocess.run(
+                    ["git", "worktree", "remove", "--force", self.temp_dir],
+                    cwd=self.base_repo_path,
+                    capture_output=True,
+                    text=True,
+                    check=False
+                )
+                subprocess.run(
+                    ["git", "worktree", "prune"],
+                    cwd=self.base_repo_path,
+                    capture_output=True,
+                    text=True,
+                    check=False
+                )
+            except Exception as e:
+                logger.warning(f"Failed to prune git worktree: {e}")
+
         if os.path.exists(self.temp_dir):
             logger.info(f"Cleaning up temp dir {self.temp_dir}...")
             try:
