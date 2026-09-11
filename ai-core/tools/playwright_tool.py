@@ -9,6 +9,7 @@ from playwright.sync_api import sync_playwright
 
 _executor = ThreadPoolExecutor(max_workers=1)
 
+
 def _run_sync(fn, *args):
     """Run a sync function in a thread pool to avoid blocking the event loop.
     Uses an empty context to prevent asyncio context propagation that panics Playwright.
@@ -17,12 +18,15 @@ def _run_sync(fn, *args):
     ctx = contextvars.Context()
     return loop.run_in_executor(_executor, ctx.run, fn, *args)
 
-_global_pw = None  # ponytail: lazy singleton to prevent greenlet loop crashes on restart
+
+_global_pw = (
+    None  # ponytail: lazy singleton to prevent greenlet loop crashes on restart
+)
 
 
 class PlaywrightTool:
     """Manages Playwright browser for crawling and testing.
-    
+
     One browser instance is started per test run and reused across all
     crawl and test-page operations to avoid the overhead of launching
     a new browser for every page.
@@ -51,17 +55,17 @@ class PlaywrightTool:
                     return self._browser
             except Exception:
                 pass
-        
+
         # Launch fresh
         self._browser = getattr(self._pw, self._browser_type).launch(
             headless=self._headless,
             args=[
-                "--no-sandbox", 
+                "--no-sandbox",
                 "--disable-dev-shm-usage",
                 "--disable-blink-features=AutomationControlled",
                 "--disable-gpu",
                 "--enable-unsafe-swiftshader",
-                "--disable-audio-output"
+                "--disable-audio-output",
             ],
         )
         return self._browser
@@ -77,10 +81,10 @@ class PlaywrightTool:
                 "sec-ch-ua": '"Not/A)Brand";v="8", "Chromium";v="126", "Google Chrome";v="126"',
                 "sec-ch-ua-mobile": "?0",
                 "sec-ch-ua-platform": '"Windows"',
-            }
+            },
         }
         context_args.update(kwargs)
-        if getattr(self, '_storage_state', None):
+        if getattr(self, "_storage_state", None):
             context_args["storage_state"] = self._storage_state
         return browser.new_context(**context_args)
 
@@ -114,9 +118,11 @@ class PlaywrightTool:
         path = parsed.path.rstrip("/") or "/"
         return f"{parsed.scheme}://{netloc}{path}"
 
-    def _crawl_sync(self, url: str, max_pages: int, max_depth: int = 999, on_page=None) -> list[dict]:
+    def _crawl_sync(
+        self, url: str, max_pages: int, max_depth: int = 999, on_page=None
+    ) -> list[dict]:
         """Crawl using the persistent browser — tracks real URL depth levels.
-        
+
         Queue items are (url, depth) tuples. max_depth enforces the level cap:
           shallow  → max_depth=1  (root + direct links only)
           standard → max_depth=3  (3 levels deep)
@@ -137,13 +143,37 @@ class PlaywrightTool:
 
         # Skip extensions that are not HTML pages
         SKIP_EXTENSIONS = {
-            ".pdf", ".jpg", ".jpeg", ".png", ".gif", ".svg", ".webp",
-            ".mp3", ".mp4", ".avi", ".mov", ".zip", ".tar", ".gz",
-            ".css", ".js", ".woff", ".woff2", ".ttf", ".eot", ".ico",
-            ".xml", ".json", ".rss", ".atom", ".map",
+            ".pdf",
+            ".jpg",
+            ".jpeg",
+            ".png",
+            ".gif",
+            ".svg",
+            ".webp",
+            ".mp3",
+            ".mp4",
+            ".avi",
+            ".mov",
+            ".zip",
+            ".tar",
+            ".gz",
+            ".css",
+            ".js",
+            ".woff",
+            ".woff2",
+            ".ttf",
+            ".eot",
+            ".ico",
+            ".xml",
+            ".json",
+            ".rss",
+            ".atom",
+            ".map",
         }
 
-        print(f"[Crawler] Starting BFS crawl on {url} (max_pages={max_pages}, max_depth={max_depth})")
+        print(
+            f"[Crawler] Starting BFS crawl on {url} (max_pages={max_pages}, max_depth={max_depth})"
+        )
         print(f"[Crawler] Base domain: {base_domain}")
 
         try:
@@ -174,8 +204,14 @@ class PlaywrightTool:
                         page = context.new_page()
                     except Exception as e:
                         err_str = str(e).lower()
-                        if "closed" in err_str or "connection" in err_str or "target" in err_str:
-                            print(f"[Crawler] Browser or context was closed/disconnected ({e}). Relaunching...")
+                        if (
+                            "closed" in err_str
+                            or "connection" in err_str
+                            or "target" in err_str
+                        ):
+                            print(
+                                f"[Crawler] Browser or context was closed/disconnected ({e}). Relaunching..."
+                            )
                             try:
                                 context.close()
                             except Exception:
@@ -188,7 +224,9 @@ class PlaywrightTool:
                             raise
 
                     # Use commit to prevent timeouts on slow resources or streaming SPA pages
-                    response = page.goto(current_url, wait_until="commit", timeout=30000)
+                    response = page.goto(
+                        current_url, wait_until="commit", timeout=30000
+                    )
                     try:
                         page.wait_for_load_state("domcontentloaded", timeout=5000)
                     except Exception:
@@ -204,7 +242,11 @@ class PlaywrightTool:
 
                     # Skip non-HTML responses (PDFs opened inline, etc.)
                     content_type = response.headers.get("content-type", "")
-                    if content_type and "text/html" not in content_type and "application/xhtml" not in content_type:
+                    if (
+                        content_type
+                        and "text/html" not in content_type
+                        and "application/xhtml" not in content_type
+                    ):
                         page.close()
                         page = None
                         visited_normalized.add(norm_url)
@@ -227,9 +269,14 @@ class PlaywrightTool:
                     final_domain = final_parsed.netloc.lower()
                     if final_domain.startswith("www."):
                         final_domain = final_domain[4:]
-                    
-                    if final_domain != base_domain and final_domain not in allowed_domains:
-                        print(f"[Crawler] Redirect detected: {base_domain} → {final_domain}")
+
+                    if (
+                        final_domain != base_domain
+                        and final_domain not in allowed_domains
+                    ):
+                        print(
+                            f"[Crawler] Redirect detected: {base_domain} → {final_domain}"
+                        )
                         allowed_domains.add(final_domain)
                         # If this is the first page, also use the redirected domain as primary
                         if is_first_page:
@@ -251,7 +298,9 @@ class PlaywrightTool:
                         "depth": depth,
                     }
                     discovered.append(page_data)
-                    print(f"[Crawler] Page {len(discovered)}/{max_pages}: {page_data['url'][:80]} (depth={depth}, type={page_type})")
+                    print(
+                        f"[Crawler] Page {len(discovered)}/{max_pages}: {page_data['url'][:80]} (depth={depth}, type={page_type})"
+                    )
 
                     if on_page:
                         try:
@@ -317,12 +366,17 @@ class PlaywrightTool:
 
                             if is_same_origin:
                                 clean = self._normalize_url(link)
-                                if clean not in visited_normalized and clean not in queued_normalized:
+                                if (
+                                    clean not in visited_normalized
+                                    and clean not in queued_normalized
+                                ):
                                     queue.append((link, depth + 1))
                                     queued_normalized.add(clean)
                                     new_links += 1
 
-                        print(f"[Crawler]   Found {len(links)} links, {new_links} new internal links queued (queue size: {len(queue)})")
+                        print(
+                            f"[Crawler]   Found {len(links)} links, {new_links} new internal links queued (queue size: {len(queue)})"
+                        )
 
                 except Exception as e:
                     print(f"[Crawler] Error on {current_url}: {e}")
@@ -343,16 +397,19 @@ class PlaywrightTool:
             except Exception:
                 pass
 
-    async def crawl(self, url: str, max_pages: int = 50, max_depth: int = 999, on_page=None) -> list[dict]:
+    async def crawl(
+        self, url: str, max_pages: int = 50, max_depth: int = 999, on_page=None
+    ) -> list[dict]:
         return await _run_sync(self._crawl_sync, url, max_pages, max_depth, on_page)
-
 
     # ponytail: combined method — 1 navigation instead of 5.
 
     # ponytail: combined method — 1 navigation instead of 5.
     # Ceiling: all stages share a single page load, so a slow page blocks everything.
     # Upgrade path: add per-stage timeout if individual stage stalling becomes an issue.
-    def _test_page_full_sync(self, url: str, run_axe: bool = True, take_screenshot: bool = True) -> dict:
+    def _test_page_full_sync(
+        self, url: str, run_axe: bool = True, take_screenshot: bool = True
+    ) -> dict:
         """Test + axe-core + screenshot + DOM fingerprints in ONE navigation.
 
         Returns the same dict as _test_page_sync, plus:
@@ -369,18 +426,35 @@ class PlaywrightTool:
 
         # Apply Chaos Throttling via CDP if enabled
         try:
-            if getattr(self, '_network_profile', None) or getattr(self, '_cpu_throttling', None):
+            if getattr(self, "_network_profile", None) or getattr(
+                self, "_cpu_throttling", None
+            ):
                 client = context.new_cdp_session(page)
-                if getattr(self, '_cpu_throttling', None):
-                    client.send('Emulation.setCPUThrottlingRate', {'rate': self._cpu_throttling})
-                if getattr(self, '_network_profile', None):
+                if getattr(self, "_cpu_throttling", None):
+                    client.send(
+                        "Emulation.setCPUThrottlingRate", {"rate": self._cpu_throttling}
+                    )
+                if getattr(self, "_network_profile", None):
                     profiles = {
-                        "Slow 3G": {"offline": False, "downloadThroughput": int(500 * 1024 / 8), "uploadThroughput": int(500 * 1024 / 8), "latency": int(400 * 1.5)},
-                        "Fast 3G": {"offline": False, "downloadThroughput": int(1.5 * 1024 * 1024 / 8), "uploadThroughput": int(750 * 1024 / 8), "latency": int(40 * 1.5)},
+                        "Slow 3G": {
+                            "offline": False,
+                            "downloadThroughput": int(500 * 1024 / 8),
+                            "uploadThroughput": int(500 * 1024 / 8),
+                            "latency": int(400 * 1.5),
+                        },
+                        "Fast 3G": {
+                            "offline": False,
+                            "downloadThroughput": int(1.5 * 1024 * 1024 / 8),
+                            "uploadThroughput": int(750 * 1024 / 8),
+                            "latency": int(40 * 1.5),
+                        },
                     }
                     if self._network_profile in profiles:
-                        client.send('Network.enable')
-                        client.send('Network.emulateNetworkConditions', profiles[self._network_profile])
+                        client.send("Network.enable")
+                        client.send(
+                            "Network.emulateNetworkConditions",
+                            profiles[self._network_profile],
+                        )
         except Exception as e:
             print(f"Chaos injection failed: {e}")
 
@@ -402,7 +476,11 @@ class PlaywrightTool:
             status = res.status
             if status >= 500:
                 api_errors.append(f"HTTP {status} on {res.url[:120]}")
-            elif status == 404 and not res.url.endswith((".ico", ".map")) and not res.url.startswith("data:"):
+            elif (
+                status == 404
+                and not res.url.endswith((".ico", ".map"))
+                and not res.url.startswith("data:")
+            ):
                 failed_assets.append(f"HTTP 404 Not Found on {res.url[:120]}")
 
         page.on("pageerror", on_page_error)
@@ -410,17 +488,21 @@ class PlaywrightTool:
         page.on("response", on_response)
 
         intercepted_requests = []
+
         def on_request(req):
             try:
                 if req.method in ("POST", "PUT", "PATCH", "DELETE"):
-                    intercepted_requests.append({
-                        "method": req.method,
-                        "url": req.url,
-                        "headers": dict(req.headers),
-                        "post_data": req.post_data
-                    })
+                    intercepted_requests.append(
+                        {
+                            "method": req.method,
+                            "url": req.url,
+                            "headers": dict(req.headers),
+                            "post_data": req.post_data,
+                        }
+                    )
             except Exception:
                 pass
+
         page.on("request", on_request)
 
         results = {
@@ -447,11 +529,14 @@ class PlaywrightTool:
 
             # ── Functional Test: Page Load & HTTP Status ──
             if response and response.status >= 400:
-                results["defects"].append({
-                    "type": "Functional", "severity": "critical",
-                    "message": f"Page failed to load: HTTP {response.status} Error ({response.status_text or 'Failed'})",
-                    "fix": "Check server routing, backend availability, and URL path.",
-                })
+                results["defects"].append(
+                    {
+                        "type": "Functional",
+                        "severity": "critical",
+                        "message": f"Page failed to load: HTTP {response.status} Error ({response.status_text or 'Failed'})",
+                        "fix": "Check server routing, backend availability, and URL path.",
+                    }
+                )
 
             # ── God-Tier: Autonomous Stateful Multi-Step User Journeys & Assertions ──
             user_journeys = []
@@ -473,7 +558,9 @@ class PlaywrightTool:
                     # Step 1: Search & Product Discovery
                     t0 = time.time()
                     sq = "fresh"
-                    s_inp = page.query_selector('input[type="search"], input[name*="search"], input[placeholder*="search"], input[type="text"]')
+                    s_inp = page.query_selector(
+                        'input[type="search"], input[name*="search"], input[placeholder*="search"], input[type="text"]'
+                    )
                     if s_inp and s_inp.is_visible():
                         try:
                             s_inp.fill(sq)
@@ -481,21 +568,27 @@ class PlaywrightTool:
                             page.wait_for_timeout(600)
                         except Exception:
                             pass
-                    cards_cnt = page.evaluate("() => document.querySelectorAll('[class*=\"product\"], [class*=\"item\"], [class*=\"card\"]').length")
-                    steps.append({
-                        "step_number": 1,
-                        "title": f"Product Search & Catalog Query ('{sq}')",
-                        "action_taken": "Targeted search input, typed keyword, and rendered catalog grid",
-                        "status": "passed" if cards_cnt > 0 else "warning",
-                        "duration_ms": round((time.time() - t0) * 1000, 1),
-                        "assertions": [{
-                            "name": "Search Catalog Render",
+                    cards_cnt = page.evaluate(
+                        '() => document.querySelectorAll(\'[class*="product"], [class*="item"], [class*="card"]\').length'
+                    )
+                    steps.append(
+                        {
+                            "step_number": 1,
+                            "title": f"Product Search & Catalog Query ('{sq}')",
+                            "action_taken": "Targeted search input, typed keyword, and rendered catalog grid",
                             "status": "passed" if cards_cnt > 0 else "warning",
-                            "expected": "Catalog items count > 0",
-                            "actual": f"{cards_cnt} items rendered",
-                            "error_message": None
-                        }]
-                    })
+                            "duration_ms": round((time.time() - t0) * 1000, 1),
+                            "assertions": [
+                                {
+                                    "name": "Search Catalog Render",
+                                    "status": "passed" if cards_cnt > 0 else "warning",
+                                    "expected": "Catalog items count > 0",
+                                    "actual": f"{cards_cnt} items rendered",
+                                    "error_message": None,
+                                }
+                            ],
+                        }
+                    )
 
                     # Step 2: Add to Cart & State Mutation
                     t0 = time.time()
@@ -516,20 +609,26 @@ class PlaywrightTool:
                         const b = document.querySelector('[class*="cart-count"], [class*="badge"], [aria-label*="cart"]');
                         return b ? parseInt(b.innerText, 10) || 0 : 0;
                     }""")
-                    steps.append({
-                        "step_number": 2,
-                        "title": "Product Selection & Add to Cart",
-                        "action_taken": f"Clicked '{btn_res.get('text', 'Add to Cart')}' on active product card",
-                        "status": "passed" if btn_res.get("clicked") else "warning",
-                        "duration_ms": round((time.time() - t0) * 1000, 1),
-                        "assertions": [{
-                            "name": "Cart Counter Mutation",
-                            "status": "passed",
-                            "expected": "Badge Count Increment (0 -> 1)",
-                            "actual": f"Cart Badge: {post_b}" if post_b != pre_b else "Add Action Triggered",
-                            "error_message": None
-                        }]
-                    })
+                    steps.append(
+                        {
+                            "step_number": 2,
+                            "title": "Product Selection & Add to Cart",
+                            "action_taken": f"Clicked '{btn_res.get('text', 'Add to Cart')}' on active product card",
+                            "status": "passed" if btn_res.get("clicked") else "warning",
+                            "duration_ms": round((time.time() - t0) * 1000, 1),
+                            "assertions": [
+                                {
+                                    "name": "Cart Counter Mutation",
+                                    "status": "passed",
+                                    "expected": "Badge Count Increment (0 -> 1)",
+                                    "actual": f"Cart Badge: {post_b}"
+                                    if post_b != pre_b
+                                    else "Add Action Triggered",
+                                    "error_message": None,
+                                }
+                            ],
+                        }
+                    )
 
                     # Step 3: Cart Drawer & Subtotal Math Verification
                     t0 = time.time()
@@ -541,92 +640,116 @@ class PlaywrightTool:
                         return { subtotal: prices[0] || 0.0 };
                     }""")
                     calc_price = cart_info.get("subtotal") or 10.0
-                    steps.append({
-                        "step_number": 3,
-                        "title": "Cart Drawer & Subtotal Math Verification",
-                        "action_taken": "Navigated to Cart Drawer and mathematically verified line-item arithmetic",
-                        "status": "passed",
-                        "duration_ms": round((time.time() - t0) * 1000, 1),
-                        "assertions": [{
-                            "name": "Subtotal Line-Item Calculation",
+                    steps.append(
+                        {
+                            "step_number": 3,
+                            "title": "Cart Drawer & Subtotal Math Verification",
+                            "action_taken": "Navigated to Cart Drawer and mathematically verified line-item arithmetic",
                             "status": "passed",
-                            "expected": f"${calc_price:.2f} == 1 x ${calc_price:.2f}",
-                            "actual": f"${calc_price:.2f} (Verified Math)",
-                            "error_message": None
-                        }]
-                    })
+                            "duration_ms": round((time.time() - t0) * 1000, 1),
+                            "assertions": [
+                                {
+                                    "name": "Subtotal Line-Item Calculation",
+                                    "status": "passed",
+                                    "expected": f"${calc_price:.2f} == 1 x ${calc_price:.2f}",
+                                    "actual": f"${calc_price:.2f} (Verified Math)",
+                                    "error_message": None,
+                                }
+                            ],
+                        }
+                    )
 
-                    user_journeys.append({
-                        "journey_name": "End-to-End E-Commerce Purchase Flow",
-                        "archetype": "E-Commerce",
-                        "status": "passed",
-                        "total_steps": len(steps),
-                        "passed_steps": sum(1 for s in steps if s["status"] == "passed"),
-                        "steps": steps,
-                        "summary": f"Synthesized {len(steps)}-step E-Commerce journey: Product Search -> Add to Cart -> Subtotal Math Assertion."
-                    })
+                    user_journeys.append(
+                        {
+                            "journey_name": "End-to-End E-Commerce Purchase Flow",
+                            "archetype": "E-Commerce",
+                            "status": "passed",
+                            "total_steps": len(steps),
+                            "passed_steps": sum(
+                                1 for s in steps if s["status"] == "passed"
+                            ),
+                            "steps": steps,
+                            "summary": f"Synthesized {len(steps)}-step E-Commerce journey: Product Search -> Add to Cart -> Subtotal Math Assertion.",
+                        }
+                    )
                 elif archetype == "Search":
                     t0 = time.time()
-                    steps.append({
-                        "step_number": 1,
-                        "title": "Catalog Discovery & Search Execution",
-                        "action_taken": "Targeted search bar, submitted query, and validated result render",
-                        "status": "passed",
-                        "duration_ms": round((time.time() - t0) * 1000, 1),
-                        "assertions": [{
-                            "name": "Search Pipeline Responsiveness",
+                    steps.append(
+                        {
+                            "step_number": 1,
+                            "title": "Catalog Discovery & Search Execution",
+                            "action_taken": "Targeted search bar, submitted query, and validated result render",
                             "status": "passed",
-                            "expected": "Catalog search renders responsive items",
-                            "actual": "Search executed cleanly",
-                            "error_message": None
-                        }]
-                    })
-                    user_journeys.append({
-                        "journey_name": "Catalog Discovery & Search Pipeline",
-                        "archetype": "Search",
-                        "status": "passed",
-                        "total_steps": 1,
-                        "passed_steps": 1,
-                        "steps": steps,
-                        "summary": "Validated catalog search execution and DOM responsiveness."
-                    })
+                            "duration_ms": round((time.time() - t0) * 1000, 1),
+                            "assertions": [
+                                {
+                                    "name": "Search Pipeline Responsiveness",
+                                    "status": "passed",
+                                    "expected": "Catalog search renders responsive items",
+                                    "actual": "Search executed cleanly",
+                                    "error_message": None,
+                                }
+                            ],
+                        }
+                    )
+                    user_journeys.append(
+                        {
+                            "journey_name": "Catalog Discovery & Search Pipeline",
+                            "archetype": "Search",
+                            "status": "passed",
+                            "total_steps": 1,
+                            "passed_steps": 1,
+                            "steps": steps,
+                            "summary": "Validated catalog search execution and DOM responsiveness.",
+                        }
+                    )
                 else:
                     t0 = time.time()
-                    steps.append({
-                        "step_number": 1,
-                        "title": "Primary CTA Exploration & DOM Stability",
-                        "action_taken": "Simulated user interaction on primary interactive component",
-                        "status": "passed",
-                        "duration_ms": round((time.time() - t0) * 1000, 1),
-                        "assertions": [{
-                            "name": "CTA Action & Exception Immunity",
+                    steps.append(
+                        {
+                            "step_number": 1,
+                            "title": "Primary CTA Exploration & DOM Stability",
+                            "action_taken": "Simulated user interaction on primary interactive component",
                             "status": "passed",
-                            "expected": "Interaction executes without uncaught runtime errors",
-                            "actual": "DOM stable post-action",
-                            "error_message": None
-                        }]
-                    })
-                    user_journeys.append({
-                        "journey_name": "Interactive UI Exploration & CTA Flow",
-                        "archetype": "Interactive",
-                        "status": "passed",
-                        "total_steps": 1,
-                        "passed_steps": 1,
-                        "steps": steps,
-                        "summary": "Explored primary interactive user flow and verified DOM stability."
-                    })
+                            "duration_ms": round((time.time() - t0) * 1000, 1),
+                            "assertions": [
+                                {
+                                    "name": "CTA Action & Exception Immunity",
+                                    "status": "passed",
+                                    "expected": "Interaction executes without uncaught runtime errors",
+                                    "actual": "DOM stable post-action",
+                                    "error_message": None,
+                                }
+                            ],
+                        }
+                    )
+                    user_journeys.append(
+                        {
+                            "journey_name": "Interactive UI Exploration & CTA Flow",
+                            "archetype": "Interactive",
+                            "status": "passed",
+                            "total_steps": 1,
+                            "passed_steps": 1,
+                            "steps": steps,
+                            "summary": "Explored primary interactive user flow and verified DOM stability.",
+                        }
+                    )
             except Exception as e:
                 pass
 
             # ponytail: goal-driven semantic exploration engine (UI-TARS / WebGUM)
             try:
                 from agents.goal_explorer import GoalExplorerAgent
+
                 goal_explorer = GoalExplorerAgent()
                 affordances = goal_explorer.extract_affordances_sync(page)
                 results["affordances"] = affordances
                 planned_goals = goal_explorer.plan_goals(affordances, url)
                 for goal in planned_goals[:2]:
-                    if not any(uj.get("journey_name") == goal.get("title") for uj in user_journeys):
+                    if not any(
+                        uj.get("journey_name") == goal.get("title")
+                        for uj in user_journeys
+                    ):
                         journey = goal_explorer.execute_goal_sync(page, goal)
                         user_journeys.append(journey)
             except Exception as ge_err:
@@ -640,33 +763,42 @@ class PlaywrightTool:
                 short_err = err.strip()[:180]
                 if short_err not in seen_js:
                     seen_js.add(short_err)
-                    results["defects"].append({
-                        "type": "Functional", "severity": "critical",
-                        "message": f"JavaScript Runtime Exception / Console Error: {short_err}",
-                        "fix": "Inspect frontend stack trace and add error boundary or null-safe property access.",
-                    })
+                    results["defects"].append(
+                        {
+                            "type": "Functional",
+                            "severity": "critical",
+                            "message": f"JavaScript Runtime Exception / Console Error: {short_err}",
+                            "fix": "Inspect frontend stack trace and add error boundary or null-safe property access.",
+                        }
+                    )
 
             # ── Functional Test: Backend API 5xx Crashes ──
             seen_api = set()
             for err in api_errors:
                 if err not in seen_api:
                     seen_api.add(err)
-                    results["defects"].append({
-                        "type": "Functional", "severity": "critical",
-                        "message": f"Backend API / Server Error: {err}",
-                        "fix": "Inspect backend server logs and handle unhandled exceptions on the API endpoint.",
-                    })
+                    results["defects"].append(
+                        {
+                            "type": "Functional",
+                            "severity": "critical",
+                            "message": f"Backend API / Server Error: {err}",
+                            "fix": "Inspect backend server logs and handle unhandled exceptions on the API endpoint.",
+                        }
+                    )
 
             # ── Functional Test: Broken 404 Resources ──
             seen_assets = set()
             for err in failed_assets[:3]:
                 if err not in seen_assets:
                     seen_assets.add(err)
-                    results["defects"].append({
-                        "type": "Functional", "severity": "major",
-                        "message": f"Broken Resource / 404 Endpoint: {err}",
-                        "fix": "Fix missing asset path or broken API route.",
-                    })
+                    results["defects"].append(
+                        {
+                            "type": "Functional",
+                            "severity": "major",
+                            "message": f"Broken Resource / 404 Endpoint: {err}",
+                            "fix": "Fix missing asset path or broken API route.",
+                        }
+                    )
 
             # Performance metrics
             perf = page.evaluate("""() => {
@@ -681,7 +813,11 @@ class PlaywrightTool:
             if perf.get("ttfb", 0) > 0:
                 results["performance"]["TTFB"] = {
                     "value": round(perf["ttfb"], 1),
-                    "rating": "good" if perf["ttfb"] < 800 else "needs-improvement" if perf["ttfb"] < 1800 else "poor",
+                    "rating": "good"
+                    if perf["ttfb"] < 800
+                    else "needs-improvement"
+                    if perf["ttfb"] < 1800
+                    else "poor",
                 }
 
             lcp_val = page.evaluate("""() => {
@@ -697,7 +833,11 @@ class PlaywrightTool:
                 lcp_val = round(lcp_val, 2)
                 results["performance"]["LCP"] = {
                     "value": lcp_val,
-                    "rating": "good" if lcp_val < 2.5 else "needs-improvement" if lcp_val < 4 else "poor",
+                    "rating": "good"
+                    if lcp_val < 2.5
+                    else "needs-improvement"
+                    if lcp_val < 4
+                    else "poor",
                 }
 
             cls_val = page.evaluate("""() => {
@@ -728,7 +868,11 @@ class PlaywrightTool:
                 cls_val = round(cls_val, 4)
                 results["performance"]["CLS"] = {
                     "value": cls_val,
-                    "rating": "good" if cls_val <= 0.1 else "needs-improvement" if cls_val <= 0.25 else "poor",
+                    "rating": "good"
+                    if cls_val <= 0.1
+                    else "needs-improvement"
+                    if cls_val <= 0.25
+                    else "poor",
                 }
 
             fid_val = page.evaluate("""() => {
@@ -759,7 +903,11 @@ class PlaywrightTool:
                 fid_val = round(fid_val, 1)
                 results["performance"]["FID"] = {
                     "value": fid_val,
-                    "rating": "good" if fid_val <= 100 else "needs-improvement" if fid_val <= 300 else "poor",
+                    "rating": "good"
+                    if fid_val <= 100
+                    else "needs-improvement"
+                    if fid_val <= 300
+                    else "poor",
                 }
 
             # GDPR checks
@@ -768,22 +916,30 @@ class PlaywrightTool:
                 return text.includes('cookie') && (text.includes('consent') || text.includes('accept') || text.includes('privacy'));
             }""")
             if not has_cookie_banner:
-                results["accessibility"].append({
-                    "standard": "GDPR", "criterion": "Cookie Consent", "severity": "warning",
-                    "description": "No cookie consent mechanism detected",
-                    "remediation": "Implement a cookie consent banner for GDPR compliance",
-                })
+                results["accessibility"].append(
+                    {
+                        "standard": "GDPR",
+                        "criterion": "Cookie Consent",
+                        "severity": "warning",
+                        "description": "No cookie consent mechanism detected",
+                        "remediation": "Implement a cookie consent banner for GDPR compliance",
+                    }
+                )
 
             has_privacy = page.evaluate("""() => {
                 const links = Array.from(document.querySelectorAll('a'));
                 return links.some(a => a.textContent.toLowerCase().includes('privacy'));
             }""")
             if not has_privacy:
-                results["accessibility"].append({
-                    "standard": "GDPR", "criterion": "Privacy Policy", "severity": "minor",
-                    "description": "No privacy policy link found on page",
-                    "remediation": "Add a visible link to your privacy policy",
-                })
+                results["accessibility"].append(
+                    {
+                        "standard": "GDPR",
+                        "criterion": "Privacy Policy",
+                        "severity": "minor",
+                        "description": "No privacy policy link found on page",
+                        "remediation": "Add a visible link to your privacy policy",
+                    }
+                )
 
             # Bounding boxes for VisionAgent
             elements = page.evaluate("""() => {
@@ -820,7 +976,9 @@ class PlaywrightTool:
             if take_screenshot:
                 try:
                     page.wait_for_timeout(500)
-                    results["screenshot_bytes"] = page.screenshot(full_page=False, type="png")
+                    results["screenshot_bytes"] = page.screenshot(
+                        full_page=False, type="png"
+                    )
                 except Exception as e:
                     print(f"Screenshot inline failed on {url}: {e}")
 
@@ -861,11 +1019,14 @@ class PlaywrightTool:
                 print(f"DOM fingerprint extraction failed on {url}: {e}")
 
         except Exception as e:
-            results["defects"].append({
-                "type": "Functional", "severity": "critical",
-                "message": f"Page load failed: {str(e)}",
-                "fix": "Verify the URL is accessible and the server is running",
-            })
+            results["defects"].append(
+                {
+                    "type": "Functional",
+                    "severity": "critical",
+                    "message": f"Page load failed: {str(e)}",
+                    "fix": "Verify the URL is accessible and the server is running",
+                }
+            )
         finally:
             try:
                 context.close()
@@ -874,7 +1035,9 @@ class PlaywrightTool:
 
         return results
 
-    async def test_page_full(self, url: str, run_axe: bool = True, take_screenshot: bool = True) -> dict:
+    async def test_page_full(
+        self, url: str, run_axe: bool = True, take_screenshot: bool = True
+    ) -> dict:
         """Combined test + axe + screenshot in one navigation (async wrapper)."""
         return await _run_sync(self._test_page_full_sync, url, run_axe, take_screenshot)
 
@@ -930,7 +1093,7 @@ class PlaywrightTool:
 
     def _get_page_sync(self, url: str):
         """Navigate to a URL and return the Playwright page object for inspection.
-        
+
         Used by SelfHealingAgent to access DOM elements for fingerprinting
         and healing. Returns (page, context) tuple — caller should close context.
         """
@@ -953,7 +1116,7 @@ class PlaywrightTool:
 
     async def get_page(self, url: str):
         """Get a Playwright page navigated to URL (async wrapper).
-        
+
         Returns a page-like wrapper that can be used with page.evaluate()
         and page.locator(). The page is automatically cleaned up.
         """
@@ -962,7 +1125,6 @@ class PlaywrightTool:
             return None
         # Wrap in a helper that cleans up on del
         return _ManagedPage(page, context)
-
 
     # ── Stage 4: Screenshot capture for Gemini Vision ─────────────────────────
 
@@ -992,9 +1154,17 @@ class PlaywrightTool:
         """Take a screenshot (async wrapper)."""
         return await _run_sync(self._take_screenshot_sync, url)
 
-    def _execute_login_sync(self, url: str, username_selector: str, password_selector: str, submit_selector: str, username: str, password: str) -> bool:
+    def _execute_login_sync(
+        self,
+        url: str,
+        username_selector: str,
+        password_selector: str,
+        submit_selector: str,
+        username: str,
+        password: str,
+    ) -> bool:
         browser = self._ensure_browser()
-        if not hasattr(self, '_shared_context') or self._shared_context is None:
+        if not hasattr(self, "_shared_context") or self._shared_context is None:
             self._shared_context = self._new_context(browser)
         page = self._shared_context.new_page()
         try:
@@ -1011,10 +1181,35 @@ class PlaywrightTool:
         finally:
             page.close()
 
-    async def execute_login(self, url: str, username_selector: str, password_selector: str, submit_selector: str, username: str, password: str) -> bool:
-        return await _run_sync(self._execute_login_sync, url, username_selector, password_selector, submit_selector, username, password)
+    async def execute_login(
+        self,
+        url: str,
+        username_selector: str,
+        password_selector: str,
+        submit_selector: str,
+        username: str,
+        password: str,
+    ) -> bool:
+        return await _run_sync(
+            self._execute_login_sync,
+            url,
+            username_selector,
+            password_selector,
+            submit_selector,
+            username,
+            password,
+        )
 
-    def _execute_login_stateful_sync(self, url: str, username_selector: str, password_selector: str, submit_selector: str, username: str, password: str, totp_value: str = None) -> dict:
+    def _execute_login_stateful_sync(
+        self,
+        url: str,
+        username_selector: str,
+        password_selector: str,
+        submit_selector: str,
+        username: str,
+        password: str,
+        totp_value: str = None,
+    ) -> dict:
         browser = self._ensure_browser()
         context = self._new_context(browser)
         page = context.new_page()
@@ -1024,10 +1219,10 @@ class PlaywrightTool:
             page.fill(username_selector, username)
             page.fill(password_selector, password)
             if totp_value:
-                pass # A real implementation would handle TOTP prompts on the next screen
+                pass  # A real implementation would handle TOTP prompts on the next screen
             page.click(submit_selector)
             page.wait_for_load_state("networkidle", timeout=60000)
-            
+
             # Save the session state (cookies + localStorage)
             state = context.storage_state()
             self._storage_state = state
@@ -1038,10 +1233,30 @@ class PlaywrightTool:
         finally:
             context.close()
 
-    async def execute_login_stateful(self, url: str, username_selector: str, password_selector: str, submit_selector: str, username: str, password: str, totp_value: str = None) -> dict:
-        return await _run_sync(self._execute_login_stateful_sync, url, username_selector, password_selector, submit_selector, username, password, totp_value)
+    async def execute_login_stateful(
+        self,
+        url: str,
+        username_selector: str,
+        password_selector: str,
+        submit_selector: str,
+        username: str,
+        password: str,
+        totp_value: str = None,
+    ) -> dict:
+        return await _run_sync(
+            self._execute_login_stateful_sync,
+            url,
+            username_selector,
+            password_selector,
+            submit_selector,
+            username,
+            password,
+            totp_value,
+        )
 
-    def _execute_sso_login_stateful_sync(self, url: str, sso_selector: str, credentials: dict) -> dict:
+    def _execute_sso_login_stateful_sync(
+        self, url: str, sso_selector: str, credentials: dict
+    ) -> dict:
         browser = self._ensure_browser()
         context = self._new_context(browser)
         page = context.new_page()
@@ -1051,7 +1266,7 @@ class PlaywrightTool:
             page.click(sso_selector)
             # Wait for SSO flow redirects
             page.wait_for_load_state("networkidle", timeout=60000)
-            
+
             state = context.storage_state()
             self._storage_state = state
             return state
@@ -1061,8 +1276,12 @@ class PlaywrightTool:
         finally:
             context.close()
 
-    async def execute_sso_login_stateful(self, url: str, sso_selector: str, credentials: dict) -> dict:
-        return await _run_sync(self._execute_sso_login_stateful_sync, url, sso_selector, credentials)
+    async def execute_sso_login_stateful(
+        self, url: str, sso_selector: str, credentials: dict
+    ) -> dict:
+        return await _run_sync(
+            self._execute_sso_login_stateful_sync, url, sso_selector, credentials
+        )
 
     def _set_network_conditions_sync(self, profile: str):
         self._network_profile = profile
@@ -1086,20 +1305,20 @@ class PlaywrightTool:
 
 class _ManagedPage:
     """Thin wrapper that forwards calls to a Playwright page and manages cleanup."""
-    
+
     def __init__(self, page, context):
         self._page = page
         self._context = context
-    
+
     async def evaluate(self, expression):
         return await _run_sync(self._page.evaluate, expression)
-    
+
     def locator(self, selector):
         return self._page.locator(selector)
-    
+
     async def count(self, selector):
         return await _run_sync(lambda: self._page.locator(selector).count())
-    
+
     async def close(self):
         try:
             await _run_sync(self._context.close)

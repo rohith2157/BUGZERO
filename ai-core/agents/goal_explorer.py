@@ -81,36 +81,42 @@ class GoalExplorerAgent:
         # Goal 1: Catalog Search & Filter Query
         if affordances.get("has_search"):
             s_input = affordances["search_inputs"][0]
-            goals.append({
-                "goal_id": "catalog_search_exploration",
-                "title": "Autonomous Catalog Search & Query Responsiveness",
-                "archetype": "Search",
-                "target_selector": s_input.get("selector"),
-                "query": "test query",
-                "action_type": "search",
-            })
+            goals.append(
+                {
+                    "goal_id": "catalog_search_exploration",
+                    "title": "Autonomous Catalog Search & Query Responsiveness",
+                    "archetype": "Search",
+                    "target_selector": s_input.get("selector"),
+                    "query": "test query",
+                    "action_type": "search",
+                }
+            )
 
         # Goal 2: Interactive Tab / State-Machine Traversal
         if affordances.get("has_tabs"):
             tab = affordances["interactive_tabs"][0]
-            goals.append({
-                "goal_id": "tab_state_transition",
-                "title": f"Interactive Navigation & Tab State Transition ('{tab.get('text', 'Tab')}')",
-                "archetype": "Interactive",
-                "target_selector": tab.get("selector"),
-                "action_type": "tab_click",
-            })
+            goals.append(
+                {
+                    "goal_id": "tab_state_transition",
+                    "title": f"Interactive Navigation & Tab State Transition ('{tab.get('text', 'Tab')}')",
+                    "archetype": "Interactive",
+                    "target_selector": tab.get("selector"),
+                    "action_type": "tab_click",
+                }
+            )
 
         # Goal 3: Actionable Button Interaction
         if affordances.get("action_buttons"):
             btn = affordances["action_buttons"][0]
-            goals.append({
-                "goal_id": "cta_interaction_stability",
-                "title": f"Actionable Component Trigger & Exception Immunity ('{btn.get('text', 'CTA')}')",
-                "archetype": "Interactive",
-                "target_selector": btn.get("selector"),
-                "action_type": "button_click",
-            })
+            goals.append(
+                {
+                    "goal_id": "cta_interaction_stability",
+                    "title": f"Actionable Component Trigger & Exception Immunity ('{btn.get('text', 'CTA')}')",
+                    "archetype": "Interactive",
+                    "target_selector": btn.get("selector"),
+                    "action_type": "button_click",
+                }
+            )
 
         return goals
 
@@ -127,61 +133,75 @@ class GoalExplorerAgent:
                 page.fill(selector, query)
                 page.keyboard.press("Enter")
                 page.wait_for_timeout(600)
-                steps.append({
-                    "step_number": 1,
-                    "title": f"Submit Search Query ('{query}')",
-                    "action_taken": f"Filled search input '{selector}' and pressed Enter",
-                    "status": "passed",
-                    "duration_ms": round((time.time() - t0) * 1000, 1),
-                    "assertions": [{
-                        "name": "Search Pipeline Responsiveness",
+                steps.append(
+                    {
+                        "step_number": 1,
+                        "title": f"Submit Search Query ('{query}')",
+                        "action_taken": f"Filled search input '{selector}' and pressed Enter",
                         "status": "passed",
-                        "expected": "DOM updates without runtime exception",
-                        "actual": "Search executed cleanly",
-                        "error_message": None
-                    }]
-                })
+                        "duration_ms": round((time.time() - t0) * 1000, 1),
+                        "assertions": [
+                            {
+                                "name": "Search Pipeline Responsiveness",
+                                "status": "passed",
+                                "expected": "DOM updates without runtime exception",
+                                "actual": "Search executed cleanly",
+                                "error_message": None,
+                            }
+                        ],
+                    }
+                )
             elif action_type in ("tab_click", "button_click") and selector:
                 page.click(selector)
                 page.wait_for_timeout(500)
-                steps.append({
-                    "step_number": 1,
-                    "title": f"Trigger Interactive Control ({goal.get('title')})",
-                    "action_taken": f"Clicked interactive selector '{selector}'",
-                    "status": "passed",
-                    "duration_ms": round((time.time() - t0) * 1000, 1),
-                    "assertions": [{
-                        "name": "Interactive State Mutation",
+                steps.append(
+                    {
+                        "step_number": 1,
+                        "title": f"Trigger Interactive Control ({goal.get('title')})",
+                        "action_taken": f"Clicked interactive selector '{selector}'",
                         "status": "passed",
-                        "expected": "UI state transition without uncaught errors",
-                        "actual": "Action completed cleanly",
-                        "error_message": None
-                    }]
-                })
+                        "duration_ms": round((time.time() - t0) * 1000, 1),
+                        "assertions": [
+                            {
+                                "name": "Interactive State Mutation",
+                                "status": "passed",
+                                "expected": "UI state transition without uncaught errors",
+                                "actual": "Action completed cleanly",
+                                "error_message": None,
+                            }
+                        ],
+                    }
+                )
         except Exception as e:
-            steps.append({
-                "step_number": 1,
-                "title": f"Execute {goal.get('title')}",
-                "action_taken": f"Interacted with {selector}",
-                "status": "warning",
-                "duration_ms": round((time.time() - t0) * 1000, 1),
-                "assertions": [{
-                    "name": "Interaction Completion",
+            steps.append(
+                {
+                    "step_number": 1,
+                    "title": f"Execute {goal.get('title')}",
+                    "action_taken": f"Interacted with {selector}",
                     "status": "warning",
-                    "expected": "Element reachable and interactive",
-                    "actual": f"Interrupted: {str(e)[:80]}",
-                    "error_message": str(e)[:100]
-                }]
-            })
+                    "duration_ms": round((time.time() - t0) * 1000, 1),
+                    "assertions": [
+                        {
+                            "name": "Interaction Completion",
+                            "status": "warning",
+                            "expected": "Element reachable and interactive",
+                            "actual": f"Interrupted: {str(e)[:80]}",
+                            "error_message": str(e)[:100],
+                        }
+                    ],
+                }
+            )
 
         return {
             "journey_name": goal.get("title", "Autonomous Goal"),
             "archetype": goal.get("archetype", "Interactive"),
-            "status": "passed" if all(s["status"] == "passed" for s in steps) else "warning",
+            "status": "passed"
+            if all(s["status"] == "passed" for s in steps)
+            else "warning",
             "total_steps": len(steps),
             "passed_steps": sum(1 for s in steps if s["status"] == "passed"),
             "steps": steps,
-            "summary": f"Executed goal-driven workflow: {goal.get('title')} ({len(steps)} steps)."
+            "summary": f"Executed goal-driven workflow: {goal.get('title')} ({len(steps)} steps).",
         }
 
 
@@ -194,7 +214,7 @@ if __name__ == "__main__":
         "has_tabs": True,
         "interactive_tabs": [{"selector": ".nav-item", "text": "Pricing"}],
         "has_filters": False,
-        "action_buttons": [{"selector": "button.submit", "text": "Submit"}]
+        "action_buttons": [{"selector": "button.submit", "text": "Submit"}],
     }
     goals = explorer.plan_goals(mock_affordances, "https://example.com")
     print(f"GoalExplorer generated {len(goals)} goals: {[g['title'] for g in goals]}")

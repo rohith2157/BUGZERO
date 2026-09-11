@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 GENERATED_TESTS_DIR = os.path.join(
     os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
     "benchmarks",
-    "generated_tests"
+    "generated_tests",
 )
 os.makedirs(GENERATED_TESTS_DIR, exist_ok=True)
 
@@ -35,15 +35,15 @@ class TestSynthesizerAgent:
     @staticmethod
     def _sanitize_name(text: str) -> str:
         """Convert arbitrary defect message into a valid filename / test title slug."""
-        clean = re.sub(r'[^a-zA-Z0-9_\- ]', '', text)
-        clean = clean.strip().replace(' ', '_').lower()
+        clean = re.sub(r"[^a-zA-Z0-9_\- ]", "", text)
+        clean = clean.strip().replace(" ", "_").lower()
         return clean[:50] or "unnamed_test"
 
     def synthesize_defect_test(
         self,
         defect: Dict[str, Any],
         url: str,
-        interaction_steps: Optional[List[Dict[str, Any]]] = None
+        interaction_steps: Optional[List[Dict[str, Any]]] = None,
     ) -> str:
         """Synthesizes an executable Playwright .spec.ts script that reproduces a specific defect.
 
@@ -67,11 +67,15 @@ class TestSynthesizerAgent:
                 selector = s.get("selector", "")
                 payload = s.get("payload", "")
                 if action == "fill" and selector:
-                    steps_code.append(f"    await page.fill('{selector}', '{payload}');")
+                    steps_code.append(
+                        f"    await page.fill('{selector}', '{payload}');"
+                    )
                 elif action == "click" and selector:
                     steps_code.append(f"    await page.click('{selector}');")
                 elif action == "press" and selector:
-                    steps_code.append(f"    await page.press('{selector}', '{payload or 'Enter'}');")
+                    steps_code.append(
+                        f"    await page.press('{selector}', '{payload or 'Enter'}');"
+                    )
         else:
             # Default smoke navigation
             steps_code.append("    // Smoke interaction sequence")
@@ -80,7 +84,9 @@ class TestSynthesizerAgent:
         steps_block = "\n".join(steps_code)
 
         # Build assertion block based on defect type
-        if defect_type == "Functional" and ("JavaScript Runtime" in message or "Exception" in message):
+        if defect_type == "Functional" and (
+            "JavaScript Runtime" in message or "Exception" in message
+        ):
             assertion_block = f"""    // Assertion: Verify that page executes without runtime exception:
     // Expected to fail until bug is resolved:
     // "{message}"
@@ -106,7 +112,7 @@ class TestSynthesizerAgent:
  * Defect Type: [{defect_type.upper()}] Severity: [{severity.upper()}]
  * Message: {message}
  * Fix Hint: {fix_hint}
- * Generated At: {time.strftime('%Y-%m-%d %H:%M:%S UTC', time.gmtime())}
+ * Generated At: {time.strftime("%Y-%m-%d %H:%M:%S UTC", time.gmtime())}
  */
 
 import {{ test, expect }} from '@playwright/test';
@@ -143,7 +149,12 @@ test.describe('AutonomousQA Auto-Generated Bug Reproducer', () => {{
             f.write(content)
 
         logger.info(f"TestSynthesizer: Wrote reproducer spec -> {filepath}")
-        rel_path = os.path.relpath(filepath, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+        rel_path = os.path.relpath(
+            filepath,
+            os.path.dirname(
+                os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            ),
+        )
         return rel_path.replace("\\", "/")
 
     def synthesize_journey_test(self, journey: Dict[str, Any], url: str) -> str:
@@ -158,10 +169,10 @@ test.describe('AutonomousQA Auto-Generated Bug Reproducer', () => {{
 
         steps_rendered = []
         for i, step in enumerate(steps):
-            title = step.get("title", f"Step {i+1}")
+            title = step.get("title", f"Step {i + 1}")
             action = step.get("action_taken", "Executed interaction")
             assertions = step.get("assertions", [])
-            
+
             step_code = f"""    await test.step('{title}', async () => {{
       // Action: {action}
       await page.waitForTimeout(500);
@@ -178,7 +189,7 @@ test.describe('AutonomousQA Auto-Generated Bug Reproducer', () => {{
  * Journey: {journey_name} (Archetype: {archetype})
  * Target URL: {url}
  * Total Steps: {len(steps)}
- * Generated At: {time.strftime('%Y-%m-%d %H:%M:%S UTC', time.gmtime())}
+ * Generated At: {time.strftime("%Y-%m-%d %H:%M:%S UTC", time.gmtime())}
  */
 
 import {{ test, expect }} from '@playwright/test';
@@ -194,7 +205,12 @@ test.describe('AutonomousQA Stateful Journey: {journey_name}', () => {{
         with open(filepath, "w", encoding="utf-8") as f:
             f.write(content)
 
-        rel_path = os.path.relpath(filepath, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+        rel_path = os.path.relpath(
+            filepath,
+            os.path.dirname(
+                os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            ),
+        )
         return rel_path.replace("\\", "/")
 
 
@@ -206,9 +222,16 @@ if __name__ == "__main__":
             "type": "Functional",
             "severity": "critical",
             "message": "JavaScript Runtime Exception: TypeError: Cannot read properties of undefined (reading 'items')",
-            "fix": "Add null check before accessing items"
+            "fix": "Add null check before accessing items",
         },
-        url="https://example.com/checkout"
+        url="https://example.com/checkout",
     )
     print(f"Self-check passed! Created spec at: {spec_path}")
-    assert os.path.exists(os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), spec_path)), "File should exist"
+    assert os.path.exists(
+        os.path.join(
+            os.path.dirname(
+                os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            ),
+            spec_path,
+        )
+    ), "File should exist"

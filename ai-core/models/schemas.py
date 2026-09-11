@@ -41,22 +41,26 @@ class DefectResult(BaseModel):
     message: str
     fix: Optional[str] = None
     confidence: Optional[float] = None
-    source: Optional[str] = None          # "manual", "gemini_vision", "axe_core"
-    location: Optional[str] = None        # Where on the page (for vision defects)
-    reproducer_spec: Optional[str] = None # Relative path to auto-generated Playwright .spec.ts
-    source_code_location: Optional[str] = None # RepoGraph AST line: e.g. "src/components/Cart.tsx:42"
-    fuzzing_payload: Optional[str] = None      # Injected API/form mutation payload
+    source: Optional[str] = None  # "manual", "gemini_vision", "axe_core"
+    location: Optional[str] = None  # Where on the page (for vision defects)
+    reproducer_spec: Optional[str] = (
+        None  # Relative path to auto-generated Playwright .spec.ts
+    )
+    source_code_location: Optional[str] = (
+        None  # RepoGraph AST line: e.g. "src/components/Cart.tsx:42"
+    )
+    fuzzing_payload: Optional[str] = None  # Injected API/form mutation payload
 
 
 class ComplianceViolation(BaseModel):
-    standard: str                         # "WCAG", "GDPR"
-    criterion: str                        # "1.1.1", "Level AA", "Cookie Consent"
+    standard: str  # "WCAG", "GDPR"
+    criterion: str  # "1.1.1", "Level AA", "Cookie Consent"
     severity: str
     description: str
     remediation: Optional[str] = None
-    rule_id: Optional[str] = None         # axe-core rule ID
-    help_url: Optional[str] = None        # Link to docs
-    affected_elements: list[str] = []     # HTML snippets
+    rule_id: Optional[str] = None  # axe-core rule ID
+    help_url: Optional[str] = None  # Link to docs
+    affected_elements: list[str] = []  # HTML snippets
     instance_count: Optional[int] = None  # How many instances
 
 
@@ -73,8 +77,8 @@ class HealingEventResult(BaseModel):
 
 
 class VisualRegressionChange(BaseModel):
-    change_type: str             # "cosmetic" or "functional"
-    severity: str                # "critical", "major", "minor", "info"
+    change_type: str  # "cosmetic" or "functional"
+    severity: str  # "critical", "major", "minor", "info"
     description: str
     location: Optional[str] = None
     confidence: float = 0.85
@@ -82,7 +86,7 @@ class VisualRegressionChange(BaseModel):
 
 class BusinessAssertion(BaseModel):
     name: str
-    status: str                  # "passed", "failed", "warning"
+    status: str  # "passed", "failed", "warning"
     expected: str
     actual: str
     error_message: Optional[str] = None
@@ -92,7 +96,7 @@ class JourneyStep(BaseModel):
     step_number: int
     title: str
     action_taken: str
-    status: str                  # "passed", "failed"
+    status: str  # "passed", "failed"
     duration_ms: float = 0.0
     screenshot_url: Optional[str] = None
     assertions: list[BusinessAssertion] = []
@@ -100,8 +104,8 @@ class JourneyStep(BaseModel):
 
 class UserJourneyResult(BaseModel):
     journey_name: str
-    archetype: str               # "E-Commerce", "Auth", "Search", "Form"
-    status: str                  # "passed", "failed"
+    archetype: str  # "E-Commerce", "Auth", "Search", "Form"
+    status: str  # "passed", "failed"
     total_steps: int = 0
     passed_steps: int = 0
     steps: list[JourneyStep] = []
@@ -112,17 +116,22 @@ class PageResult(BaseModel):
     url: str
     page_type: Optional[str] = None
     hygiene_score: Optional[float] = None
-    pagerank_score: Optional[float] = None       # Stage 3: PageRank importance
-    vision_quality_score: Optional[float] = None  # Stage 4: Algorithmic visual score (Pillow, no LLM)
+    pagerank_score: Optional[float] = None  # Stage 3: PageRank importance
+    vision_quality_score: Optional[float] = (
+        None  # Stage 4: Algorithmic visual score (Pillow, no LLM)
+    )
     defects: list[DefectResult] = []
     compliance: list[ComplianceViolation] = []
     performance: dict[str, PerformanceMetric] = {}
     healing_events: list[HealingEventResult] = []  # Self-healing audit trail
     visual_regression: list[VisualRegressionChange] = []  # Visual regression diffs
-    user_journeys: list[UserJourneyResult] = []  # God-Tier: Stateful multi-step journeys
+    user_journeys: list[
+        UserJourneyResult
+    ] = []  # God-Tier: Stateful multi-step journeys
 
 
 # Stage 6: Site-wide report models
+
 
 class PageScore(BaseModel):
     url: str
@@ -165,7 +174,7 @@ class TestResult(BaseModel):
     pages: list[PageResult] = []
     overall_score: Optional[float] = None
     total_defects: int = 0
-    report: Optional[SiteReport] = None       # Stage 6: Full site report
+    report: Optional[SiteReport] = None  # Stage 6: Full site report
 
 
 class HealthResponse(BaseModel):

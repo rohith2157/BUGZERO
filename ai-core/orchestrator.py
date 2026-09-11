@@ -17,8 +17,14 @@ import base64
 import logging
 import httpx
 from models.schemas import (
-    TestRequest, TestResult, TestConfig, SiteReport, DefectResult,
-    ComplianceViolation, HealingEventResult, VisualRegressionChange,
+    TestRequest,
+    TestResult,
+    TestConfig,
+    SiteReport,
+    DefectResult,
+    ComplianceViolation,
+    HealingEventResult,
+    VisualRegressionChange,
 )
 from agents.crawler import CrawlerAgent
 from agents.scheduler import calculate_pagerank, greedy_sort
@@ -59,13 +65,13 @@ class Orchestrator:
     @staticmethod
     def normalize_url(raw_url: str) -> str:
         from urllib.parse import urlparse
+
         parsed = urlparse(raw_url)
         netloc = parsed.netloc.lower()
         if netloc.startswith("www."):
             netloc = netloc[4:]
         path = parsed.path.rstrip("/") or "/"
         return f"{parsed.scheme}://{netloc}{path}"
-
 
     async def _report_progress(self, event: str, payload: dict) -> None:
         """Fire-and-forget incremental progress update to gateway."""
@@ -97,7 +103,9 @@ class Orchestrator:
                     defect_history = data.get("defect_history", {})
                     previous_scores = data.get("previous_scores", {})
                     previous_performance = data.get("previous_performance", {})
-                    logger.info(f"Fetched defect history: {len(defect_history)} pages with history")
+                    logger.info(
+                        f"Fetched defect history: {len(defect_history)} pages with history"
+                    )
         except Exception as e:
             logger.warning(f"Could not fetch defect history (non-fatal): {e}")
         return defect_history, previous_scores, previous_performance
@@ -119,7 +127,9 @@ class Orchestrator:
             logger.debug(f"No baseline for {url}: {e}")
         return None
 
-    async def _save_baseline(self, url: str, org_id: str, screenshot_bytes: bytes) -> None:
+    async def _save_baseline(
+        self, url: str, org_id: str, screenshot_bytes: bytes
+    ) -> None:
         """Save/update baseline screenshot in gateway."""
         try:
             b64 = base64.b64encode(screenshot_bytes).decode("utf-8")
@@ -160,6 +170,7 @@ class Orchestrator:
         )
 
         from utils.hf_client import hf_vlm_client
+
         if hf_vlm_client.is_configured():
             mode_str = f"[Pipeline] [VLM] MODE: Hybrid VLM Active | Model: {settings.hf_model_id} | Space: {settings.hf_space_url}"
             logger.info(mode_str)
@@ -180,18 +191,20 @@ class Orchestrator:
             # ────────────────────────────────────────────────
             req_type = getattr(config, "type", "url")
             github_token = getattr(config, "github_token", None)
-            
+
             if req_type == "repo":
-                logger.info(f"[{run_id}] Stage 0: Repository mode detected. Cloning and booting server...")
+                logger.info(
+                    f"[{run_id}] Stage 0: Repository mode detected. Cloning and booting server..."
+                )
                 repo_manager = RepoManager(request.url, github_token)
                 branch = getattr(config, "branch", None)
                 if not repo_manager.clone(branch=branch):
                     raise RuntimeError(f"Failed to clone repository: {request.url}")
-                
-                repo_parts = request.url.rstrip('/').rstrip('.git').split('/')
+
+                repo_parts = request.url.rstrip("/").rstrip(".git").split("/")
                 if len(repo_parts) >= 2:
                     repo_name = f"{repo_parts[-2]}/{repo_parts[-1]}"
-                
+
                 local_url = await repo_manager.start_server()
                 if not local_url:
                     raise RuntimeError(
@@ -202,22 +215,25 @@ class Orchestrator:
                 logger.info(f"[{run_id}] Repository server running at {local_url}")
                 target_url = local_url
                 await asyncio.sleep(2)  # warm-up
-                    
+
             await playwright.start()
 
-            
             # ────────────────────────────────────────────────
             #  PRE-STAGE: CHAOS & AUTH
             # ────────────────────────────────────────────────
             if getattr(config, "chaos_mode", False):
-                logger.info(f"[{run_id}] Stage 0: Injecting Chaos (Slow 3G, 4x CPU Throttling)")
-                await playwright.set_network_conditions('Slow 3G')
+                logger.info(
+                    f"[{run_id}] Stage 0: Injecting Chaos (Slow 3G, 4x CPU Throttling)"
+                )
+                await playwright.set_network_conditions("Slow 3G")
                 await playwright.set_cpu_throttling(4)
 
             auth_config = getattr(config, "auth_config", {})
             if auth_config.get("enabled"):
                 auth_url = auth_config.get("login_url", target_url)
-                logger.info(f"[{run_id}] Stage 0: Autonomous Authentication on {auth_url}")
+                logger.info(
+                    f"[{run_id}] Stage 0: Autonomous Authentication on {auth_url}"
+                )
                 try:
                     success_state = await auth_agent.authenticate(auth_config)
                     if not success_state:
@@ -225,7 +241,7 @@ class Orchestrator:
                 except Exception as e:
                     logger.warning(f"[{run_id}] Auth sequence aborted: {e}")
 
-# ────────────────────────────────────────────────
+            # ────────────────────────────────────────────────
             #  STAGE 1: CRAWL — Discover all pages via BFS
             # ────────────────────────────────────────────────
             logger.info(f"[{run_id}] Stage 1: BFS Crawl starting on {target_url}")
@@ -235,21 +251,27 @@ class Orchestrator:
             def on_page_discovered(page_data):
                 # Send fire-and-forget sync/threadsafe async progress update to gateway
                 asyncio.run_coroutine_threadsafe(
-                    self._report_progress("page_discovered", {"run_id": run_id, "page": page_data}),
-                    loop
+                    self._report_progress(
+                        "page_discovered", {"run_id": run_id, "page": page_data}
+                    ),
+                    loop,
                 )
 
             # Determine max_pages logic (allow explicit override, otherwise base on depth)
             if config.max_pages is not None:
                 max_pages = config.max_pages
             else:
-                max_pages = 5 if config.crawl_depth == "shallow" else (100 if config.crawl_depth == "deep" else 20)
+                max_pages = (
+                    5
+                    if config.crawl_depth == "shallow"
+                    else (100 if config.crawl_depth == "deep" else 20)
+                )
 
             discovered = await crawler.crawl(
                 target_url,
                 depth=config.crawl_depth,
                 max_pages=max_pages,
-                on_page=on_page_discovered
+                on_page=on_page_discovered,
             )
 
             if not discovered:
@@ -263,22 +285,33 @@ class Orchestrator:
                 )
 
             # Report crawl complete
-            await self._report_progress("crawl_complete", {
-                "run_id": run_id,
-                "total_pages": len(discovered),
-            })
+            await self._report_progress(
+                "crawl_complete",
+                {
+                    "run_id": run_id,
+                    "total_pages": len(discovered),
+                },
+            )
 
-            logger.info(f"[{run_id}] Stage 1 complete: {len(discovered)} pages discovered")
+            logger.info(
+                f"[{run_id}] Stage 1 complete: {len(discovered)} pages discovered"
+            )
 
             # ────────────────────────────────────────────────
             #  STAGE 2: PAGERANK + RISK SCORING
             # ────────────────────────────────────────────────
-            logger.info(f"[{run_id}] Stage 2: PageRank + defect history + change detection scoring")
+            logger.info(
+                f"[{run_id}] Stage 2: PageRank + defect history + change detection scoring"
+            )
 
             scores = calculate_pagerank(discovered)
 
             # Fetch defect history from previous runs for risk-based prioritization and regression testing
-            defect_history, previous_scores, previous_performance = await self._fetch_defect_history(request.url)
+            (
+                defect_history,
+                previous_scores,
+                previous_performance,
+            ) = await self._fetch_defect_history(request.url)
 
             discovered = greedy_sort(
                 discovered,
@@ -288,10 +321,13 @@ class Orchestrator:
             )
 
             # Report pagerank complete
-            await self._report_progress("pagerank_complete", {
-                "run_id": run_id,
-                "scores": {url: round(score, 4) for url, score in scores.items()},
-            })
+            await self._report_progress(
+                "pagerank_complete",
+                {
+                    "run_id": run_id,
+                    "scores": {url: round(score, 4) for url, score in scores.items()},
+                },
+            )
 
             logger.info(f"[{run_id}] Stage 2 complete: pages sorted by risk priority")
 
@@ -302,7 +338,9 @@ class Orchestrator:
             #    c) axe-core accessibility (WCAG audit)
             #    d) Algorithmic Vision (Visual bug detection + regression)
             # ────────────────────────────────────────────────
-            logger.info(f"[{run_id}] Stage 3: Testing pages (self-heal + basic + axe-core + vision)")
+            logger.info(
+                f"[{run_id}] Stage 3: Testing pages (self-heal + basic + axe-core + vision)"
+            )
 
             pages = []
             total_defects = 0
@@ -326,19 +364,22 @@ class Orchestrator:
                 raw_url = page_info["url"]
                 norm_url = self.normalize_url(raw_url)
                 if norm_url in tested_norm_urls:
-                    logger.info(f"[{run_id}] Skipping duplicate query route: {raw_url} (already tested {norm_url})")
+                    logger.info(
+                        f"[{run_id}] Skipping duplicate query route: {raw_url} (already tested {norm_url})"
+                    )
                     continue
                 tested_norm_urls.add(norm_url)
                 url = norm_url
-                logger.info(f"[{run_id}] Testing page {i+1}/{len(discovered)}: {url}")
-
+                logger.info(f"[{run_id}] Testing page {i + 1}/{len(discovered)}: {url}")
 
                 try:
                     # ── Combined: basic tests + axe-core + screenshot + fingerprints in ONE navigation ──
                     do_axe = "accessibility" in config.modules
                     do_visual = "visual" in config.modules and vision.is_available()
                     raw = await playwright.test_page_full(
-                        url, run_axe=do_axe, take_screenshot=do_visual,
+                        url,
+                        run_axe=do_axe,
+                        take_screenshot=do_visual,
                     )
 
                     # ── Process basic test results (same logic as TesterAgent) ──
@@ -353,28 +394,38 @@ class Orchestrator:
                             "Visual": "visual",
                         }.get(dtype)  # None = unknown type, always include
                         if m_key is None or m_key in config.modules:
-                            defects.append(DefectResult(
-                                type=d["type"], severity=d["severity"],
-                                message=d["message"], fix=d.get("fix"),
-                            ))
+                            defects.append(
+                                DefectResult(
+                                    type=d["type"],
+                                    severity=d["severity"],
+                                    message=d["message"],
+                                    fix=d.get("fix"),
+                                )
+                            )
 
                     compliance = []
                     for v in raw.get("accessibility", []):
                         standard = v.get("standard", "WCAG")
                         m_key = "compliance" if standard == "GDPR" else "accessibility"
                         if m_key in config.modules:
-                            compliance.append(ComplianceViolation(
-                                standard=standard, criterion=v["criterion"],
-                                severity=v["severity"], description=v["description"],
-                                remediation=v.get("remediation"),
-                            ))
+                            compliance.append(
+                                ComplianceViolation(
+                                    standard=standard,
+                                    criterion=v["criterion"],
+                                    severity=v["severity"],
+                                    description=v["description"],
+                                    remediation=v.get("remediation"),
+                                )
+                            )
 
                     from models.schemas import PerformanceMetric
+
                     performance = {}
                     if "performance" in config.modules:
                         for name, data in raw.get("performance", {}).items():
                             performance[name] = PerformanceMetric(
-                                value=data["value"], rating=data.get("rating"),
+                                value=data["value"],
+                                rating=data.get("rating"),
                             )
 
                     # Visual overlap defects from bounding boxes
@@ -390,15 +441,23 @@ class Orchestrator:
                                 el1 = d.get("_el1")
                                 el2 = d.get("_el2")
                                 if el1 and el2:
-                                    is_real = await vision.verify_overlap_with_vlm(screenshot_bytes, el1, el2)
+                                    is_real = await vision.verify_overlap_with_vlm(
+                                        screenshot_bytes, el1, el2
+                                    )
                                     if not is_real:
-                                        print(f"[VisionAgent] [VLM-SUPPRESS] Intentional overlap suppressed: {d['message'][:80]}", flush=True)
+                                        print(
+                                            f"[VisionAgent] [VLM-SUPPRESS] Intentional overlap suppressed: {d['message'][:80]}",
+                                            flush=True,
+                                        )
                                         continue
-                            defects.append(DefectResult(
-                                type=d["type"], severity=d["severity"],
-                                message=d["message"], fix=d.get("fix"),
-                            ))
-
+                            defects.append(
+                                DefectResult(
+                                    type=d["type"],
+                                    severity=d["severity"],
+                                    message=d["message"],
+                                    fix=d.get("fix"),
+                                )
+                            )
 
                     # Deduplicate defects per page
                     seen_def_keys = set()
@@ -411,36 +470,55 @@ class Orchestrator:
                     defects = unique_defects
 
                     # Hygiene score
-                    severity_weights = {"critical": 15, "major": 8, "minor": 3, "warning": 1}
+                    severity_weights = {
+                        "critical": 15,
+                        "major": 8,
+                        "minor": 3,
+                        "warning": 1,
+                    }
 
                     penalty = sum(severity_weights.get(d.severity, 3) for d in defects)
-                    penalty += sum(severity_weights.get(v.severity, 2) for v in compliance)
+                    penalty += sum(
+                        severity_weights.get(v.severity, 2) for v in compliance
+                    )
                     hygiene_score = max(0, min(100, 100 - penalty))
 
-                    from models.schemas import PageResult, UserJourneyResult, JourneyStep, BusinessAssertion
+                    from models.schemas import (
+                        PageResult,
+                        UserJourneyResult,
+                        JourneyStep,
+                        BusinessAssertion,
+                    )
+
                     journeys = []
                     for j in raw.get("user_journeys", []):
                         steps = []
                         for s in j.get("steps", []):
-                            assertions = [BusinessAssertion(**a) for a in s.get("assertions", [])]
-                            steps.append(JourneyStep(
-                                step_number=s.get("step_number", 1),
-                                title=s.get("title", ""),
-                                action_taken=s.get("action_taken", ""),
-                                status=s.get("status", "passed"),
-                                duration_ms=s.get("duration_ms", 0.0),
-                                screenshot_url=s.get("screenshot_url"),
-                                assertions=assertions,
-                            ))
-                        journeys.append(UserJourneyResult(
-                            journey_name=j.get("journey_name", "User Journey"),
-                            archetype=j.get("archetype", "Interactive"),
-                            status=j.get("status", "passed"),
-                            total_steps=j.get("total_steps", len(steps)),
-                            passed_steps=j.get("passed_steps", len(steps)),
-                            steps=steps,
-                            summary=j.get("summary"),
-                        ))
+                            assertions = [
+                                BusinessAssertion(**a) for a in s.get("assertions", [])
+                            ]
+                            steps.append(
+                                JourneyStep(
+                                    step_number=s.get("step_number", 1),
+                                    title=s.get("title", ""),
+                                    action_taken=s.get("action_taken", ""),
+                                    status=s.get("status", "passed"),
+                                    duration_ms=s.get("duration_ms", 0.0),
+                                    screenshot_url=s.get("screenshot_url"),
+                                    assertions=assertions,
+                                )
+                            )
+                        journeys.append(
+                            UserJourneyResult(
+                                journey_name=j.get("journey_name", "User Journey"),
+                                archetype=j.get("archetype", "Interactive"),
+                                status=j.get("status", "passed"),
+                                total_steps=j.get("total_steps", len(steps)),
+                                passed_steps=j.get("passed_steps", len(steps)),
+                                steps=steps,
+                                summary=j.get("summary"),
+                            )
+                        )
 
                     page_result = PageResult(
                         url=url,
@@ -469,73 +547,118 @@ class Orchestrator:
                         )
                         page_result.compliance.append(comp_item)
                         # ponytail: promote verified major/critical axe-core bugs directly to defects
-                        if v.get("severity") in ["critical", "major"] and "accessibility" in config.modules:
-                            elem_hint = f" ({v['affected_elements'][0][:50]}...)" if v.get("affected_elements") else ""
-                            page_result.defects.append(DefectResult(
-                                type="Accessibility",
-                                severity=v.get("severity", "major"),
-                                message=f"[{v.get('rule_id', 'WCAG')}] {v.get('description', '')}{elem_hint}",
-                                fix=v.get("remediation", "Follow WCAG guidelines"),
-                                source="axe_core"
-                            ))
+                        if (
+                            v.get("severity") in ["critical", "major"]
+                            and "accessibility" in config.modules
+                        ):
+                            elem_hint = (
+                                f" ({v['affected_elements'][0][:50]}...)"
+                                if v.get("affected_elements")
+                                else ""
+                            )
+                            page_result.defects.append(
+                                DefectResult(
+                                    type="Accessibility",
+                                    severity=v.get("severity", "major"),
+                                    message=f"[{v.get('rule_id', 'WCAG')}] {v.get('description', '')}{elem_hint}",
+                                    fix=v.get("remediation", "Follow WCAG guidelines"),
+                                    source="axe_core",
+                                )
+                            )
                     if raw.get("axe_violations"):
-                        logger.info(f"  axe-core: {len(raw['axe_violations'])} violation(s)")
+                        logger.info(
+                            f"  axe-core: {len(raw['axe_violations'])} violation(s)"
+                        )
 
                     # ── Vision analysis from screenshot (already captured) ──
                     screenshot_bytes = raw.get("screenshot_bytes", b"")
                     if do_visual and screenshot_bytes:
                         try:
-                            vision_result = await vision.analyze_screenshot(screenshot_bytes, url)
-                            page_result.vision_quality_score = vision_result.get("page_quality_score")
+                            vision_result = await vision.analyze_screenshot(
+                                screenshot_bytes, url
+                            )
+                            page_result.vision_quality_score = vision_result.get(
+                                "page_quality_score"
+                            )
 
                             for vd in vision_result.get("defects", []):
-                                page_result.defects.append(DefectResult(
-                                    type=vd.get("type", "Visual"),
-                                    severity=vd.get("severity", "minor"),
-                                    message=vd.get("message", ""),
-                                    fix=vd.get("fix"),
-                                    source="algorithmic_vision",
-                                    location=vd.get("location"),
-                                    confidence=vd.get("confidence", 0.85),
-                                ))
-                            logger.info(f"  Vision: {len(vision_result.get('defects', []))} issue(s), score: {vision_result.get('page_quality_score')}")
+                                page_result.defects.append(
+                                    DefectResult(
+                                        type=vd.get("type", "Visual"),
+                                        severity=vd.get("severity", "minor"),
+                                        message=vd.get("message", ""),
+                                        fix=vd.get("fix"),
+                                        source="algorithmic_vision",
+                                        location=vd.get("location"),
+                                        confidence=vd.get("confidence", 0.85),
+                                    )
+                                )
+                            logger.info(
+                                f"  Vision: {len(vision_result.get('defects', []))} issue(s), score: {vision_result.get('page_quality_score')}"
+                            )
 
                             # Visual Regression — compare against baseline
                             try:
                                 baseline_bytes = await self._fetch_baseline(url, org_id)
                                 if baseline_bytes:
-                                    regression_result = await vision.compare_screenshots(
-                                        baseline_bytes, screenshot_bytes, url
+                                    regression_result = (
+                                        await vision.compare_screenshots(
+                                            baseline_bytes, screenshot_bytes, url
+                                        )
                                     )
                                     for change in regression_result.get("changes", []):
-                                        page_result.visual_regression.append(VisualRegressionChange(
-                                            change_type=change.get("change_type", "cosmetic"),
-                                            severity=change.get("severity", "minor"),
-                                            description=change.get("description", ""),
-                                            location=change.get("location"),
-                                            confidence=change.get("confidence", 0.8),
-                                        ))
-                                        page_result.defects.append(DefectResult(
-                                            type="Visual",
-                                            severity=change.get("severity", "minor"),
-                                            message=f"Visual Regression: {change.get('description', '')}",
-                                            fix="Verify if layout change is intentional. If so, update the baseline.",
-                                            source="algorithmic_vision",
-                                            location=change.get("location"),
-                                            confidence=change.get("confidence", 0.8),
-                                        ))
+                                        page_result.visual_regression.append(
+                                            VisualRegressionChange(
+                                                change_type=change.get(
+                                                    "change_type", "cosmetic"
+                                                ),
+                                                severity=change.get(
+                                                    "severity", "minor"
+                                                ),
+                                                description=change.get(
+                                                    "description", ""
+                                                ),
+                                                location=change.get("location"),
+                                                confidence=change.get(
+                                                    "confidence", 0.8
+                                                ),
+                                            )
+                                        )
+                                        page_result.defects.append(
+                                            DefectResult(
+                                                type="Visual",
+                                                severity=change.get(
+                                                    "severity", "minor"
+                                                ),
+                                                message=f"Visual Regression: {change.get('description', '')}",
+                                                fix="Verify if layout change is intentional. If so, update the baseline.",
+                                                source="algorithmic_vision",
+                                                location=change.get("location"),
+                                                confidence=change.get(
+                                                    "confidence", 0.8
+                                                ),
+                                            )
+                                        )
                                     if regression_result.get("changes"):
-                                        logger.info(f"  Regression: {len(regression_result['changes'])} change(s) vs baseline")
+                                        logger.info(
+                                            f"  Regression: {len(regression_result['changes'])} change(s) vs baseline"
+                                        )
                                 else:
-                                    logger.info(f"  Regression: No baseline for {url} — first run, saving baseline")
+                                    logger.info(
+                                        f"  Regression: No baseline for {url} — first run, saving baseline"
+                                    )
                             except Exception as e:
-                                logger.warning(f"  Regression comparison failed on {url}: {e}")
+                                logger.warning(
+                                    f"  Regression comparison failed on {url}: {e}"
+                                )
 
                             # Save current screenshot as new baseline
                             try:
                                 await self._save_baseline(url, org_id, screenshot_bytes)
                             except Exception as e:
-                                logger.warning(f"  Failed to save baseline for {url}: {e}")
+                                logger.warning(
+                                    f"  Failed to save baseline for {url}: {e}"
+                                )
 
                         except Exception as e:
                             logger.warning(f"  Vision failed on {url}: {e}")
@@ -554,20 +677,22 @@ class Orchestrator:
                             method=req.get("method", "GET"),
                             url=req.get("url", ""),
                             headers=req.get("headers", {}),
-                            post_data=req.get("post_data")
+                            post_data=req.get("post_data"),
                         )
                     try:
                         fuzz_defects = await api_fuzzer.fuzz_all(max_endpoints=2)
                         for fd in fuzz_defects:
-                            page_result.defects.append(DefectResult(
-                                type=fd["type"],
-                                severity=fd["severity"],
-                                message=fd["message"],
-                                fix=fd.get("fix"),
-                                source=fd.get("source"),
-                                fuzzing_payload=fd.get("fuzzing_payload"),
-                                confidence=fd.get("confidence", 1.0)
-                            ))
+                            page_result.defects.append(
+                                DefectResult(
+                                    type=fd["type"],
+                                    severity=fd["severity"],
+                                    message=fd["message"],
+                                    fix=fd.get("fix"),
+                                    source=fd.get("source"),
+                                    fuzzing_payload=fd.get("fuzzing_payload"),
+                                    confidence=fd.get("confidence", 1.0),
+                                )
+                            )
                     except Exception as fuzz_err:
                         logger.debug(f"API fuzzing error on {url}: {fuzz_err}")
 
@@ -581,17 +706,23 @@ class Orchestrator:
                         )
 
                     # Recalculate hygiene score with all defects (axe + vision + API fuzz added)
-                    penalty = sum(severity_weights.get(d.severity, 3) for d in page_result.defects)
-                    penalty += sum(severity_weights.get(v.severity, 2) for v in page_result.compliance)
+                    penalty = sum(
+                        severity_weights.get(d.severity, 3) for d in page_result.defects
+                    )
+                    penalty += sum(
+                        severity_weights.get(v.severity, 2)
+                        for v in page_result.compliance
+                    )
                     page_result.hygiene_score = max(0, min(100, 100 - penalty))
 
                     # ponytail: auto-synthesize Playwright reproducer .spec.ts for defects (USEagent ICSE 2026)
                     for d in page_result.defects:
                         if not d.reproducer_spec:
                             try:
-                                d.reproducer_spec = test_synthesizer.synthesize_defect_test(
-                                    defect=d.model_dump(),
-                                    url=url
+                                d.reproducer_spec = (
+                                    test_synthesizer.synthesize_defect_test(
+                                        defect=d.model_dump(), url=url
+                                    )
                                 )
                             except Exception as synth_err:
                                 logger.debug(f"Spec synthesis failed: {synth_err}")
@@ -607,7 +738,9 @@ class Orchestrator:
 
                     for j in page_result.user_journeys:
                         try:
-                            test_synthesizer.synthesize_journey_test(j.model_dump(), url)
+                            test_synthesizer.synthesize_journey_test(
+                                j.model_dump(), url
+                            )
                         except Exception:
                             pass
 
@@ -615,16 +748,21 @@ class Orchestrator:
                     total_defects += len(page_result.defects)
 
                     # Incremental progress update to gateway
-                    await self._report_progress("page_complete", {
-                        "run_id": run_id,
-                        "page": page_result.model_dump(),
-                    })
+                    await self._report_progress(
+                        "page_complete",
+                        {
+                            "run_id": run_id,
+                            "page": page_result.model_dump(),
+                        },
+                    )
 
                 except Exception as e:
                     logger.error(f"Error testing page {url}: {e}")
                     continue
 
-            logger.info(f"[{run_id}] Stage 3 complete: {len(pages)} pages tested, {total_defects} defects")
+            logger.info(
+                f"[{run_id}] Stage 3 complete: {len(pages)} pages tested, {total_defects} defects"
+            )
 
             # ────────────────────────────────────────────────
             #  STAGE 4: REPORT — Generate compliance report
@@ -635,10 +773,13 @@ class Orchestrator:
             report = SiteReport(**report_data)
 
             # Report completion
-            await self._report_progress("report_complete", {
-                "run_id": run_id,
-                "report": report.model_dump(),
-            })
+            await self._report_progress(
+                "report_complete",
+                {
+                    "run_id": run_id,
+                    "report": report.model_dump(),
+                },
+            )
 
             logger.info(
                 f"[{run_id}] Pipeline complete: score={report.overall_score}, "
